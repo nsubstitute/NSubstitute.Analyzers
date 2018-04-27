@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Semantics;
+using NSubstitute.Analyzers.Extensions;
 
 namespace NSubstitute.Analyzers
 {
@@ -62,23 +63,20 @@ namespace NSubstitute.Analyzers
                         return;
                     }
 
-                    var identifierNameSyntaxs = invocation.DescendantNodes().OfType<IdentifierNameSyntax>().ToList();
+                    var identifierNameSyntaxs = invocation.DescendantNodes().OfType<NameSyntax>().ToList();
 
-                    foreach (var nameSyntax in identifierNameSyntaxs.Where(identifier => identifier.ToString().Equals("Returns", StringComparison.OrdinalIgnoreCase)))
+                    foreach (var nameSyntax in identifierNameSyntaxs.Where(identifier => identifier.ToString().StartsWith("Returns", StringComparison.OrdinalIgnoreCase)))
                     {
                         var info = syntaxContext.SemanticModel.GetSymbolInfo(nameSyntax);
                         if (nameSyntax.Parent != null && info.Symbol != null && info.Symbol.Kind == SymbolKind.Method && info.Symbol.ContainingType == assertType)
                         {
-                            var index = identifierNameSyntaxs.IndexOf(nameSyntax);
-                            var predecessorIndex = index - 1;
-                            if (predecessorIndex > -1 && identifierNameSyntaxs.Count - 1 >= predecessorIndex)
+                            var syntaxTokens = nameSyntax.Parent.ChildNodes().ToList();
+                            var returnsChild = syntaxTokens.IndexOf(nameSyntax);
+                            // var last = syntaxTokens[returnsChild - 1].ChildNodes().Last();
+                            var symbol = syntaxContext.SemanticModel.GetSymbolInfo(syntaxTokens[returnsChild - 1]);
+                            if (symbol.Symbol.IsVirtual == false && symbol.Symbol.IsAbstract == false && symbol.Symbol.IsInterfaceImplementation() == false)
                             {
-                                var identifierNameSyntax = identifierNameSyntaxs[predecessorIndex];
-                                var predecessorSymbol = syntaxContext.SemanticModel.GetSymbolInfo(identifierNameSyntax);
-                                if (predecessorSymbol.Symbol.IsVirtual == false && predecessorSymbol.Symbol.IsAbstract == false)
-                                {
-                                    syntaxContext.ReportDiagnostic(Diagnostic.Create(Rule, nameSyntax.GetLocation()));
-                                }
+                                syntaxContext.ReportDiagnostic(Diagnostic.Create(Rule, nameSyntax.GetLocation()));
                             }
                         }
                     }
