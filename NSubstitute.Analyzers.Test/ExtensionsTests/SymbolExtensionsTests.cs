@@ -1,8 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Test
+namespace NSubstitute.Analyzers.Test.ExtensionsTests
 {
     public class SymbolExtensionsTests
     {

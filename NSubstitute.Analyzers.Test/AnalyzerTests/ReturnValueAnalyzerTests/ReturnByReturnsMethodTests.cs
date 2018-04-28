@@ -1,14 +1,13 @@
+﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using System.Threading.Tasks;
-using TestHelper;
+using NSubstitute.Analyzers.Analyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Test
+namespace NSubstitute.Analyzers.Test.AnalyzerTests.ReturnValueAnalyzerTests
 {
-    public class UnitTest : AnalyzerTest<ReturnForNonVirtualMethodAnalyzer>
+    public class ReturnByReturnsMethodTests : ReturnValueAnalyzerTest
     {
-        [Fact]
-        public async Task AnalyzerReturnsDiagnostic_WhenSettingValueForNonVirtualMethod()
+        public override async Task AnalyzerReturnsDiagnostic_WhenSettingValueForNonVirtualMethod()
         {
             var source = @"using NSubstitute;
 
@@ -33,7 +32,7 @@ namespace MyNamespace
 }";
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = ReturnForNonVirtualMethodAnalyzer.DiagnosticId,
+                Id = ReturnValueAnalyzer.DiagnosticId,
                 Severity = DiagnosticSeverity.Warning,
                 Message = "Type name '{0}' contains lowercase letters",
                 Locations = new[]
@@ -45,46 +44,8 @@ namespace MyNamespace
             await VerifyDiagnostics(source, expectedDiagnostic);
         }
 
-        [Fact]
-        public async Task AnalyzerReturnsDiagnostic_WhenSettingValueWithGenericTypeSpecifiedForNonVirtualMethod()
-        {
-            var source = @"using NSubstitute;
 
-namespace MyNamespace
-{
-    public class Foo
-    {
-        public int Bar()
-        {
-            return 2;
-        }
-    }
-
-    public class FooTests
-    {
-        public void Test()
-        {
-            var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar().Returns<int>(1);
-        }
-    }
-}";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = ReturnForNonVirtualMethodAnalyzer.DiagnosticId,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Type name '{0}' contains lowercase letters",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(18, 30)
-                }
-            };
-
-            await VerifyDiagnostics(source, expectedDiagnostic);
-        }
-
-        [Fact]
-        public async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForVirtualMethod()
+        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForVirtualMethod()
         {
             var source = @"using NSubstitute;
 
@@ -110,8 +71,8 @@ namespace MyNamespace
             await VerifyDiagnostics(source);
         }
 
-        [Fact]
-        public async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForAbstractMethod()
+
+        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForAbstractMethod()
         {
             var source = @"using NSubstitute;
 
@@ -135,8 +96,8 @@ namespace MyNamespace
             await VerifyDiagnostics(source);
         }
 
-        [Fact]
-        public async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForInterfaceMethod()
+
+        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForInterfaceMethod()
         {
             var source = @"using NSubstitute;
 
@@ -167,8 +128,8 @@ namespace MyNamespace
             await VerifyDiagnostics(source);
         }
 
-        [Fact]
-        public async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForInterfaceProperty()
+
+        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForInterfaceProperty()
         {
             var source = @"using NSubstitute;
 
@@ -196,8 +157,8 @@ namespace MyNamespace
             await VerifyDiagnostics(source);
         }
 
-        [Fact]
-        public async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod()
+
+        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod()
         {
             var source = @"using NSubstitute;
 
@@ -229,7 +190,7 @@ namespace MyNamespace
         }
 
         [Fact(Skip = "Finding interface implementations for generic methods not supported yet")]
-        public async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForGenericInterfaceGenericMethod()
+        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForGenericInterfaceGenericMethod()
         {
             var source = @"using NSubstitute;
 
@@ -260,8 +221,8 @@ namespace MyNamespace
             await VerifyDiagnostics(source);
         }
 
-        [Fact]
-        public async Task AnalyzerReturnsNoDiagnostic_WhenSettingValueForAbstractProperty()
+
+        public override async Task AnalyzerReturnsNoDiagnostic_WhenSettingValueForAbstractProperty()
         {
             var source = @"using NSubstitute;
 
@@ -285,8 +246,8 @@ namespace MyNamespace
             await VerifyDiagnostics(source);
         }
 
-        [Fact]
-        public async Task AnalyzerReturnsNoDiagnostic_WhenSettingValueForVirtualProperty()
+
+        public override async Task AnalyzerReturnsNoDiagnostic_WhenSettingValueForVirtualProperty()
         {
             var source = @"using NSubstitute;
 
@@ -310,8 +271,8 @@ namespace MyNamespace
             await VerifyDiagnostics(source);
         }
 
-        [Fact]
-        public async Task AnalyzerReturnsDiagnostic_WhenSettingValueForNonVirtualProperty()
+
+        public override async Task AnalyzerReturnsDiagnostic_WhenSettingValueForNonVirtualProperty()
         {
             var source = @"using NSubstitute;
 
@@ -334,7 +295,7 @@ namespace MyNamespace
 
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = ReturnForNonVirtualMethodAnalyzer.DiagnosticId,
+                Id = ReturnValueAnalyzer.DiagnosticId,
                 Severity = DiagnosticSeverity.Warning,
                 Message = "Type name '{0}' contains lowercase letters",
                 Locations = new[]
@@ -346,8 +307,8 @@ namespace MyNamespace
             await VerifyDiagnostics(source, expectedDiagnostic);
         }
 
-        [Fact]
-        public async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForVirtualIndexer()
+
+        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForVirtualIndexer()
         {
             var source = @"using NSubstitute;
 
@@ -370,8 +331,8 @@ namespace MyNamespace
             await VerifyDiagnostics(source);
         }
 
-        [Fact]
-        public async Task AnalyzerReturnsDiagnostics_WhenSettingValueForNonVirtualIndexer()
+
+        public override async Task AnalyzerReturnsDiagnostics_WhenSettingValueForNonVirtualIndexer()
         {
             var source = @"using NSubstitute;
 
@@ -394,7 +355,7 @@ namespace MyNamespace
 
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = ReturnForNonVirtualMethodAnalyzer.DiagnosticId,
+                Id = ReturnValueAnalyzer.DiagnosticId,
                 Severity = DiagnosticSeverity.Warning,
                 Message = "Type name '{0}' contains lowercase letters",
                 Locations = new[]

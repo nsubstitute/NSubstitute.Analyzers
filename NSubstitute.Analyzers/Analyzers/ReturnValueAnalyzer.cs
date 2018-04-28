@@ -1,19 +1,16 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Semantics;
 using NSubstitute.Analyzers.Extensions;
 
-namespace NSubstitute.Analyzers
+namespace NSubstitute.Analyzers.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class ReturnForNonVirtualMethodAnalyzer : DiagnosticAnalyzer
+    public class ReturnValueAnalyzer : DiagnosticAnalyzer
     {
         public const string DiagnosticId = "NSubstituteAnalyzers";
 
@@ -37,7 +34,11 @@ namespace NSubstitute.Analyzers
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
-        private readonly string[] _methodNames = {"Returns"};
+        private static readonly HashSet<string> MethodNames = new HashSet<string>
+        {
+            "Returns",
+            "ReturnsForAnyArgs"
+        };
 
         public sealed override void Initialize(AnalysisContext context)
         {
@@ -58,26 +59,39 @@ namespace NSubstitute.Analyzers
                         return;
 
                     var methodSymbol = (IMethodSymbol) symbolInfo.Symbol;
-                    if (methodSymbol.ContainingType != assertType || !_methodNames.Contains(methodSymbol.Name))
+                    if (methodSymbol.ContainingType != assertType || !MethodNames.Contains(methodSymbol.Name))
                     {
                         return;
                     }
 
-                    var identifierNameSyntaxs = invocation.DescendantNodes().OfType<NameSyntax>().ToList();
-
-                    foreach (var nameSyntax in identifierNameSyntaxs.Where(identifier => identifier.ToString().StartsWith("Returns", StringComparison.OrdinalIgnoreCase)))
+                    if (methodSymbol.MethodKind == MethodKind.ReducedExtension)
                     {
-                        var info = syntaxContext.SemanticModel.GetSymbolInfo(nameSyntax);
-                        if (nameSyntax.Parent != null && info.Symbol != null && info.Symbol.Kind == SymbolKind.Method && info.Symbol.ContainingType == assertType)
+                        var identifierNameSyntaxs = invocation.DescendantNodes().OfType<SimpleNameSyntax>().ToList();
+
+                        foreach (var nameSyntax in identifierNameSyntaxs.Where(identifier => MethodNames.Contains(identifier.Identifier.ValueText)))
                         {
-                            var syntaxTokens = nameSyntax.Parent.ChildNodes().ToList();
-                            var returnsChild = syntaxTokens.IndexOf(nameSyntax);
-                            // var last = syntaxTokens[returnsChild - 1].ChildNodes().Last();
-                            var symbol = syntaxContext.SemanticModel.GetSymbolInfo(syntaxTokens[returnsChild - 1]);
-                            if (symbol.Symbol.IsVirtual == false && symbol.Symbol.IsAbstract == false && symbol.Symbol.IsInterfaceImplementation() == false)
+                            var info = syntaxContext.SemanticModel.GetSymbolInfo(nameSyntax);
+                            if (nameSyntax.Parent != null && info.Symbol != null && info.Symbol.Kind == SymbolKind.Method && info.Symbol.ContainingType == assertType)
                             {
-                                syntaxContext.ReportDiagnostic(Diagnostic.Create(Rule, nameSyntax.GetLocation()));
+                                var syntaxTokens = nameSyntax.Parent.ChildNodes().ToList();
+                                var returnsChild = syntaxTokens.IndexOf(nameSyntax);
+                                var symbol = syntaxContext.SemanticModel.GetSymbolInfo(syntaxTokens[returnsChild - 1]);
+                                if (symbol.Symbol.IsVirtual == false && symbol.Symbol.IsAbstract == false && symbol.Symbol.IsInterfaceImplementation() == false)
+                                {
+                                    syntaxContext.ReportDiagnostic(Diagnostic.Create(Rule, nameSyntax.GetLocation()));
+                                }
                             }
+                        }
+                    }
+                    else if(methodSymbol.MethodKind == MethodKind.Ordinary)
+                    {
+                        var argumentSyntax = invocation.ArgumentList.Arguments.First().ChildNodes().First();
+                        var symbol = syntaxContext.SemanticModel.GetSymbolInfo(argumentSyntax);
+                        if (symbol.Symbol.IsVirtual == false && symbol.Symbol.IsAbstract == false && symbol.Symbol.IsInterfaceImplementation() == false)
+                        {
+                            var methodSymbol1 = symbol.Symbol as IMethodSymbol;
+                            var location = invocation.DescendantNodes().OfType<MemberAccessExpressionSyntax>().First().DescendantNodes().OfType<SimpleNameSyntax>().Last();
+                            syntaxContext.ReportDiagnostic(Diagnostic.Create(Rule, location.GetLocation()));
                         }
                     }
 

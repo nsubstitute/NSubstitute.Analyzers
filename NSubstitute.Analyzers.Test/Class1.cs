@@ -1,29 +1,21 @@
 ﻿using NSubstitute;
-using NSubstitute.Core;
 
 namespace MyNamespace
 {
-    public interface IFoo<T>
+    public class Foo
     {
-        int this[int x] { get; }
-    }
-
-    public class Foo<T> : IFoo<T>
-    {
-        public int Bar<TT>()
+        public int Bar()
         {
-            return 1;
+            return 2;
         }
-
-        public int this[int x] => throw new System.NotImplementedException();
     }
 
     public class FooTests
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<Foo<int>>();
-            substitute[1].Returns<int>(1);
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            SubstituteExtensions.ReturnsForAnyArgs<int>(substitute.Bar(), 1);
         }
     }
 }
