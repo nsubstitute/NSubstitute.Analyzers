@@ -32,7 +32,7 @@ namespace MyNamespace
 }";
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = ReturnValueAnalyzer.DiagnosticId,
+                Id = DiagnosticIdentifiers.DoNotCreateSubstituteForNonVirtualMembers,
                 Severity = DiagnosticSeverity.Warning,
                 Message = "Type name '{0}' contains lowercase letters",
                 Locations = new[]
@@ -189,7 +189,7 @@ namespace MyNamespace
             await VerifyDiagnostics(source);
         }
 
-        [Fact(Skip = "Finding interface implementations for generic methods not supported yet")]
+        [Fact]
         public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForGenericInterfaceGenericMethod()
         {
             var source = @"using NSubstitute;
@@ -295,7 +295,7 @@ namespace MyNamespace
 
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = ReturnValueAnalyzer.DiagnosticId,
+                Id = DiagnosticIdentifiers.DoNotCreateSubstituteForNonVirtualMembers,
                 Severity = DiagnosticSeverity.Warning,
                 Message = "Type name '{0}' contains lowercase letters",
                 Locations = new[]
@@ -355,7 +355,7 @@ namespace MyNamespace
 
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = ReturnValueAnalyzer.DiagnosticId,
+                Id = DiagnosticIdentifiers.DoNotCreateSubstituteForNonVirtualMembers,
                 Severity = DiagnosticSeverity.Warning,
                 Message = "Type name '{0}' contains lowercase letters",
                 Locations = new[]

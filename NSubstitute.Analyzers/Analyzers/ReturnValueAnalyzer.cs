@@ -5,39 +5,20 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using NSubstitute.Analyzers.Extensions;
+using static NSubstitute.Analyzers.Analyzers.SubstituteSymbolAnalysis;
 
 namespace NSubstitute.Analyzers.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class ReturnValueAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "NSubstituteAnalyzers";
-
-        // You can change these strings in the Resources.resx file. If you do not want your analyzer to be localize-able, you can use regular strings for Title and MessageFormat.
-        // See https://github.com/dotnet/roslyn/blob/master/docs/analyzers/Localizing%20Analyzers.md for more on localization
-        private static readonly LocalizableString Title = new LocalizableResourceString(nameof(Resources.AnalyzerTitle),
-            Resources.ResourceManager, typeof(Resources));
-
-        private static readonly LocalizableString MessageFormat =
-            new LocalizableResourceString(nameof(Resources.AnalyzerMessageFormat), Resources.ResourceManager,
-                typeof(Resources));
-
-        private static readonly LocalizableString Description =
-            new LocalizableResourceString(nameof(Resources.AnalyzerDescription), Resources.ResourceManager,
-                typeof(Resources));
-
-        private const string Category = "Naming";
-
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat,
-            Category, DiagnosticSeverity.Warning, isEnabledByDefault: true, description: Description);
-
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+            ImmutableArray.Create(DiagnosticDescriptors.DoNotCreateSubstituteForNonVirtualMembers);
 
         private static readonly HashSet<string> MethodNames = new HashSet<string>
         {
-            "Returns",
-            "ReturnsForAnyArgs"
+            MetadataNames.NSubstituteReturnsMethod,
+            MetadataNames.NSubstituteReturnsForAnyArgsMethod
         };
 
         public sealed override void Initialize(AnalysisContext context)
@@ -46,57 +27,80 @@ namespace NSubstitute.Analyzers.Analyzers
 
             context.RegisterCompilationStartAction(compilationContext =>
             {
-                var assertType = compilationContext.Compilation.GetTypeByMetadataName("NSubstitute.SubstituteExtensions");
-                if (assertType == null)
+                var substituteExtensionsType =
+                    compilationContext.Compilation.GetTypeByMetadataName(MetadataNames.NSubstituteSubstituteExtensions);
+                if (substituteExtensionsType == null)
+                {
                     return;
+                }
 
                 compilationContext.RegisterSyntaxNodeAction(syntaxContext =>
                 {
                     var invocation = (InvocationExpressionSyntax) syntaxContext.Node;
 
-                    var symbolInfo = syntaxContext.SemanticModel.GetSymbolInfo(invocation, syntaxContext.CancellationToken);
+                    var symbolInfo =
+                        syntaxContext.SemanticModel.GetSymbolInfo(invocation, syntaxContext.CancellationToken);
                     if (symbolInfo.Symbol?.Kind != SymbolKind.Method)
                         return;
 
                     var methodSymbol = (IMethodSymbol) symbolInfo.Symbol;
-                    if (methodSymbol.ContainingType != assertType || !MethodNames.Contains(methodSymbol.Name))
+                    if (methodSymbol.ContainingType != substituteExtensionsType ||
+                        !MethodNames.Contains(methodSymbol.Name))
                     {
                         return;
                     }
 
-                    if (methodSymbol.MethodKind == MethodKind.ReducedExtension)
+                    switch (methodSymbol.MethodKind)
                     {
-                        var identifierNameSyntaxs = invocation.DescendantNodes().OfType<SimpleNameSyntax>().ToList();
+                        case MethodKind.ReducedExtension:
+                            AnalyzeReducedExtensionMethod(invocation, syntaxContext, substituteExtensionsType);
 
-                        foreach (var nameSyntax in identifierNameSyntaxs.Where(identifier => MethodNames.Contains(identifier.Identifier.ValueText)))
-                        {
-                            var info = syntaxContext.SemanticModel.GetSymbolInfo(nameSyntax);
-                            if (nameSyntax.Parent != null && info.Symbol != null && info.Symbol.Kind == SymbolKind.Method && info.Symbol.ContainingType == assertType)
-                            {
-                                var syntaxTokens = nameSyntax.Parent.ChildNodes().ToList();
-                                var returnsChild = syntaxTokens.IndexOf(nameSyntax);
-                                var symbol = syntaxContext.SemanticModel.GetSymbolInfo(syntaxTokens[returnsChild - 1]);
-                                if (symbol.Symbol.IsVirtual == false && symbol.Symbol.IsAbstract == false && symbol.Symbol.IsInterfaceImplementation() == false)
-                                {
-                                    syntaxContext.ReportDiagnostic(Diagnostic.Create(Rule, nameSyntax.GetLocation()));
-                                }
-                            }
-                        }
+                            break;
+                        case MethodKind.Ordinary:
+                        case MethodKind.Constructor:
+                        case MethodKind.StaticConstructor:
+                        case MethodKind.LocalFunction:
+                            AnalyzeOrdinaryMethod(invocation, syntaxContext);
+                            break;
                     }
-                    else if(methodSymbol.MethodKind == MethodKind.Ordinary)
-                    {
-                        var argumentSyntax = invocation.ArgumentList.Arguments.First().ChildNodes().First();
-                        var symbol = syntaxContext.SemanticModel.GetSymbolInfo(argumentSyntax);
-                        if (symbol.Symbol.IsVirtual == false && symbol.Symbol.IsAbstract == false && symbol.Symbol.IsInterfaceImplementation() == false)
-                        {
-                            var methodSymbol1 = symbol.Symbol as IMethodSymbol;
-                            var location = invocation.DescendantNodes().OfType<MemberAccessExpressionSyntax>().First().DescendantNodes().OfType<SimpleNameSyntax>().Last();
-                            syntaxContext.ReportDiagnostic(Diagnostic.Create(Rule, location.GetLocation()));
-                        }
-                    }
-
                 }, SyntaxKind.InvocationExpression);
             });
+        }
+
+        private static void AnalyzeOrdinaryMethod(InvocationExpressionSyntax invocation, SyntaxNodeAnalysisContext syntaxContext)
+        {
+            var argumentSyntax = invocation.ArgumentList.Arguments.First().ChildNodes().First();
+            var symbol = syntaxContext.SemanticModel.GetSymbolInfo(argumentSyntax);
+            if (symbol.Symbol.IsVirtual == false && symbol.Symbol.IsAbstract == false && IsInterfaceImplementation(symbol.Symbol) == false)
+            {
+                var location = invocation.DescendantNodes().OfType<MemberAccessExpressionSyntax>().First()
+                    .DescendantNodes().OfType<SimpleNameSyntax>().Last();
+                syntaxContext.ReportDiagnostic(Diagnostic.Create(
+                    DiagnosticDescriptors.DoNotCreateSubstituteForNonVirtualMembers, location.GetLocation()));
+            }
+        }
+
+        private static void AnalyzeReducedExtensionMethod(InvocationExpressionSyntax invocation,
+            SyntaxNodeAnalysisContext syntaxContext, INamedTypeSymbol assertType)
+        {
+            var identifierNameSyntaxs = invocation.DescendantNodes().OfType<SimpleNameSyntax>().ToList();
+
+            foreach (var nameSyntax in identifierNameSyntaxs.Where(identifier => MethodNames.Contains(identifier.Identifier.ValueText)))
+            {
+                var info = syntaxContext.SemanticModel.GetSymbolInfo(nameSyntax);
+                if (nameSyntax.Parent != null && info.Symbol != null && info.Symbol.Kind == SymbolKind.Method &&
+                    info.Symbol.ContainingType == assertType)
+                {
+                    var syntaxTokens = nameSyntax.Parent.ChildNodes().ToList();
+                    var returnsChild = syntaxTokens.IndexOf(nameSyntax);
+                    var symbol = syntaxContext.SemanticModel.GetSymbolInfo(syntaxTokens[returnsChild - 1]);
+                    if (symbol.Symbol.IsVirtual == false && symbol.Symbol.IsAbstract == false && IsInterfaceImplementation(symbol.Symbol) == false)
+                    {
+                        syntaxContext.ReportDiagnostic(Diagnostic.Create(
+                            DiagnosticDescriptors.DoNotCreateSubstituteForNonVirtualMembers, nameSyntax.GetLocation()));
+                    }
+                }
+            }
         }
     }
 }

@@ -25,7 +25,7 @@ namespace NSubstitute.Analyzers.Test.AnalyzerTests.ReturnValueAnalyzerTests
         [Fact]
         public abstract Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod();
 
-        [Fact(Skip = "Finding interface implementations for generic methods not supported yet")]
+        [Fact()]
         public abstract Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForGenericInterfaceGenericMethod();
 
         [Fact]
