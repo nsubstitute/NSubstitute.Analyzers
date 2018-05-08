@@ -18,15 +18,11 @@ namespace NSubstitute.Analyzers.Test.AnalyzerTests.ReturnValueAnalyzerTests
         [Fact]
         public abstract Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForInterfaceMethod();
 
-
         [Fact]
         public abstract Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForInterfaceProperty();
 
         [Fact]
         public abstract Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod();
-
-        [Fact()]
-        public abstract Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForGenericInterfaceGenericMethod();
 
         [Fact]
         public abstract Task AnalyzerReturnsNoDiagnostic_WhenSettingValueForAbstractProperty();

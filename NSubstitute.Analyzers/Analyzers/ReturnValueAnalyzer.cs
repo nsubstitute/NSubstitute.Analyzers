@@ -54,7 +54,6 @@ namespace NSubstitute.Analyzers.Analyzers
                     {
                         case MethodKind.ReducedExtension:
                             AnalyzeReducedExtensionMethod(invocation, syntaxContext, substituteExtensionsType);
-
                             break;
                         case MethodKind.Ordinary:
                         case MethodKind.Constructor:
@@ -71,7 +70,7 @@ namespace NSubstitute.Analyzers.Analyzers
         {
             var argumentSyntax = invocation.ArgumentList.Arguments.First().ChildNodes().First();
             var symbol = syntaxContext.SemanticModel.GetSymbolInfo(argumentSyntax);
-            if (symbol.Symbol.IsVirtual == false && symbol.Symbol.IsAbstract == false && IsInterfaceImplementation(symbol.Symbol) == false)
+            if (symbol.Symbol.IsVirtual == false && symbol.Symbol.IsAbstract == false && IsPartOfInterfaceImplementation(symbol.Symbol) == false)
             {
                 var location = invocation.DescendantNodes().OfType<MemberAccessExpressionSyntax>().First()
                     .DescendantNodes().OfType<SimpleNameSyntax>().Last();
@@ -94,7 +93,7 @@ namespace NSubstitute.Analyzers.Analyzers
                     var syntaxTokens = nameSyntax.Parent.ChildNodes().ToList();
                     var returnsChild = syntaxTokens.IndexOf(nameSyntax);
                     var symbol = syntaxContext.SemanticModel.GetSymbolInfo(syntaxTokens[returnsChild - 1]);
-                    if (symbol.Symbol.IsVirtual == false && symbol.Symbol.IsAbstract == false && IsInterfaceImplementation(symbol.Symbol) == false)
+                    if (symbol.Symbol.IsVirtual == false && symbol.Symbol.IsAbstract == false && IsPartOfInterfaceImplementation(symbol.Symbol) == false)
                     {
                         syntaxContext.ReportDiagnostic(Diagnostic.Create(
                             DiagnosticDescriptors.DoNotCreateSubstituteForNonVirtualMembers, nameSyntax.GetLocation()));

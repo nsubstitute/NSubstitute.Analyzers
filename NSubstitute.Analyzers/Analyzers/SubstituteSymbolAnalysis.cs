@@ -5,35 +5,34 @@ namespace NSubstitute.Analyzers.Analyzers
 {
     public class SubstituteSymbolAnalysis
     {
-        public static bool IsInterfaceImplementation(ISymbol method)
+        public static bool IsPartOfInterfaceImplementation(ISymbol symbol)
         {
-            return method.ContainingType.AllInterfaces
+            return symbol.ContainingType.AllInterfaces
                 .SelectMany(@interface => @interface.GetMembers()).Any(interfaceMethod =>
                 {
-                    var findImplementationForInterfaceMember =
-                        method.ContainingType.FindImplementationForInterfaceMember(interfaceMethod);
-                    return IsSame(findImplementationForInterfaceMember, method);
+                    var interfaceSymbol = symbol.ContainingType.FindImplementationForInterfaceMember(interfaceMethod);
+                    return IsSame(interfaceSymbol, symbol);
                 });
         }
 
-        private static bool IsSame(ISymbol findImplementationForInterfaceMember, ISymbol method)
+        private static bool IsSame(ISymbol interfaceSymbol, ISymbol symbol)
         {
-            if (findImplementationForInterfaceMember == null)
+            if (interfaceSymbol == null)
             {
                 return false;
             }
 
-            if (findImplementationForInterfaceMember.Equals(method))
+            if (interfaceSymbol.Equals(symbol))
             {
                 return true;
             }
 
-            if (findImplementationForInterfaceMember.Kind == SymbolKind.Method && method.Kind == SymbolKind.Method)
+            if (interfaceSymbol.Kind == SymbolKind.Method && symbol.Kind == SymbolKind.Method)
             {
-                var left = (IMethodSymbol) findImplementationForInterfaceMember;
-                var right = (IMethodSymbol) method;
+                var left = (IMethodSymbol) interfaceSymbol;
+                var right = (IMethodSymbol) symbol;
 
-                return left.ConstructedFrom.Equals(right.ConstructedFrom);
+                return left.ConstructedFrom?.Equals(right.ConstructedFrom) ?? false;
             }
 
             return false;

@@ -2,6 +2,10 @@
 
 namespace MyNamespace
 {
+    public interface IFoo
+    {
+    }
+
     public class Foo
     {
         public int Bar()

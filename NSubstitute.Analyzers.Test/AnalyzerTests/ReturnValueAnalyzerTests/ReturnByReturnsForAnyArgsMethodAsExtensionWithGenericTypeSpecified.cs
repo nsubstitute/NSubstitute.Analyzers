@@ -166,44 +166,12 @@ namespace MyNamespace
 {
     public interface IFoo<T>
     {
-        int Bar();
+        int Bar<T>();
     }
 
     public class Foo<T> : IFoo<T>
     {
-        public int Bar()
-        {
-            return 1;
-        }
-    }
-
-    public class FooTests
-    {
-        public void Test()
-        {
-            var substitute = NSubstitute.Substitute.For<Foo<int>>();
-            SubstituteExtensions.ReturnsForAnyArgs<int>(substitute.Bar(), 1);
-        }
-    }
-}";
-            await VerifyDiagnostics(source);
-        }
-
-        [Fact()]
-        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForGenericInterfaceGenericMethod()
-        {
-            var source = @"using NSubstitute;
-
-namespace MyNamespace
-{
-    public interface IFoo<T>
-    {
-        int Bar<TT>();
-    }
-
-    public class Foo<T> : IFoo<T>
-    {
-        public int Bar<TT>()
+        public int Bar<T>()
         {
             return 1;
         }
@@ -220,7 +188,6 @@ namespace MyNamespace
 }";
             await VerifyDiagnostics(source);
         }
-
 
         public override async Task AnalyzerReturnsNoDiagnostic_WhenSettingValueForAbstractProperty()
         {
