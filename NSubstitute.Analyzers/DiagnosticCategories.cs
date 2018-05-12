@@ -2,6 +2,6 @@
 {
     public class DiagnosticCategories
     {
-        public static readonly string Substitutes = "Substitutes";
+        public static readonly string Usage = "NSubstitute.Usage";
     }
 }

@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
-using NSubstitute.Analyzers.Analyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Test.AnalyzerTests.ReturnValueAnalyzerTests
+namespace NSubstitute.Analyzers.Test.AnalyzerTests.NonVirtualSetupAnalyzerTests
 {
-    public abstract class ReturnValueAnalyzerTest : AnalyzerTest<ReturnValueAnalyzer>
+    public abstract class NonVirtualSetupAnalyzerTest : AnalyzerTest<NonVirtualSetupAnalyzer>
     {
         [Fact]
         public abstract Task AnalyzerReturnsDiagnostic_WhenSettingValueForNonVirtualMethod();
@@ -26,6 +25,9 @@ namespace NSubstitute.Analyzers.Test.AnalyzerTests.ReturnValueAnalyzerTests
 
         [Fact]
         public abstract Task AnalyzerReturnsNoDiagnostic_WhenSettingValueForAbstractProperty();
+
+        [Fact]
+        public abstract Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForInterfaceIndexer();
 
         [Fact]
         public abstract Task AnalyzerReturnsNoDiagnostic_WhenSettingValueForVirtualProperty();

@@ -1,11 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using NSubstitute.Analyzers.Analyzers;
-using Xunit;
 
-namespace NSubstitute.Analyzers.Test.AnalyzerTests.ReturnValueAnalyzerTests
+namespace NSubstitute.Analyzers.Test.AnalyzerTests.NonVirtualSetupAnalyzerTests
 {
-    public class ReturnByReturnsForAnyArgsMethodTests : ReturnValueAnalyzerTest
+    public class ReturnsForAnyArgsAsExtensionMethodWithGenericTypeSpecifiedTests : NonVirtualSetupAnalyzerTest
     {
         public override async Task AnalyzerReturnsDiagnostic_WhenSettingValueForNonVirtualMethod()
         {
@@ -26,15 +24,15 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar().ReturnsForAnyArgs(1);
+            substitute.Bar().ReturnsForAnyArgs<int>(1);
         }
     }
 }";
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = DiagnosticIdentifiers.DoNotCreateSubstituteForNonVirtualMembers,
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Type name '{0}' contains lowercase letters",
+                Message = "Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(18, 30)
@@ -64,7 +62,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar().ReturnsForAnyArgs(1);
+            substitute.Bar().ReturnsForAnyArgs<int>(1);
         }
     }
 }";
@@ -88,7 +86,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar().ReturnsForAnyArgs(1);
+            substitute.Bar().ReturnsForAnyArgs<int>(1);
         }
     }
 }";
@@ -108,20 +106,12 @@ namespace MyNamespace
         int Bar();
     }
 
-    public class Foo : IFoo
-    {
-        public int Bar()
-        {
-            return 1;
-        }
-    }
-
     public class FooTests
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar().ReturnsForAnyArgs(1);
+            var substitute = NSubstitute.Substitute.For<IFoo>();
+            substitute.Bar().ReturnsForAnyArgs<int>(1);
         }
     }
 }";
@@ -140,17 +130,12 @@ namespace MyNamespace
         int Bar { get; }
     }
 
-    public class Foo : IFoo
-    {
-        public int Bar { get; }
-    }
-
     public class FooTests
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar.ReturnsForAnyArgs(1);
+            var substitute = NSubstitute.Substitute.For<IFoo>();
+            substitute.Bar.ReturnsForAnyArgs<int>(1);
         }
     }
 }";
@@ -164,25 +149,17 @@ namespace MyNamespace
 
 namespace MyNamespace
 {
-    public interface IFoo<T>
+   public interface IFoo<T>
     {
-        int Bar();
-    }
-
-    public class Foo<T> : IFoo<T>
-    {
-        public int Bar()
-        {
-            return 1;
-        }
+        int Bar<T>();
     }
 
     public class FooTests
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<Foo<int>>();
-            substitute.Bar().ReturnsForAnyArgs(1);
+            var substitute = NSubstitute.Substitute.For<IFoo<int>>();
+            substitute.Bar<int>().ReturnsForAnyArgs<int>(1);
         }
     }
 }";
@@ -205,13 +182,38 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar.ReturnsForAnyArgs(1);
+            substitute.Bar.ReturnsForAnyArgs<int>(1);
         }
     }
 }";
 
             await VerifyDiagnostics(source);
         }
+
+        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForInterfaceIndexer()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public interface IFoo
+    {
+        int this[int i] { get; }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<IFoo>();
+            substitute[1].ReturnsForAnyArgs<int>(1);
+        }
+    }
+}";
+            await VerifyDiagnostics(source);
+
+        }
+
 
 
         public override async Task AnalyzerReturnsNoDiagnostic_WhenSettingValueForVirtualProperty()
@@ -230,7 +232,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar.ReturnsForAnyArgs(1);
+            substitute.Bar.ReturnsForAnyArgs<int>(1);
         }
     }
 }";
@@ -255,16 +257,16 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar.ReturnsForAnyArgs(1);
+            substitute.Bar.ReturnsForAnyArgs<int>(1);
         }
     }
 }";
 
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = DiagnosticIdentifiers.DoNotCreateSubstituteForNonVirtualMembers,
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Type name '{0}' contains lowercase letters",
+                Message = "Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(15, 28)
@@ -291,7 +293,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute[1].ReturnsForAnyArgs(1);
+            substitute[1].ReturnsForAnyArgs<int>(1);
         }
     }
 }";
@@ -315,16 +317,16 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute[1].ReturnsForAnyArgs(1);
+            substitute[1].ReturnsForAnyArgs<int>(1);
         }
     }
 }";
 
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = DiagnosticIdentifiers.DoNotCreateSubstituteForNonVirtualMembers,
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Type name '{0}' contains lowercase letters",
+                Message = "Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(15, 27)

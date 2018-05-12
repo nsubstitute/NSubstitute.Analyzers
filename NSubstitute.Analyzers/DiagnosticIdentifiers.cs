@@ -2,6 +2,6 @@
 {
     public class DiagnosticIdentifiers
     {
-        public static readonly string DoNotCreateSubstituteForNonVirtualMembers = "NS001";
+        public static readonly string NonVirtualSetupSpecification = "NS001";
     }
 }

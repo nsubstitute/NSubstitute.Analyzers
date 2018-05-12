@@ -5,15 +5,14 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using static NSubstitute.Analyzers.Analyzers.SubstituteSymbolAnalysis;
 
-namespace NSubstitute.Analyzers.Analyzers
+namespace NSubstitute.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class ReturnValueAnalyzer : DiagnosticAnalyzer
+    public class NonVirtualSetupAnalyzer : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(DiagnosticDescriptors.DoNotCreateSubstituteForNonVirtualMembers);
+            ImmutableArray.Create(DiagnosticDescriptors.NonVirtualSetupSpecification);
 
         private static readonly HashSet<string> MethodNames = new HashSet<string>
         {
@@ -56,9 +55,6 @@ namespace NSubstitute.Analyzers.Analyzers
                             AnalyzeReducedExtensionMethod(invocation, syntaxContext, substituteExtensionsType);
                             break;
                         case MethodKind.Ordinary:
-                        case MethodKind.Constructor:
-                        case MethodKind.StaticConstructor:
-                        case MethodKind.LocalFunction:
                             AnalyzeOrdinaryMethod(invocation, syntaxContext);
                             break;
                     }
@@ -70,12 +66,12 @@ namespace NSubstitute.Analyzers.Analyzers
         {
             var argumentSyntax = invocation.ArgumentList.Arguments.First().ChildNodes().First();
             var symbol = syntaxContext.SemanticModel.GetSymbolInfo(argumentSyntax);
-            if (symbol.Symbol.IsVirtual == false && symbol.Symbol.IsAbstract == false && IsPartOfInterfaceImplementation(symbol.Symbol) == false)
+            if (IsVirtual(symbol) == false && IsInterfaceMember(symbol) == false)
             {
                 var location = invocation.DescendantNodes().OfType<MemberAccessExpressionSyntax>().First()
                     .DescendantNodes().OfType<SimpleNameSyntax>().Last();
                 syntaxContext.ReportDiagnostic(Diagnostic.Create(
-                    DiagnosticDescriptors.DoNotCreateSubstituteForNonVirtualMembers, location.GetLocation()));
+                    DiagnosticDescriptors.NonVirtualSetupSpecification, location.GetLocation()));
             }
         }
 
@@ -93,13 +89,29 @@ namespace NSubstitute.Analyzers.Analyzers
                     var syntaxTokens = nameSyntax.Parent.ChildNodes().ToList();
                     var returnsChild = syntaxTokens.IndexOf(nameSyntax);
                     var symbol = syntaxContext.SemanticModel.GetSymbolInfo(syntaxTokens[returnsChild - 1]);
-                    if (symbol.Symbol.IsVirtual == false && symbol.Symbol.IsAbstract == false && IsPartOfInterfaceImplementation(symbol.Symbol) == false)
+                    if ( IsVirtual(symbol) == false && IsInterfaceMember(symbol) == false)
                     {
                         syntaxContext.ReportDiagnostic(Diagnostic.Create(
-                            DiagnosticDescriptors.DoNotCreateSubstituteForNonVirtualMembers, nameSyntax.GetLocation()));
+                            DiagnosticDescriptors.NonVirtualSetupSpecification, nameSyntax.GetLocation()));
                     }
                 }
             }
+        }
+
+        private static bool IsInterfaceMember(SymbolInfo symbolInfo)
+        {
+            return symbolInfo.Symbol?.ContainingType?.TypeKind == TypeKind.Interface;
+        }
+
+        private static bool IsVirtual(SymbolInfo symbolInfo)
+        {
+            var member = symbolInfo.Symbol;
+
+            bool isVirtual = member.IsVirtual
+                             || (member.IsOverride && !member.IsSealed)
+                             || member.IsAbstract;
+
+            return isVirtual;
         }
     }
 }

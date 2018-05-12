@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Xunit;
 
-namespace NSubstitute.Analyzers.Test.AnalyzerTests.ReturnValueAnalyzerTests
+namespace NSubstitute.Analyzers.Test.AnalyzerTests.NonVirtualSetupAnalyzerTests
 {
-    public class ReturnByReturnsMethodWithGenericTypeSpecifiedTests : ReturnValueAnalyzerTest
+    public class ReturnsAsExtensionMethodWithGenericTypeSpecifiedTests : NonVirtualSetupAnalyzerTest
     {
         public override async Task AnalyzerReturnsDiagnostic_WhenSettingValueForNonVirtualMethod()
         {
@@ -31,9 +30,9 @@ namespace MyNamespace
 }";
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = DiagnosticIdentifiers.DoNotCreateSubstituteForNonVirtualMembers,
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Type name '{0}' contains lowercase letters",
+                Message = "Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(18, 30)
@@ -107,19 +106,11 @@ namespace MyNamespace
         int Bar();
     }
 
-    public class Foo : IFoo
-    {
-        public int Bar()
-        {
-            return 1;
-        }
-    }
-
     public class FooTests
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<Foo>();
+            var substitute = NSubstitute.Substitute.For<IFoo>();
             substitute.Bar().Returns<int>(1);
         }
     }
@@ -139,16 +130,11 @@ namespace MyNamespace
         int Bar { get; }
     }
 
-    public class Foo : IFoo
-    {
-        public int Bar { get; }
-    }
-
     public class FooTests
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<Foo>();
+            var substitute = NSubstitute.Substitute.For<IFoo>();
             substitute.Bar.Returns<int>(1);
         }
     }
@@ -168,19 +154,11 @@ namespace MyNamespace
         int Bar<T>();
     }
 
-    public class Foo<T> : IFoo<T>
-    {
-        public int Bar<T>()
-        {
-            return 1;
-        }
-    }
-
     public class FooTests
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<Foo<int>>();
+            var substitute = NSubstitute.Substitute.For<IFoo<int>>();
             substitute.Bar<int>().Returns<int>(1);
         }
     }
@@ -211,6 +189,31 @@ namespace MyNamespace
 
             await VerifyDiagnostics(source);
         }
+
+        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForInterfaceIndexer()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public interface IFoo
+    {
+        int this[int i] { get; }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<IFoo>();
+            substitute[1].Returns<int>(1);
+        }
+    }
+}";
+            await VerifyDiagnostics(source);
+
+        }
+
 
 
         public override async Task AnalyzerReturnsNoDiagnostic_WhenSettingValueForVirtualProperty()
@@ -261,9 +264,9 @@ namespace MyNamespace
 
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = DiagnosticIdentifiers.DoNotCreateSubstituteForNonVirtualMembers,
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Type name '{0}' contains lowercase letters",
+                Message = "Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(15, 28)
@@ -321,9 +324,9 @@ namespace MyNamespace
 
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = DiagnosticIdentifiers.DoNotCreateSubstituteForNonVirtualMembers,
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Type name '{0}' contains lowercase letters",
+                Message = "Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(15, 27)
