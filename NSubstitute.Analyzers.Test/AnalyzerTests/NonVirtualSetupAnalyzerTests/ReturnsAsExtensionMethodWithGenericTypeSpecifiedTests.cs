@@ -32,10 +32,74 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(18, 30)
+                    new DiagnosticResultLocation(18, 13)
+                }
+            };
+
+            await VerifyDiagnostics(source, expectedDiagnostic);
+        }
+
+        public override async Task AnalyzerReturnsDiagnostic_WhenSettingValueForLiteral(string literal, string type)
+        {
+            var source = $@"using NSubstitute;
+
+namespace MyNamespace
+{{
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            {literal}.Returns<{type}>({literal});
+        }}
+    }}
+}}";
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message =
+                    $"Member {literal} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(9, 13)
+                }
+            };
+
+            await VerifyDiagnostics(source, expectedDiagnostic);
+        }
+        public override async Task AnalyzerReturnsDiagnostic_WhenSettingValueForStaticMethod()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public static int Bar()
+        {
+            return 2;
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            Foo.Bar().Returns<int>(1);
+        }
+    }
+}";
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(17, 13)
                 }
             };
 
@@ -69,6 +133,124 @@ namespace MyNamespace
             await VerifyDiagnostics(source);
         }
 
+        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public virtual int Bar()
+        {
+            return 2;
+        }
+    }
+
+    public class Foo2 : Foo
+    {
+        public override int Bar() => 1;
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo2>();
+            substitute.Bar().Returns<int>(1);
+        }
+    }
+}";
+            await VerifyDiagnostics(source);
+        }
+
+        public override async Task AnalyzerReturnsNoDiagnostics_WhenDataFlowAnalysisIsRequired()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public virtual int Bar()
+        {
+            return 2;
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            var returnValue = substitute.Bar();
+            returnValue.Returns<int>(1);
+        }
+    }
+}";
+            await VerifyDiagnostics(source);
+        }
+
+        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForDelegate()
+        {
+            var source = @"using NSubstitute;
+using System;
+
+namespace MyNamespace
+{
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = Substitute.For<Func<int>>();
+            substitute().Returns<int>(1);
+        }
+    }
+}";
+            await VerifyDiagnostics(source);
+        }
+
+        public override async Task AnalyzerReturnsDiagnostics_WhenSettingValueForSealedOverrideMethod()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public virtual int Bar()
+        {
+            return 2;
+        }
+    }
+
+    public class Foo2 : Foo
+    {
+        public sealed override int Bar() => 1;
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo2>();
+            substitute.Bar().Returns<int>(1);
+        }
+    }
+}";
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(23, 13)
+                }
+            };
+
+            await VerifyDiagnostics(source, expectedDiagnostic);
+        }
 
         public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForAbstractMethod()
         {
@@ -266,10 +448,10 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(15, 28)
+                    new DiagnosticResultLocation(15, 13)
                 }
             };
 
@@ -326,10 +508,10 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Message = "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(15, 27)
+                    new DiagnosticResultLocation(15, 13)
                 }
             };
 

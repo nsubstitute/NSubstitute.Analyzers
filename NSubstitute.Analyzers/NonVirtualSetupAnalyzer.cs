@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -14,88 +13,123 @@ namespace NSubstitute.Analyzers
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
             ImmutableArray.Create(DiagnosticDescriptors.NonVirtualSetupSpecification);
 
-        private static readonly HashSet<string> MethodNames = new HashSet<string>
-        {
+        private static readonly ImmutableHashSet<string> MethodNames = ImmutableHashSet.Create(
             MetadataNames.NSubstituteReturnsMethod,
-            MetadataNames.NSubstituteReturnsForAnyArgsMethod
-        };
+            MetadataNames.NSubstituteReturnsForAnyArgsMethod);
+
+        private static readonly ImmutableHashSet<int> SupportedMemberAccesses = ImmutableHashSet.Create(
+            (int) SyntaxKind.InvocationExpression,
+            (int) SyntaxKind.SimpleMemberAccessExpression,
+            (int) SyntaxKind.ElementAccessExpression,
+            (int) SyntaxKind.NumericLiteralExpression,
+            (int) SyntaxKind.CharacterLiteralExpression,
+            (int) SyntaxKind.FalseLiteralExpression,
+            (int) SyntaxKind.TrueLiteralExpression,
+            (int) SyntaxKind.StringLiteralExpression);
 
         public sealed override void Initialize(AnalysisContext context)
         {
             context.EnableConcurrentExecution();
-
-            context.RegisterCompilationStartAction(compilationContext =>
-            {
-                var substituteExtensionsType =
-                    compilationContext.Compilation.GetTypeByMetadataName(MetadataNames.NSubstituteSubstituteExtensions);
-                if (substituteExtensionsType == null)
-                {
-                    return;
-                }
-
-                compilationContext.RegisterSyntaxNodeAction(syntaxContext =>
-                {
-                    var invocation = (InvocationExpressionSyntax) syntaxContext.Node;
-
-                    var symbolInfo =
-                        syntaxContext.SemanticModel.GetSymbolInfo(invocation, syntaxContext.CancellationToken);
-                    if (symbolInfo.Symbol?.Kind != SymbolKind.Method)
-                        return;
-
-                    var methodSymbol = (IMethodSymbol) symbolInfo.Symbol;
-                    if (methodSymbol.ContainingType != substituteExtensionsType ||
-                        !MethodNames.Contains(methodSymbol.Name))
-                    {
-                        return;
-                    }
-
-                    switch (methodSymbol.MethodKind)
-                    {
-                        case MethodKind.ReducedExtension:
-                            AnalyzeReducedExtensionMethod(invocation, syntaxContext, substituteExtensionsType);
-                            break;
-                        case MethodKind.Ordinary:
-                            AnalyzeOrdinaryMethod(invocation, syntaxContext);
-                            break;
-                    }
-                }, SyntaxKind.InvocationExpression);
-            });
+            context.RegisterSyntaxNodeAction(AnalyzeMemberAccess, SyntaxKind.SimpleMemberAccessExpression);
+            context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
         }
 
-        private static void AnalyzeOrdinaryMethod(InvocationExpressionSyntax invocation, SyntaxNodeAnalysisContext syntaxContext)
+        private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
-            var argumentSyntax = invocation.ArgumentList.Arguments.First().ChildNodes().First();
-            var symbol = syntaxContext.SemanticModel.GetSymbolInfo(argumentSyntax);
-            if (IsVirtual(symbol) == false && IsInterfaceMember(symbol) == false)
+            var invocationExpression = (InvocationExpressionSyntax) syntaxNodeContext.Node;
+            var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
+            var methodSymbol = (IMethodSymbol) methodSymbolInfo.Symbol;
+            if (methodSymbol == null || methodSymbol.MethodKind != MethodKind.Ordinary)
             {
-                var location = invocation.DescendantNodes().OfType<MemberAccessExpressionSyntax>().First()
-                    .DescendantNodes().OfType<SimpleNameSyntax>().Last();
-                syntaxContext.ReportDiagnostic(Diagnostic.Create(
-                    DiagnosticDescriptors.NonVirtualSetupSpecification, location.GetLocation()));
+                return;
+            }
+
+            if (MethodNames.Contains(methodSymbol.Name) == false)
+            {
+                return;
+            }
+
+            var type = syntaxNodeContext.Compilation.GetTypeByMetadataName(MetadataNames.NSubstituteSubstituteExtensions);
+
+            if (type == null)
+            {
+                return;
+            }
+
+            if (methodSymbol.ContainingType != type)
+            {
+                return;
+            }
+
+            var argumentSyntax = invocationExpression.ArgumentList.Arguments.FirstOrDefault()?.DescendantNodes().FirstOrDefault();
+
+            AnalyzeMember(syntaxNodeContext, argumentSyntax);
+        }
+
+        private void AnalyzeMemberAccess(SyntaxNodeAnalysisContext syntaxNodeContext)
+        {
+            var memberAccessExpression = (MemberAccessExpressionSyntax) syntaxNodeContext.Node;
+            if (MethodNames.Contains(memberAccessExpression.Name.Identifier.Text) == false)
+            {
+                return;
+            }
+
+            var type = syntaxNodeContext.Compilation.GetTypeByMetadataName(
+                MetadataNames.NSubstituteSubstituteExtensions);
+
+            if (type == null)
+            {
+                return;
+            }
+
+            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(memberAccessExpression);
+
+            if (symbol.Symbol?.ContainingType != type)
+            {
+                return;
+            }
+
+            var accessedMember = memberAccessExpression.DescendantNodes().FirstOrDefault();
+
+            AnalyzeMember(syntaxNodeContext, accessedMember);
+        }
+
+        private static void AnalyzeMember(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode accessedMember)
+        {
+            if (IsValidForAnalysis(accessedMember) == false)
+            {
+                return;
+            }
+
+            var accessedSymbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(accessedMember);
+
+            if (accessedMember is LiteralExpressionSyntax literalExpressionSyntax)
+            {
+                var diagnostic = Diagnostic.Create(DiagnosticDescriptors.NonVirtualSetupSpecification,
+                    accessedMember.GetLocation(),
+                    literalExpressionSyntax.ToString());
+
+                syntaxNodeContext.ReportDiagnostic(diagnostic);
+            }
+
+            if (accessedSymbol.Symbol != null && CanBeSetuped(accessedSymbol) == false)
+            {
+                var diagnostic = Diagnostic.Create(DiagnosticDescriptors.NonVirtualSetupSpecification,
+                    accessedMember.GetLocation(),
+                    accessedSymbol.Symbol.Name);
+
+                syntaxNodeContext.ReportDiagnostic(diagnostic);
             }
         }
 
-        private static void AnalyzeReducedExtensionMethod(InvocationExpressionSyntax invocation,
-            SyntaxNodeAnalysisContext syntaxContext, INamedTypeSymbol assertType)
+        private static bool IsValidForAnalysis(SyntaxNode accessedMember)
         {
-            var identifierNameSyntaxs = invocation.DescendantNodes().OfType<SimpleNameSyntax>().ToList();
+            return accessedMember != null && SupportedMemberAccesses.Contains(accessedMember.RawKind);
+        }
 
-            foreach (var nameSyntax in identifierNameSyntaxs.Where(identifier => MethodNames.Contains(identifier.Identifier.ValueText)))
-            {
-                var info = syntaxContext.SemanticModel.GetSymbolInfo(nameSyntax);
-                if (nameSyntax.Parent != null && info.Symbol != null && info.Symbol.Kind == SymbolKind.Method &&
-                    info.Symbol.ContainingType == assertType)
-                {
-                    var syntaxTokens = nameSyntax.Parent.ChildNodes().ToList();
-                    var returnsChild = syntaxTokens.IndexOf(nameSyntax);
-                    var symbol = syntaxContext.SemanticModel.GetSymbolInfo(syntaxTokens[returnsChild - 1]);
-                    if ( IsVirtual(symbol) == false && IsInterfaceMember(symbol) == false)
-                    {
-                        syntaxContext.ReportDiagnostic(Diagnostic.Create(
-                            DiagnosticDescriptors.NonVirtualSetupSpecification, nameSyntax.GetLocation()));
-                    }
-                }
-            }
+        private static bool CanBeSetuped(SymbolInfo symbolInfo)
+        {
+            return IsInterfaceMember(symbolInfo) || IsVirtual(symbolInfo);
         }
 
         private static bool IsInterfaceMember(SymbolInfo symbolInfo)
@@ -107,9 +141,9 @@ namespace NSubstitute.Analyzers
         {
             var member = symbolInfo.Symbol;
 
-            bool isVirtual = member.IsVirtual
-                             || (member.IsOverride && !member.IsSealed)
-                             || member.IsAbstract;
+            var isVirtual = member.IsVirtual
+                            || (member.IsOverride && !member.IsSealed)
+                            || member.IsAbstract;
 
             return isVirtual;
         }

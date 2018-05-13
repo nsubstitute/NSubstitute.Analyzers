@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Xunit;
 
 namespace NSubstitute.Analyzers.Test.AnalyzerTests.NonVirtualSetupAnalyzerTests
 {
@@ -32,10 +33,94 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Message =
+                    "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(18, 34)
+                    new DiagnosticResultLocation(18, 57)
+                }
+            };
+
+            await VerifyDiagnostics(source, expectedDiagnostic);
+        }
+
+        public override async Task AnalyzerReturnsDiagnostic_WhenSettingValueForLiteral(string literal, string type)
+        {
+            var source = $@"using NSubstitute;
+
+namespace MyNamespace
+{{
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            SubstituteExtensions.ReturnsForAnyArgs<{type}>({literal}, {literal});
+        }}
+    }}
+}}";
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message =
+                    $"Member {literal} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Locations = new[]
+                {
+                    GetExpectedLocation()
+                }
+            };
+
+            DiagnosticResultLocation GetExpectedLocation()
+            {
+                switch (type)
+                {
+                    case "int":
+                        return new DiagnosticResultLocation(9, 57);
+                    case "char":
+                        return new DiagnosticResultLocation(9, 58);
+                    case "bool":
+                        return new DiagnosticResultLocation(9, 58);
+                    case "string":
+                        return new DiagnosticResultLocation(9, 60);
+                }
+
+                return default(DiagnosticResultLocation);
+            }
+
+            await VerifyDiagnostics(source, expectedDiagnostic);
+        }
+
+        public override async Task AnalyzerReturnsDiagnostic_WhenSettingValueForStaticMethod()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public static int Bar()
+        {
+            return 2;
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            SubstituteExtensions.ReturnsForAnyArgs<int>(Foo.Bar(), 1);
+        }
+    }
+}";
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message =
+                    "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(17, 57)
                 }
             };
 
@@ -67,6 +152,126 @@ namespace MyNamespace
     }
 }";
             await VerifyDiagnostics(source);
+        }
+
+        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public virtual int Bar()
+        {
+            return 2;
+        }
+    }
+
+    public class Foo2 : Foo
+    {
+        public override int Bar() => 1;
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo2>();
+            SubstituteExtensions.ReturnsForAnyArgs<int>(substitute.Bar(), 1);
+        }
+    }
+}";
+            await VerifyDiagnostics(source);
+        }
+
+        public override async Task AnalyzerReturnsNoDiagnostics_WhenDataFlowAnalysisIsRequired()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public virtual int Bar()
+        {
+            return 2;
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            var returnValue = substitute.Bar();
+            SubstituteExtensions.ReturnsForAnyArgs<int>(returnValue, 1);
+        }
+    }
+}";
+            await VerifyDiagnostics(source);
+        }
+
+        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForDelegate()
+        {
+            var source = @"using NSubstitute;
+using System;
+
+namespace MyNamespace
+{
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = Substitute.For<Func<int>>();
+            SubstituteExtensions.ReturnsForAnyArgs<int>(substitute(), 1);
+        }
+    }
+}";
+            await VerifyDiagnostics(source);
+        }
+
+        public override async Task AnalyzerReturnsDiagnostics_WhenSettingValueForSealedOverrideMethod()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public virtual int Bar()
+        {
+            return 2;
+        }
+    }
+
+    public class Foo2 : Foo
+    {
+        public sealed override int Bar() => 1;
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo2>();
+            SubstituteExtensions.ReturnsForAnyArgs<int>(substitute.Bar(), 1);
+        }
+    }
+}";
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message =
+                    "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(23, 57)
+                }
+            };
+
+            await VerifyDiagnostics(source, expectedDiagnostic);
         }
 
 
@@ -211,7 +416,6 @@ namespace MyNamespace
     }
 }";
             await VerifyDiagnostics(source);
-
         }
 
 
@@ -265,10 +469,11 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Message =
+                    "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(15, 34)
+                    new DiagnosticResultLocation(15, 57)
                 }
             };
 
@@ -325,10 +530,11 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Message =
+                    "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(15, 34)
+                    new DiagnosticResultLocation(15, 57)
                 }
             };
 
