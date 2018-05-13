@@ -1,6 +1,6 @@
 ﻿namespace NSubstitute.Analyzers
 {
-    public class DiagnosticCategories
+    internal class DiagnosticCategories
     {
         public static readonly string Usage = "NSubstitute.Usage";
     }

@@ -17,7 +17,7 @@ namespace NSubstitute.Analyzers.Test
         [InlineData("false", "bool")]
         [InlineData(@"""1""", "string")]
 #elif VISUAL_BASIC
-        [InlineData("1", "int")]
+        [InlineData("1", "Integer")]
         [InlineData(@"""c""C", "Char")]
         [InlineData("true", "Boolean")]
         [InlineData("false", "Boolean")]

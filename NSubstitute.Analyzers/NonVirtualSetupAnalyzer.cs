@@ -19,7 +19,7 @@ namespace NSubstitute.Analyzers
 #elif VISUAL_BASIC
     [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
 #endif
-    public class NonVirtualSetupAnalyzer : DiagnosticAnalyzer
+    internal class NonVirtualSetupAnalyzer : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
             ImmutableArray.Create(DiagnosticDescriptors.NonVirtualSetupSpecification);
@@ -41,7 +41,8 @@ namespace NSubstitute.Analyzers
             SyntaxKind.StringLiteralExpression);
 
         public sealed override void Initialize(AnalysisContext context)
-        {context.EnableConcurrentExecution();
+        {
+            context.EnableConcurrentExecution();
             context.RegisterSyntaxNodeAction(AnalyzeMemberAccess, SyntaxKind.SimpleMemberAccessExpression);
             context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
         }

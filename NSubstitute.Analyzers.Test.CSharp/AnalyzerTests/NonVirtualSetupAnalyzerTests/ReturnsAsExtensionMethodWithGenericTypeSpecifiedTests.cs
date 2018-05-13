@@ -70,6 +70,7 @@ namespace MyNamespace
 
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
+
         public override async Task AnalyzerReturnsDiagnostic_WhenSettingValueForStaticMethod()
         {
             var source = @"using NSubstitute;

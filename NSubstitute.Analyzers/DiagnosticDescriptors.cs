@@ -4,9 +4,9 @@ using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers
 {
-    public class DiagnosticDescriptors
+    internal class DiagnosticDescriptors
     {
-        
+
 #if CSHARP
         private const string ResourceBaseName = "NSubstitute.Analyzers.CSharp.Resources";
 #elif VISUAL_BASIC
