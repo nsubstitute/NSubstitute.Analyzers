@@ -42,7 +42,6 @@ namespace NSubstitute.Analyzers
 
         public sealed override void Initialize(AnalysisContext context)
         {
-            context.EnableConcurrentExecution();
             context.RegisterSyntaxNodeAction(AnalyzeMemberAccess, SyntaxKind.SimpleMemberAccessExpression);
             context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
         }
@@ -93,7 +92,7 @@ namespace NSubstitute.Analyzers
                 return false;
             }
 
-            var type = syntaxNodeContext.Compilation.GetTypeByMetadataName(
+            var type = syntaxNodeContext.SemanticModel.Compilation.GetTypeByMetadataName(
                 MetadataNames.NSubstituteSubstituteExtensions);
 
             if (type == null)
