@@ -1,8 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Xunit;
 
-namespace NSubstitute.Analyzers.Test.AnalyzerTests.NonVirtualSetupAnalyzerTests
+namespace NSubstitute.Analyzers.Test.VisualBasic.AnalyzerTests.NonVirtualSetupAnalyzerTests
 {
     public class ReturnsForAnyArgsAsOrdinaryMethodWithGenericTypeSpecified : NonVirtualSetupAnalyzerTest
     {
@@ -41,7 +40,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyDiagnostics(source, expectedDiagnostic);
+            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task AnalyzerReturnsDiagnostic_WhenSettingValueForLiteral(string literal, string type)
@@ -87,7 +86,7 @@ namespace MyNamespace
                 return default(DiagnosticResultLocation);
             }
 
-            await VerifyDiagnostics(source, expectedDiagnostic);
+            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task AnalyzerReturnsDiagnostic_WhenSettingValueForStaticMethod()
@@ -124,7 +123,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyDiagnostics(source, expectedDiagnostic);
+            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
         }
 
 
@@ -151,7 +150,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostics(source);
+            await VerifyVisualBasicDiagnostic(source);
         }
 
         public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod()
@@ -182,7 +181,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostics(source);
+            await VerifyVisualBasicDiagnostic(source);
         }
 
         public override async Task AnalyzerReturnsNoDiagnostics_WhenDataFlowAnalysisIsRequired()
@@ -209,7 +208,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostics(source);
+            await VerifyVisualBasicDiagnostic(source);
         }
 
         public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForDelegate()
@@ -228,7 +227,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostics(source);
+            await VerifyVisualBasicDiagnostic(source);
         }
 
         public override async Task AnalyzerReturnsDiagnostics_WhenSettingValueForSealedOverrideMethod()
@@ -271,7 +270,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyDiagnostics(source, expectedDiagnostic);
+            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
         }
 
 
@@ -296,7 +295,7 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyDiagnostics(source);
+            await VerifyVisualBasicDiagnostic(source);
         }
 
 
@@ -320,7 +319,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostics(source);
+            await VerifyVisualBasicDiagnostic(source);
         }
 
 
@@ -344,7 +343,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostics(source);
+            await VerifyVisualBasicDiagnostic(source);
         }
 
 
@@ -368,7 +367,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostics(source);
+            await VerifyVisualBasicDiagnostic(source);
         }
 
         public override async Task AnalyzerReturnsNoDiagnostic_WhenSettingValueForAbstractProperty()
@@ -392,7 +391,7 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyDiagnostics(source);
+            await VerifyVisualBasicDiagnostic(source);
         }
 
         public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForInterfaceIndexer()
@@ -415,7 +414,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostics(source);
+            await VerifyVisualBasicDiagnostic(source);
         }
 
 
@@ -440,7 +439,7 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyDiagnostics(source);
+            await VerifyVisualBasicDiagnostic(source);
         }
 
 
@@ -477,7 +476,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyDiagnostics(source, expectedDiagnostic);
+            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
         }
 
 
@@ -501,7 +500,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostics(source);
+            await VerifyVisualBasicDiagnostic(source);
         }
 
 
@@ -538,7 +537,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyDiagnostics(source, expectedDiagnostic);
+            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
         }
     }
 }

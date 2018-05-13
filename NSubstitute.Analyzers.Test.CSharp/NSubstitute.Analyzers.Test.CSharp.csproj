@@ -22,8 +22,8 @@
     <Compile Include="..\NSubstitute.Analyzers.Test.Shared\DiagnosticResult.cs">
       <Link>DiagnosticResult.cs</Link>
     </Compile>
-    <Compile Include="..\NSubstitute.Analyzers.Test.Shared\NonVirtualSetupAnalyzerTest`1.cs">
-      <Link>NonVirtualSetupAnalyzerTest`1.cs</Link>
+    <Compile Include="..\NSubstitute.Analyzers.Test.Shared\NonVirtualSetupAnalyzerTestBase.cs">
+      <Link>NonVirtualSetupAnalyzerTestBase.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>

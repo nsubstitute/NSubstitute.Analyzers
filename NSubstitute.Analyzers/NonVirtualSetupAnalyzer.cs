@@ -31,7 +31,9 @@ namespace NSubstitute.Analyzers
         private static readonly ImmutableHashSet<SyntaxKind> SupportedMemberAccesses = ImmutableHashSet.Create(
             SyntaxKind.InvocationExpression,
             SyntaxKind.SimpleMemberAccessExpression,
+#if CSHARP
             SyntaxKind.ElementAccessExpression,
+#endif
             SyntaxKind.NumericLiteralExpression,
             SyntaxKind.CharacterLiteralExpression,
             SyntaxKind.FalseLiteralExpression,

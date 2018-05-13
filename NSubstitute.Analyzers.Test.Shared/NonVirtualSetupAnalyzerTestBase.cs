@@ -4,7 +4,7 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Test
 {
-    public abstract class NonVirtualSetupAnalyzerTest<T> : AnalyzerTest<T> where T : DiagnosticAnalyzer, new()
+    public abstract class NonVirtualSetupAnalyzerTestBase : AnalyzerTest
     {
         [Fact]
         public abstract Task AnalyzerReturnsDiagnostic_WhenSettingValueForNonVirtualMethod();

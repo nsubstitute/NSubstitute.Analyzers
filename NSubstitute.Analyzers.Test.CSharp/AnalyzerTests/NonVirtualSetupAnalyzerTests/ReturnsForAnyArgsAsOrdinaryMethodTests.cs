@@ -39,7 +39,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyDiagnostics(source, expectedDiagnostic);
+            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task AnalyzerReturnsDiagnostic_WhenSettingValueForLiteral(string literal, string type)
@@ -68,7 +68,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyDiagnostics(source, expectedDiagnostic);
+            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task AnalyzerReturnsDiagnostic_WhenSettingValueForStaticMethod()
@@ -105,7 +105,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyDiagnostics(source, expectedDiagnostic);
+            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
 
@@ -132,7 +132,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostics(source);
+            await VerifyCSharpDiagnostic(source);
         }
 
         public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod()
@@ -163,7 +163,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostics(source);
+            await VerifyCSharpDiagnostic(source);
         }
 
         public override async Task AnalyzerReturnsNoDiagnostics_WhenDataFlowAnalysisIsRequired()
@@ -190,7 +190,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostics(source);
+            await VerifyCSharpDiagnostic(source);
         }
 
         public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForDelegate()
@@ -209,7 +209,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostics(source);
+            await VerifyCSharpDiagnostic(source);
         }
 
         public override async Task AnalyzerReturnsDiagnostics_WhenSettingValueForSealedOverrideMethod()
@@ -251,7 +251,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyDiagnostics(source, expectedDiagnostic);
+            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
         public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForAbstractMethod()
         {
@@ -274,7 +274,7 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyDiagnostics(source);
+            await VerifyCSharpDiagnostic(source);
         }
 
 
@@ -298,7 +298,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostics(source);
+            await VerifyCSharpDiagnostic(source);
         }
 
 
@@ -322,7 +322,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostics(source);
+            await VerifyCSharpDiagnostic(source);
         }
 
 
@@ -346,7 +346,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostics(source);
+            await VerifyCSharpDiagnostic(source);
         }
 
 
@@ -370,7 +370,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostics(source);
+            await VerifyCSharpDiagnostic(source);
         }
 
         public override async Task AnalyzerReturnsNoDiagnostic_WhenSettingValueForAbstractProperty()
@@ -394,7 +394,7 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyDiagnostics(source);
+            await VerifyCSharpDiagnostic(source);
         }
 
 
@@ -419,7 +419,7 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyDiagnostics(source);
+            await VerifyCSharpDiagnostic(source);
         }
 
 
@@ -455,7 +455,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyDiagnostics(source, expectedDiagnostic);
+            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
 
@@ -479,7 +479,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostics(source);
+            await VerifyCSharpDiagnostic(source);
         }
 
 
@@ -515,7 +515,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyDiagnostics(source, expectedDiagnostic);
+            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
     }
 }

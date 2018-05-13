@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSubstitute.Analyzers.Visua
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSubstitute.Analyzers.Test.CSharp", "NSubstitute.Analyzers.Test.CSharp\NSubstitute.Analyzers.Test.CSharp.csproj", "{DF3A4C84-14C9-42BB-B6A6-7E17A4F00F4B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSubstitute.Analyzers.Test.VisualBasic", "NSubstitute.Analyzers.Test.VisualBasic\NSubstitute.Analyzers.Test.VisualBasic.csproj", "{4C55998D-902B-47E1-BBA9-C66D196805C2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{DF3A4C84-14C9-42BB-B6A6-7E17A4F00F4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF3A4C84-14C9-42BB-B6A6-7E17A4F00F4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF3A4C84-14C9-42BB-B6A6-7E17A4F00F4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C55998D-902B-47E1-BBA9-C66D196805C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C55998D-902B-47E1-BBA9-C66D196805C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C55998D-902B-47E1-BBA9-C66D196805C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C55998D-902B-47E1-BBA9-C66D196805C2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
