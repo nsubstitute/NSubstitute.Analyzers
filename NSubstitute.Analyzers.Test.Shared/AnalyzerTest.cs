@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,6 +45,9 @@ namespace NSubstitute.Analyzers.Test
 
         private static readonly MetadataReference NSubstituteReference =
             MetadataReference.CreateFromFile(typeof(NSubstitute.Substitute).Assembly.Location);
+
+        private static readonly MetadataReference ValueTaskReference =
+            MetadataReference.CreateFromFile(typeof(ValueTask<>).Assembly.Location);
 
         internal static string DefaultFilePathPrefix { get; } = "Test";
 
@@ -203,9 +207,6 @@ Diagnostic:
 Diagnostic:
     {FormatDiagnostics(analyzer, diagnostic)}
 ";
-            (actualSpan.Path == expected.Path || (actualSpan.Path != null && actualSpan.Path.Contains("Test0.") && expected.Path.Contains("Test.")))
-                .Should().BeTrue(message);
-
             var actualLinePosition = actualSpan.StartLinePosition;
 
             // Only check line position if there is an actual line in the real diagnostic
@@ -424,7 +425,7 @@ Diagnostic:
         {
             var compilationDiagnostics = compilationWithAnalyzers.Compilation.GetDiagnostics();
 
-            if (compilationDiagnostics.Any())
+            if (compilationDiagnostics.Any(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error))
             {
                 var messageBuilder = new StringBuilder();
                 messageBuilder.Append("Test code compilation failed. Error(s) encountered:");
@@ -452,6 +453,9 @@ Diagnostic:
         {
             string fileNamePrefix = DefaultFilePathPrefix;
             string fileExt = language == LanguageNames.CSharp ? CSharpDefaultFileExt : VisualBasicDefaultExt;
+            var referencedAssemblies = typeof(Substitute).Assembly.GetReferencedAssemblies();
+            var systemRuntimeReference = GetAssemblyReference(referencedAssemblies, "System.Runtime");
+            var systemThreadingTasksReference = GetAssemblyReference(referencedAssemblies, "System.Threading.Tasks");
 
             var projectId = ProjectId.CreateNewId(debugName: TestProjectName);
 
@@ -478,7 +482,12 @@ Diagnostic:
                     .AddMetadataReference(projectId, VisualBasicSymbolsReference)
 #endif
                     .AddMetadataReference(projectId, CodeAnalysisReference)
-                    .AddMetadataReference(projectId, NSubstituteReference);
+                    .AddMetadataReference(projectId, NSubstituteReference)
+                    .AddMetadataReference(projectId, ValueTaskReference)
+                    .AddMetadataReference(projectId, systemRuntimeReference)
+                    .AddMetadataReference(projectId, systemThreadingTasksReference);
+
+
 
                 int count = 0;
                 foreach (var source in sources)
@@ -515,6 +524,11 @@ Diagnostic:
         private static Diagnostic[] SortDiagnostics(IEnumerable<Diagnostic> diagnostics)
         {
             return diagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();
+        }
+
+        private static MetadataReference GetAssemblyReference(IEnumerable<AssemblyName> assemblies, string name)
+        {
+            return MetadataReference.CreateFromFile(Assembly.Load(assemblies.First(n => n.Name == name)).Location);
         }
     }
 }
