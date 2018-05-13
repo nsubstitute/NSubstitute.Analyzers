@@ -10,11 +10,19 @@ namespace NSubstitute.Analyzers.Test
         public abstract Task AnalyzerReturnsDiagnostic_WhenSettingValueForNonVirtualMethod();
 
         [Theory]
+#if CSHARP
         [InlineData("1", "int")]
         [InlineData("'c'", "char")]
         [InlineData("true", "bool")]
         [InlineData("false", "bool")]
         [InlineData(@"""1""", "string")]
+#elif VISUAL_BASIC
+        [InlineData("1", "int")]
+        [InlineData(@"""c""C", "Char")]
+        [InlineData("true", "Boolean")]
+        [InlineData("false", "Boolean")]
+        [InlineData(@"""1""", "String")]
+#endif
         public abstract Task AnalyzerReturnsDiagnostic_WhenSettingValueForLiteral(string literal, string type);
 
         [Fact]

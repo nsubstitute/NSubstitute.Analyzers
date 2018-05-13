@@ -50,6 +50,11 @@ namespace NSubstitute.Analyzers
         {
             var invocationExpression = (InvocationExpressionSyntax) syntaxNodeContext.Node;
             var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
+
+            if (methodSymbolInfo.Symbol?.Kind != SymbolKind.Method)
+            {
+                return;
+            }
             var methodSymbol = (IMethodSymbol) methodSymbolInfo.Symbol;
             if (methodSymbol == null || methodSymbol.MethodKind != MethodKind.Ordinary)
             {

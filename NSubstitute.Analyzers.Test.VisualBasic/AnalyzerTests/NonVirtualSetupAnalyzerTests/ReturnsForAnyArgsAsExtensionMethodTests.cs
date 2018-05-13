@@ -32,7 +32,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Message = "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(18, 13)
@@ -61,7 +61,7 @@ namespace MyNamespace
                 Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
                 Severity = DiagnosticSeverity.Warning,
                 Message =
-                    $"Member {literal} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                    $"Member {literal} can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(9, 13)
@@ -98,7 +98,7 @@ namespace MyNamespace
                 Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
                 Severity = DiagnosticSeverity.Warning,
                 Message =
-                    "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                    "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(17, 13)
@@ -244,7 +244,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Message = "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(23, 13)
@@ -448,7 +448,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Message = "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(15, 13)
@@ -508,7 +508,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Message = "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(15, 13)
