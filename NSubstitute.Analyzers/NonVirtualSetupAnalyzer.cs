@@ -2,13 +2,23 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+#if CSHARP
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+#endif
 using Microsoft.CodeAnalysis.Diagnostics;
+#if VISUAL_BASIC
+    using Microsoft.CodeAnalysis.VisualBasic;
+    using Microsoft.CodeAnalysis.VisualBasic.Syntax;
+#endif
 
 namespace NSubstitute.Analyzers
 {
+#if CSHARP
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
+#elif VISUAL_BASIC
+    [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
+#endif
     public class NonVirtualSetupAnalyzer : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
@@ -29,8 +39,7 @@ namespace NSubstitute.Analyzers
             SyntaxKind.StringLiteralExpression);
 
         public sealed override void Initialize(AnalysisContext context)
-        {
-            context.EnableConcurrentExecution();
+        {context.EnableConcurrentExecution();
             context.RegisterSyntaxNodeAction(AnalyzeMemberAccess, SyntaxKind.SimpleMemberAccessExpression);
             context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
         }

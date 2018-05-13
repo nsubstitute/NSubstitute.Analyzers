@@ -6,7 +6,12 @@ namespace NSubstitute.Analyzers
 {
     public class DiagnosticDescriptors
     {
+        
+#if CSHARP
         private const string ResourceBaseName = "NSubstitute.Analyzers.CSharp.Resources";
+#elif VISUAL_BASIC
+        private const string ResourceBaseName = "NSubstitute.Analyzers.VisualBasic.Resources";
+#endif
 
         internal static readonly ResourceManager ResourceManager =
             new ResourceManager(
