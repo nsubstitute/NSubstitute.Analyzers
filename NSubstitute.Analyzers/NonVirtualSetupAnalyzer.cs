@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -17,15 +18,15 @@ namespace NSubstitute.Analyzers
             MetadataNames.NSubstituteReturnsMethod,
             MetadataNames.NSubstituteReturnsForAnyArgsMethod);
 
-        private static readonly ImmutableHashSet<int> SupportedMemberAccesses = ImmutableHashSet.Create(
-            (int) SyntaxKind.InvocationExpression,
-            (int) SyntaxKind.SimpleMemberAccessExpression,
-            (int) SyntaxKind.ElementAccessExpression,
-            (int) SyntaxKind.NumericLiteralExpression,
-            (int) SyntaxKind.CharacterLiteralExpression,
-            (int) SyntaxKind.FalseLiteralExpression,
-            (int) SyntaxKind.TrueLiteralExpression,
-            (int) SyntaxKind.StringLiteralExpression);
+        private static readonly ImmutableHashSet<SyntaxKind> SupportedMemberAccesses = ImmutableHashSet.Create(
+            SyntaxKind.InvocationExpression,
+            SyntaxKind.SimpleMemberAccessExpression,
+            SyntaxKind.ElementAccessExpression,
+            SyntaxKind.NumericLiteralExpression,
+            SyntaxKind.CharacterLiteralExpression,
+            SyntaxKind.FalseLiteralExpression,
+            SyntaxKind.TrueLiteralExpression,
+            SyntaxKind.StringLiteralExpression);
 
         public sealed override void Initialize(AnalysisContext context)
         {
@@ -44,19 +45,7 @@ namespace NSubstitute.Analyzers
                 return;
             }
 
-            if (MethodNames.Contains(methodSymbol.Name) == false)
-            {
-                return;
-            }
-
-            var type = syntaxNodeContext.Compilation.GetTypeByMetadataName(MetadataNames.NSubstituteSubstituteExtensions);
-
-            if (type == null)
-            {
-                return;
-            }
-
-            if (methodSymbol.ContainingType != type)
+            if (IsSubstituteMethod(syntaxNodeContext, invocationExpression, methodSymbol.Name) == false)
             {
                 return;
             }
@@ -69,22 +58,8 @@ namespace NSubstitute.Analyzers
         private void AnalyzeMemberAccess(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
             var memberAccessExpression = (MemberAccessExpressionSyntax) syntaxNodeContext.Node;
-            if (MethodNames.Contains(memberAccessExpression.Name.Identifier.Text) == false)
-            {
-                return;
-            }
-
-            var type = syntaxNodeContext.Compilation.GetTypeByMetadataName(
-                MetadataNames.NSubstituteSubstituteExtensions);
-
-            if (type == null)
-            {
-                return;
-            }
-
-            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(memberAccessExpression);
-
-            if (symbol.Symbol?.ContainingType != type)
+            var memberName = memberAccessExpression.Name.Identifier.Text;
+            if (IsSubstituteMethod(syntaxNodeContext, memberAccessExpression, memberName) == false)
             {
                 return;
             }
@@ -92,6 +67,31 @@ namespace NSubstitute.Analyzers
             var accessedMember = memberAccessExpression.DescendantNodes().FirstOrDefault();
 
             AnalyzeMember(syntaxNodeContext, accessedMember);
+        }
+
+        private static bool IsSubstituteMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntax, string memberName)
+        {
+            if (MethodNames.Contains(memberName) == false)
+            {
+                return false;
+            }
+
+            var type = syntaxNodeContext.Compilation.GetTypeByMetadataName(
+                MetadataNames.NSubstituteSubstituteExtensions);
+
+            if (type == null)
+            {
+                return false;
+            }
+
+            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax);
+
+            if (symbol.Symbol?.ContainingType != type && symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == false)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private static void AnalyzeMember(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode accessedMember)
@@ -124,7 +124,7 @@ namespace NSubstitute.Analyzers
 
         private static bool IsValidForAnalysis(SyntaxNode accessedMember)
         {
-            return accessedMember != null && SupportedMemberAccesses.Contains(accessedMember.RawKind);
+            return accessedMember != null && SupportedMemberAccesses.Contains(accessedMember.Kind());
         }
 
         private static bool CanBeSetuped(SymbolInfo symbolInfo)
