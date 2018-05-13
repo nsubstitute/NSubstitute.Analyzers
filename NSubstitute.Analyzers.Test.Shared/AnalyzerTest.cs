@@ -201,12 +201,7 @@ Diagnostic:
         {
             var actualSpan = actual.GetLineSpan();
 
-            var message =
-                    $@"Expected diagnostic to be in file ""{expected.Path}"" was actually in file ""{actualSpan.Path}""
-
-Diagnostic:
-    {FormatDiagnostics(analyzer, diagnostic)}
-";
+            string message;
             var actualLinePosition = actualSpan.StartLinePosition;
 
             // Only check line position if there is an actual line in the real diagnostic
