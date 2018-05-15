@@ -5,7 +5,7 @@ namespace NSubstitute.Analyzers.Test.CSharp.AnalyzerTests.NonVirtualSetupAnalyze
 {
     public class ReturnsAsOrdinaryMethodWithGenericTypeSpecifiedTests : NonVirtualSetupAnalyzerTest
     {
-        public override async Task AnalyzerReturnsDiagnostic_WhenSettingValueForNonVirtualMethod()
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod()
         {
             var source = @"using NSubstitute;
 
@@ -42,7 +42,7 @@ namespace MyNamespace
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task AnalyzerReturnsDiagnostic_WhenSettingValueForLiteral(string literal, string type)
+        public override async Task ReportsDiagnostics_WhenSettingValueForLiteral(string literal, string type)
         {
             var source = $@"using NSubstitute;
 
@@ -88,7 +88,7 @@ namespace MyNamespace
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task AnalyzerReturnsDiagnostic_WhenSettingValueForStaticMethod()
+        public override async Task ReportsDiagnostics_WhenSettingValueForStaticMethod()
         {
             var source = @"using NSubstitute;
 
@@ -126,7 +126,7 @@ namespace MyNamespace
         }
 
 
-        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForVirtualMethod()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod()
         {
             var source = @"using NSubstitute;
 
@@ -152,7 +152,7 @@ namespace MyNamespace
             await VerifyCSharpDiagnostic(source);
         }
 
-        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod()
         {
             var source = @"using NSubstitute;
 
@@ -183,7 +183,7 @@ namespace MyNamespace
             await VerifyCSharpDiagnostic(source);
         }
 
-        public override async Task AnalyzerReturnsNoDiagnostics_WhenDataFlowAnalysisIsRequired()
+        public override async Task ReportsNoDiagnostics_WhenDataFlowAnalysisIsRequired()
         {
             var source = @"using NSubstitute;
 
@@ -210,7 +210,7 @@ namespace MyNamespace
             await VerifyCSharpDiagnostic(source);
         }
 
-        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForDelegate()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForDelegate()
         {
             var source = @"using NSubstitute;
 using System;
@@ -271,7 +271,7 @@ namespace MyNamespace
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForAbstractMethod()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod()
         {
             var source = @"using NSubstitute;
 
@@ -296,7 +296,7 @@ namespace MyNamespace
         }
 
 
-        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForInterfaceMethod()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod()
         {
             var source = @"using NSubstitute;
 
@@ -320,7 +320,7 @@ namespace MyNamespace
         }
 
 
-        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForInterfaceProperty()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty()
         {
             var source = @"using NSubstitute;
 
@@ -344,7 +344,7 @@ namespace MyNamespace
         }
 
 
-        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod()
         {
             var source = @"using NSubstitute;
 
@@ -391,7 +391,7 @@ namespace MyNamespace
             await VerifyCSharpDiagnostic(source);
         }
 
-        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForInterfaceIndexer()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer()
         {
             var source = @"using NSubstitute;
 
@@ -440,7 +440,7 @@ namespace MyNamespace
         }
 
 
-        public override async Task AnalyzerReturnsDiagnostic_WhenSettingValueForNonVirtualProperty()
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty()
         {
             var source = @"using NSubstitute;
 
@@ -476,7 +476,7 @@ namespace MyNamespace
         }
 
 
-        public override async Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForVirtualIndexer()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualIndexer()
         {
             var source = @"using NSubstitute;
 

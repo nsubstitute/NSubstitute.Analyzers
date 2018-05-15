@@ -7,7 +7,7 @@ namespace NSubstitute.Analyzers.Test
     public abstract class NonVirtualSetupAnalyzerTestBase : AnalyzerTest
     {
         [Fact]
-        public abstract Task AnalyzerReturnsDiagnostic_WhenSettingValueForNonVirtualMethod();
+        public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod();
 
         [Theory]
 #if CSHARP
@@ -23,16 +23,16 @@ namespace NSubstitute.Analyzers.Test
         [InlineData("false", "Boolean")]
         [InlineData(@"""1""", "String")]
 #endif
-        public abstract Task AnalyzerReturnsDiagnostic_WhenSettingValueForLiteral(string literal, string type);
+        public abstract Task ReportsDiagnostics_WhenSettingValueForLiteral(string literal, string type);
 
         [Fact]
-        public abstract Task AnalyzerReturnsDiagnostic_WhenSettingValueForStaticMethod();
+        public abstract Task ReportsDiagnostics_WhenSettingValueForStaticMethod();
 
         [Fact]
-        public abstract Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForVirtualMethod();
+        public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod();
 
         [Fact]
-        public abstract Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod();
+        public abstract Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod();
 
         /// <summary>
         /// As for today cases where setup is done indirectly e.g
@@ -46,40 +46,40 @@ namespace NSubstitute.Analyzers.Test
         /// </summary>
         /// <returns></returns>
         [Fact]
-        public abstract Task AnalyzerReturnsNoDiagnostics_WhenDataFlowAnalysisIsRequired();
+        public abstract Task ReportsNoDiagnostics_WhenDataFlowAnalysisIsRequired();
 
         [Fact]
-        public abstract Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForDelegate();
+        public abstract Task ReportsNoDiagnostics_WhenSettingValueForDelegate();
 
         [Fact]
         public abstract Task AnalyzerReturnsDiagnostics_WhenSettingValueForSealedOverrideMethod();
 
         [Fact]
-        public abstract Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForAbstractMethod();
+        public abstract Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod();
 
         [Fact]
-        public abstract Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForInterfaceMethod();
+        public abstract Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod();
 
         [Fact]
-        public abstract Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForInterfaceProperty();
+        public abstract Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty();
 
         [Fact]
-        public abstract Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod();
+        public abstract Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod();
 
         [Fact]
         public abstract Task AnalyzerReturnsNoDiagnostic_WhenSettingValueForAbstractProperty();
 
         [Fact]
-        public abstract Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForInterfaceIndexer();
+        public abstract Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer();
 
         [Fact]
         public abstract Task AnalyzerReturnsNoDiagnostic_WhenSettingValueForVirtualProperty();
 
         [Fact]
-        public abstract Task AnalyzerReturnsDiagnostic_WhenSettingValueForNonVirtualProperty();
+        public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty();
 
         [Fact]
-        public abstract Task AnalyzerReturnsNoDiagnostics_WhenSettingValueForVirtualIndexer();
+        public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualIndexer();
 
         [Fact]
         public abstract Task AnalyzerReturnsDiagnostics_WhenSettingValueForNonVirtualIndexer();

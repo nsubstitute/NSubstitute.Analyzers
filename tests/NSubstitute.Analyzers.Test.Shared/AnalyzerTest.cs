@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -56,6 +58,12 @@ namespace NSubstitute.Analyzers.Test
         internal static string VisualBasicDefaultExt { get; } = "vb";
 
         internal static string TestProjectName { get; } = "TestProject";
+
+        protected AnalyzerTest()
+        {
+            Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture =
+                CultureInfo.GetCultureInfoByIetfLanguageTag("en-US");
+        }
 
         #if CSHARP
         /// <summary>
