@@ -1,0 +1,25 @@
+image: Visual Studio 2017
+# Build script
+init:
+  - git config --global core.autocrlf true
+
+# Build script
+build_script:
+  - ps: dotnet test ./NSubstitute.Analyzers.sln
+
+# Tests
+test: off
+
+# Branches to build
+branches:
+  # Whitelist
+  only:
+    - master
+    - dev
+    - /r/.*/
+    - /release/.*/
+    - /hotfix/.*/
+
+# Build cache
+cache:
+  - Build/tools -> Build/build.csx
