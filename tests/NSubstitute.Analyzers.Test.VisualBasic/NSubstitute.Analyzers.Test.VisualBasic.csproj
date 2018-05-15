@@ -27,6 +27,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NSubstitute.Analyzers\NSubstitute.Analyzers.VisualBasic.csproj" />
+    <ProjectReference Include="..\..\src\NSubstitute.Analyzers\NSubstitute.Analyzers.VisualBasic.csproj" />
   </ItemGroup>
 </Project>
