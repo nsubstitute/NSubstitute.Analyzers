@@ -5,7 +5,7 @@ init:
 
 # Build script
 build_script:
-  - ps: dotnet test ./NSubstitute.Analyzers.sln
+  - ps: dotnet test .\NSubstitute.Analyzers.sln
 
 # Tests
 test: off
@@ -19,7 +19,3 @@ branches:
     - /r/.*/
     - /release/.*/
     - /hotfix/.*/
-
-# Build cache
-cache:
-  - Build/tools -> Build/build.csx
