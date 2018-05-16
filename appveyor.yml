@@ -6,6 +6,7 @@ init:
 # Build script
 build_script:
   - cd Build
+  - ps: echo "Platform: $ENV:OS dotnet version: $(dotnet --version)"
   - ps: .\build.ps1 -Configuration Release -Target AppVeyor
 
 # Tests
