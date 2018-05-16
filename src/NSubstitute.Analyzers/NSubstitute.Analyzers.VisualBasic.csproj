@@ -3,7 +3,7 @@
     <TargetFramework>netstandard1.1</TargetFramework>
     <PackageTargetFallback>portable45-net45+win8</PackageTargetFallback>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <DefineConstants>$(DefineConstants);VISUAL_BASIC</DefineConstants>
     <AssemblyName>NSubstitute.Analyzers.VisualBasic</AssemblyName>
     <RootNamespace>NSubstitute.Analyzers</RootNamespace>
@@ -12,7 +12,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>NSubstitute.Analyzers.VisualBasic</PackageId>
-    <PackageVersion>1.0.5</PackageVersion>
+    <PackageVersion>$(VersionSuffix)</PackageVersion>
     <Authors>Tomasz Podolak</Authors>
     <PackageLicenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</PackageLicenseUrl>
     <PackageProjectUrl>http://PROJECT_URL_HERE_OR_DELETE_THIS_LINE</PackageProjectUrl>
@@ -27,7 +27,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Update="NetStandard.Library" Version="$(NetStandardImplicitPackageVersion)" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="1.1.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="1.1.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Workspaces" Version="1.1.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Composition" Version="1.0.27" PrivateAssets="all" />
   </ItemGroup>

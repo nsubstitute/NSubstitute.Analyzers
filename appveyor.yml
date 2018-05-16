@@ -5,7 +5,8 @@ init:
 
 # Build script
 build_script:
-  - ps: dotnet test .\NSubstitute.Analyzers.sln
+  - cd Build
+  - ps: .\build.ps1 -Configuration Release -Target AppVeyor
 
 # Tests
 test: off
@@ -19,3 +20,7 @@ branches:
     - /r/.*/
     - /release/.*/
     - /hotfix/.*/
+
+# Build cache
+cache:
+  - Build/tools -> Build/build.csx
