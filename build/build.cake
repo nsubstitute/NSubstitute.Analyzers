@@ -40,8 +40,8 @@ Setup(context =>
 Task("Clean")
     .Does(() =>
 {
-    CleanDirectories(paths.Directories.ToClean);
     DotNetCoreClean(paths.Files.Solution.ToString());
+    CleanDirectories(paths.Directories.ToClean);    
 });
 
 Task("Restore-NuGet-Packages")
@@ -97,7 +97,7 @@ Task("Build")
     DotNetCoreBuild(paths.Files.Solution.ToString(), new DotNetCoreBuildSettings
     {
         Configuration = parameters.Configuration,
-
+        NoRestore = true
     });
 });
 
