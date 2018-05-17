@@ -78,9 +78,7 @@ Task("Run-Tests")
                         {
                             ReturnTargetCodeOffset = 0,
                             OldStyle = true,
-                            ArgumentCustomization = args => args.Append("-mergeoutput"),
-
-
+                            MergeOutput = true
                         }
                         .WithFilter("+[NSubstitute.Analyzers*]* -[NSubstitute.Analyzers.Test*]*")
                         .ExcludeByAttribute("*.ExcludeFromCodeCoverage*")
@@ -97,7 +95,8 @@ Task("Build")
     DotNetCoreBuild(paths.Files.Solution.ToString(), new DotNetCoreBuildSettings
     {
         Configuration = parameters.Configuration,
-        NoRestore = true
+        NoRestore = true,
+        ArgumentCustomization = arg => arg.AppendSwitch("/p:DebugType","=","Full")
     });
 });
 
