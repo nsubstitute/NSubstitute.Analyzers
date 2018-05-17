@@ -51,13 +51,13 @@ namespace NSubstitute.Analyzers.Test
         private static readonly MetadataReference ValueTaskReference =
             MetadataReference.CreateFromFile(typeof(ValueTask<>).Assembly.Location);
 
-        internal static string DefaultFilePathPrefix { get; } = "Test";
+        public static string DefaultFilePathPrefix { get; } = "Test";
 
-        internal static string CSharpDefaultFileExt { get; } = "cs";
+        public static string CSharpDefaultFileExt { get; } = "cs";
 
-        internal static string VisualBasicDefaultExt { get; } = "vb";
+        public static string VisualBasicDefaultExt { get; } = "vb";
 
-        internal static string TestProjectName { get; } = "TestProject";
+        public static string TestProjectName { get; } = "TestProject";
 
         protected AnalyzerTest()
         {
@@ -72,7 +72,7 @@ namespace NSubstitute.Analyzers.Test
         /// </summary>
         /// <param name="source">A class in the form of a string to run the analyzer on.</param>
         /// <param name="expected"> DiagnosticResults that should appear after the analyzer is run on the source.</param>
-        internal async Task VerifyCSharpDiagnostic(string source, params DiagnosticResult[] expected)
+        public async Task VerifyCSharpDiagnostic(string source, params DiagnosticResult[] expected)
         {
             await this.VerifyVisualBasicDiagnostic(new[] { source }, LanguageNames.CSharp, this.GetCSharpDiagnosticAnalyzer(), expected, false);
         }
@@ -89,7 +89,7 @@ namespace NSubstitute.Analyzers.Test
         /// </summary>
         /// <param name="source">A class in the form of a string to run the analyzer on.</param>
         /// <param name="expected"> DiagnosticResults that should appear after the analyzer is run on the source.</param>
-        internal async Task VerifyVisualBasicDiagnostic(string source, params DiagnosticResult[] expected)
+        public async Task VerifyVisualBasicDiagnostic(string source, params DiagnosticResult[] expected)
         {
             await this.VerifyVisualBasicDiagnostic(new[] { source }, LanguageNames.VisualBasic, this.GetVisualBasicDiagnosticAnalyzer(), expected, false);
         }

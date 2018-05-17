@@ -19,7 +19,7 @@ namespace NSubstitute.Analyzers
 #elif VISUAL_BASIC
     [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
 #endif
-    internal class NonVirtualSetupAnalyzer : DiagnosticAnalyzer
+    public class NonVirtualSetupAnalyzer : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
             ImmutableArray.Create(DiagnosticDescriptors.NonVirtualSetupSpecification);

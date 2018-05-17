@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers
 {
-    internal class DiagnosticDescriptors
+    public class DiagnosticDescriptors
     {
 
 #if CSHARP
@@ -13,7 +13,7 @@ namespace NSubstitute.Analyzers
         private const string ResourceBaseName = "NSubstitute.Analyzers.VisualBasic.Resources";
 #endif
 
-        internal static readonly ResourceManager ResourceManager =
+        public static readonly ResourceManager ResourceManager =
             new ResourceManager(
                 ResourceBaseName,
                 typeof(DiagnosticDescriptors).GetTypeInfo().Assembly);
