@@ -3,11 +3,11 @@
 #load "./paths.cake"
 
 // Install tools.
-#tool "nuget:https://www.nuget.org/api/v2?package=gitreleasemanager"
-#tool "nuget:https://www.nuget.org/api/v2?package=GitVersion.CommandLine"
-#tool "nuget:https://www.nuget.org/api/v2?package=OpenCover"
-#tool "nuget:https://www.nuget.org/api/v2?package=ReportGenerator"
-#tool nuget:?package=Codecov
+#tool "nuget:https://www.nuget.org/api/v2?package=gitreleasemanager&version=0.7.0"
+#tool "nuget:https://www.nuget.org/api/v2?package=GitVersion.CommandLine&version=3.6.5"
+#tool "nuget:https://www.nuget.org/api/v2?package=OpenCover&version=4.6.519"
+#tool "nuget:https://www.nuget.org/api/v2?package=ReportGenerator&version=3.1.2"
+#tool "nuget:https://www.nuget.org/api/v2?package=codecov&version=1.0.3"
 #addin nuget:?package=Cake.Codecov
 
 var parameters = BuildParameters.GetParameters(Context);
