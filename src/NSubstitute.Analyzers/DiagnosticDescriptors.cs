@@ -26,6 +26,14 @@ namespace NSubstitute.Analyzers
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true);
 
+        public static DiagnosticDescriptor UnusedReceived { get; } =
+            CreateDiagnosticDescriptor(
+                name: nameof(UnusedReceived),
+                id: DiagnosticIdentifiers.UnusedReceived,
+                category: DiagnosticCategories.Usage,
+                defaultSeverity: DiagnosticSeverity.Warning,
+                isEnabledByDefault: true);
+
         private static DiagnosticDescriptor CreateDiagnosticDescriptor(
             string name, string id, string category, DiagnosticSeverity defaultSeverity, bool isEnabledByDefault)
         {

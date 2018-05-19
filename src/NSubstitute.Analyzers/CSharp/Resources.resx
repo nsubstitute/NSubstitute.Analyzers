@@ -126,7 +126,19 @@
     <comment>The format-able message the diagnostic displays.</comment>
   </data>
   <data name="NonVirtualSetupSpecificationTitle" xml:space="preserve">
-    <value>Non-virtual setup specification</value>
+    <value>Non-virtual setup specification.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+  <data name="UnusedReceivedDescription" xml:space="preserve">
+    <value>Unused received check.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="UnusedReceivedMessageFormat" xml:space="preserve">
+    <value>Unused received check.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="UnusedReceivedTitle" xml:space="preserve">
+    <value>Received check.</value>
     <comment>The title of the diagnostic.</comment>
   </data>
 </root>
