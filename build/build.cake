@@ -5,10 +5,10 @@
 // Install tools.
 #tool "nuget:https://www.nuget.org/api/v2?package=gitreleasemanager"
 #tool "nuget:https://www.nuget.org/api/v2?package=GitVersion.CommandLine"
-#tool "nuget:https://www.nuget.org/api/v2?package=coveralls.io"
 #tool "nuget:https://www.nuget.org/api/v2?package=OpenCover"
 #tool "nuget:https://www.nuget.org/api/v2?package=ReportGenerator"
-#addin "nuget:https://www.nuget.org/api/v2?package=cake.coveralls"
+#tool nuget:?package=Codecov
+#addin nuget:?package=Cake.Codecov
 
 var parameters = BuildParameters.GetParameters(Context);
 var buildVersion = BuildVersion.Calculate(Context);
@@ -163,20 +163,17 @@ Task("Upload-Coverage-Report")
     .WithCriteria(() => FileExists(paths.Files.TestCoverageOutput))
     .WithCriteria(() => !parameters.IsLocalBuild)
     .WithCriteria(() => !parameters.IsPullRequest)
-    .WithCriteria(() => parameters.IsMaster)
+    .WithCriteria(() => parameters.IsMaster || parameters.IsTagged)
     .IsDependentOn("Publish")
     .Does(() =>
 {
-    var repoKey = EnvironmentVariable("COVERALLS_REPO_TOKEN");
+    var repoKey = EnvironmentVariable("CODECOV_REPO_TOKEN");
     if (string.IsNullOrEmpty(repoKey))
     {
-        throw new InvalidOperationException("Could not resolve Coveralls Repo key.");
+        throw new InvalidOperationException("Could not resolve codecov repo key.");
     }
 
-    CoverallsIo(paths.Files.TestCoverageOutput, new CoverallsIoSettings
-    {
-        RepoToken = repoKey
-    });
+    Codecov(paths.Files.TestCoverageOutput.ToString(), repoKey);
 });
 
 Task("AppVeyor")

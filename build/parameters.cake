@@ -4,6 +4,7 @@ public class BuildParameters
     public string Configuration { get; private set; }
     public bool SkipOpenCover { get; set; }
     public bool IsMaster { get; private set; }
+    public bool IsDev { get; private set; }
     public bool IsLocalBuild { get; private set; }
     public bool IsTagged { get; private set; }
     public bool IsPullRequest { get; private set; }
@@ -33,6 +34,7 @@ public class BuildParameters
             SkipOpenCover = context.Argument<bool>("SkipOpenCover", false),
             IsLocalBuild = buildSystem.IsLocalBuild,
             IsMaster = StringComparer.OrdinalIgnoreCase.Equals("master", buildSystem.AppVeyor.Environment.Repository.Branch),
+            IsDev = StringComparer.OrdinalIgnoreCase.Equals("dev", buildSystem.AppVeyor.Environment.Repository.Branch),
             IsTagged = IsBuildTagged(buildSystem),
             IsPullRequest = IsPullRequestBuild(buildSystem),
             TargetFramework = "netcoreapp2.0",
