@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.Diagnostics;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Test
@@ -52,7 +51,7 @@ namespace NSubstitute.Analyzers.Test
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForDelegate();
 
         [Fact]
-        public abstract Task AnalyzerReturnsDiagnostics_WhenSettingValueForSealedOverrideMethod();
+        public abstract Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod();
 
         [Fact]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod();
@@ -67,13 +66,13 @@ namespace NSubstitute.Analyzers.Test
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod();
 
         [Fact]
-        public abstract Task AnalyzerReturnsNoDiagnostic_WhenSettingValueForAbstractProperty();
+        public abstract Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty();
 
         [Fact]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer();
 
         [Fact]
-        public abstract Task AnalyzerReturnsNoDiagnostic_WhenSettingValueForVirtualProperty();
+        public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty();
 
         [Fact]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty();
@@ -82,6 +81,9 @@ namespace NSubstitute.Analyzers.Test
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualIndexer();
 
         [Fact]
-        public abstract Task AnalyzerReturnsDiagnostics_WhenSettingValueForNonVirtualIndexer();
+        public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer();
+
+        [Fact]
+        public abstract Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod();
     }
 }

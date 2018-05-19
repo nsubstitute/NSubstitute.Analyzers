@@ -229,7 +229,7 @@ namespace MyNamespace
             await VerifyCSharpDiagnostic(source);
         }
 
-        public override async Task AnalyzerReturnsDiagnostics_WhenSettingValueForSealedOverrideMethod()
+        public override async Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod()
         {
             var source = @"using NSubstitute;
 
@@ -367,7 +367,7 @@ namespace MyNamespace
             await VerifyCSharpDiagnostic(source);
         }
 
-        public override async Task AnalyzerReturnsNoDiagnostic_WhenSettingValueForAbstractProperty()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty()
         {
             var source = @"using NSubstitute;
 
@@ -415,7 +415,7 @@ namespace MyNamespace
 
         }
 
-        public override async Task AnalyzerReturnsNoDiagnostic_WhenSettingValueForVirtualProperty()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty()
         {
             var source = @"using NSubstitute;
 
@@ -500,7 +500,7 @@ namespace MyNamespace
         }
 
 
-        public override async Task AnalyzerReturnsDiagnostics_WhenSettingValueForNonVirtualIndexer()
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer()
         {
             var source = @"using NSubstitute;
 
@@ -533,6 +533,40 @@ namespace MyNamespace
             };
 
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
+        }
+
+        public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod()
+        {
+            var source = @"
+
+namespace NSubstitute
+{
+    public class Foo
+    {
+        public int Bar()
+        {
+            return 1;
+        }
+    }
+
+    public static class SubstituteExtensions
+    {
+        public static T Returns<T>(this T returnValue, T returnThis)
+        {
+            return default(T);
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            Foo substitute = null;
+            SubstituteExtensions.Returns<int>(substitute.Bar(), 1);
+        }
+    }
+}";
+            await VerifyCSharpDiagnostic(source);
         }
     }
 }

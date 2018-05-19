@@ -6,7 +6,7 @@ init:
 # Build script
 build_script:
   - cd Build
-  - ps: >- 
+  - ps: >-
       echo "Platform: $ENV:OS dotnet version: $(dotnet --version)"
 
   - ps: .\build.ps1 -Configuration Release -Target AppVeyor
@@ -26,4 +26,4 @@ branches:
 
 # Build cache
 cache:
-  - Build/tools -> Build/build.csx
+  - Build/tools -> Build/build.cake

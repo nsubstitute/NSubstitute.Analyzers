@@ -16,10 +16,9 @@ using Microsoft.CodeAnalysis.CSharp;
 #endif
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
-using Xunit;
 #if VISUAL_BASIC
 using Microsoft.CodeAnalysis.VisualBasic;
-
+using Microsoft.VisualBasic.CompilerServices;
 #endif
 
 namespace NSubstitute.Analyzers.Test
@@ -35,12 +34,9 @@ namespace NSubstitute.Analyzers.Test
 
         private static readonly MetadataReference SystemCoreReference =
             MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location);
-#if CSHARP
-        private static readonly MetadataReference CSharpSymbolsReference =
- MetadataReference.CreateFromFile(typeof(CSharpCompilation).Assembly.Location);
-#elif VISUAL_BASIC
-        private static readonly MetadataReference VisualBasicSymbolsReference =
-            MetadataReference.CreateFromFile(typeof(VisualBasicCompilation).Assembly.Location);
+#if VISUAL_BASIC
+        private static readonly MetadataReference VisualBasicReference =
+            MetadataReference.CreateFromFile(typeof(StandardModuleAttribute).Assembly.Location);
 #endif
         private static readonly MetadataReference CodeAnalysisReference =
             MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
@@ -479,18 +475,14 @@ Diagnostic:
 #endif
                     .AddMetadataReference(projectId, CorlibReference)
                     .AddMetadataReference(projectId, SystemCoreReference)
-#if CSHARP
-                    .AddMetadataReference(projectId, CSharpSymbolsReference)
-#elif VISUAL_BASIC
-                    .AddMetadataReference(projectId, VisualBasicSymbolsReference)
+#if VISUAL_BASIC
+                    .AddMetadataReference(projectId, VisualBasicReference)
 #endif
                     .AddMetadataReference(projectId, CodeAnalysisReference)
                     .AddMetadataReference(projectId, NSubstituteReference)
                     .AddMetadataReference(projectId, ValueTaskReference)
                     .AddMetadataReference(projectId, systemRuntimeReference)
                     .AddMetadataReference(projectId, systemThreadingTasksReference);
-
-
 
                 int count = 0;
                 foreach (var source in sources)
