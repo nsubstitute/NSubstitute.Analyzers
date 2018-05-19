@@ -92,22 +92,13 @@ namespace NSubstitute.Analyzers
                 return false;
             }
 
-            var type = syntaxNodeContext.SemanticModel.Compilation.GetTypeByMetadataName(
-                MetadataNames.NSubstituteSubstituteExtensions);
-
-            if (type == null)
-            {
-                return false;
-            }
-
             var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax);
 
-            if (symbol.Symbol?.ContainingType != type && symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == false)
-            {
-                return false;
-            }
+            return symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName,
+                       StringComparison.OrdinalIgnoreCase) == true &&
+                   symbol.Symbol?.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
+                       StringComparison.OrdinalIgnoreCase) == true;
 
-            return true;
         }
 
         private static void AnalyzeMember(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode accessedMember)

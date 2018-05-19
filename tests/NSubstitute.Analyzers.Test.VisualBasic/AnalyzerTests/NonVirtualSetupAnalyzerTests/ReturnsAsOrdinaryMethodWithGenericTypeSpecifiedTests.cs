@@ -227,7 +227,7 @@ End Namespace
             await VerifyVisualBasicDiagnostic(source);
         }
 
-        public override async Task AnalyzerReturnsDiagnostics_WhenSettingValueForSealedOverrideMethod()
+        public override async Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod()
         {
             var source = @"Imports NSubstitute
 
@@ -370,7 +370,7 @@ End Namespace";
             await VerifyVisualBasicDiagnostic(source);
         }
 
-        public override async Task AnalyzerReturnsNoDiagnostic_WhenSettingValueForAbstractProperty()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty()
         {
             var source = @"Imports NSubstitute
 
@@ -416,7 +416,7 @@ End Namespace";
         }
 
 
-        public override async Task AnalyzerReturnsNoDiagnostic_WhenSettingValueForVirtualProperty()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty()
         {
             var source = @"Imports NSubstitute
 
@@ -515,7 +515,7 @@ End Namespace";
         }
 
 
-        public override async Task AnalyzerReturnsDiagnostics_WhenSettingValueForNonVirtualIndexer()
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer()
         {
             var source = @"Imports System
 Imports NSubstitute
@@ -553,6 +553,35 @@ End Namespace";
             };
 
             await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+        }
+
+        public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod()
+        {
+            var source = @"Imports System.Runtime.CompilerServices
+
+Namespace NSubstitute
+    Public Class Foo
+        Public Function Bar() As Integer
+            Return 1
+        End Function
+    End Class
+
+    Module SubstituteExtensions
+        <Extension>
+        Function Returns(Of T)(ByVal returnValue As T, ByVal returnThis As T) As T
+            Return Nothing
+        End Function
+    End Module
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute As Foo = Nothing
+            SubstituteExtensions.Returns(Of Integer)(substitute.Bar(), 1)
+        End Sub
+    End Class
+End Namespace
+";
+            await VerifyVisualBasicDiagnostic(source);
         }
     }
 }
