@@ -33,10 +33,12 @@ namespace NSubstitute.Analyzers
             MetadataNames.NSubstituteDidNotReceiveMethod,
             MetadataNames.NSubstituteDidNotReceiveWithAnyArgsMethod);
 
-        private static readonly ImmutableArray<ImmutableArray<Parent>> PossibleHierarchies = ImmutableArray.Create(
-            ImmutableArray.Create(Parent.Create<MemberAccessExpressionSyntax>())
+        private static readonly ImmutableArray<Parent> PossibleParents =
+            ImmutableArray.Create(
+                Parent.Create<MemberAccessExpressionSyntax>(),
+                Parent.Create<InvocationExpressionSyntax>()
 #if CSHARP
-            ,ImmutableArray.Create(Parent.Create<ElementAccessExpressionSyntax>())
+                ,Parent.Create<ElementAccessExpressionSyntax>()
 #endif
     );
 
@@ -68,7 +70,7 @@ namespace NSubstitute.Analyzers
 
             var isConsideredAsUsed = IsConsideredAsUsed(invocationExpression);
 
-            if (isConsideredAsUsed == true)
+            if (isConsideredAsUsed)
             {
                 return;
             }
@@ -99,24 +101,9 @@ namespace NSubstitute.Analyzers
 
         private bool IsConsideredAsUsed(SyntaxNode receivedSyntaxNode)
         {
-            return PossibleHierarchies.Any(hierarchy => FindInvocationInHierarchy(receivedSyntaxNode, hierarchy) != null);
-        }
+            var typeInfo = receivedSyntaxNode.Parent.GetType().GetTypeInfo();
 
-        private static SyntaxNode FindInvocationInHierarchy(SyntaxNode node, IList<Parent> ancestors)
-        {
-            SyntaxNode parent = null;
-            foreach (var expectedAncestor in ancestors)
-            {
-                parent = node.Parent;
-                if (expectedAncestor.Type.GetTypeInfo().IsAssignableFrom(parent.GetType().GetTypeInfo()) == false)
-                {
-                    return null;
-                }
-
-                node = parent;
-            }
-
-            return parent;
+            return PossibleParents.Any(parent => parent.Type.GetTypeInfo().IsAssignableFrom(typeInfo));
         }
 
         private struct Parent
