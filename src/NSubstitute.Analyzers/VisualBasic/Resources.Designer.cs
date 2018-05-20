@@ -11,8 +11,8 @@
 namespace NSubstitute.Analyzers.VisualBasic.VisualBasic {
     using System;
     using System.Reflection;
-
-
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -24,15 +24,15 @@ namespace NSubstitute.Analyzers.VisualBasic.VisualBasic {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
-
+        
         private static global::System.Resources.ResourceManager resourceMan;
-
+        
         private static global::System.Globalization.CultureInfo resourceCulture;
-
+        
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        public Resources() {
+        internal Resources() {
         }
-
+        
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
@@ -40,13 +40,13 @@ namespace NSubstitute.Analyzers.VisualBasic.VisualBasic {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NSubstitute.Analyzers.VisualBasic.VisualBasic.Resources", typeof(Resources).GetTypeInfo().Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NSubstitute.Analyzers.VisualBasic.Resources", typeof(Resources).GetTypeInfo().Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
             }
         }
-
+        
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
@@ -60,31 +60,58 @@ namespace NSubstitute.Analyzers.VisualBasic.VisualBasic {
                 resourceCulture = value;
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Non-virtual members can not be intercepted..
+        ///   Looks up a localized string similar to Non-overridable members can not be intercepted..
         /// </summary>
         public static string NonVirtualSetupSpecificationDescription {
             get {
                 return ResourceManager.GetString("NonVirtualSetupSpecificationDescription", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted..
+        ///   Looks up a localized string similar to Member {0} can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted..
         /// </summary>
         public static string NonVirtualSetupSpecificationMessageFormat {
             get {
                 return ResourceManager.GetString("NonVirtualSetupSpecificationMessageFormat", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Non-virtual setup specification.
+        ///   Looks up a localized string similar to Non-overridable setup specification.
         /// </summary>
         public static string NonVirtualSetupSpecificationTitle {
             get {
                 return ResourceManager.GetString("NonVirtualSetupSpecificationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unused received check..
+        /// </summary>
+        public static string UnusedReceivedDescription {
+            get {
+                return ResourceManager.GetString("UnusedReceivedDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unused received check..
+        /// </summary>
+        public static string UnusedReceivedMessageFormat {
+            get {
+                return ResourceManager.GetString("UnusedReceivedMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Received check..
+        /// </summary>
+        public static string UnusedReceivedTitle {
+            get {
+                return ResourceManager.GetString("UnusedReceivedTitle", resourceCulture);
             }
         }
     }

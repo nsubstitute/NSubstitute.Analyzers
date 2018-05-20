@@ -24,6 +24,9 @@
     <Compile Include="..\NSubstitute.Analyzers.Test.Shared\NonVirtualSetupAnalyzerTestBase.cs">
       <Link>NonVirtualSetupAnalyzerTestBase.cs</Link>
     </Compile>
+    <Compile Include="..\NSubstitute.Analyzers.Test.Shared\UnusedReceivedAnalyzerTestBase.cs">
+      <Link>UnusedReceivedAnalyzerTestBase.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\NSubstitute.Analyzers\NSubstitute.Analyzers.CSharp.csproj" />

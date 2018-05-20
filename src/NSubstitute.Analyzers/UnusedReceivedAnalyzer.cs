@@ -42,7 +42,6 @@ namespace NSubstitute.Analyzers
 
         public sealed override void Initialize(AnalysisContext context)
         {
-            context.RegisterSyntaxNodeAction(AnalyzeMemberAccess, SyntaxKind.SimpleMemberAccessExpression);
             context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.InvocationExpression);
         }
 
@@ -57,7 +56,7 @@ namespace NSubstitute.Analyzers
             }
 
             var methodSymbol = (IMethodSymbol) methodSymbolInfo.Symbol;
-            if (methodSymbol == null || methodSymbol.MethodKind != MethodKind.ReducedExtension)
+            if (methodSymbol == null)
             {
                 return;
             }
@@ -79,12 +78,6 @@ namespace NSubstitute.Analyzers
                 methodSymbol.Name);
 
             syntaxNodeContext.ReportDiagnostic(diagnostic);
-        }
-
-        private void AnalyzeMemberAccess(SyntaxNodeAnalysisContext syntaxNodeContext)
-        {
-            var memberAccessExpression = (MemberAccessExpressionSyntax) syntaxNodeContext.Node;
-            var memberName = memberAccessExpression.Name.Identifier.Text;
         }
 
         private static bool IsReceivedLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntax,
