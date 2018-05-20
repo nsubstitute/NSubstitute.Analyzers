@@ -5,43 +5,19 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Test.CSharp.AnalyzerTests.UnusedReceivedAnalyzerTests
 {
-    public class UnusedReceivedAnalyzerTests : AnalyzerTest
+    public abstract class UnusedReceivedAnalyzerTests : AnalyzerTest
     {
         [Fact]
-        public async Task ReportDiagnostics_WhenReceivedUsedWithoutMemberCall()
-        {
-            var source = @"using NSubstitute;
+        public abstract Task ReportDiagnostics_WhenUsedWithoutMemberCall();
 
-namespace MyNamespace
-{
-    public interface IFoo
-    {
-        int Bar();
-    }
+        [Fact]
+        public abstract Task ReportNoDiagnostics_WhenUsedWithMethodMemberAccess();
 
-    public class FooTests
-    {
-        public void Test()
-        {
-            var substitute = NSubstitute.Substitute.For<IFoo>();
-            substitute.Received(1);
-        }
-    }
-}";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Unused received check.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(15, 13)
-                }
-            };
+        [Fact]
+        public abstract Task ReportNoDiagnostics_WhenUsedWithPropertyMemberAccess();
 
-
-            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
-        }
+        [Fact]
+        public abstract Task ReportNoDiagnostics_WhenUsedWithIndexerMemberAccess();
 
         protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()
         {

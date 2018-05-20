@@ -61,7 +61,7 @@ namespace NSubstitute.Analyzers
                 return;
             }
 
-            if (IsSubstituteMethod(syntaxNodeContext, invocationExpression, methodSymbol.Name) == false)
+            if (IsReturnsLikeMethod(syntaxNodeContext, invocationExpression, methodSymbol.Name) == false)
             {
                 return;
             }
@@ -75,7 +75,7 @@ namespace NSubstitute.Analyzers
         {
             var memberAccessExpression = (MemberAccessExpressionSyntax) syntaxNodeContext.Node;
             var memberName = memberAccessExpression.Name.Identifier.Text;
-            if (IsSubstituteMethod(syntaxNodeContext, memberAccessExpression, memberName) == false)
+            if (IsReturnsLikeMethod(syntaxNodeContext, memberAccessExpression, memberName) == false)
             {
                 return;
             }
@@ -85,7 +85,7 @@ namespace NSubstitute.Analyzers
             AnalyzeMember(syntaxNodeContext, accessedMember);
         }
 
-        private static bool IsSubstituteMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntax, string memberName)
+        private static bool IsReturnsLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntax, string memberName)
         {
             if (MethodNames.Contains(memberName) == false)
             {
