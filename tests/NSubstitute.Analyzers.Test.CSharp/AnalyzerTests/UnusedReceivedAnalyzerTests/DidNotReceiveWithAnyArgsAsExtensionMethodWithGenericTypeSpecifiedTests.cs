@@ -135,7 +135,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Func<int>>();
-            SubstituteExtensions.DidNotReceiveWithAnyArgs<Func<int>>(substitute)();
+            substitute.DidNotReceiveWithAnyArgs<Func<int>>()();
         }
     }
 }";
