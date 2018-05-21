@@ -16,5 +16,8 @@ namespace NSubstitute.Analyzers.Test
 
         [Fact]
         public abstract Task ReportNoDiagnostics_WhenUsedWithIndexerMemberAccess();
+
+        [Fact]
+        public abstract Task ReportNoDiagnostics_WhenUsedWithInvokingDelegate();
     }
 }

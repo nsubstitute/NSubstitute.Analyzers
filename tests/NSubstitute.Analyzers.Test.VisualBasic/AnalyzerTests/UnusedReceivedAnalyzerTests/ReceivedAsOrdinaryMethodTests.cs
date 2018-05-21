@@ -107,5 +107,24 @@ End Namespace
 
             await VerifyVisualBasicDiagnostic(source);
         }
+
+        public override async Task ReportNoDiagnostics_WhenUsedWithInvokingDelegate()
+        {
+            var source = @"Imports NSubstitute
+Imports System
+
+Namespace MyNamespace
+
+    Public Class FooTests
+
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Func(Of Integer))()
+            SubstituteExtensions.Received(substitute)()
+        End Sub
+    End Class
+End Namespace
+";
+            await VerifyVisualBasicDiagnostic(source);
+        }
     }
 }

@@ -122,5 +122,24 @@ namespace MyNamespace
 
             await VerifyCSharpDiagnostic(source);
         }
+
+        public override async Task ReportNoDiagnostics_WhenUsedWithInvokingDelegate()
+        {
+            var source = @"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Func<int>>();
+            SubstituteExtensions.DidNotReceive<Func<int>>(substitute)();
+        }
+    }
+}";
+            await VerifyCSharpDiagnostic(source);
+        }
     }
 }
