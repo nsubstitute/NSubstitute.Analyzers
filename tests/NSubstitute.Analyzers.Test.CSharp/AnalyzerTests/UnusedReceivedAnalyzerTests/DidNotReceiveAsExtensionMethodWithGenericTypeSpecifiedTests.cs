@@ -141,5 +141,31 @@ namespace MyNamespace
 }";
             await VerifyCSharpDiagnostic(source);
         }
+
+        public override async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod()
+        {
+            var source = @"using System;
+
+namespace NSubstitute
+{
+    public static class SubstituteExtensions
+    {
+        public static T DidNotReceive<T>(this T substitute, params int[] @params) where T : class
+        {
+            return null;
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            object substitute = null;
+            substitute.DidNotReceive<object>(1);
+        }
+    }
+}";
+            await VerifyCSharpDiagnostic(source);
+        }
     }
 }

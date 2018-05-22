@@ -19,5 +19,8 @@ namespace NSubstitute.Analyzers.Test
 
         [Fact]
         public abstract Task ReportNoDiagnostics_WhenUsedWithInvokingDelegate();
+        
+        [Fact]
+        public abstract Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod();
     }
 }

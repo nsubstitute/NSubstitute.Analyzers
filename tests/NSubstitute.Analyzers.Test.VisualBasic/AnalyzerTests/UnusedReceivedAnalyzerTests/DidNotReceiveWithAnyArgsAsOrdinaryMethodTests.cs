@@ -126,5 +126,29 @@ End Namespace
 ";
             await VerifyVisualBasicDiagnostic(source);
         }
+
+        public override async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod()
+        {
+            var source = @"Imports System
+Imports System.Runtime.CompilerServices
+
+Namespace NSubstitute
+    Module SubstituteExtensions
+        <Extension()>
+        Function DidNotReceiveWithAnyArgs(Of T As Class)(ByVal substitute As T, ByVal params As Integer) As T
+            Return Nothing
+        End Function
+    End Module
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Func(Of Integer))()
+            SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute, 1)
+        End Sub
+    End Class
+End Namespace
+";
+            await VerifyVisualBasicDiagnostic(source);
+        }
     }
 }
