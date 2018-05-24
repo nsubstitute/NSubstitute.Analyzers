@@ -141,4 +141,64 @@
     <value>Received check.</value>
     <comment>The title of the diagnostic.</comment>
   </data>
+  <data name="SubstituteForPartsOfUsedForInterfaceDescription" xml:space="preserve">
+    <value>Can only substitute for parts of classes, not interfaces or delegates.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteForPartsOfUsedForInterfaceMessageFormat" xml:space="preserve">
+    <value>Can only substitute for parts of classes, not interfaces or delegates.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="SubstituteForPartsOfUsedForInterfaceTitle" xml:space="preserve">
+    <value>Substitute.ForPartsOf used for interface.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+    <data name="SubstituteForWithoutAccessibleConstructorDescription" xml:space="preserve">
+    <value>Missing parameterless constructor.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteForWithoutAccessibleConstructorMessageFormat" xml:space="preserve">
+    <value>Missing parameterless constructor.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="SubstituteForWithoutAccessibleConstructorTitle" xml:space="preserve">
+    <value>Missing parameterless constructor.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteForConstructorParametersMismatchDescription" xml:space="preserve">
+    <value>Constructor parameters count mismatch.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteForConstructorParametersMismatchMessageFormat" xml:space="preserve">
+    <value>Constructor parameters count mismatch.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="SubstituteForConstructorParametersMismatchTitle" xml:space="preserve">
+    <value>Constructor parameters count mismatch.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteForInternalMemberDescription" xml:space="preserve">
+    <value>Substitute for internal member.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteForInternalMemberMessageFormat" xml:space="preserve">
+    <value>Substitute for internal member.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="SubstituteForInternalMemberTitle" xml:space="preserve">
+    <value>Substitute for internal member.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+    <data name="SubstituteConstructorMismatchDescription" xml:space="preserve">
+    <value>Unable to find matching constructor.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteConstructorMismatchMessageFormat" xml:space="preserve">
+    <value>Unable to find matching constructor.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="SubstituteConstructorMismatchMemberTitle" xml:space="preserve">
+    <value>Unable to find matching constructor.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
 </root>

@@ -11,8 +11,8 @@
 namespace NSubstitute.Analyzers.CSharp {
     using System;
     using System.Reflection;
-    
-    
+
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -24,15 +24,15 @@ namespace NSubstitute.Analyzers.CSharp {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
-        
+
         private static global::System.Resources.ResourceManager resourceMan;
-        
+
         private static global::System.Globalization.CultureInfo resourceCulture;
-        
+
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal Resources() {
         }
-        
+
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
@@ -46,7 +46,7 @@ namespace NSubstitute.Analyzers.CSharp {
                 return resourceMan;
             }
         }
-        
+
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
@@ -60,7 +60,7 @@ namespace NSubstitute.Analyzers.CSharp {
                 resourceCulture = value;
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Non-virtual members can not be intercepted..
         /// </summary>
@@ -69,7 +69,7 @@ namespace NSubstitute.Analyzers.CSharp {
                 return ResourceManager.GetString("NonVirtualSetupSpecificationDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted..
         /// </summary>
@@ -78,7 +78,7 @@ namespace NSubstitute.Analyzers.CSharp {
                 return ResourceManager.GetString("NonVirtualSetupSpecificationMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Non-virtual setup specification..
         /// </summary>
@@ -87,7 +87,115 @@ namespace NSubstitute.Analyzers.CSharp {
                 return ResourceManager.GetString("NonVirtualSetupSpecificationTitle", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Constructor parameters count mismatch..
+        /// </summary>
+        public static string SubstituteForConstructorParametersMismatchDescription {
+            get {
+                return ResourceManager.GetString("SubstituteForConstructorParametersMismatchDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Constructor parameters count mismatch..
+        /// </summary>
+        public static string SubstituteForConstructorParametersMismatchMessageFormat {
+            get {
+                return ResourceManager.GetString("SubstituteForConstructorParametersMismatchMessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Constructor parameters count mismatch..
+        /// </summary>
+        public static string SubstituteForConstructorParametersMismatchTitle {
+            get {
+                return ResourceManager.GetString("SubstituteForConstructorParametersMismatchTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Substitute for internal member..
+        /// </summary>
+        public static string SubstituteForInternalMemberDescription {
+            get {
+                return ResourceManager.GetString("SubstituteForInternalMemberDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Substitute for internal member..
+        /// </summary>
+        public static string SubstituteForInternalMemberMessageFormat {
+            get {
+                return ResourceManager.GetString("SubstituteForInternalMemberMessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Substitute for internal member..
+        /// </summary>
+        public static string SubstituteForInternalMemberTitle {
+            get {
+                return ResourceManager.GetString("SubstituteForInternalMemberTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Can only substitute for parts of classes, not interfaces or delegates..
+        /// </summary>
+        public static string SubstituteForPartsOfUsedForInterfaceDescription {
+            get {
+                return ResourceManager.GetString("SubstituteForPartsOfUsedForInterfaceDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Can only substitute for parts of classes, not interfaces or delegates..
+        /// </summary>
+        public static string SubstituteForPartsOfUsedForInterfaceMessageFormat {
+            get {
+                return ResourceManager.GetString("SubstituteForPartsOfUsedForInterfaceMessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Substitute.ForPartsOf used for interface..
+        /// </summary>
+        public static string SubstituteForPartsOfUsedForInterfaceTitle {
+            get {
+                return ResourceManager.GetString("SubstituteForPartsOfUsedForInterfaceTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Missing parameterless constructor..
+        /// </summary>
+        public static string SubstituteForWithoutAccessibleConstructorDescription {
+            get {
+                return ResourceManager.GetString("SubstituteForWithoutAccessibleConstructorDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Missing parameterless constructor..
+        /// </summary>
+        public static string SubstituteForWithoutAccessibleConstructorMessageFormat {
+            get {
+                return ResourceManager.GetString("SubstituteForWithoutAccessibleConstructorMessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Missing parameterless constructor..
+        /// </summary>
+        public static string SubstituteForWithoutAccessibleConstructorTitle {
+            get {
+                return ResourceManager.GetString("SubstituteForWithoutAccessibleConstructorTitle", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Unused received check..
         /// </summary>
@@ -96,7 +204,7 @@ namespace NSubstitute.Analyzers.CSharp {
                 return ResourceManager.GetString("UnusedReceivedDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Unused received check..
         /// </summary>
@@ -105,7 +213,7 @@ namespace NSubstitute.Analyzers.CSharp {
                 return ResourceManager.GetString("UnusedReceivedMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Received check..
         /// </summary>
