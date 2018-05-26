@@ -7,8 +7,8 @@
 #tool "nuget:https://www.nuget.org/api/v2?package=GitVersion.CommandLine&version=3.6.5"
 #tool "nuget:https://www.nuget.org/api/v2?package=OpenCover&version=4.6.519"
 #tool "nuget:https://www.nuget.org/api/v2?package=ReportGenerator&version=3.1.2"
-#tool "nuget:https://www.nuget.org/api/v2?package=codecov&version=1.0.3"
-#addin nuget:?package=Cake.Codecov
+#tool "nuget:https://www.nuget.org/api/v2?package=coveralls.io&version=1.4.2"
+#addin "nuget:https://www.nuget.org/api/v2?package=cake.coveralls&version=0.8.0"
 
 var parameters = BuildParameters.GetParameters(Context);
 var buildVersion = BuildVersion.Calculate(Context);
@@ -167,16 +167,15 @@ Task("Upload-Coverage-Report")
     .IsDependentOn("Publish")
     .Does(() =>
 {
-    var repoKey = EnvironmentVariable("CODECOV_REPO_TOKEN");
+    var repoKey = EnvironmentVariable("COVERALLS_REPO_TOKEN");
     if (string.IsNullOrEmpty(repoKey))
     {
-        throw new InvalidOperationException("Could not resolve codecov repo key.");
+        throw new InvalidOperationException("Could not resolve coveralls repo key.");
     }
 
-    Codecov(new CodecovSettings
+    CoverallsIo(paths.Files.TestCoverageOutput, new CoverallsIoSettings
     {
-        Token = repoKey,
-        Files = new [] { paths.Files.TestCoverageOutput.ToString() }
+        RepoToken = repoKey
     });
 });
 
