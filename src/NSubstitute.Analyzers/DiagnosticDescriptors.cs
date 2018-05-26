@@ -67,14 +67,20 @@ namespace NSubstitute.Analyzers
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true);
 
-
         private static DiagnosticDescriptor CreateDiagnosticDescriptor(
             string name, string id, string category, DiagnosticSeverity defaultSeverity, bool isEnabledByDefault)
         {
             var title = GetDiagnosticResourceString(name, nameof(DiagnosticDescriptor.Title));
             var messageFormat = GetDiagnosticResourceString(name, nameof(DiagnosticDescriptor.MessageFormat));
             var description = GetDiagnosticResourceString(name, nameof(DiagnosticDescriptor.Description));
-            return new DiagnosticDescriptor(id, title, messageFormat, category, defaultSeverity, isEnabledByDefault,
+
+            return new DiagnosticDescriptor(
+                id,
+                title,
+                messageFormat,
+                category,
+                defaultSeverity,
+                isEnabledByDefault,
                 description);
         }
 

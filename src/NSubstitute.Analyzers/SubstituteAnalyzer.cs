@@ -16,6 +16,11 @@ using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 
 namespace NSubstitute.Analyzers
 {
+#if CSHARP
+    [DiagnosticAnalyzer(LanguageNames.CSharp)]
+#elif VISUAL_BASIC
+    [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
+#endif
     public class SubstituteAnalyzer : DiagnosticAnalyzer
     {
         private static readonly ImmutableHashSet<string> MethodNames = ImmutableHashSet.Create(
@@ -36,14 +41,15 @@ namespace NSubstitute.Analyzers
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
-            var invocationExpression = (InvocationExpressionSyntax) syntaxNodeContext.Node;
+            var invocationExpression = (InvocationExpressionSyntax)syntaxNodeContext.Node;
             var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
 
             if (methodSymbolInfo.Symbol?.Kind != SymbolKind.Method)
             {
                 return;
             }
-            var methodSymbol = (IMethodSymbol) methodSymbolInfo.Symbol;
+
+            var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
             if (methodSymbol == null || methodSymbol.MethodKind != MethodKind.Ordinary)
             {
                 return;
@@ -64,7 +70,8 @@ namespace NSubstitute.Analyzers
             if ((genericArgument.TypeKind == TypeKind.Interface || genericArgument.TypeKind == TypeKind.Delegate) &&
                 methodSymbol.Name.Equals(MetadataNames.NSubstituteForPartsOfMethod, StringComparison.Ordinal))
             {
-                var diagnostic = Diagnostic.Create(DiagnosticDescriptors.SubstituteForPartsOfUsedForInterface,
+                var diagnostic = Diagnostic.Create(
+                    DiagnosticDescriptors.SubstituteForPartsOfUsedForInterface,
                     invocationExpression.GetLocation());
 
                 syntaxNodeContext.ReportDiagnostic(diagnostic);
@@ -78,7 +85,8 @@ namespace NSubstitute.Analyzers
                 if (internalsVisibleToAttribute == null || internalsVisibleToAttribute.ConstructorArguments.Any(
                     arg => arg.Value.ToString() == MetadataNames.CastleDynamicProxyGenAssembly2Name) == false)
                 {
-                    var diagnostic = Diagnostic.Create(DiagnosticDescriptors.SubstituteForInternalMember,
+                    var diagnostic = Diagnostic.Create(
+                        DiagnosticDescriptors.SubstituteForInternalMember,
                         invocationExpression.GetLocation());
 
                     syntaxNodeContext.ReportDiagnostic(diagnostic);
@@ -94,7 +102,8 @@ namespace NSubstitute.Analyzers
 
                 if (accessibleConstructors.Any() == false)
                 {
-                    var diagnostic = Diagnostic.Create(DiagnosticDescriptors.SubstituteForWithoutAccessibleConstructor,
+                    var diagnostic = Diagnostic.Create(
+                        DiagnosticDescriptors.SubstituteForWithoutAccessibleConstructor,
                         invocationExpression.GetLocation());
 
                     syntaxNodeContext.ReportDiagnostic(diagnostic);
@@ -107,17 +116,18 @@ namespace NSubstitute.Analyzers
 
                 if (possibleConstructors.Any() == false)
                 {
-                    var diagnostic = Diagnostic.Create(DiagnosticDescriptors.SubstituteForConstructorParametersMismatch,
+                    var diagnostic = Diagnostic.Create(
+                        DiagnosticDescriptors.SubstituteForConstructorParametersMismatch,
                         invocationExpression.GetLocation());
 
                     syntaxNodeContext.ReportDiagnostic(diagnostic);
                     return;
                 }
 
-
-                if (possibleConstructors.All(ctor => MatchesInvocation(syntaxNodeContext ,ctor, invocationExpression.ArgumentList.Arguments) == false))
+                if (possibleConstructors.All(ctor => MatchesInvocation(syntaxNodeContext, ctor, invocationExpression.ArgumentList.Arguments) == false))
                 {
-                    var diagnostic = Diagnostic.Create(DiagnosticDescriptors.SubstituteConstructorMismatch,
+                    var diagnostic = Diagnostic.Create(
+                        DiagnosticDescriptors.SubstituteConstructorMismatch,
                         invocationExpression.GetLocation());
 
                     syntaxNodeContext.ReportDiagnostic(diagnostic);
@@ -132,8 +142,7 @@ namespace NSubstitute.Analyzers
                 var typeInfo = syntaxNodeContext.SemanticModel.GetTypeInfo(arguments[i].DescendantNodes().First());
                 if (typeInfo.Type != null)
                 {
-                    if (DetermineIsConvertible(syntaxNodeContext.Compilation, typeInfo.Type,
-                            methodSymbol.Parameters[i].Type) == false)
+                    if (DetermineIsConvertible(syntaxNodeContext.Compilation, typeInfo.Type, methodSymbol.Parameters[i].Type) == false)
                     {
                         return false;
                     }
@@ -167,14 +176,11 @@ namespace NSubstitute.Analyzers
 
             var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax);
 
-            return symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName,
-                       StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.Symbol?.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteFullTypeName,
-                       StringComparison.OrdinalIgnoreCase) == true;
-
+            return symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.Ordinal) == true &&
+                   symbol.Symbol?.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteFullTypeName, StringComparison.Ordinal) == true;
         }
 
-        static bool DetermineIsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)
+        private static bool DetermineIsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)
         {
                 var conversion = compilation.ClassifyConversion(source, destination);
 

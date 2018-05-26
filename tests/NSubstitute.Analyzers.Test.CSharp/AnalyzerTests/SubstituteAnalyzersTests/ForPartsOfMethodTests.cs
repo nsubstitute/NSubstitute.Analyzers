@@ -36,7 +36,6 @@ namespace MyNamespace
                 }
             };
 
-
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
@@ -69,7 +68,6 @@ namespace MyNamespace
                     new DiagnosticResultLocation(13, 30)
                 }
             };
-
 
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
@@ -107,7 +105,6 @@ namespace MyNamespace
                 }
             };
 
-
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
@@ -144,7 +141,6 @@ namespace MyNamespace
                 }
             };
 
-
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
@@ -180,7 +176,6 @@ namespace MyNamespace
                     new DiagnosticResultLocation(13, 30)
                 }
             };
-
 
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
@@ -219,7 +214,6 @@ namespace MyNamespace
                 }
             };
 
-
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
@@ -251,7 +245,6 @@ namespace MyNamespace
                     new DiagnosticResultLocation(12, 30)
                 }
             };
-
 
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
@@ -310,7 +303,6 @@ namespace MyNamespace
                 }
             };
 
-
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
@@ -346,7 +338,6 @@ namespace MyNamespace
                     new DiagnosticResultLocation(16, 30)
                 }
             };
-
 
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
