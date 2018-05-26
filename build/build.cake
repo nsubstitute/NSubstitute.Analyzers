@@ -41,7 +41,7 @@ Task("Clean")
     .Does(() =>
 {
     DotNetCoreClean(paths.Files.Solution.ToString());
-    CleanDirectories(paths.Directories.ToClean);    
+    CleanDirectories(paths.Directories.ToClean);
 });
 
 Task("Restore-NuGet-Packages")
@@ -173,7 +173,11 @@ Task("Upload-Coverage-Report")
         throw new InvalidOperationException("Could not resolve codecov repo key.");
     }
 
-    Codecov(paths.Files.TestCoverageOutput.ToString(), repoKey);
+    Codecov(new CodecovSettings
+    {
+        Token = repoKey,
+        Files = new [] { paths.Files.TestCoverageOutput.ToString() }
+    });
 });
 
 Task("AppVeyor")
