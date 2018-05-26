@@ -82,7 +82,7 @@ Task("Run-Tests")
                         }
                         .WithFilter("+[NSubstitute.Analyzers*]* -[NSubstitute.Analyzers.Test*]*")
                         .ExcludeByAttribute("*.ExcludeFromCodeCoverage*")
-                        .ExcludeByFile("*/*Designer.cs;*/*.g.cs;*/*.g.i.cs"));
+                        .ExcludeByFile("*.Designer.cs;*.g.cs;*.g.i.cs"));
         ReportGenerator(paths.Files.TestCoverageOutput, paths.Directories.TestResults);
     }
 
