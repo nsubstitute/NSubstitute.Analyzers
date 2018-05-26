@@ -26,20 +26,16 @@ namespace NSubstitute.Analyzers.Test.CSharp.AnalyzerTests.SubstituteAnalyzersTes
         public abstract Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2();
 
         [Fact]
-        public abstract Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly();
+        public abstract Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly();
 
         [Fact]
         public abstract Task ReturnsDiagnostic_WhenCorrespondingConstructorArgumentsNotCompatible();
 
-        [Fact]
-        public abstract Task ReturnsDiagnostic_WhenAssigningDoubleToInt();
+        [Theory]
+        public abstract Task ReturnsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues);
 
-        // even though it is valid in c# NSubstitute will throw exception
-        [Fact]
-        public abstract Task ReturnsDiagnostic_WhenAssigningIntToDouble();
-
-        [Fact]
-        public abstract Task ReturnsNoDiagnostic_WhenCorrespondingConstructorArgumentsAreImplicitlyConvertible();
+        [Theory]
+        public abstract Task ReturnsNoDiagnostic_WhenConstructorArgumentsAreImplicitlyConvertible(string ctorValues, string invocationValues);
 
         protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()
         {

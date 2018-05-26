@@ -88,14 +88,14 @@ namespace MyNamespace
         public async Task ReturnsDiagnostic_WhenUsedForDelegate_AndConstructorParametersUsed()
         {
             var source = @"using NSubstitute;
-
+using System;
 namespace MyNamespace
 {
     public class FooTests
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<IFoo>(1);
+            var substitute = NSubstitute.Substitute.For<Func<int>>(1);
         }
     }
 }";
@@ -264,59 +264,336 @@ namespace MyNamespace
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
-        public override Task ReturnsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor()
+        public override async Task ReturnsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor()
         {
-            throw new System.NotImplementedException();
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        private Foo()
+        {
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+        }
+    }
+}";
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.SubstituteForWithoutAccessibleConstructor,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Missing parameterless constructor.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(16, 30)
+                }
+            };
+
+            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
-        public override Task ReturnsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount()
+        public override async Task ReturnsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount()
         {
-            throw new System.NotImplementedException();
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public Foo(int x, int y)
+        {
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>(1, 2, 3);
+        }
+    }
+}";
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Constructor parameters count mismatch.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(16, 30)
+                }
+            };
+
+            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
-        public override Task ReturnsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount()
+        public override async Task ReturnsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount()
         {
-            throw new System.NotImplementedException();
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public Foo(int x, int y)
+        {
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>(1);
+        }
+    }
+}";
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Constructor parameters count mismatch.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(16, 30)
+                }
+            };
+
+            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
-        public override Task ReturnsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters()
+        public override async Task ReturnsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters()
         {
-            throw new System.NotImplementedException();
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public Foo(int x, int y = 1)
+        {
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>(1);
+        }
+    }
+}";
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Constructor parameters count mismatch.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(16, 30)
+                }
+            };
+
+            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
-        public override Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToNotApplied()
+        public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToNotApplied()
         {
-            throw new System.NotImplementedException();
+            var source = @"using NSubstitute;
+namespace MyNamespace
+{
+    internal class Foo
+    {
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+        }
+    }
+}";
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.SubstituteForInternalMember,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Substitute for internal member.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(12, 30)
+                }
+            };
+
+            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
-        public override Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
+        public override async Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
         {
-            throw new System.NotImplementedException();
+            var source = @"using NSubstitute;
+using System.Runtime.CompilerServices;
+[assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
+namespace MyNamespace
+{
+    internal class Foo
+    {
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+        }
+    }
+}";
+            await VerifyCSharpDiagnostic(source);
         }
 
-        public override Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly()
+        public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly()
         {
-            throw new System.NotImplementedException();
+            var source = @"using NSubstitute;
+using System.Runtime.CompilerServices;
+[assembly: InternalsVisibleTo(""SomeValue"")]
+namespace MyNamespace
+{
+    internal class Foo
+    {
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+        }
+    }
+}";
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.SubstituteForInternalMember,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Substitute for internal member.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(14, 30)
+                }
+            };
+
+            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
-        public override Task ReturnsDiagnostic_WhenCorrespondingConstructorArgumentsNotCompatible()
+        public override async Task ReturnsDiagnostic_WhenCorrespondingConstructorArgumentsNotCompatible()
         {
-            throw new System.NotImplementedException();
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public Foo(int x)
+        {
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>(new object());
+        }
+    }
+}";
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.SubstituteConstructorMismatch,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Unable to find matching constructor.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(16, 30)
+                }
+            };
+
+            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
-        public override Task ReturnsDiagnostic_WhenAssigningDoubleToInt()
+        [InlineData("decimal x", "1")] // valid c# but doesnt work in NSubstitute
+        [InlineData("int x", "1m")]
+        [InlineData("int x", "1D")]
+        [InlineData("int x", "1D")]
+        [InlineData("List<int> x", "new List<int>().AsReadOnly()")]
+        public override async Task ReturnsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues)
         {
-            throw new System.NotImplementedException();
+            var source = $@"using NSubstitute;
+using System.Collections.Generic;
+namespace MyNamespace
+{{
+    public class Foo
+    {{
+        public Foo({ctorValues})
+        {{
+        }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>({invocationValues});
+        }}
+    }}
+}}";
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.SubstituteConstructorMismatch,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Unable to find matching constructor.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(16, 30)
+                }
+            };
+
+            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
-        public override Task ReturnsDiagnostic_WhenAssigningIntToDouble()
+        [InlineData("int x", "1")]
+        [InlineData("float x", "'c'")]
+        [InlineData("int x", "'c'")]
+        [InlineData("IList<int> x", "new List<int>()")]
+        [InlineData("IEnumerable<int> x", "new List<int>()")]
+        [InlineData("IEnumerable<int> x", "new List<int>().AsReadOnly()")]
+        [InlineData("IEnumerable<char> x", @"""value""")]
+        public override async Task ReturnsNoDiagnostic_WhenConstructorArgumentsAreImplicitlyConvertible(string ctorValues, string invocationValues)
         {
-            throw new System.NotImplementedException();
-        }
+            var source = $@"using NSubstitute;
+using System.Collections.Generic;
+namespace MyNamespace
+{{
+    public class Foo
+    {{
+        public Foo({ctorValues})
+        {{
+        }}
+    }}
 
-        public override Task ReturnsNoDiagnostic_WhenCorrespondingConstructorArgumentsAreImplicitlyConvertible()
-        {
-            throw new System.NotImplementedException();
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>({invocationValues});
+        }}
+    }}
+}}";
+            await VerifyCSharpDiagnostic(source);
         }
     }
 }

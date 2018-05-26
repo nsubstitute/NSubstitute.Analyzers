@@ -29,5 +29,7 @@
   </Rules>
   <Rules AnalyzerId="xunit.analyzers" RuleNamespace="xunit.analyzers">
     <Rule Id="xUnit1013" Action="Hidden" />
+    <Rule Id="xUnit1003" Action="Hidden" />
+    <Rule Id="xUnit1008" Action="Hidden" />
   </Rules>
 </RuleSet>
