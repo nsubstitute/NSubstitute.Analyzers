@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
         <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-        <CodeAnalysisRuleSet>../../StyleCop.ruleset</CodeAnalysisRuleSet>
+        <CodeAnalysisRuleSet>../../Analyzers.ruleset</CodeAnalysisRuleSet>
     </PropertyGroup>
     <ItemGroup>
         <AdditionalFiles Include="../../StyleCop.json" />
