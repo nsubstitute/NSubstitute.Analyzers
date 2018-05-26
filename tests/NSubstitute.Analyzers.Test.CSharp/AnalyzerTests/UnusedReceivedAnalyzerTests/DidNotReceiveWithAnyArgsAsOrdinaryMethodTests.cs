@@ -37,10 +37,8 @@ namespace MyNamespace
                 }
             };
 
-
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
-
 
         [Fact]
         public override async Task ReportNoDiagnostics_WhenUsedWithMethodMemberAccess()

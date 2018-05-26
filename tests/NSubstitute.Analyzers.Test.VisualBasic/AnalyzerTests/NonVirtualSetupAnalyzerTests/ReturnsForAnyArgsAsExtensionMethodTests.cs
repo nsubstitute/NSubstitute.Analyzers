@@ -104,7 +104,6 @@ End Namespace
             await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
         }
 
-
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod()
         {
             var source = @"Imports NSubstitute
@@ -276,7 +275,6 @@ End Namespace
             await VerifyVisualBasicDiagnostic(source);
         }
 
-
         public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod()
         {
             var source = @"Imports NSubstitute
@@ -301,7 +299,6 @@ End Namespace
             await VerifyVisualBasicDiagnostic(source);
         }
 
-
         public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty()
         {
             var source = @"Imports NSubstitute
@@ -325,7 +322,6 @@ End Namespace
 ";
             await VerifyVisualBasicDiagnostic(source);
         }
-
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod()
         {
@@ -393,10 +389,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
             await VerifyVisualBasicDiagnostic(source);
-
         }
-
-
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty()
         {
@@ -423,7 +416,6 @@ End Namespace";
 
             await VerifyVisualBasicDiagnostic(source);
         }
-
 
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty()
         {
@@ -462,7 +454,6 @@ End Namespace";
             await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
         }
 
-
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualIndexer()
         {
             var source = @"Imports System
@@ -494,7 +485,6 @@ End Namespace";
 
             await VerifyVisualBasicDiagnostic(source);
         }
-
 
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer()
         {

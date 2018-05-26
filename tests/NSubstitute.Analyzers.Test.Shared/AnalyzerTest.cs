@@ -34,10 +34,12 @@ namespace NSubstitute.Analyzers.Test
 
         private static readonly MetadataReference SystemCoreReference =
             MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location);
+
 #if VISUAL_BASIC
         private static readonly MetadataReference VisualBasicReference =
             MetadataReference.CreateFromFile(typeof(StandardModuleAttribute).Assembly.Location);
 #endif
+
         private static readonly MetadataReference CodeAnalysisReference =
             MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
 
@@ -62,48 +64,97 @@ namespace NSubstitute.Analyzers.Test
         }
 
         #if CSHARP
-        /// <summary>
-        /// Called to test a C# DiagnosticAnalyzer when applied on the single inputted string as a source.
-        /// Note: input a DiagnosticResult for each Diagnostic expected.
-        /// </summary>
-        /// <param name="source">A class in the form of a string to run the analyzer on.</param>
-        /// <param name="expected"> DiagnosticResults that should appear after the analyzer is run on the source.</param>
         public async Task VerifyCSharpDiagnostic(string source, params DiagnosticResult[] expected)
         {
             await this.VerifyVisualBasicDiagnostic(new[] { source }, LanguageNames.CSharp, this.GetCSharpDiagnosticAnalyzer(), expected, false);
         }
 
-        /// <summary>
-        /// Get the CSharp analyzer being tested - to be implemented in non-abstract class.
-        /// </summary>
-        /// <returns>The diagnostic analyzer being tested.</returns>
         protected abstract DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer();
+
 #elif VISUAL_BASIC
-        /// <summary>
-        /// Called to test a VB.NET DiagnosticAnalyzer when applied on the single inputted string as a source.
-        /// Note: input a DiagnosticResult for each Diagnostic expected.
-        /// </summary>
-        /// <param name="source">A class in the form of a string to run the analyzer on.</param>
-        /// <param name="expected"> DiagnosticResults that should appear after the analyzer is run on the source.</param>
         public async Task VerifyVisualBasicDiagnostic(string source, params DiagnosticResult[] expected)
         {
             await this.VerifyVisualBasicDiagnostic(new[] { source }, LanguageNames.VisualBasic, this.GetVisualBasicDiagnosticAnalyzer(), expected, false);
         }
 
-        /// <summary>
-        /// Get the Visual Basic analyzer being tested - to be implemented in non-abstract class.
-        /// </summary>
-        /// <returns>The diagnostic analyzer being tested.</returns>
         protected abstract DiagnosticAnalyzer GetVisualBasicDiagnosticAnalyzer();
 #endif
 
-        /// <summary>
-        /// Checks each of the actual Diagnostics found and compares them with the corresponding DiagnosticResult in the array of expected results.
-        /// Diagnostics are considered equal only if the DiagnosticResultLocation, Id, Severity, and Message of the DiagnosticResult match the actual diagnostic.
-        /// </summary>
-        /// <param name="actualResults">The Diagnostics found by the compiler after running the analyzer on the source code.</param>
-        /// <param name="analyzer">The analyzer that was being run on the sources.</param>
-        /// <param name="expectedResults">Diagnostic Results that should have appeared in the code.</param>
+        protected static async Task<Diagnostic[]> GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, Document[] documents, bool allowCompilationErrors)
+        {
+            if (documents == null)
+            {
+                throw new ArgumentNullException(nameof(documents));
+            }
+
+            var projects = new HashSet<Project>();
+            foreach (var document in documents)
+            {
+                projects.Add(document.Project);
+            }
+
+            var diagnostics = new List<Diagnostic>();
+            var analyzerExceptions = new List<Exception>();
+            foreach (var project in projects)
+            {
+                var options = new CompilationWithAnalyzersOptions(
+                    new AnalyzerOptions(ImmutableArray<AdditionalText>.Empty),
+                    (exception, diagnosticAnalyzer, diagnostic) => analyzerExceptions.Add(exception),
+                    false,
+                    true);
+                var compilationWithAnalyzers = (await project.GetCompilationAsync())
+                    .WithAnalyzers(ImmutableArray.Create(analyzer), options);
+
+                if (!allowCompilationErrors)
+                {
+                    AssertThatCompilationSucceeded(compilationWithAnalyzers);
+                }
+
+                var diags = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
+
+                if (analyzerExceptions.Any())
+                {
+                    if (analyzerExceptions.Count == 1)
+                    {
+                        ExceptionDispatchInfo.Capture(analyzerExceptions[0]).Throw();
+                    }
+                    else
+                    {
+                        throw new AggregateException("Multiple exceptions thrown during analysis", analyzerExceptions);
+                    }
+                }
+
+                foreach (var diag in diags)
+                {
+                    if (diag.Location == Location.None || diag.Location.IsInMetadata)
+                    {
+                        diagnostics.Add(diag);
+                    }
+                    else
+                    {
+                        for (int i = 0; i < documents.Length; i++)
+                        {
+                            var document = documents[i];
+                            var tree = await document.GetSyntaxTreeAsync();
+                            if (tree == diag.Location.SourceTree)
+                            {
+                                diagnostics.Add(diag);
+                            }
+                        }
+                    }
+                }
+            }
+
+            var results = SortDiagnostics(diagnostics);
+            diagnostics.Clear();
+            return results;
+        }
+
+        protected static Document CreateDocument(string source, string language)
+        {
+            return CreateProject(new[] { source }, language).Documents.First();
+        }
+
         private static void VerifyDiagnosticResults(IEnumerable<Diagnostic> actualResults, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expectedResults)
         {
             int expectedCount = expectedResults.Count();
@@ -194,13 +245,6 @@ Diagnostic:
             }
         }
 
-        /// <summary>
-        /// Helper method to VerifyDiagnosticResult that checks the location of a diagnostic and compares it with the location in the expected DiagnosticResult.
-        /// </summary>
-        /// <param name="analyzer">The analyzer that was being run on the sources.</param>
-        /// <param name="diagnostic">The diagnostic that was found in the code.</param>
-        /// <param name="actual">The Location of the Diagnostic found in the code.</param>
-        /// <param name="expected">The DiagnosticResultLocation that should have been found.</param>
         private static void VerifyDiagnosticLocation(DiagnosticAnalyzer analyzer, Diagnostic diagnostic, Location actual, DiagnosticResultLocation expected)
         {
             var actualSpan = actual.GetLineSpan();
@@ -239,12 +283,6 @@ Diagnostic:
             }
         }
 
-        /// <summary>
-        /// Helper method to format a Diagnostic into an easily readable string.
-        /// </summary>
-        /// <param name="analyzer">The analyzer that this verifier tests.</param>
-        /// <param name="diagnostics">The Diagnostics to be formatted.</param>
-        /// <returns>The Diagnostics formatted as a string.</returns>
         private static string FormatDiagnostics(DiagnosticAnalyzer analyzer, params Diagnostic[] diagnostics)
         {
             var builder = new StringBuilder();
@@ -291,117 +329,12 @@ Diagnostic:
             return builder.ToString();
         }
 
-        /// <summary>
-        /// General method that gets a collection of actual diagnostics found in the source after the analyzer is run,
-        /// then verifies each of them.
-        /// </summary>
-        /// <param name="sources">An array of strings to create source documents from to run the analyzers on.</param>
-        /// <param name="language">The language of the classes represented by the source strings.</param>
-        /// <param name="analyzer">The analyzer to be run on the source code.</param>
-        /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources.</param>
-        /// <param name="allowCompilationErrors">Allow compiler errors.</param>
         private async Task VerifyVisualBasicDiagnostic(string[] sources, string language, DiagnosticAnalyzer analyzer, DiagnosticResult[] expected, bool allowCompilationErrors)
         {
             var diagnostics = await GetSortedDiagnostics(sources, language, analyzer, allowCompilationErrors);
             VerifyDiagnosticResults(diagnostics, analyzer, expected);
         }
 
-        /// <summary>
-        /// Given an analyzer and a document to apply it to, run the analyzer and gather an array of diagnostics found in it.
-        /// The returned diagnostics are then ordered by location in the source document.
-        /// </summary>
-        /// <param name="analyzer">The analyzer to run on the documents.</param>
-        /// <param name="documents">The Documents that the analyzer will be run on.</param>
-        /// <param name="allowCompilationErrors">Allow compiler errors.</param>
-        /// <returns>An IEnumerable of Diagnostics that surfaced in the source code, sorted by Location.</returns>
-        protected static async Task<Diagnostic[]> GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer,
-            Document[] documents, bool allowCompilationErrors)
-        {
-            if (documents == null)
-            {
-                throw new ArgumentNullException(nameof(documents));
-            }
-
-            var projects = new HashSet<Project>();
-            foreach (var document in documents)
-            {
-                projects.Add(document.Project);
-            }
-
-            var diagnostics = new List<Diagnostic>();
-            var analyzerExceptions = new List<Exception>();
-            foreach (var project in projects)
-            {
-                var options = new CompilationWithAnalyzersOptions(
-                    new AnalyzerOptions(ImmutableArray<AdditionalText>.Empty),
-                    (exception, diagnosticAnalyzer, diagnostic) => analyzerExceptions.Add(exception),
-                    false,
-                    true);
-                var compilationWithAnalyzers = (await project.GetCompilationAsync())
-                    .WithAnalyzers(ImmutableArray.Create(analyzer), options);
-
-                if (!allowCompilationErrors)
-                {
-                    AssertThatCompilationSucceeded(compilationWithAnalyzers);
-                }
-
-                var diags = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
-
-                if (analyzerExceptions.Any())
-                {
-                    if (analyzerExceptions.Count == 1)
-                    {
-                        ExceptionDispatchInfo.Capture(analyzerExceptions[0]).Throw();
-                    }
-                    else
-                    {
-                        throw new AggregateException("Multiple exceptions thrown during analysis", analyzerExceptions);
-                    }
-                }
-
-                foreach (var diag in diags)
-                {
-                    if (diag.Location == Location.None || diag.Location.IsInMetadata)
-                    {
-                        diagnostics.Add(diag);
-                    }
-                    else
-                    {
-                        for (int i = 0; i < documents.Length; i++)
-                        {
-                            var document = documents[i];
-                            var tree = await document.GetSyntaxTreeAsync();
-                            if (tree == diag.Location.SourceTree)
-                            {
-                                diagnostics.Add(diag);
-                            }
-                        }
-                    }
-                }
-            }
-
-            var results = SortDiagnostics(diagnostics);
-            diagnostics.Clear();
-            return results;
-        }
-
-        /// <summary>
-        /// Create a Document from a string through creating a project that contains it.
-        /// </summary>
-        /// <param name="source">Classes in the form of a string.</param>
-        /// <param name="language">The language the source code is in.</param>
-        /// <returns>A Document created from the source string.</returns>
-        protected static Document CreateDocument(string source, string language)
-        {
-            return CreateProject(new[] {source}, language).Documents.First();
-        }
-
-        /// <summary>
-        /// Given an array of strings as sources and a language, turn them into a project and return the documents and spans of it.
-        /// </summary>
-        /// <param name="sources">Classes in the form of strings.</param>
-        /// <param name="language">The language the source code is in.</param>
-        /// <returns>A Tuple containing the Documents produced from the sources and their TextSpans if relevant.</returns>
         private static Document[] GetDocuments(string[] sources, string language)
         {
             if (language != LanguageNames.CSharp && language != LanguageNames.VisualBasic)
@@ -438,12 +371,6 @@ Diagnostic:
             }
         }
 
-        /// <summary>
-        /// Create a project using the inputted strings as sources.
-        /// </summary>
-        /// <param name="sources">Classes in the form of strings.</param>
-        /// <param name="language">The language the source code is in.</param>
-        /// <returns>A Project created out of the Documents created from the source strings.</returns>
 #if CSHARP
         private static Project CreateProject(string[] sources, string language = LanguageNames.CSharp)
 #elif VISUAL_BASIC
@@ -470,8 +397,7 @@ Diagnostic:
 #elif VISUAL_BASIC
                     .WithProjectCompilationOptions(
                         projectId,
-                        new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary,
-                            optionStrict: OptionStrict.On))
+                        new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optionStrict: OptionStrict.On))
 #endif
                     .AddMetadataReference(projectId, CorlibReference)
                     .AddMetadataReference(projectId, SystemCoreReference)
@@ -497,25 +423,11 @@ Diagnostic:
             }
         }
 
-        /// <summary>
-        /// Given classes in the form of strings, their language, and an IDiagnosticAnalyzer to apply to it, return the diagnostics found in the string after converting it to a document.
-        /// </summary>
-        /// <param name="sources">Classes in the form of strings.</param>
-        /// <param name="language">The language the source classes are in.</param>
-        /// <param name="analyzer">The analyzer to be run on the sources.</param>
-        /// <param name="allowCompilationErrors">Allow compiler errors.</param>
-        /// <returns>An IEnumerable of Diagnostics that surfaced in the source code, sorted by Location.</returns>
-        private static async Task<Diagnostic[]> GetSortedDiagnostics(string[] sources, string language, DiagnosticAnalyzer analyzer,
-            bool allowCompilationErrors)
+        private static async Task<Diagnostic[]> GetSortedDiagnostics(string[] sources, string language, DiagnosticAnalyzer analyzer, bool allowCompilationErrors)
         {
             return await GetSortedDiagnosticsFromDocuments(analyzer, GetDocuments(sources, language), allowCompilationErrors);
         }
 
-        /// <summary>
-        /// Sort diagnostics by location in source document.
-        /// </summary>
-        /// <param name="diagnostics">The list of Diagnostics to be sorted.</param>
-        /// <returns>An IEnumerable containing the Diagnostics in order of Location.</returns>
         private static Diagnostic[] SortDiagnostics(IEnumerable<Diagnostic> diagnostics)
         {
             return diagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();

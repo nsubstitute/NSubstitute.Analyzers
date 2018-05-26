@@ -4,7 +4,7 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Test.VisualBasic.AnalyzerTests.UnusedReceivedAnalyzerTests
 {
-    public class ReceivedWithAnyArgsMethodWithGenericTypeSpecifiedTests : UnusedReceivedAnalyzerTests
+    public class ReceivedWithAnyArgsAsOrdinaryMethodWithGenericTypeSpecifiedTests : UnusedReceivedAnalyzerTests
     {
           [Fact]
         public override async Task ReportDiagnostics_WhenUsedWithoutMemberCall()
@@ -34,10 +34,8 @@ End Namespace
                 }
             };
 
-
             await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
         }
-
 
         [Fact]
         public override async Task ReportNoDiagnostics_WhenUsedWithMethodMemberAccess()

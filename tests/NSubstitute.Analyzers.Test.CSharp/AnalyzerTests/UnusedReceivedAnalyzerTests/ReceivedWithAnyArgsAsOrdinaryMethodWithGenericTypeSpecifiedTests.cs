@@ -4,7 +4,7 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Test.CSharp.AnalyzerTests.UnusedReceivedAnalyzerTests
 {
-    public class ReceivedWithAnyArgsMethodWithGenericTypeSpecifiedTests : UnusedReceivedAnalyzerTests
+    public class ReceivedWithAnyArgsAsOrdinaryMethodWithGenericTypeSpecifiedTests : UnusedReceivedAnalyzerTests
     {
         [Fact]
         public override async Task ReportDiagnostics_WhenUsedWithoutMemberCall()
@@ -36,7 +36,6 @@ namespace MyNamespace
                     new DiagnosticResultLocation(14, 13)
                 }
             };
-
 
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }

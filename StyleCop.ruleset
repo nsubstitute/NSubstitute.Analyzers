@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="Rules for Cake.MetadataGenerator" Description="Code analysis rules for Cake.MetadataGenerator.csproj." ToolsVersion="14.0">
+  <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
+    <Rule Id="SA0000" Action="Error" />
+    <Rule Id="SA1305" Action="Error" />
+    <Rule Id="SA1609" Action="Error" />
+    <Rule Id="SA1639" Action="Error" />
+    <Rule Id="SX1309" Action="Error" />
+    <Rule Id="SA1412" Action="None" />
+    <Rule Id="SX1309S" Action="None" />
+    <Rule Id="SX1309X" Action="None" />
+    <Rule Id="SA1309" Action="None" />
+    <Rule Id="SA1101" Action="None" />
+    <Rule Id="SX1101" Action="None" />
+    <Rule Id="SA1118" Action="None" />
+    <Rule Id="SA1503" Action="None" />
+    <Rule Id="SA1402" Action="None" />
+    <Rule Id="SA1127" Action="None" />
+    <Rule Id="SA1633" Action="None" />
+    <Rule Id="SA1652" Action="None" />
+    <Rule Id="RS1014" Action="None" />
+    <Rule Id="SA1201" Action="None" />
+    <Rule Id="SA1129" Action="None" />
+    <Rule Id="SA1413" Action="None" />
+    <Rule Id="SA0001" Action="None" />
+    <Rule Id="SA1601" Action="None" />
+    <Rule Id="SA1600" Action="None" />
+    <Rule Id="SA1204" Action="None" />
+  </Rules>
+  <Rules AnalyzerId="xunit.analyzers" RuleNamespace="xunit.analyzers">
+    <Rule Id="xUnit1013" Action="Hidden" />
+  </Rules>
+</RuleSet>

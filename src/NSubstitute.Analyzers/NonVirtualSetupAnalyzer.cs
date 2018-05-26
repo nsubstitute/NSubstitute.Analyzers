@@ -48,14 +48,15 @@ namespace NSubstitute.Analyzers
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
-            var invocationExpression = (InvocationExpressionSyntax) syntaxNodeContext.Node;
+            var invocationExpression = (InvocationExpressionSyntax)syntaxNodeContext.Node;
             var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
 
             if (methodSymbolInfo.Symbol?.Kind != SymbolKind.Method)
             {
                 return;
             }
-            var methodSymbol = (IMethodSymbol) methodSymbolInfo.Symbol;
+
+            var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
             if (methodSymbol == null || methodSymbol.MethodKind != MethodKind.Ordinary)
             {
                 return;
@@ -73,7 +74,7 @@ namespace NSubstitute.Analyzers
 
         private void AnalyzeMemberAccess(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
-            var memberAccessExpression = (MemberAccessExpressionSyntax) syntaxNodeContext.Node;
+            var memberAccessExpression = (MemberAccessExpressionSyntax)syntaxNodeContext.Node;
             var memberName = memberAccessExpression.Name.Identifier.Text;
             if (IsReturnsLikeMethod(syntaxNodeContext, memberAccessExpression, memberName) == false)
             {
@@ -85,7 +86,7 @@ namespace NSubstitute.Analyzers
             AnalyzeMember(syntaxNodeContext, accessedMember);
         }
 
-        private static bool IsReturnsLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntax, string memberName)
+        private bool IsReturnsLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntax, string memberName)
         {
             if (MethodNames.Contains(memberName) == false)
             {
@@ -94,11 +95,8 @@ namespace NSubstitute.Analyzers
 
             var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax);
 
-            return symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName,
-                       StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.Symbol?.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-                       StringComparison.OrdinalIgnoreCase) == true;
-
+            return symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
+                   symbol.Symbol?.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteExtensionsFullTypeName, StringComparison.OrdinalIgnoreCase) == true;
         }
 
         private static void AnalyzeMember(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode accessedMember)
@@ -112,7 +110,8 @@ namespace NSubstitute.Analyzers
 
             if (accessedMember is LiteralExpressionSyntax literalExpressionSyntax)
             {
-                var diagnostic = Diagnostic.Create(DiagnosticDescriptors.NonVirtualSetupSpecification,
+                var diagnostic = Diagnostic.Create(
+                    DiagnosticDescriptors.NonVirtualSetupSpecification,
                     accessedMember.GetLocation(),
                     literalExpressionSyntax.ToString());
 
@@ -121,7 +120,8 @@ namespace NSubstitute.Analyzers
 
             if (accessedSymbol.Symbol != null && CanBeSetuped(accessedSymbol) == false)
             {
-                var diagnostic = Diagnostic.Create(DiagnosticDescriptors.NonVirtualSetupSpecification,
+                var diagnostic = Diagnostic.Create(
+                    DiagnosticDescriptors.NonVirtualSetupSpecification,
                     accessedMember.GetLocation(),
                     accessedSymbol.Symbol.Name);
 

@@ -6,12 +6,6 @@ namespace NSubstitute.Analyzers
 {
     public class DiagnosticDescriptors
     {
-#if CSHARP
-        private const string ResourceBaseName = "NSubstitute.Analyzers.CSharp.Resources";
-#elif VISUAL_BASIC
-        private const string ResourceBaseName = "NSubstitute.Analyzers.VisualBasic.Resources";
-#endif
-
         public static readonly ResourceManager ResourceManager =
             new ResourceManager(
                 ResourceBaseName,
@@ -88,5 +82,11 @@ namespace NSubstitute.Analyzers
         {
             return new LocalizableResourceString(name + propertyName, ResourceManager, typeof(DiagnosticDescriptors));
         }
+
+#if CSHARP
+        private const string ResourceBaseName = "NSubstitute.Analyzers.CSharp.Resources";
+#elif VISUAL_BASIC
+        private const string ResourceBaseName = "NSubstitute.Analyzers.VisualBasic.Resources";
+#endif
     }
 }
