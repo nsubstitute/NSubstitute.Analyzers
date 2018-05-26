@@ -9,5 +9,8 @@
         public static readonly string SubstituteForConstructorParametersMismatch = "NS005";
         public static readonly string SubstituteForInternalMember = "NS006";
         public static readonly string SubstituteConstructorMismatch = "NS007";
+        public static readonly string SubstituteMultipleClasses = "NS008";
+        public static readonly string SubstituteConstructorArgumentsForInterface = "NS009";
+        public static readonly string SubstituteConstructorArgumentsForDelegate = "NS010";
     }
 }

@@ -67,6 +67,30 @@ namespace NSubstitute.Analyzers
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true);
 
+        public static DiagnosticDescriptor SubstituteMultipleClasses { get; } =
+            CreateDiagnosticDescriptor(
+                name: nameof(SubstituteMultipleClasses),
+                id: DiagnosticIdentifiers.SubstituteMultipleClasses,
+                category: DiagnosticCategories.Usage,
+                defaultSeverity: DiagnosticSeverity.Warning,
+                isEnabledByDefault: true);
+
+        public static DiagnosticDescriptor SubstituteConstructorArgumentsForInterface { get; } =
+            CreateDiagnosticDescriptor(
+                name: nameof(SubstituteConstructorArgumentsForInterface),
+                id: DiagnosticIdentifiers.SubstituteConstructorArgumentsForInterface,
+                category: DiagnosticCategories.Usage,
+                defaultSeverity: DiagnosticSeverity.Warning,
+                isEnabledByDefault: true);
+
+        public static DiagnosticDescriptor SubstituteConstructorArgumentsForDelegate { get; } =
+            CreateDiagnosticDescriptor(
+                name: nameof(SubstituteConstructorArgumentsForDelegate),
+                id: DiagnosticIdentifiers.SubstituteConstructorArgumentsForDelegate,
+                category: DiagnosticCategories.Usage,
+                defaultSeverity: DiagnosticSeverity.Warning,
+                isEnabledByDefault: true);
+
         private static DiagnosticDescriptor CreateDiagnosticDescriptor(
             string name, string id, string category, DiagnosticSeverity defaultSeverity, bool isEnabledByDefault)
         {

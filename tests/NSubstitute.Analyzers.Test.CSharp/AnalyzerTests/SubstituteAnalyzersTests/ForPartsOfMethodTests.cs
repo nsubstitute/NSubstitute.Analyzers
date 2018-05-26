@@ -73,7 +73,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor()
+        public override async Task ReturnsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor()
         {
             var source = @"using NSubstitute;
 
@@ -109,7 +109,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount()
+        public override async Task ReturnsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount()
         {
             var source = @"using NSubstitute;
 
@@ -137,7 +137,7 @@ namespace MyNamespace
                 Message = "Constructor parameters count mismatch.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(13, 30)
+                    new DiagnosticResultLocation(16, 30)
                 }
             };
 
@@ -145,7 +145,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount()
+        public override async Task ReturnsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount()
         {
             var source = @"using NSubstitute;
 
@@ -173,7 +173,7 @@ namespace MyNamespace
                 Message = "Constructor parameters count mismatch.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(13, 30)
+                    new DiagnosticResultLocation(16, 30)
                 }
             };
 
@@ -182,7 +182,7 @@ namespace MyNamespace
 
         // even though parameters are optional, NSubstitute requires to pass all of them
         [Fact]
-        public async Task ReturnsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters()
+        public override async Task ReturnsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters()
         {
             var source = @"using NSubstitute;
 
@@ -210,7 +210,7 @@ namespace MyNamespace
                 Message = "Constructor parameters count mismatch.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(13, 30)
+                    new DiagnosticResultLocation(16, 30)
                 }
             };
 
@@ -218,7 +218,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToNotApplied()
+        public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToNotApplied()
         {
             var source = @"using NSubstitute;
 namespace MyNamespace
@@ -250,7 +250,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
+        public override async Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
         {
             var source = @"using NSubstitute;
 using System.Runtime.CompilerServices;
@@ -273,7 +273,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly()
+        public override async Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly()
         {
             var source = @"using NSubstitute;
 using System.Runtime.CompilerServices;
@@ -307,7 +307,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsDiagnostic_WhenCorrespondingConstructorArgumentsNotCompatible()
+        public override async Task ReturnsDiagnostic_WhenCorrespondingConstructorArgumentsNotCompatible()
         {
             var source = @"using NSubstitute;
 
@@ -343,7 +343,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsDiagnostic_WhenAssigningDoubleToInt()
+        public override async Task ReturnsDiagnostic_WhenAssigningDoubleToInt()
         {
             var source = @"using NSubstitute;
 
@@ -380,7 +380,7 @@ namespace MyNamespace
 
         // even though it is valid in c# NSubstitute will throw exception
         [Fact]
-        public async Task ReturnsDiagnostic_WhenAssigningIntToDouble()
+        public override async Task ReturnsDiagnostic_WhenAssigningIntToDouble()
         {
             var source = @"using NSubstitute;
 
@@ -416,7 +416,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsDiagnostic_WhenCorrespondingConstructorArgumentsAreImpclityConvertible2()
+        public override async Task ReturnsNoDiagnostic_WhenCorrespondingConstructorArgumentsAreImplicitlyConvertible()
         {
             var source = @"using NSubstitute;
 using System.Collections.Generic;
@@ -437,18 +437,7 @@ namespace MyNamespace
         }
     }
 }";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteConstructorMismatch,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Unable to find matching constructor.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(16, 30)
-                }
-            };
-
-            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
+            await VerifyCSharpDiagnostic(source);
         }
     }
 }

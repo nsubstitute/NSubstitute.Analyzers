@@ -32,7 +32,10 @@ namespace NSubstitute.Analyzers
             DiagnosticDescriptors.SubstituteForWithoutAccessibleConstructor,
             DiagnosticDescriptors.SubstituteForConstructorParametersMismatch,
             DiagnosticDescriptors.SubstituteForInternalMember,
-            DiagnosticDescriptors.SubstituteConstructorMismatch);
+            DiagnosticDescriptors.SubstituteConstructorMismatch,
+            DiagnosticDescriptors.SubstituteMultipleClasses,
+            DiagnosticDescriptors.SubstituteConstructorArgumentsForInterface,
+            DiagnosticDescriptors.SubstituteConstructorArgumentsForDelegate);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -60,79 +63,256 @@ namespace NSubstitute.Analyzers
                 return;
             }
 
-            var genericArgument = methodSymbol.TypeArguments.FirstOrDefault();
+            if (methodSymbol.Name.Equals(MetadataNames.NSubstituteForMethod, StringComparison.Ordinal))
+            {
+                AnalyzeSubstituteForMethod(syntaxNodeContext, invocationExpression, methodSymbol);
+                return;
+            }
 
-            if (genericArgument == null)
+            if (methodSymbol.Name.Equals(MetadataNames.NSubstituteForPartsOfMethod, StringComparison.Ordinal))
+            {
+                AnalyzeSubstituteForPartsOf(syntaxNodeContext, invocationExpression, methodSymbol);
+                return;
+            }
+        }
+
+        private void AnalyzeSubstituteForMethod(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax invocationExpression, IMethodSymbol methodSymbol)
+        {
+            if (AnalyzeProxies(syntaxNodeContext, invocationExpression, methodSymbol))
             {
                 return;
             }
 
-            if ((genericArgument.TypeKind == TypeKind.Interface || genericArgument.TypeKind == TypeKind.Delegate) &&
-                methodSymbol.Name.Equals(MetadataNames.NSubstituteForPartsOfMethod, StringComparison.Ordinal))
+            var proxyType = GetActualProxyTypeSymbol(syntaxNodeContext, invocationExpression, methodSymbol);
+
+            if (AnalyzeTypeAccessability(syntaxNodeContext, invocationExpression, proxyType))
+            {
+                return;
+            }
+
+            if (AnalyzeConstructorAccessability(syntaxNodeContext, invocationExpression, proxyType))
+            {
+                return;
+            }
+
+            if (AnalyzeConstructorParametersCount(syntaxNodeContext, invocationExpression, proxyType))
+            {
+                return;
+            }
+
+            if (AnalyzeConstructorInvocation(syntaxNodeContext, invocationExpression, proxyType))
+            {
+                return;
+            }
+        }
+
+        private bool AnalyzeProxies(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax invocationExpression, IMethodSymbol methodSymbol)
+        {
+            var proxies = GetProxySymbols(syntaxNodeContext, invocationExpression, methodSymbol).ToList();
+            var classProxies = proxies.Where(proxy => proxy.TypeKind == TypeKind.Class).Distinct();
+            if (classProxies.Count() > 1)
+            {
+                var diagnostic = Diagnostic.Create(
+                    DiagnosticDescriptors.SubstituteMultipleClasses,
+                    invocationExpression.GetLocation());
+
+                syntaxNodeContext.ReportDiagnostic(diagnostic);
+                return true;
+            }
+
+            return false;
+        }
+
+        private ITypeSymbol GetActualProxyTypeSymbol(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax invocationExpression, IMethodSymbol methodSymbol)
+        {
+            var proxies = GetProxySymbols(syntaxNodeContext, invocationExpression, methodSymbol).ToList();
+
+            var classSymbol = proxies.FirstOrDefault(symbol => symbol.TypeKind == TypeKind.Class);
+
+            return classSymbol ?? proxies.FirstOrDefault();
+        }
+
+        private ImmutableArray<ITypeSymbol> GetProxySymbols(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax invocationExpression, IMethodSymbol methodSymbol)
+        {
+            return methodSymbol.TypeArguments;
+        }
+
+        private void AnalyzeSubstituteForPartsOf(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax invocationExpression, IMethodSymbol methodSymbol)
+        {
+            var proxyType = methodSymbol.TypeArguments.FirstOrDefault();
+
+            if (proxyType == null)
+            {
+                return;
+            }
+
+            if (AnalyzeTypeKind(syntaxNodeContext, invocationExpression, proxyType))
+            {
+                return;
+            }
+
+            if (AnalyzeTypeAccessability(syntaxNodeContext, invocationExpression, proxyType))
+            {
+                return;
+            }
+
+            if (proxyType.TypeKind != TypeKind.Class)
+            {
+                return;
+            }
+
+            if (AnalyzeConstructorAccessability(syntaxNodeContext, invocationExpression, proxyType))
+            {
+                return;
+            }
+
+            if (AnalyzeConstructorParametersCount(syntaxNodeContext, invocationExpression, proxyType))
+            {
+                return;
+            }
+
+            if (AnalyzeConstructorInvocation(syntaxNodeContext, invocationExpression, proxyType))
+            {
+                return;
+            }
+        }
+
+        private bool AnalyzeConstructorInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax invocationExpression, ITypeSymbol typeSymbol)
+        {
+            if (typeSymbol.TypeKind != TypeKind.Class)
+            {
+                return false;
+            }
+
+            var possibleConstructors = GetPossibleConstructors(typeSymbol, invocationExpression);
+            if (possibleConstructors.All(ctor => MatchesInvocation(syntaxNodeContext, ctor, invocationExpression.ArgumentList.Arguments) == false))
+            {
+                var diagnostic = Diagnostic.Create(
+                    DiagnosticDescriptors.SubstituteConstructorMismatch,
+                    invocationExpression.GetLocation());
+
+                syntaxNodeContext.ReportDiagnostic(diagnostic);
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool AnalyzeConstructorParametersCount(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax invocationExpression, ITypeSymbol typeSymbol)
+        {
+            switch (typeSymbol.TypeKind)
+            {
+                case TypeKind.Interface when GetInvocationArgumentCount(invocationExpression) > 0:
+                    var diagnostic = Diagnostic.Create(
+                        DiagnosticDescriptors.SubstituteConstructorArgumentsForInterface,
+                        invocationExpression.GetLocation());
+
+                    syntaxNodeContext.ReportDiagnostic(diagnostic);
+                    return true;
+                case TypeKind.Interface:
+                    return false;
+                case TypeKind.Delegate when GetInvocationArgumentCount(invocationExpression) > 0:
+                    var delegateDiagnostic = Diagnostic.Create(
+                        DiagnosticDescriptors.SubstituteConstructorArgumentsForDelegate,
+                        invocationExpression.GetLocation());
+
+                    syntaxNodeContext.ReportDiagnostic(delegateDiagnostic);
+                    return true;
+                case TypeKind.Delegate:
+                    return false;
+            }
+
+            var possibleConstructors = GetPossibleConstructors(typeSymbol, invocationExpression);
+
+            if (possibleConstructors.Any() == false)
+            {
+                var diagnostic = Diagnostic.Create(
+                    DiagnosticDescriptors.SubstituteForConstructorParametersMismatch,
+                    invocationExpression.GetLocation());
+
+                syntaxNodeContext.ReportDiagnostic(diagnostic);
+                return true;
+            }
+
+            return false;
+        }
+
+        private IEnumerable<IMethodSymbol> GetPossibleConstructors(ITypeSymbol typeSymbol, InvocationExpressionSyntax invocationExpression)
+        {
+            var count = GetInvocationArgumentCount(invocationExpression);
+            return GetAccessibleConstructors(typeSymbol).Where(ctor => ctor.Parameters.Length == count);
+        }
+
+        private int GetInvocationArgumentCount(InvocationExpressionSyntax invocationExpressionSyntax)
+        {
+            return invocationExpressionSyntax.ArgumentList.Arguments.Count;
+        }
+
+        private static bool AnalyzeTypeKind(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax invocationExpression, ITypeSymbol proxyType)
+        {
+            if (proxyType.TypeKind == TypeKind.Interface || proxyType.TypeKind == TypeKind.Delegate)
             {
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptors.SubstituteForPartsOfUsedForInterface,
                     invocationExpression.GetLocation());
 
                 syntaxNodeContext.ReportDiagnostic(diagnostic);
-                return;
+                return true;
             }
 
-            bool isInternalyVisible = false;
-            if (genericArgument.DeclaredAccessibility == Accessibility.Internal)
+            return false;
+        }
+
+        private bool AnalyzeTypeAccessability(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax invocationExpression, ITypeSymbol proxyType)
+        {
+            if (proxyType.DeclaredAccessibility == Accessibility.Internal && InternalsVisibleToProxyGenerator(proxyType) == false)
             {
-                var internalsVisibleToAttribute = genericArgument.ContainingAssembly.GetAttributes().FirstOrDefault(att => att.AttributeClass.ToString() == MetadataNames.InternalsVisibleToAttributeFullTypeName);
-                if (internalsVisibleToAttribute == null || internalsVisibleToAttribute.ConstructorArguments.Any(
-                    arg => arg.Value.ToString() == MetadataNames.CastleDynamicProxyGenAssembly2Name) == false)
-                {
-                    var diagnostic = Diagnostic.Create(
-                        DiagnosticDescriptors.SubstituteForInternalMember,
-                        invocationExpression.GetLocation());
+                var diagnostic = Diagnostic.Create(
+                    DiagnosticDescriptors.SubstituteForInternalMember,
+                    invocationExpression.GetLocation());
 
-                    syntaxNodeContext.ReportDiagnostic(diagnostic);
-                    return;
-                }
-
-                isInternalyVisible = true;
+                syntaxNodeContext.ReportDiagnostic(diagnostic);
+                return true;
             }
 
-            if (genericArgument.TypeKind != TypeKind.Interface && genericArgument.TypeKind != TypeKind.Delegate)
+            return false;
+        }
+
+        private bool AnalyzeConstructorAccessability(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax invocationExpression, ITypeSymbol typeSymbol)
+        {
+            if (typeSymbol.TypeKind != TypeKind.Class)
             {
-                var accessibleConstructors = GetAccessibleConstructors(genericArgument, isInternalyVisible);
-
-                if (accessibleConstructors.Any() == false)
-                {
-                    var diagnostic = Diagnostic.Create(
-                        DiagnosticDescriptors.SubstituteForWithoutAccessibleConstructor,
-                        invocationExpression.GetLocation());
-
-                    syntaxNodeContext.ReportDiagnostic(diagnostic);
-                    return;
-                }
-
-                var argumentsCount = invocationExpression.ArgumentList.Arguments.Count;
-
-                var possibleConstructors = accessibleConstructors.Where(ctor => ctor.Parameters.Length == argumentsCount).ToList();
-
-                if (possibleConstructors.Any() == false)
-                {
-                    var diagnostic = Diagnostic.Create(
-                        DiagnosticDescriptors.SubstituteForConstructorParametersMismatch,
-                        invocationExpression.GetLocation());
-
-                    syntaxNodeContext.ReportDiagnostic(diagnostic);
-                    return;
-                }
-
-                if (possibleConstructors.All(ctor => MatchesInvocation(syntaxNodeContext, ctor, invocationExpression.ArgumentList.Arguments) == false))
-                {
-                    var diagnostic = Diagnostic.Create(
-                        DiagnosticDescriptors.SubstituteConstructorMismatch,
-                        invocationExpression.GetLocation());
-
-                    syntaxNodeContext.ReportDiagnostic(diagnostic);
-                }
+                return false;
             }
+
+            var accessibleConstructors = GetAccessibleConstructors(typeSymbol);
+            if (accessibleConstructors.Any() == false)
+            {
+                var diagnostic = Diagnostic.Create(
+                    DiagnosticDescriptors.SubstituteForWithoutAccessibleConstructor,
+                    invocationExpression.GetLocation());
+
+                syntaxNodeContext.ReportDiagnostic(diagnostic);
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool InternalsVisibleToProxyGenerator(ISymbol typeSymbol)
+        {
+            var internalsVisibleToAttribute = typeSymbol.ContainingAssembly.GetAttributes()
+                .FirstOrDefault(att => att.AttributeClass.ToString() == MetadataNames.InternalsVisibleToAttributeFullTypeName);
+
+            return internalsVisibleToAttribute != null &&
+                   internalsVisibleToAttribute.ConstructorArguments.Any(arg =>
+                       arg.Value.ToString() == MetadataNames.CastleDynamicProxyGenAssembly2Name);
+        }
+
+        private static IList<ITypeSymbol> GetProxyTypes(InvocationExpressionSyntax invocationExpression, IMethodSymbol methodSymbol)
+        {
+            // TODO try handle non-generic Substitute.For
+            return methodSymbol.TypeArguments;
         }
 
         private bool MatchesInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, SeparatedSyntaxList<ArgumentSyntax> arguments)
@@ -156,15 +336,16 @@ namespace NSubstitute.Analyzers
             return true;
         }
 
-        private static List<IMethodSymbol> GetAccessibleConstructors(ITypeSymbol genericArgument, bool isInternalyVisible)
+        private IEnumerable<IMethodSymbol> GetAccessibleConstructors(ITypeSymbol genericArgument)
         {
+            var internalsVisibleToProxy = InternalsVisibleToProxyGenerator(genericArgument);
+
             return genericArgument.GetMembers().OfType<IMethodSymbol>().Where(symbol =>
-                    symbol.MethodKind == MethodKind.Constructor &&
-                    symbol.IsStatic == false &&
-                    (symbol.DeclaredAccessibility == Accessibility.Protected ||
-                     symbol.DeclaredAccessibility == Accessibility.Public ||
-                     (isInternalyVisible && symbol.DeclaredAccessibility == Accessibility.Internal)))
-                .ToList();
+                symbol.MethodKind == MethodKind.Constructor &&
+                symbol.IsStatic == false &&
+                (symbol.DeclaredAccessibility == Accessibility.Protected ||
+                 symbol.DeclaredAccessibility == Accessibility.Public ||
+                 (internalsVisibleToProxy && symbol.DeclaredAccessibility == Accessibility.Internal)));
         }
 
         private static bool IsSubstituteMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntax, string memberName)

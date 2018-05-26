@@ -189,7 +189,7 @@
     <value>Substitute for internal member.</value>
     <comment>The title of the diagnostic.</comment>
   </data>
-    <data name="SubstituteConstructorMismatchDescription" xml:space="preserve">
+  <data name="SubstituteConstructorMismatchDescription" xml:space="preserve">
     <value>Unable to find matching constructor.</value>
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
@@ -199,6 +199,42 @@
   </data>
   <data name="SubstituteConstructorMismatchMemberTitle" xml:space="preserve">
     <value>Unable to find matching constructor.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteMultipleClassesDescription" xml:space="preserve">
+    <value>Can not substitute for multiple classes.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteMultipleClassesMessageFormat" xml:space="preserve">
+    <value>Can not substitute for multiple classes. To substitute for multiple types only one type can be a concrete class; other types can only be interfaces.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="SubstituteMultipleClassesMemberTitle" xml:space="preserve">
+    <value>Can not substitute for multiple classes.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteConstructorArgumentsForInterfaceDescription" xml:space="preserve">
+    <value>Can not provide constructor arguments when substituting for an interface.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteConstructorArgumentsForInterfaceMessageFormat" xml:space="preserve">
+    <value>Can not provide constructor arguments when substituting for an interface.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="SubstituteConstructorArgumentsForInterfaceMemberTitle" xml:space="preserve">
+    <value>Can not provide constructor arguments when substituting for an interface.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteConstructorArgumentsForDelegateeDescription" xml:space="preserve">
+    <value>Can not provide constructor arguments when substituting for a delegate.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteConstructorArgumentsForDelegateMessageFormat" xml:space="preserve">
+    <value>Can not provide constructor arguments when substituting for a delegate.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="SubstituteConstructorArgumentsForDelegateMemberTitle" xml:space="preserve">
+    <value>Can not provide constructor arguments when substituting for a delegate.</value>
     <comment>The title of the diagnostic.</comment>
   </data>
 </root>
