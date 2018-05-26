@@ -1,0 +1,12 @@
+<Project>
+    <PropertyGroup>
+        <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+        <CodeAnalysisRuleSet>../../StyleCop.ruleset</CodeAnalysisRuleSet>
+    </PropertyGroup>
+    <ItemGroup>
+        <AdditionalFiles Include="../../StyleCop.json" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
+    </ItemGroup>
+</Project>

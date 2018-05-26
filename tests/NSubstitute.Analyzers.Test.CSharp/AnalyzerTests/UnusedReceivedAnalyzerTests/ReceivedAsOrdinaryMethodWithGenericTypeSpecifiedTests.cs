@@ -37,7 +37,6 @@ namespace MyNamespace
                 }
             };
 
-
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 

@@ -106,7 +106,6 @@ namespace MyNamespace
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
-
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod()
         {
             var source = @"using NSubstitute;
@@ -276,7 +275,6 @@ namespace MyNamespace
             await VerifyCSharpDiagnostic(source);
         }
 
-
         public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod()
         {
             var source = @"using NSubstitute;
@@ -300,7 +298,6 @@ namespace MyNamespace
             await VerifyCSharpDiagnostic(source);
         }
 
-
         public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty()
         {
             var source = @"using NSubstitute;
@@ -323,7 +320,6 @@ namespace MyNamespace
 }";
             await VerifyCSharpDiagnostic(source);
         }
-
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod()
         {
@@ -393,7 +389,6 @@ namespace MyNamespace
     }
 }";
             await VerifyCSharpDiagnostic(source);
-
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty()
@@ -419,7 +414,6 @@ namespace MyNamespace
 
             await VerifyCSharpDiagnostic(source);
         }
-
 
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty()
         {
@@ -456,7 +450,6 @@ namespace MyNamespace
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
-
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualIndexer()
         {
             var source = @"using NSubstitute;
@@ -479,7 +472,6 @@ namespace MyNamespace
 }";
             await VerifyCSharpDiagnostic(source);
         }
-
 
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer()
         {

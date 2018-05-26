@@ -43,7 +43,7 @@ namespace NSubstitute.Analyzers.Test
         /// are not correctly analyzed as they require data flow analysys,
         /// this test makes sure that such cases are ignored and does not produces a false warnings
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Task</returns>
         [Fact]
         public abstract Task ReportsNoDiagnostics_WhenDataFlowAnalysisIsRequired();
 

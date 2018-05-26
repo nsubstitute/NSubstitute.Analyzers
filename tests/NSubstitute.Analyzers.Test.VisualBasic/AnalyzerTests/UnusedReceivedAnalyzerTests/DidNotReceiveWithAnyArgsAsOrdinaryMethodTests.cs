@@ -34,10 +34,8 @@ End Namespace
                 }
             };
 
-
             await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
         }
-
 
         [Fact]
         public override async Task ReportNoDiagnostics_WhenUsedWithMethodMemberAccess()

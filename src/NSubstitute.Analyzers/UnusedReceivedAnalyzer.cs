@@ -12,7 +12,6 @@ using Microsoft.CodeAnalysis.Diagnostics;
 #if VISUAL_BASIC
 using Microsoft.CodeAnalysis.VisualBasic;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
-
 #endif
 
 namespace NSubstitute.Analyzers
@@ -33,14 +32,18 @@ namespace NSubstitute.Analyzers
             MetadataNames.NSubstituteDidNotReceiveMethod,
             MetadataNames.NSubstituteDidNotReceiveWithAnyArgsMethod);
 
+#if CSHARP
         private static readonly ImmutableArray<Parent> PossibleParents =
             ImmutableArray.Create(
                 Parent.Create<MemberAccessExpressionSyntax>(),
-                Parent.Create<InvocationExpressionSyntax>()
-#if CSHARP
-                ,Parent.Create<ElementAccessExpressionSyntax>()
+                Parent.Create<InvocationExpressionSyntax>(),
+                Parent.Create<ElementAccessExpressionSyntax>());
+#elif VISUAL_BASIC
+        private static readonly ImmutableArray<Parent> PossibleParents =
+            ImmutableArray.Create(
+                Parent.Create<MemberAccessExpressionSyntax>(),
+                Parent.Create<InvocationExpressionSyntax>());
 #endif
-    );
 
         public sealed override void Initialize(AnalysisContext context)
         {
@@ -49,7 +52,7 @@ namespace NSubstitute.Analyzers
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
-            var invocationExpression = (InvocationExpressionSyntax) syntaxNodeContext.Node;
+            var invocationExpression = (InvocationExpressionSyntax)syntaxNodeContext.Node;
             var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
 
             if (methodSymbolInfo.Symbol?.Kind != SymbolKind.Method)
@@ -57,7 +60,7 @@ namespace NSubstitute.Analyzers
                 return;
             }
 
-            var methodSymbol = (IMethodSymbol) methodSymbolInfo.Symbol;
+            var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
             if (methodSymbol == null)
             {
                 return;
@@ -75,15 +78,15 @@ namespace NSubstitute.Analyzers
                 return;
             }
 
-            var diagnostic = Diagnostic.Create(DiagnosticDescriptors.UnusedReceived,
+            var diagnostic = Diagnostic.Create(
+                DiagnosticDescriptors.UnusedReceived,
                 invocationExpression.GetLocation(),
                 methodSymbol.Name);
 
             syntaxNodeContext.ReportDiagnostic(diagnostic);
         }
 
-        private static bool IsReceivedLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntax,
-            string memberName)
+        private static bool IsReceivedLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntax, string memberName)
         {
             if (MethodNames.Contains(memberName) == false)
             {
@@ -92,11 +95,8 @@ namespace NSubstitute.Analyzers
 
             var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax);
 
-            return symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName,
-                       StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.Symbol?.ContainingType?.ToString().Equals(
-                       MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-                       StringComparison.OrdinalIgnoreCase) == true;
+            return symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.Ordinal) == true &&
+                   symbol.Symbol?.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteExtensionsFullTypeName, StringComparison.Ordinal) == true;
         }
 
         private bool IsConsideredAsUsed(SyntaxNode receivedSyntaxNode)
