@@ -16,15 +16,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\NSubstitute.Analyzers.Test.Shared\AnalyzerTest.cs">
-      <Link>AnalyzerTest.cs</Link>
+      <Link>DiagnosticAnalyzerTests\AnalyzerTest.cs</Link>
     </Compile>
-    <Compile Include="..\NSubstitute.Analyzers.Test.Shared\DiagnosticResult.cs" Link="DiagnosticResult.cs" />
-    <Compile Include="..\NSubstitute.Analyzers.Test.Shared\DiagnosticResultLocation.cs" Link="DiagnosticResultLocation.cs" />
+    <Compile Include="..\NSubstitute.Analyzers.Test.Shared\DiagnosticResult.cs">
+      <Link>DiagnosticAnalyzerTests\DiagnosticResult.cs</Link>
+    </Compile>
+    <Compile Include="..\NSubstitute.Analyzers.Test.Shared\DiagnosticResultLocation.cs">
+      <Link>DiagnosticAnalyzerTests\DiagnosticResultLocation.cs</Link>
+    </Compile>
     <Compile Include="..\NSubstitute.Analyzers.Test.Shared\NonVirtualSetupAnalyzerTestBase.cs">
-      <Link>NonVirtualSetupAnalyzerTestBase.cs</Link>
+      <Link>DiagnosticAnalyzerTests\NonVirtualSetupAnalyzerTests\NonVirtualSetupAnalyzerTestBase.cs</Link>
     </Compile>
     <Compile Include="..\NSubstitute.Analyzers.Test.Shared\UnusedReceivedAnalyzerTestBase.cs">
-      <Link>UnusedReceivedAnalyzerTestBase.cs</Link>
+      <Link>DiagnosticAnalyzerTests\UnusedReceivedAnalyzerTests\UnusedReceivedAnalyzerTestBase.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>

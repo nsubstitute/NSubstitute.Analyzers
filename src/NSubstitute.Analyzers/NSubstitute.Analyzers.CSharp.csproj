@@ -40,4 +40,7 @@
   <ItemGroup>
     <EmbeddedResource Remove="VisualBasic\**" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="CodeFixProviders" />
+  </ItemGroup>
 </Project>
