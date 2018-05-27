@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard1.1</TargetFramework>
-    <PackageTargetFallback>portable45-net45+win8</PackageTargetFallback>
+    <TargetFramework>netstandard1.3</TargetFramework>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <DefineConstants>$(DefineConstants);CSHARP</DefineConstants>
@@ -9,6 +8,7 @@
     <RootNamespace>NSubstitute.Analyzers</RootNamespace>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>NSubstitute.Analyzers.CSharp</PackageId>
@@ -26,11 +26,8 @@
     <NoPackageAnalysis>true</NoPackageAnalysis>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Update="NetStandard.Library" Version="$(NetStandardImplicitPackageVersion)" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="1.1.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="1.2.2" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Workspaces" Version="1.2.2" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Composition" Version="1.0.27" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Workspaces" Version="2.8.2" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.8.2" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <None Update="tools\*.ps1" CopyToOutputDirectory="Always" Pack="true" PackagePath="" />

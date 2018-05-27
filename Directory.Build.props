@@ -2,6 +2,7 @@
     <PropertyGroup>
         <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
         <CodeAnalysisRuleSet>../../Analyzers.ruleset</CodeAnalysisRuleSet>
+        <LangVersion>7.2</LangVersion>
     </PropertyGroup>
     <ItemGroup>
         <AdditionalFiles Include="../../StyleCop.json" />

@@ -4,7 +4,7 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Test.CSharp.AnalyzerTests.SubstituteAnalyzersTests
 {
-    public class ForMethodTests : SubstituteAnalyzerTests
+    public class ForAsNonGenericMethodTests : SubstituteAnalyzerTests
     {
         [Fact]
         public async Task ReturnsNoDiagnostic_WhenUsedForInterface()
@@ -21,7 +21,30 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<IFoo>();
+            var substitute = NSubstitute.Substitute.For(new [] { typeof(IFoo) }, null);
+        }
+    }
+}";
+
+            await VerifyCSharpDiagnostic(source);
+        }
+
+        [Fact]
+        public async Task ReturnsNoDiagnostic_WhenUsedForInterface_WhenEmptyArrayPassed()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public interface IFoo
+    {
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For(new [] { typeof(IFoo) }, new object[] { });
         }
     }
 }";
@@ -44,7 +67,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<IFoo>(1);
+            var substitute = NSubstitute.Substitute.For(new [] { typeof(IFoo) }, new object[] { 1 });
         }
     }
 }";
@@ -77,7 +100,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<Func<int>>();
+            var substitute = NSubstitute.Substitute.For(new [] { typeof(Func<int>) }, null);
         }
     }
 }";
@@ -95,7 +118,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<Func<int>>(1);
+            var substitute = NSubstitute.Substitute.For(new [] { typeof(Func<int>) }, new object[] { 1 });
         }
     }
 }";
@@ -113,8 +136,38 @@ namespace MyNamespace
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
+        [Theory]
+        [InlineData("new [] { typeof(Bar), new Foo().GetType() }")]
+        [InlineData("new [] { typeof(Bar), new Foo().GetType() }.ToArray()")]
+        public async Task ReturnsNoDiagnostic_WhenProxyTypeCannotBeInfered(string proxyExpression)
+        {
+            var source = $@"using NSubstitute;
+using System.Linq;
+namespace MyNamespace
+{{
+    public class Foo
+    {{
+    }}
+
+    public class Bar
+    {{
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var bar = new Bar();
+            var substitute = NSubstitute.Substitute.For({proxyExpression}, null);
+        }}
+    }}
+}}";
+
+            await VerifyCSharpDiagnostic(source);
+        }
+
         [Fact]
-        public async Task ReturnsDiagnostic_WhenMultipleGenericTypeParameters_ContainsMultipleClasses()
+        public async Task ReturnsDiagnostic_WhenMultipleTypeParameters_ContainMultipleClasses()
         {
             var source = @"using NSubstitute;
 
@@ -132,7 +185,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<Foo, Bar>();
+            var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo), typeof(Bar) }, null);
         }
     }
 }";
@@ -140,7 +193,8 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.SubstituteMultipleClasses,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Can not substitute for multiple classes. To substitute for multiple types only one type can be a concrete class; other types can only be interfaces.",
+                Message =
+                    "Can not substitute for multiple classes. To substitute for multiple types only one type can be a concrete class; other types can only be interfaces.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(17, 30)
@@ -151,7 +205,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsNoDiagnostic_WhenMultipleGenericTypeParameters_ContainsMultipleSameClasses()
+        public async Task ReturnsNoDiagnostic_WhenMultipleTypeParameters_ContainsMultipleSameClasses()
         {
             var source = @"using NSubstitute;
 
@@ -165,7 +219,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<Foo, Foo>();
+            var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo), typeof(Foo) }, null);
         }
     }
 }";
@@ -174,7 +228,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsNoDiagnostic_WhenMultipleGenericTypeParameters_ContainsMultipleInterfaces()
+        public async Task ReturnsNoDiagnostic_WhenMultipleTypeParameters_ContainsMultipleInterfaces()
         {
             var source = @"using NSubstitute;
 
@@ -192,7 +246,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<IFoo, IBar>();
+            var substitute = NSubstitute.Substitute.For(new [] { typeof(IFoo), typeof(IBar) }, null);
         }
     }
 }";
@@ -201,7 +255,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsNoDiagnostic_WhenMultipleGenericTypeParameters_ContainsInterfaceNotImplementedByClass()
+        public async Task ReturnsNoDiagnostic_WhenMultipleTypeParameters_ContainsInterfaceNotImplementedByClass()
         {
             var source = @"using NSubstitute;
 
@@ -219,7 +273,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<IFoo, Bar>();
+            var substitute = NSubstitute.Substitute.For(new [] { typeof(IFoo), typeof(Bar) }, null);
         }
     }
 }";
@@ -228,7 +282,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsNoDiagnostic_WhenMultipleGenericTypeParameters_ContainsClassWithoutMatchingConstructor()
+        public async Task ReturnsDiagnostic_WhenMultipleTypeParameters_ContainsClassWithoutMatchingConstructor()
         {
             var source = @"using NSubstitute;
 
@@ -246,7 +300,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<IFoo, Bar>(1);
+            var substitute = NSubstitute.Substitute.For(new [] { typeof(IFoo), typeof(Bar) }, new object[] { 1 });
         }
     }
 }";
@@ -281,7 +335,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<Foo>();
+            var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo) }, null);
         }
     }
 }";
@@ -316,7 +370,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<Foo>(1, 2, 3);
+            var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo) }, new object[] { 1, 2, 3 });
         }
     }
 }";
@@ -351,7 +405,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<Foo>(1);
+            var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo) }, new object[] { 1 });
         }
     }
 }";
@@ -386,7 +440,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<Foo>(1);
+            var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo) }, new object[] { 1 });
         }
     }
 }";
@@ -417,7 +471,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<Foo>();
+            var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo) }, null);
         }
     }
 }";
@@ -450,7 +504,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<Foo>();
+            var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo) }, null );
         }
     }
 }";
@@ -472,7 +526,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<Foo>();
+            var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo) }, null);
         }
     }
 }";
@@ -507,7 +561,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<Foo>(new object());
+            var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo) }, new [] { new object() } );
         }
     }
 }";
@@ -547,7 +601,7 @@ namespace MyNamespace
     {{
         public void Test()
         {{
-            var substitute = NSubstitute.Substitute.For<Foo>({invocationValues});
+            var substitute = NSubstitute.Substitute.For(new [] {{ typeof(Foo) }}, new object[] {{{invocationValues}}});
         }}
     }}
 }}";
@@ -589,7 +643,7 @@ namespace MyNamespace
     {{
         public void Test()
         {{
-            var substitute = NSubstitute.Substitute.For<Foo>({invocationValues});
+            var substitute = NSubstitute.Substitute.For(new [] {{ typeof(Foo) }}, new object[] {{{invocationValues}}});
         }}
     }}
 }}";
