@@ -620,17 +620,20 @@ namespace MyNamespace
             await VerifyCSharpDiagnostic(source, expectedDiagnostic);
         }
 
-        [InlineData("int x", "1")]
-        [InlineData("float x", "'c'")]
-        [InlineData("int x", "'c'")]
-        [InlineData("IList<int> x", "new List<int>()")]
-        [InlineData("IEnumerable<int> x", "new List<int>()")]
-        [InlineData("IEnumerable<int> x", "new List<int>().AsReadOnly()")]
-        [InlineData("IEnumerable<char> x", @"""value""")]
+        [InlineData("int x", "new object [] { 1 }")]
+        [InlineData("float x", "new object [] { 'c' }")]
+        [InlineData("int x", "new object [] { 'c' }")]
+        [InlineData("IList<int> x", "new object [] { new List<int>() }")]
+        [InlineData("IEnumerable<int> x", "new object [] { new List<int>() }")]
+        [InlineData("IEnumerable<int> x", "new object [] { new List<int>().AsReadOnly() }")]
+        [InlineData("IEnumerable<char> x", @"new object [] { ""value"" }")]
+        [InlineData("", @"new object[] { }")]
+        [InlineData("", "new object[] { 1, 2 }.ToArray()")] // actual values known at runtime only so constructor analysys skipped
         public override async Task ReturnsNoDiagnostic_WhenConstructorArgumentsAreImplicitlyConvertible(string ctorValues, string invocationValues)
         {
             var source = $@"using NSubstitute;
 using System.Collections.Generic;
+using System.Linq;
 namespace MyNamespace
 {{
     public class Foo
@@ -644,7 +647,7 @@ namespace MyNamespace
     {{
         public void Test()
         {{
-            var substitute = NSubstitute.Substitute.For(new [] {{ typeof(Foo) }}, new object[] {{{invocationValues}}});
+            var substitute = NSubstitute.Substitute.For(new [] {{ typeof(Foo) }}, {invocationValues});
         }}
     }}
 }}";

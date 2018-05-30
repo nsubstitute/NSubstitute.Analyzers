@@ -5,12 +5,14 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.Extensions;
+using static NSubstitute.Analyzers.DiagnosticAnalyzers.SubstituteAnalysis;
 #if CSHARP
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 #elif VISUAL_BASIC
 using Microsoft.CodeAnalysis.VisualBasic;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
+
 #endif
 
 namespace NSubstitute.Analyzers.DiagnosticAnalyzers
@@ -189,6 +191,11 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
                 .GetArgumentExpression()
                 .GetParameterExpressionsFromArrayArgument();
 
+            if (arrayParameters == null)
+            {
+                return ImmutableArray<ITypeSymbol>.Empty;
+            }
+
             var proxyTypes = arrayParameters.OfType<TypeOfExpressionSyntax>()
                 .Select(exp =>
                     substituteContext.SyntaxNodeAnalysisContext.SemanticModel
@@ -210,10 +217,10 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
             var possibleConstructors = GetPossibleConstructors(substituteContext, typeSymbol);
             var invocationInfo = GetInvocationInfo(substituteContext);
 
-            if (invocationInfo.AllTypesCapured && possibleConstructors.All(ctor =>
-                SubstituteConstructorMatcher.MatchesInvocation(
-                    substituteContext.SyntaxNodeAnalysisContext.SemanticModel.Compilation, ctor, invocationInfo.CapturedSymbols) ==
-                false))
+            if (invocationInfo != null && possibleConstructors.All(ctor =>
+                    SubstituteConstructorMatcher.MatchesInvocation(
+                        substituteContext.SyntaxNodeAnalysisContext.SemanticModel.Compilation, ctor, invocationInfo) ==
+                    false))
             {
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptors.SubstituteConstructorMismatch,
@@ -228,7 +235,7 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
 
         private bool AnalyzeConstructorParametersCount(SubstituteContext substituteContext, ITypeSymbol typeSymbol)
         {
-            var invocationArgumentTypes = GetInvocationInfo(substituteContext).TypeInfos?.Count;
+            var invocationArgumentTypes = GetInvocationInfo(substituteContext)?.Count;
             switch (typeSymbol.TypeKind)
             {
                 case TypeKind.Interface when invocationArgumentTypes > 0:
@@ -268,16 +275,11 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
 
         private IEnumerable<IMethodSymbol> GetPossibleConstructors(SubstituteContext substituteContext, ITypeSymbol typeSymbol)
         {
-            var count = GetInvocationInfo(substituteContext).TypeInfos?.Count;
+            var count = GetInvocationInfo(substituteContext)?.Count;
 
             return count.HasValue
                 ? GetAccessibleConstructors(typeSymbol).Where(ctor => ctor.Parameters.Length == count)
                 : null;
-        }
-
-        private SubstituteAnalysis.InvocationInfo GetInvocationInfo(SubstituteContext substituteContext)
-        {
-            return SubstituteAnalysis.GetInfocationInfo(substituteContext);
         }
 
         private static bool AnalyzeTypeKind(SubstituteContext substituteContext, ITypeSymbol proxyType)

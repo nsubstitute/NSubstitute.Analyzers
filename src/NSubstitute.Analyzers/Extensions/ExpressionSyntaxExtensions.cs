@@ -34,7 +34,7 @@ namespace NSubstitute.Analyzers.Extensions
                     initializer = ((ImplicitArrayCreationExpressionSyntax)expression).Initializer;
                     break;
                 default:
-                    return EmptyExpressionList;
+                    return null;
             }
 
             if (initializer == null)

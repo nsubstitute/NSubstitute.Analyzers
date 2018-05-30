@@ -381,10 +381,17 @@ namespace MyNamespace
         [InlineData("IEnumerable<int> x", "new List<int>()")]
         [InlineData("IEnumerable<int> x", "new List<int>().AsReadOnly()")]
         [InlineData("IEnumerable<char> x", @"""value""")]
+        [InlineData("int x", @"new object[] { 1 }")]
+        [InlineData("int[] x", @"new int[] { 1 }")]
+        [InlineData("object[] x , int y", @"new object[] { 1 }, 1")]
+        [InlineData("int[] x , int y", @"new int[] { 1 }, 1")]
+        [InlineData("", @"new object[] { }")]
+        [InlineData("", "new object[] { 1, 2 }.ToArray()")] // actual values known at runtime only
         public override async Task ReturnsNoDiagnostic_WhenConstructorArgumentsAreImplicitlyConvertible(string ctorValues, string invocationValues)
         {
             var source = $@"using NSubstitute;
 using System.Collections.Generic;
+using System.Linq;
 namespace MyNamespace
 {{
     public class Foo

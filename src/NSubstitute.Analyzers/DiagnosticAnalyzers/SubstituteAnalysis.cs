@@ -3,12 +3,11 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Extensions;
 #if CSHARP
-#endif
-
-#if VISUAL_BASIC
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+#elif VISUAL_BASIC
 using Microsoft.CodeAnalysis.VisualBasic;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
-
 #endif
 
 namespace NSubstitute.Analyzers.DiagnosticAnalyzers
@@ -16,17 +15,16 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
     // TODO remove duplication
     public static class SubstituteAnalysis
     {
-        public static InvocationInfo GetInfocationInfo(SubstituteAnalyzer.SubstituteContext substituteContext)
+        public static IList<TypeInfo> GetInvocationInfo(SubstituteAnalyzer.SubstituteContext substituteContext)
         {
             var infos = substituteContext.MethodSymbol.IsGenericMethod
                 ? GetGenericInvocationArgumentTypes(substituteContext)
                 : GetNonGenericInvocationArgumentTypes(substituteContext);
 
-            return new InvocationInfo(infos);
+            return infos;
         }
 
-        private static IList<TypeInfo> GetGenericInvocationArgumentTypes(
-            SubstituteAnalyzer.SubstituteContext substituteContext)
+        private static IList<TypeInfo> GetGenericInvocationArgumentTypes(SubstituteAnalyzer.SubstituteContext substituteContext)
         {
             if (substituteContext.InvocationExpression.ArgumentList == null)
             {
@@ -52,19 +50,7 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
                 possibleParamsArgument.ConvertedType is IArrayTypeSymbol arrayTypeSymbol &&
                 arrayTypeSymbol.ElementType.Equals(substituteContext.SyntaxNodeAnalysisContext.Compilation.ObjectType))
             {
-                if (possibleParamsArgument.Type == null)
-                {
-                    return new List<TypeInfo>();
-                }
-
-                var parameterExpressionsFromArrayArgument = arguments.First().GetArgumentExpression()
-                    .GetParameterExpressionsFromArrayArgument();
-
-                var types = parameterExpressionsFromArrayArgument
-                    .Select(exp => GetTypeInfo(substituteContext, exp))
-                    .ToList();
-
-                return types;
+                return GetArgumentTypeInfo(substituteContext, arguments.First());
             }
 
             return typeInfos;
@@ -79,25 +65,29 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
                 return null;
             }
 
-            // Substitute.For(new [] { typeof(T) }, null) // means we dont pass any arguments
-            var typeInfo =
-                substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(arrayArgument.DescendantNodes()
-                    .First());
-            if (typeInfo.ConvertedType != null && typeInfo.ConvertedType.TypeKind == TypeKind.Array &&
+            return GetArgumentTypeInfo(substituteContext, arrayArgument);
+        }
+
+        private static IList<TypeInfo> GetArgumentTypeInfo(SubstituteAnalyzer.SubstituteContext substituteContext, ArgumentSyntax arrayArgument)
+        {
+            var typeInfo = substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(arrayArgument.DescendantNodes().First());
+
+            if (typeInfo.ConvertedType != null &&
+                typeInfo.ConvertedType.TypeKind == TypeKind.Array &&
                 typeInfo.Type == null)
             {
                 return new List<TypeInfo>();
             }
 
-            // Substitute.For(new [] { typeof(T)}, new object[] { }); // means we dont pass any arguments
+            // new object[] { }; // means we dont pass any arguments
             var parameterExpressionsFromArrayArgument =
                 arrayArgument.GetArgumentExpression().GetParameterExpressionsFromArrayArgument();
-            if (parameterExpressionsFromArrayArgument.Count == 0)
+            if (parameterExpressionsFromArrayArgument == null)
             {
-                return new List<TypeInfo>();
+                return null;
             }
 
-            // Substitute.For(new [] { typeof(T)}, new object[] { 1, 2, 3}); // means we pass arguments
+            // new object[] { 1, 2, 3}); // means we pass arguments
             var types = parameterExpressionsFromArrayArgument
                 .Select(exp => GetTypeInfo(substituteContext, exp))
                 .ToList();
@@ -108,29 +98,6 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
         private static TypeInfo GetTypeInfo(SubstituteAnalyzer.SubstituteContext substituteContext, SyntaxNode syntax)
         {
             return substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(syntax);
-        }
-
-        public class InvocationInfo
-        {
-            private IList<ITypeSymbol> _typeSymbols;
-
-            public IList<ITypeSymbol> CapturedSymbols
-            {
-                get
-                {
-                    return _typeSymbols = _typeSymbols ??
-                                          TypeInfos?.Select(info => info.Type).Where(type => type != null).ToList();
-                }
-            }
-
-            public IList<TypeInfo> TypeInfos { get; }
-
-            public bool AllTypesCapured => TypeInfos != null && TypeInfos.Count == CapturedSymbols.Count;
-
-            public InvocationInfo(IList<TypeInfo> typeInfos)
-            {
-                TypeInfos = typeInfos;
-            }
         }
     }
 }
