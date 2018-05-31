@@ -15,7 +15,34 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
     // TODO remove duplication
     public static class SubstituteAnalysis
     {
-        public static IList<TypeInfo> GetInvocationInfo(SubstituteAnalyzer.SubstituteContext substituteContext)
+        public static ConstructorContext CollectConstructorContext(SubstituteContext substituteContext, ITypeSymbol proxyTypeSymbol)
+        {
+            var accessibleConstructors = GetAccessibleConstructors(proxyTypeSymbol);
+            var invocationParameterTypes = GetInvocationInfo(substituteContext);
+            var possibleConstructors = invocationParameterTypes != null && accessibleConstructors != null
+                ? accessibleConstructors.Where(ctor => ctor.Parameters.Length == invocationParameterTypes.Count)
+                    .ToList().AsReadOnly()
+                : null;
+
+            return new ConstructorContext(
+                proxyTypeSymbol,
+                accessibleConstructors,
+                possibleConstructors,
+                invocationParameterTypes);
+        }
+
+        public static bool InternalsVisibleToProxyGenerator(ISymbol typeSymbol)
+        {
+            var internalsVisibleToAttribute = typeSymbol.ContainingAssembly.GetAttributes()
+                .FirstOrDefault(att =>
+                    att.AttributeClass.ToString() == MetadataNames.InternalsVisibleToAttributeFullTypeName);
+
+            return internalsVisibleToAttribute != null &&
+                   internalsVisibleToAttribute.ConstructorArguments.Any(arg =>
+                       arg.Value.ToString() == MetadataNames.CastleDynamicProxyGenAssembly2Name);
+        }
+
+        private static IList<ITypeSymbol> GetInvocationInfo(SubstituteContext substituteContext)
         {
             var infos = substituteContext.MethodSymbol.IsGenericMethod
                 ? GetGenericInvocationArgumentTypes(substituteContext)
@@ -24,7 +51,7 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
             return infos;
         }
 
-        private static IList<TypeInfo> GetGenericInvocationArgumentTypes(SubstituteAnalyzer.SubstituteContext substituteContext)
+        private static IList<ITypeSymbol> GetGenericInvocationArgumentTypes(SubstituteContext substituteContext)
         {
             if (substituteContext.InvocationExpression.ArgumentList == null)
             {
@@ -35,7 +62,7 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
 
             if (arguments.Count == 0)
             {
-                return new List<TypeInfo>();
+                return new List<ITypeSymbol>();
             }
 
             var typeInfos = arguments.Select(arg =>
@@ -53,10 +80,10 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
                 return GetArgumentTypeInfo(substituteContext, arguments.First());
             }
 
-            return typeInfos;
+            return typeInfos.Select(type => type.Type).ToList();
         }
 
-        private static IList<TypeInfo> GetNonGenericInvocationArgumentTypes(SubstituteAnalyzer.SubstituteContext substituteContext)
+        private static IList<ITypeSymbol> GetNonGenericInvocationArgumentTypes(SubstituteContext substituteContext)
         {
             // Substitute.For(new [] { typeof(T) }, new object[] { 1, 2, 3}) // actual arguments reside in second arg
             var arrayArgument = substituteContext.InvocationExpression.ArgumentList?.Arguments.Skip(1).FirstOrDefault();
@@ -68,7 +95,7 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
             return GetArgumentTypeInfo(substituteContext, arrayArgument);
         }
 
-        private static IList<TypeInfo> GetArgumentTypeInfo(SubstituteAnalyzer.SubstituteContext substituteContext, ArgumentSyntax arrayArgument)
+        private static IList<ITypeSymbol> GetArgumentTypeInfo(SubstituteContext substituteContext, ArgumentSyntax arrayArgument)
         {
             var typeInfo = substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(arrayArgument.DescendantNodes().First());
 
@@ -76,7 +103,7 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
                 typeInfo.ConvertedType.TypeKind == TypeKind.Array &&
                 typeInfo.Type == null)
             {
-                return new List<TypeInfo>();
+                return new List<ITypeSymbol>();
             }
 
             // new object[] { }; // means we dont pass any arguments
@@ -89,13 +116,25 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
 
             // new object[] { 1, 2, 3}); // means we pass arguments
             var types = parameterExpressionsFromArrayArgument
-                .Select(exp => GetTypeInfo(substituteContext, exp))
+                .Select(exp => GetTypeInfo(substituteContext, exp).Type)
                 .ToList();
 
             return types;
         }
 
-        private static TypeInfo GetTypeInfo(SubstituteAnalyzer.SubstituteContext substituteContext, SyntaxNode syntax)
+        private static IList<IMethodSymbol> GetAccessibleConstructors(ITypeSymbol genericArgument)
+        {
+            var internalsVisibleToProxy = InternalsVisibleToProxyGenerator(genericArgument);
+
+            return genericArgument.GetMembers().OfType<IMethodSymbol>().Where(symbol =>
+                symbol.MethodKind == MethodKind.Constructor &&
+                symbol.IsStatic == false &&
+                (symbol.DeclaredAccessibility == Accessibility.Protected ||
+                 symbol.DeclaredAccessibility == Accessibility.Public ||
+                 (internalsVisibleToProxy && symbol.DeclaredAccessibility == Accessibility.Internal))).ToList();
+        }
+
+        private static TypeInfo GetTypeInfo(SubstituteContext substituteContext, SyntaxNode syntax)
         {
             return substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(syntax);
         }

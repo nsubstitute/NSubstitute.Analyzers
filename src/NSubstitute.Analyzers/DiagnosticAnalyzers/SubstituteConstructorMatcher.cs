@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 #if CSHARP
@@ -21,14 +22,14 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
             IntegerTypes = ((SpecialType[])Enum.GetValues(typeof(SpecialType))).Where(type => (int)type >= 11 && (int)type <= 16).ToArray();
         }
 
-        public static bool MatchesInvocation(Compilation compilation, IMethodSymbol methodSymbol, IList<TypeInfo> argumentTypes)
+        public static bool MatchesInvocation(Compilation compilation, IMethodSymbol methodSymbol, IList<ITypeSymbol> invocationParameters)
         {
-            if (methodSymbol.Parameters.Length != argumentTypes.Count)
+            if (methodSymbol.Parameters.Length != invocationParameters.Count)
             {
                 return false;
             }
 
-            return methodSymbol.Parameters.Length == 0 || methodSymbol.Parameters.Where((symbol, index) => IsConvertible(compilation, argumentTypes[index].Type, symbol.Type)).Any();
+            return methodSymbol.Parameters.Length == 0 || methodSymbol.Parameters.Where((symbol, index) => IsConvertible(compilation, invocationParameters[index], symbol.Type)).Any();
         }
 
         private static bool IsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)

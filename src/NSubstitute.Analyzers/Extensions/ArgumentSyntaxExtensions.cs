@@ -6,10 +6,7 @@ using Microsoft.CodeAnalysis;
 #if CSHARP
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using CSharpExtensions = Microsoft.CodeAnalysis.CSharp.CSharpExtensions;
-#endif
-using Microsoft.CodeAnalysis.Diagnostics;
-#if VISUAL_BASIC
+#elif VISUAL_BASIC
 using Microsoft.CodeAnalysis.VisualBasic;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 #endif
