@@ -189,7 +189,7 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
                 return ImmutableArray<ITypeSymbol>.Empty;
             }
 
-            var proxyTypes = arrayParameters.OfType<TypeOfExpressionSyntax>()
+            var proxyTypes = GetTypeOfLikeExpressions(arrayParameters)
                 .Select(exp =>
                     substituteContext.SyntaxNodeAnalysisContext.SemanticModel
                         .GetTypeInfo(exp.DescendantNodes().First()))
@@ -318,6 +318,15 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
 
             return symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.Ordinal) == true &&
                    symbol.Symbol?.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteFullTypeName, StringComparison.Ordinal) == true;
+        }
+
+        private IEnumerable<ExpressionSyntax> GetTypeOfLikeExpressions(IList<ExpressionSyntax> arrayParameters)
+        {
+#if CSHARP
+            return arrayParameters.OfType<TypeOfExpressionSyntax>();
+#elif VISUAL_BASIC
+            return arrayParameters.Where(param => param is GetTypeExpressionSyntax || param is TypeOfExpressionSyntax);
+#endif
         }
     }
 }

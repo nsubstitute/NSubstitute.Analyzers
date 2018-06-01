@@ -29,7 +29,9 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
                 return false;
             }
 
-            return methodSymbol.Parameters.Length == 0 || methodSymbol.Parameters.Where((symbol, index) => IsConvertible(compilation, invocationParameters[index], symbol.Type)).Any();
+            return methodSymbol.Parameters.Length == 0 || methodSymbol.Parameters
+                       .Where((symbol, index) => IsConvertible(compilation, invocationParameters[index], symbol.Type))
+                       .Count() == methodSymbol.Parameters.Length;
         }
 
         private static bool IsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)
@@ -55,7 +57,8 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
                 return conversion.Exists && conversion.IsImplicit;
 
 #elif VISUAL_BASIC
-            return conversion.Exists && conversion.IsReference;
+            // TODO lack of conversion.IsImplicit in VB Conversion object
+            return conversion.Exists && conversion.IsNarrowing == false;
 #endif
         }
     }

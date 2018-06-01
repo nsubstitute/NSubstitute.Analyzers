@@ -583,7 +583,6 @@ namespace MyNamespace
         [InlineData("decimal x", "1")] // valid c# but doesnt work in NSubstitute
         [InlineData("int x", "1m")]
         [InlineData("int x", "1D")]
-        [InlineData("int x", "1D")]
         [InlineData("List<int> x", "new List<int>().AsReadOnly()")]
         public override async Task ReturnsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues)
         {

@@ -27,6 +27,9 @@
     <Compile Include="..\NSubstitute.Analyzers.Test.Shared\NonVirtualSetupAnalyzerTestBase.cs">
       <Link>DiagnosticAnalyzerTests\NonVirtualSetupAnalyzerTests\NonVirtualSetupAnalyzerTestBase.cs</Link>
     </Compile>
+    <Compile Include="..\NSubstitute.Analyzers.Test.Shared\SubstituteAnalyzerTestBase.cs">
+      <Link>DiagnosticAnalyzerTests\SubstituteAnalyzersTests\SubstituteAnalyzerTestBase.cs</Link>
+    </Compile>
     <Compile Include="..\NSubstitute.Analyzers.Test.Shared\UnusedReceivedAnalyzerTestBase.cs">
       <Link>DiagnosticAnalyzerTests\UnusedReceivedAnalyzerTests\UnusedReceivedAnalyzerTestBase.cs</Link>
     </Compile>

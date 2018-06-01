@@ -44,8 +44,16 @@ namespace NSubstitute.Analyzers.Extensions
 
             return initializer.Expressions.ToList();
 #elif VISUAL_BASIC
-
-            return EmptyExpressionList;
+            switch (expression.Kind())
+            {
+                case SyntaxKind.ArrayCreationExpression:
+                    var initializer = ((ArrayCreationExpressionSyntax)expression).Initializer;
+                    return initializer.Initializers.ToList();
+                case SyntaxKind.CollectionInitializer:
+                    return ((CollectionInitializerSyntax)expression).Initializers.ToList();
+                default:
+                    return null;
+            }
 #endif
         }
     }

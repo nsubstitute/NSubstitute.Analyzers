@@ -1,8 +1,7 @@
-﻿using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.Diagnostics;
+﻿using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.DiagnosticAnalyzers;
 
-namespace NSubstitute.Analyzers.Test.VisualBasic.AnalyzerTests.NonVirtualSetupAnalyzerTests
+namespace NSubstitute.Analyzers.Test.VisualBasic.DiagnosticAnalyzerTests.NonVirtualSetupAnalyzerTests
 {
     public abstract class NonVirtualSetupAnalyzerTest : NonVirtualSetupAnalyzerTestBase
     {

@@ -3,9 +3,9 @@ using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.DiagnosticAnalyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Test.VisualBasic.AnalyzerTests.UnusedReceivedAnalyzerTests
+namespace NSubstitute.Analyzers.Test.VisualBasic.DiagnosticAnalyzerTests.UnusedReceivedAnalyzerTests
 {
-    public class ReceivedWithAnyArgsAsOrdinaryMethodTests : UnusedReceivedAnalyzerTests
+    public class ReceivedWithAnyArgsAsOrdinaryMethodTests : DiagnosticAnalyzerTests.UnusedReceivedAnalyzerTests.UnusedReceivedAnalyzerTests
     {
          [Fact]
         public override async Task ReportDiagnostics_WhenUsedWithoutMemberCall()

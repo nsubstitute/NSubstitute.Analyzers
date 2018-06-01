@@ -103,7 +103,7 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
                 typeInfo.ConvertedType.TypeKind == TypeKind.Array &&
                 typeInfo.Type == null)
             {
-                return new List<ITypeSymbol>();
+                return null;
             }
 
             // new object[] { }; // means we dont pass any arguments

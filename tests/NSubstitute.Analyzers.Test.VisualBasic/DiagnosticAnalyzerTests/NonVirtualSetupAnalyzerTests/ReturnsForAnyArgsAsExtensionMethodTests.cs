@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.DiagnosticAnalyzers;
 
-namespace NSubstitute.Analyzers.Test.VisualBasic.AnalyzerTests.NonVirtualSetupAnalyzerTests
+namespace NSubstitute.Analyzers.Test.VisualBasic.DiagnosticAnalyzerTests.NonVirtualSetupAnalyzerTests
 {
     public class ReturnsForAnyArgsAsExtensionMethodTests : NonVirtualSetupAnalyzerTest
     {
