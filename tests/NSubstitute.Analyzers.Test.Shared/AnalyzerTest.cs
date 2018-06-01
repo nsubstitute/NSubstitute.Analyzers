@@ -397,7 +397,7 @@ Diagnostic:
 #elif VISUAL_BASIC
                     .WithProjectCompilationOptions(
                         projectId,
-                        new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optionStrict: OptionStrict.On))
+                        new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optionStrict: OptionStrict.Off))
 #endif
                     .AddMetadataReference(projectId, CorlibReference)
                     .AddMetadataReference(projectId, SystemCoreReference)
