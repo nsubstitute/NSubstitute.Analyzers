@@ -32,7 +32,7 @@ public class BuildPaths
             buildDirectories.Artifacts.CombineWithFilePath("DupOutpuFinder.xml"),
             projectsToPack,
             testAssemblies);
-        
+
         return new BuildPaths
         {
             Files = buildFiles,
@@ -45,24 +45,24 @@ public class BuildPaths
         var rootDir = context.MakeAbsolute((DirectoryPath)context.Directory("../"));
         var artifacts = rootDir.Combine(".artifacts");
         var testResults = artifacts.Combine("Test-Results");
-        
+
         var csharpAnalyzerTestDir = rootDir.Combine("tests").Combine("NSubstitute.Analyzers.Test.CSharp");
-        
+
         var visualBasicAnalyzerTestDir = rootDir.Combine("tests").Combine("NSubstitute.Analyzers.Test.VisualBasic");
-        
+
         var testDirs = new []{
                                 csharpAnalyzerTestDir,
                                 visualBasicAnalyzerTestDir
                             };
         var toClean = new[] {
-                                 testResults
+                                 artifacts
                             };
         return new BuildDirectories(rootDir,
                                     rootDir.Combine("src"),
                                     rootDir.Combine("tests"),
                                     artifacts,
                                     testResults,
-                                    testDirs, 
+                                    testDirs,
                                     toClean);
     }
 }

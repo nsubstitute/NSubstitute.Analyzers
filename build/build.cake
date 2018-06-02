@@ -21,6 +21,12 @@ var releaseNotes = ParseReleaseNotes(paths.Files.AllReleaseNotes);
 Setup(context =>
 {
     Information("Building version {0} of NSubstitute.Analyzers", buildVersion.SemVersion);
+
+    if(DirectoryExists(paths.Directories.Artifacts))
+    {
+       CleanDirectories(paths.Directories.ToClean);
+    }
+
     if (!DirectoryExists(paths.Directories.Artifacts))
     {
         CreateDirectory(paths.Directories.Artifacts);
@@ -41,7 +47,6 @@ Task("Clean")
     .Does(() =>
 {
     DotNetCoreClean(paths.Files.Solution.ToString());
-    CleanDirectories(paths.Directories.ToClean);
 });
 
 Task("Restore-NuGet-Packages")
