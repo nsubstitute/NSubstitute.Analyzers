@@ -13,16 +13,13 @@
   <PropertyGroup>
     <PackageId>NSubstitute.Analyzers.CSharp</PackageId>
     <PackageVersion>$(VersionSuffix)</PackageVersion>
-    <Authors>Tomasz Podolak</Authors>
-    <PackageLicenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</PackageLicenseUrl>
-    <PackageProjectUrl>http://PROJECT_URL_HERE_OR_DELETE_THIS_LINE</PackageProjectUrl>
-    <PackageIconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</PackageIconUrl>
-    <RepositoryUrl>http://REPOSITORY_URL_HERE_OR_DELETE_THIS_LINE</RepositoryUrl>
+    <Authors>Tomasz Podolak, NSubstitute.Analyzers contributors</Authors>
+    <PackageLicenseUrl>https://github.com/nsubstitute/NSubstitute.Analyzers/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/nsubstitute/NSubstitute.Analyzers</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/nsubstitute/NSubstitute.Analyzers</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Description>NSubstitute.Analyzers</Description>
-    <PackageReleaseNotes>Summary of changes made in this release of the package.</PackageReleaseNotes>
-    <Copyright>Copyright</Copyright>
-    <PackageTags>NSubstitute.Analyzers, analyzers</PackageTags>
+    <Description>Provides diagnostic analyzers to warn about incorrect usage of NSubstitute in C#.</Description>
+    <PackageTags>$(PackageTags);csharp;c#</PackageTags>
     <NoPackageAnalysis>true</NoPackageAnalysis>
   </PropertyGroup>
   <ItemGroup>
