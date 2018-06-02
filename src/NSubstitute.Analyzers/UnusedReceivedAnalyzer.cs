@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 #endif
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.Shared;
 #if VISUAL_BASIC
 using Microsoft.CodeAnalysis.VisualBasic;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;

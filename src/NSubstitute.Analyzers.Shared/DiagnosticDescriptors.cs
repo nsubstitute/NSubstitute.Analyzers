@@ -2,13 +2,13 @@
 using System.Resources;
 using Microsoft.CodeAnalysis;
 
-namespace NSubstitute.Analyzers
+namespace NSubstitute.Analyzers.Shared
 {
     public class DiagnosticDescriptors
     {
         public static readonly ResourceManager ResourceManager =
             new ResourceManager(
-                ResourceBaseName,
+                "NSubstitute.Analyzers.Shared.Resources",
                 typeof(DiagnosticDescriptors).GetTypeInfo().Assembly);
 
         public static DiagnosticDescriptor NonVirtualSetupSpecification { get; } =
@@ -40,11 +40,5 @@ namespace NSubstitute.Analyzers
         {
             return new LocalizableResourceString(name + propertyName, ResourceManager, typeof(DiagnosticDescriptors));
         }
-
-#if CSHARP
-        private const string ResourceBaseName = "NSubstitute.Analyzers.CSharp.Resources";
-#elif VISUAL_BASIC
-        private const string ResourceBaseName = "NSubstitute.Analyzers.VisualBasic.Resources";
-#endif
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace NSubstitute.Analyzers
+﻿namespace NSubstitute.Analyzers.Shared
 {
     public class MetadataNames
     {

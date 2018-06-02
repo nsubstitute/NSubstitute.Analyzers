@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using NSubstitute.Analyzers.Shared;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Test.VisualBasic.AnalyzerTests.UnusedReceivedAnalyzerTests

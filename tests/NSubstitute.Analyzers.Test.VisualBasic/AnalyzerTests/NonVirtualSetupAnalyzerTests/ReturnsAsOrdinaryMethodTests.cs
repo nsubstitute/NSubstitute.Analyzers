@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using NSubstitute.Analyzers.Shared;
 
 namespace NSubstitute.Analyzers.Test.VisualBasic.AnalyzerTests.NonVirtualSetupAnalyzerTests
 {
