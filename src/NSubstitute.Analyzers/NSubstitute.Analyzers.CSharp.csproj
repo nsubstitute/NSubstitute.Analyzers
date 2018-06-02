@@ -39,8 +39,8 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Remove="VisualBasic\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="CodeFixProviders" />
+    <EmbeddedResource Update="CSharp\Resources.resx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

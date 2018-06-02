@@ -19,6 +19,9 @@
     <Compile Include="..\NSubstitute.Analyzers.Test.Shared\AnalyzerTest.cs">
       <Link>DiagnosticAnalyzerTests\AnalyzerTest.cs</Link>
     </Compile>
+    <Compile Include="..\NSubstitute.Analyzers.Test.Shared\CodeFixVerifier.cs">
+      <Link>CodeFixProviderTests\CodeFixVerifier.cs</Link>
+    </Compile>
     <Compile Include="..\NSubstitute.Analyzers.Test.Shared\DiagnosticResult.cs">
       <Link>DiagnosticAnalyzerTests\DiagnosticResult.cs</Link>
     </Compile>
