@@ -141,7 +141,7 @@ Task("Publish")
         throw new InvalidOperationException("Could not resolve NuGet API url.");
     }
 
-    NuGetPush(packages.NuGetPackage, new NuGetPushSettings
+    NuGetPush(packages.AllPackages, new NuGetPushSettings
     {
         ApiKey = apiKey,
         Source = apiUrl
