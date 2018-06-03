@@ -1,13 +1,13 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Shared;
+using NSubstitute.Analyzers.Tests.Shared;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Test.VisualBasic.AnalyzerTests.UnusedReceivedAnalyzerTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzerTests.UnusedReceivedAnalyzerTests
 {
-    public class DidNotReceiveWithAnyArgsAsOrdinaryMethodWithGenericTypeSpecifiedTests : UnusedReceivedAnalyzerTests
+    public class ReceivedAsOrdinaryMethodWithGenericTypeSpecifiedTests : UnusedReceivedDiagnosticVerifier
     {
-          [Fact]
         public override async Task ReportDiagnostics_WhenUsedWithoutMemberCall()
         {
             var source = @"Imports NSubstitute
@@ -19,7 +19,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.DidNotReceiveWithAnyArgs(Of IFoo)(substitute)
+            SubstituteExtensions.Received(Of IFoo)(substitute)
         End Sub
     End Class
 End Namespace
@@ -35,10 +35,9 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [Fact]
         public override async Task ReportNoDiagnostics_WhenUsedWithMethodMemberAccess()
         {
             var source = @"Imports NSubstitute
@@ -54,16 +53,15 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.DidNotReceiveWithAnyArgs(Of IFoo)(substitute).Bar()
+            SubstituteExtensions.Received(Of IFoo)(substitute).Bar()
         End Sub
     End Class
 End Namespace
 ";
 
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
-        [Fact]
         public override async Task ReportNoDiagnostics_WhenUsedWithPropertyMemberAccess()
         {
             var source = @"Imports NSubstitute
@@ -76,16 +74,15 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            Dim bar = SubstituteExtensions.DidNotReceiveWithAnyArgs(Of IFoo)(substitute).Bar
+            Dim bar = SubstituteExtensions.Received(Of IFoo)(substitute).Bar
         End Sub
     End Class
 End Namespace
 ";
 
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
-        [Fact]
         public override async Task ReportNoDiagnostics_WhenUsedWithIndexerMemberAccess()
         {
             var source = @"Imports NSubstitute
@@ -98,13 +95,13 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            Dim bar = SubstituteExtensions.DidNotReceiveWithAnyArgs(Of IFoo)(substitute)(0)
+            Dim bar = SubstituteExtensions.Received(Of IFoo)(substitute)(0)
         End Sub
     End Class
 End Namespace
 ";
 
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportNoDiagnostics_WhenUsedWithInvokingDelegate()
@@ -118,12 +115,12 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Func(Of Integer))()
-            SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Func(Of Integer))(substitute)()
+            SubstituteExtensions.Received(Of Func(Of Integer))(substitute)()
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod()
@@ -134,7 +131,7 @@ Imports System.Runtime.CompilerServices
 Namespace NSubstitute
     Module SubstituteExtensions
         <Extension()>
-        Function DidNotReceiveWithAnyArgs(Of T As Class)(ByVal substitute As T, ByVal params As Integer) As T
+        Function Received(Of T As Class)(ByVal substitute As T, ByVal params As Decimal) As T
             Return Nothing
         End Function
     End Module
@@ -142,12 +139,12 @@ Namespace NSubstitute
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Func(Of Integer))()
-            SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Func(Of Integer))(substitute, 1)
+            SubstituteExtensions.Received(Of Func(Of Integer))(substitute, 1D)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
     }
 }

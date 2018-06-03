@@ -1,10 +1,11 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Shared;
+using NSubstitute.Analyzers.Tests.Shared;
 
-namespace NSubstitute.Analyzers.Test.VisualBasic.AnalyzerTests.NonVirtualSetupAnalyzerTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzerTests.NonVirtualSetupAnalyzerTests
 {
-    public class ReturnsForAnyArgsAsOrdinaryMethodTests : NonVirtualSetupAnalyzerTest
+    public class ReturnsAsOrdinaryMethodWithGenericTypeSpecifiedTests : NonVirtualSetupDiagnosticVerifier
     {
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod()
         {
@@ -23,7 +24,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(), 1)
+            SubstituteExtensions.Returns(Of Integer)(substitute.Bar(), 1)
         End Sub
     End Class
 End Namespace
@@ -36,11 +37,11 @@ End Namespace
                     "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(16, 52)
+                    new DiagnosticResultLocation(16, 54)
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReportsDiagnostics_WhenSettingValueForLiteral(string literal, string type)
@@ -51,7 +52,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            SubstituteExtensions.ReturnsForAnyArgs({literal}, {literal})
+            SubstituteExtensions.Returns(Of {type})({literal}, {literal})
         End Sub
     End Class
 End Namespace
@@ -64,11 +65,28 @@ End Namespace
                     $"Member {literal} can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(7, 52)
+                    GetExpectedLocation()
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            DiagnosticResultLocation GetExpectedLocation()
+            {
+                switch (type)
+                {
+                    case "Integer":
+                        return new DiagnosticResultLocation(7, 54);
+                    case "Char":
+                        return new DiagnosticResultLocation(7, 51);
+                    case "Boolean":
+                        return new DiagnosticResultLocation(7, 54);
+                    case "String":
+                        return new DiagnosticResultLocation(7, 53);
+                }
+
+                return default(DiagnosticResultLocation);
+            }
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReportsDiagnostics_WhenSettingValueForStaticMethod()
@@ -87,7 +105,7 @@ Namespace MyNamespace
     Public Class FooTests
 
         Public Sub Test()
-            SubstituteExtensions.ReturnsForAnyArgs(Foo.Bar(), 1)
+            SubstituteExtensions.Returns(Of Integer)(Foo.Bar(), 1)
         End Sub
     End Class
 End Namespace
@@ -100,11 +118,11 @@ End Namespace
                     "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(15, 52)
+                    new DiagnosticResultLocation(15, 54)
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod()
@@ -124,12 +142,12 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(), 1)
+            SubstituteExtensions.Returns(Of Integer)(substitute.Bar(), 1)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod()
@@ -157,12 +175,12 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo2)()
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(), 1)
+            SubstituteExtensions.Returns(Of Integer)(substitute.Bar(), 1)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenDataFlowAnalysisIsRequired()
@@ -183,12 +201,12 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             Dim returnValue = substitute.Bar()
-            SubstituteExtensions.ReturnsForAnyArgs(returnValue, 1)
+            SubstituteExtensions.Returns(Of Integer)(returnValue, 1)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForDelegate()
@@ -202,12 +220,12 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Func(Of Integer))()
-            SubstituteExtensions.ReturnsForAnyArgs(substitute(), 1)
+            SubstituteExtensions.Returns(Of Integer)(substitute(), 1)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod()
@@ -235,7 +253,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo2)()
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(), 1)
+            SubstituteExtensions.Returns(Of Integer)(substitute.Bar(), 1)
         End Sub
     End Class
 End Namespace
@@ -248,11 +266,11 @@ End Namespace
                     "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(24, 52)
+                    new DiagnosticResultLocation(24, 54)
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod()
@@ -270,13 +288,13 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(), 1)
+            SubstituteExtensions.Returns(Of Integer)(substitute.Bar(), 1)
         End Sub
     End Class
 End Namespace
 ";
 
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod()
@@ -295,12 +313,12 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(), 1)
+            SubstituteExtensions.Returns(Of Integer)(substitute.Bar(), 1)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty()
@@ -319,12 +337,12 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar, 1)
+            SubstituteExtensions.Returns(Of Integer)(substitute.Bar, 1)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod()
@@ -342,12 +360,12 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo(Of Integer))()
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(Of Integer), 1)
+            SubstituteExtensions.Returns(Of Integer)(substitute.Bar(Of Integer), 1)
         End Sub
     End Class
 End Namespace";
 
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty()
@@ -365,12 +383,12 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar, 1)
+            SubstituteExtensions.Returns(Of Integer)(substitute.Bar, 1)
         End Sub
     End Class
 End Namespace";
 
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer()
@@ -388,11 +406,11 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of IFoo)
-            SubstituteExtensions.ReturnsForAnyArgs(substitute(1), 1)
+            SubstituteExtensions.Returns(Of Integer)(substitute(1), 1)
         End Sub
     End Class
 End Namespace";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty()
@@ -413,12 +431,12 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar, 1)
+            SubstituteExtensions.Returns(Of Integer)(substitute.Bar, 1)
         End Sub
     End Class
 End Namespace";
 
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty()
@@ -439,7 +457,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar, 1)
+            SubstituteExtensions.Returns(Of Integer)(substitute.Bar, 1)
         End Sub
     End Class
 End Namespace";
@@ -452,11 +470,11 @@ End Namespace";
                     "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(17, 52)
+                    new DiagnosticResultLocation(17, 54)
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualIndexer()
@@ -483,12 +501,12 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            SubstituteExtensions.ReturnsForAnyArgs(substitute(1), 1)
+            SubstituteExtensions.Returns(Of Integer)(substitute(1), 1)
         End Sub
     End Class
 End Namespace";
 
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer()
@@ -511,7 +529,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            SubstituteExtensions.ReturnsForAnyArgs(substitute(1), 1)
+            SubstituteExtensions.Returns(Of Integer)(substitute(1), 1)
         End Sub
     End Class
 End Namespace";
@@ -524,11 +542,11 @@ End Namespace";
                     "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(19, 52)
+                    new DiagnosticResultLocation(19, 54)
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod()
@@ -544,7 +562,7 @@ Namespace NSubstitute
 
     Module SubstituteExtensions
         <Extension>
-        Function ReturnsForAnyArgs(Of T)(ByVal returnValue As T, ByVal returnThis As T) As T
+        Function Returns(Of T)(ByVal returnValue As T, ByVal returnThis As T) As T
             Return Nothing
         End Function
     End Module
@@ -552,12 +570,12 @@ Namespace NSubstitute
     Public Class FooTests
         Public Sub Test()
             Dim substitute As Foo = Nothing
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(), 1)
+            SubstituteExtensions.Returns(Of Integer)(substitute.Bar(), 1)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Shared;
+using NSubstitute.Analyzers.Tests.Shared;
 
-namespace NSubstitute.Analyzers.Test.VisualBasic.AnalyzerTests.NonVirtualSetupAnalyzerTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzerTests.NonVirtualSetupAnalyzerTests
 {
-    public class ReturnsForAnyArgsAsExtensionMethodTests : NonVirtualSetupAnalyzerTest
+    public class ReturnsForAnyArgsAsExtensionMethodTests : NonVirtualSetupDiagnosticVerifier
     {
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod()
         {
@@ -39,7 +40,7 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReportsDiagnostics_WhenSettingValueForLiteral(string literal, string type)
@@ -67,7 +68,7 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReportsDiagnostics_WhenSettingValueForStaticMethod()
@@ -102,7 +103,7 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod()
@@ -127,7 +128,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod()
@@ -160,7 +161,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenDataFlowAnalysisIsRequired()
@@ -186,7 +187,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForDelegate()
@@ -205,7 +206,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod()
@@ -249,7 +250,7 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod()
@@ -273,7 +274,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod()
@@ -297,7 +298,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty()
@@ -321,7 +322,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod()
@@ -344,7 +345,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty()
@@ -367,7 +368,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer()
@@ -389,7 +390,7 @@ Namespace MyNamespace
         End Sub
     End Class
 End Namespace";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty()
@@ -415,7 +416,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty()
@@ -452,7 +453,7 @@ End Namespace";
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualIndexer()
@@ -484,7 +485,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer()
@@ -523,7 +524,7 @@ End Namespace";
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod()
@@ -552,7 +553,7 @@ Namespace NSubstitute
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
     }
 }
