@@ -6,17 +6,17 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    public abstract class AbstractNonVirtualSetupAnalyzer<TSyntaxKind, TMemberAccessExpressionSyntax, TInvocationExpressionSyntax> : DiagnosticAnalyzer
+    public abstract class AbstractNonVirtualSetupAnalyzer<TSyntaxKind, TMemberAccessExpressionSyntax, TInvocationExpressionSyntax> : AbstractDiagnosticAnalyzer
         where TInvocationExpressionSyntax : SyntaxNode
         where TMemberAccessExpressionSyntax : SyntaxNode
         where TSyntaxKind : struct
     {
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(DiagnosticDescriptors.NonVirtualSetupSpecification);
-
         private static readonly ImmutableHashSet<string> MethodNames = ImmutableHashSet.Create(
             MetadataNames.NSubstituteReturnsMethod,
             MetadataNames.NSubstituteReturnsForAnyArgsMethod);
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+            ImmutableArray.Create(DiagnosticDescriptorsProvider.NonVirtualSetupSpecification);
 
         protected abstract ImmutableHashSet<int> SupportedMemberAccesses { get; }
 
@@ -25,6 +25,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         protected abstract TSyntaxKind SimpleMemberAccessExpressionKind { get; }
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
+
+        protected AbstractNonVirtualSetupAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
+            : base(diagnosticDescriptorsProvider)
+        {
+        }
 
         public sealed override void Initialize(AnalysisContext context)
         {
@@ -117,7 +122,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             if (canBeSetuped.HasValue && canBeSetuped == false)
             {
                 var diagnostic = Diagnostic.Create(
-                    DiagnosticDescriptors.NonVirtualSetupSpecification,
+                    DiagnosticDescriptorsProvider.NonVirtualSetupSpecification,
                     accessedMember.GetLocation(),
                     accessedSymbol.Symbol?.Name ?? accessedMember.ToString());
 

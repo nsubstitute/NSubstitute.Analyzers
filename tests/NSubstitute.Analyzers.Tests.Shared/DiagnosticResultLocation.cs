@@ -24,9 +24,9 @@ namespace NSubstitute.Analyzers.Tests.Shared
                 throw new ArgumentOutOfRangeException(nameof(column), "column must be >= -1");
             }
 
-            this.Path = path;
-            this.Line = line;
-            this.Column = column;
+            Path = path;
+            Line = line;
+            Column = column;
         }
 
         public string Path { get; }

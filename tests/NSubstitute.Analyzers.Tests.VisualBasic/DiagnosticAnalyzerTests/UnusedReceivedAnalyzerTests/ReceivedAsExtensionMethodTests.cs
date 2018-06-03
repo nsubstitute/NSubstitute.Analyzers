@@ -2,7 +2,6 @@
 using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Tests.Shared;
-using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzerTests.UnusedReceivedAnalyzerTests
 {

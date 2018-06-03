@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace NSubstitute.Analyzers.VisualBasic.VisualBasic {
+namespace NSubstitute.Analyzers.CSharp {
     using System;
     using System.Reflection;
     
@@ -40,7 +40,7 @@ namespace NSubstitute.Analyzers.VisualBasic.VisualBasic {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NSubstitute.Analyzers.VisualBasic.Resources", typeof(Resources).GetTypeInfo().Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NSubstitute.Analyzers.CSharp.Resources", typeof(Resources).GetTypeInfo().Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -62,7 +62,7 @@ namespace NSubstitute.Analyzers.VisualBasic.VisualBasic {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Non-overridable members can not be intercepted..
+        ///   Looks up a localized string similar to Non-virtual members can not be intercepted..
         /// </summary>
         public static string NonVirtualSetupSpecificationDescription {
             get {
@@ -71,7 +71,7 @@ namespace NSubstitute.Analyzers.VisualBasic.VisualBasic {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Member {0} can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted..
+        ///   Looks up a localized string similar to Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted..
         /// </summary>
         public static string NonVirtualSetupSpecificationMessageFormat {
             get {
@@ -80,7 +80,7 @@ namespace NSubstitute.Analyzers.VisualBasic.VisualBasic {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Non-overridable setup specification.
+        ///   Looks up a localized string similar to Non-virtual setup specification..
         /// </summary>
         public static string NonVirtualSetupSpecificationTitle {
             get {

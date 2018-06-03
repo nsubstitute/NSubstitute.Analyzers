@@ -13,17 +13,17 @@ namespace NSubstitute.Analyzers.Tests.Shared
         {
             get
             {
-                if (this._locations == null)
+                if (_locations == null)
                 {
-                    this._locations = new DiagnosticResultLocation[] { };
+                    _locations = new DiagnosticResultLocation[] { };
                 }
 
-                return this._locations;
+                return _locations;
             }
 
             set
             {
-                this._locations = value;
+                _locations = value;
             }
         }
 
@@ -37,7 +37,7 @@ namespace NSubstitute.Analyzers.Tests.Shared
         {
             get
             {
-                return this.Locations.Length > 0 ? this.Locations[0].Path : string.Empty;
+                return Locations.Length > 0 ? Locations[0].Path : string.Empty;
             }
         }
 
@@ -45,7 +45,7 @@ namespace NSubstitute.Analyzers.Tests.Shared
         {
             get
             {
-                return this.Locations.Length > 0 ? this.Locations[0].Line : -1;
+                return Locations.Length > 0 ? Locations[0].Line : -1;
             }
         }
 
@@ -53,7 +53,7 @@ namespace NSubstitute.Analyzers.Tests.Shared
         {
             get
             {
-                return this.Locations.Length > 0 ? this.Locations[0].Column : -1;
+                return Locations.Length > 0 ? Locations[0].Column : -1;
             }
         }
     }

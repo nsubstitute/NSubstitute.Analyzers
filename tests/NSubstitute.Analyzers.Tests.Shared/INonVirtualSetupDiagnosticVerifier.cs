@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.Shared
 {

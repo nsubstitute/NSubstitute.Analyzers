@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace NSubstitute.Analyzers.Shared {
+namespace NSubstitute.Analyzers.VisualBasic {
     using System;
     using System.Reflection;
     
@@ -20,10 +20,10 @@ namespace NSubstitute.Analyzers.Shared {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -37,10 +37,10 @@ namespace NSubstitute.Analyzers.Shared {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NSubstitute.Analyzers.Shared.Resources", typeof(Resources).GetTypeInfo().Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NSubstitute.Analyzers.VisualBasic.Resources", typeof(Resources).GetTypeInfo().Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -52,7 +52,7 @@ namespace NSubstitute.Analyzers.Shared {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -62,27 +62,27 @@ namespace NSubstitute.Analyzers.Shared {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Non-virtual members can not be intercepted..
+        ///   Looks up a localized string similar to Non-overridable members can not be intercepted..
         /// </summary>
-        internal static string NonVirtualSetupSpecificationDescription {
+        public static string NonVirtualSetupSpecificationDescription {
             get {
                 return ResourceManager.GetString("NonVirtualSetupSpecificationDescription", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted..
+        ///   Looks up a localized string similar to Member {0} can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted..
         /// </summary>
-        internal static string NonVirtualSetupSpecificationMessageFormat {
+        public static string NonVirtualSetupSpecificationMessageFormat {
             get {
                 return ResourceManager.GetString("NonVirtualSetupSpecificationMessageFormat", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Non-virtual setup specification..
+        ///   Looks up a localized string similar to Non-overridable setup specification.
         /// </summary>
-        internal static string NonVirtualSetupSpecificationTitle {
+        public static string NonVirtualSetupSpecificationTitle {
             get {
                 return ResourceManager.GetString("NonVirtualSetupSpecificationTitle", resourceCulture);
             }
@@ -91,7 +91,7 @@ namespace NSubstitute.Analyzers.Shared {
         /// <summary>
         ///   Looks up a localized string similar to Unused received check..
         /// </summary>
-        internal static string UnusedReceivedDescription {
+        public static string UnusedReceivedDescription {
             get {
                 return ResourceManager.GetString("UnusedReceivedDescription", resourceCulture);
             }
@@ -100,7 +100,7 @@ namespace NSubstitute.Analyzers.Shared {
         /// <summary>
         ///   Looks up a localized string similar to Unused received check..
         /// </summary>
-        internal static string UnusedReceivedMessageFormat {
+        public static string UnusedReceivedMessageFormat {
             get {
                 return ResourceManager.GetString("UnusedReceivedMessageFormat", resourceCulture);
             }
@@ -109,7 +109,7 @@ namespace NSubstitute.Analyzers.Shared {
         /// <summary>
         ///   Looks up a localized string similar to Received check..
         /// </summary>
-        internal static string UnusedReceivedTitle {
+        public static string UnusedReceivedTitle {
             get {
                 return ResourceManager.GetString("UnusedReceivedTitle", resourceCulture);
             }

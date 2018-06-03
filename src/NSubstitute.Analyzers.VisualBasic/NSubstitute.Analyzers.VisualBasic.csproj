@@ -5,6 +5,7 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>NSubstitute.Analyzers.VisualBasic</PackageId>
@@ -26,13 +27,6 @@
   <ItemGroup>
     <None Update="tools\*.ps1" CopyToOutputDirectory="Always" Pack="true" PackagePath="" />
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/vb" Visible="false" />
-    <None Remove="CSharp\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="CSharp\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Remove="CSharp\**" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NSubstitute.Analyzers.Shared\NSubstitute.Analyzers.Shared.csproj" />

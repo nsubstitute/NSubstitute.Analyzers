@@ -29,6 +29,11 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
             (int)SyntaxKind.TrueLiteralExpression,
             (int)SyntaxKind.StringLiteralExpression);
 
+        public NonVirtualSetupAnalyzer()
+            : base(new DiagnosticDescriptorsProvider())
+        {
+        }
+
         protected override SyntaxNode GetArgument(InvocationExpressionSyntax invocationExpressionSyntax)
         {
             return invocationExpressionSyntax.ArgumentList.Arguments.FirstOrDefault()?.DescendantNodes().FirstOrDefault();

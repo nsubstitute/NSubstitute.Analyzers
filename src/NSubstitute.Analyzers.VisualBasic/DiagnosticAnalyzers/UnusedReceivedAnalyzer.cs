@@ -15,5 +15,10 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
             Parent.Create<InvocationExpressionSyntax>());
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
+
+        public UnusedReceivedAnalyzer()
+            : base(new DiagnosticDescriptorsProvider())
+        {
+        }
     }
 }

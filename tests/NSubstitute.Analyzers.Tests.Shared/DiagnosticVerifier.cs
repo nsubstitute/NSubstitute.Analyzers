@@ -32,7 +32,7 @@ namespace NSubstitute.Analyzers.Tests.Shared
             MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
 
         private static readonly MetadataReference NSubstituteReference =
-            MetadataReference.CreateFromFile(typeof(NSubstitute.Substitute).Assembly.Location);
+            MetadataReference.CreateFromFile(typeof(Substitute).Assembly.Location);
 
         private static readonly MetadataReference ValueTaskReference =
             MetadataReference.CreateFromFile(typeof(ValueTask<>).Assembly.Location);
@@ -60,7 +60,7 @@ namespace NSubstitute.Analyzers.Tests.Shared
 
         public async Task VerifyDiagnostic(string source, params DiagnosticResult[] expected)
         {
-            await this.VerifyDiagnostic(new[] { source }, Language, this.GetDiagnosticAnalyzer(), expected, false);
+            await VerifyDiagnostic(new[] { source }, Language, GetDiagnosticAnalyzer(), expected, false);
         }
 
         protected abstract DiagnosticAnalyzer GetDiagnosticAnalyzer();

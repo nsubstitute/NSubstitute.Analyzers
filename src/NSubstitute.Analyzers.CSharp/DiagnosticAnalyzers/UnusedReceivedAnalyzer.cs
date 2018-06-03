@@ -16,5 +16,10 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
             Parent.Create<ElementAccessExpressionSyntax>());
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
+
+        public UnusedReceivedAnalyzer()
+            : base(new DiagnosticDescriptorsProvider())
+        {
+        }
     }
 }

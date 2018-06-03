@@ -7,11 +7,16 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    public abstract class AbstractUnusedReceivedAnalyzer<TSyntaxKind> : DiagnosticAnalyzer
+    public abstract class AbstractUnusedReceivedAnalyzer<TSyntaxKind> : AbstractDiagnosticAnalyzer
         where TSyntaxKind : struct
     {
+        protected AbstractUnusedReceivedAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
+            : base(diagnosticDescriptorsProvider)
+        {
+        }
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(DiagnosticDescriptors.UnusedReceived);
+            ImmutableArray.Create(DiagnosticDescriptorsProvider.UnusedReceived);
 
         private static readonly ImmutableHashSet<string> MethodNames = ImmutableHashSet.Create(
             MetadataNames.NSubstituteReceivedMethod,
@@ -57,7 +62,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
 
             var diagnostic = Diagnostic.Create(
-                DiagnosticDescriptors.UnusedReceived,
+                DiagnosticDescriptorsProvider.UnusedReceived,
                 invocationExpression.GetLocation(),
                 methodSymbol.Name);
 

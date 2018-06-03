@@ -4,12 +4,12 @@ using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers.Shared
 {
-    public class DiagnosticDescriptors
+    public class DiagnosticDescriptors<T>
     {
         public static readonly ResourceManager ResourceManager =
             new ResourceManager(
-                "NSubstitute.Analyzers.Shared.Resources",
-                typeof(DiagnosticDescriptors).GetTypeInfo().Assembly);
+                $"{typeof(T).GetTypeInfo().Assembly.GetName().Name}.Resources",
+                typeof(T).GetTypeInfo().Assembly);
 
         public static DiagnosticDescriptor NonVirtualSetupSpecification { get; } =
             CreateDiagnosticDescriptor(
@@ -38,7 +38,7 @@ namespace NSubstitute.Analyzers.Shared
 
         private static LocalizableResourceString GetDiagnosticResourceString(string name, string propertyName)
         {
-            return new LocalizableResourceString(name + propertyName, ResourceManager, typeof(DiagnosticDescriptors));
+            return new LocalizableResourceString(name + propertyName, ResourceManager, typeof(T));
         }
     }
 }

@@ -4,6 +4,8 @@
     <PackageTargetFallback>portable45-net45+win8</PackageTargetFallback>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>NSubstitute.Analyzers.CSharp</PackageId>
@@ -25,13 +27,6 @@
   <ItemGroup>
     <None Update="tools\*.ps1" CopyToOutputDirectory="Always" Pack="true" PackagePath="" />
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    <None Remove="VisualBasic\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="VisualBasic\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Remove="VisualBasic\**" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NSubstitute.Analyzers.Shared\NSubstitute.Analyzers.Shared.csproj" />
