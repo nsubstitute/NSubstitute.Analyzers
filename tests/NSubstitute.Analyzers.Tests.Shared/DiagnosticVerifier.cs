@@ -67,6 +67,11 @@ namespace NSubstitute.Analyzers.Tests.Shared
 
         protected abstract CompilationOptions GetCompilationOptions();
 
+        protected virtual IEnumerable<MetadataReference> GetAdditionalMetadataReferences()
+        {
+            return Enumerable.Empty<MetadataReference>();
+        }
+
         protected async Task<Diagnostic[]> GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, Document[] documents, bool allowCompilationErrors)
         {
             if (documents == null)
@@ -377,7 +382,8 @@ Diagnostic:
                     .AddMetadataReference(projectId, NSubstituteReference)
                     .AddMetadataReference(projectId, ValueTaskReference)
                     .AddMetadataReference(projectId, systemRuntimeReference)
-                    .AddMetadataReference(projectId, systemThreadingTasksReference);
+                    .AddMetadataReference(projectId, systemThreadingTasksReference)
+                    .AddMetadataReferences(projectId, GetAdditionalMetadataReferences());
 
                 int count = 0;
                 foreach (var source in sources)
