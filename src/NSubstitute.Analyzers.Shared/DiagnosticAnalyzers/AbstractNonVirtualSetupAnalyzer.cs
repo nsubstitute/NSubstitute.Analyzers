@@ -20,6 +20,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract ImmutableHashSet<int> SupportedMemberAccesses { get; }
 
+        protected abstract ImmutableHashSet<Type> KnownNonVirtualSyntaxTypes { get; }
+
         protected abstract TSyntaxKind SimpleMemberAccessExpressionKind { get; }
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
@@ -36,6 +38,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected virtual bool? CanBeSetuped(SyntaxNode accessedMember, SymbolInfo symbolInfo)
         {
+            if (KnownNonVirtualSyntaxTypes.Contains(accessedMember.GetType()))
+            {
+                return false;
+            }
+
             if (symbolInfo.Symbol == null)
             {
                 return null;
