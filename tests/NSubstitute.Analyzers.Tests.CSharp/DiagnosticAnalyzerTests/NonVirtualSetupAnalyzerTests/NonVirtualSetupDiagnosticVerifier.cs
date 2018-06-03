@@ -1,11 +1,12 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Tests.Shared;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualSetupAnalyzerTests
 {
-    public abstract class NonVirtualSetupDiagnosticVerifier : CSharpDiagnosticVerifier<NonVirtualSetupAnalyzer>, INonVirtualSetupDiagnosticVerifier
+    public abstract class NonVirtualSetupDiagnosticVerifier : CSharpDiagnosticVerifier, INonVirtualSetupDiagnosticVerifier
     {
         [Fact]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod();
@@ -68,5 +69,10 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualS
 
         [Fact]
         public abstract Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod();
+
+        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
+        {
+            return new NonVirtualSetupAnalyzer();
+        }
     }
 }

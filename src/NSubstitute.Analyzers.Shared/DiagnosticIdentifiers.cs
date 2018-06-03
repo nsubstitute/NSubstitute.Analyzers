@@ -1,6 +1,6 @@
 ﻿namespace NSubstitute.Analyzers.Shared
 {
-    public class DiagnosticIdentifiers
+    internal class DiagnosticIdentifiers
     {
         public static readonly string NonVirtualSetupSpecification = "NS001";
         public static readonly string UnusedReceived = "NS002";

@@ -5,14 +5,9 @@ using NSubstitute.Analyzers.Tests.Shared;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests
 {
-    public class CSharpDiagnosticVerifier<T> : DiagnosticVerifier where T : DiagnosticAnalyzer, new()
+    public abstract class CSharpDiagnosticVerifier : DiagnosticVerifier
     {
         protected override string Language { get; } = LanguageNames.CSharp;
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new T();
-        }
 
         protected override CompilationOptions GetCompilationOptions()
         {

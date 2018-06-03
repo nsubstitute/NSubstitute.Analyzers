@@ -10,7 +10,7 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
     [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
-    public class NonVirtualSetupAnalyzer : AbstractNonVirtualSetupAnalyzer<SyntaxKind, MemberAccessExpressionSyntax, InvocationExpressionSyntax>
+    internal class NonVirtualSetupAnalyzer : AbstractNonVirtualSetupAnalyzer<SyntaxKind, MemberAccessExpressionSyntax, InvocationExpressionSyntax>
     {
         protected override SyntaxKind SimpleMemberAccessExpressionKind { get; } = SyntaxKind.SimpleMemberAccessExpression;
 

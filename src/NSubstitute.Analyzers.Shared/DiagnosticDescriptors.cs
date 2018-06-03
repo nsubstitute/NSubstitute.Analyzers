@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers.Shared
 {
-    public class DiagnosticDescriptors<T>
+    internal class DiagnosticDescriptors<T>
     {
         public static readonly ResourceManager ResourceManager =
             new ResourceManager(

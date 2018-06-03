@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.VisualBasic;
 using Microsoft.VisualBasic.CompilerServices;
 using NSubstitute.Analyzers.Tests.Shared;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzerTests
 {
-    public class VisualBasicDiagnosticVerifier<T> : DiagnosticVerifier where T : DiagnosticAnalyzer, new()
+    public abstract class VisualBasicDiagnosticVerifier : DiagnosticVerifier
     {
         private static readonly MetadataReference[] AdditionalReferences =
         {
@@ -15,11 +14,6 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzerTests
         };
 
         protected override string Language { get; } = LanguageNames.VisualBasic;
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new T();
-        }
 
         protected override CompilationOptions GetCompilationOptions()
         {

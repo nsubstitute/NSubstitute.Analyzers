@@ -2,7 +2,7 @@
 
 namespace NSubstitute.Analyzers.Shared
 {
-    public interface IDiagnosticDescriptorsProvider
+    internal interface IDiagnosticDescriptorsProvider
     {
         DiagnosticDescriptor NonVirtualSetupSpecification { get; }
 

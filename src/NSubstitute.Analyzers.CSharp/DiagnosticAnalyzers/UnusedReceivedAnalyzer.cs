@@ -8,7 +8,7 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class UnusedReceivedAnalyzer : AbstractUnusedReceivedAnalyzer<SyntaxKind>
+    internal class UnusedReceivedAnalyzer : AbstractUnusedReceivedAnalyzer<SyntaxKind>
     {
         protected override ImmutableArray<Parent> PossibleParents { get; } = ImmutableArray.Create(
             Parent.Create<MemberAccessExpressionSyntax>(),

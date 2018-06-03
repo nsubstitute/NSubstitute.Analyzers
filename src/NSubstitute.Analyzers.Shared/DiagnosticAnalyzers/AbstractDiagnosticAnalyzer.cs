@@ -2,7 +2,7 @@
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    public abstract class AbstractDiagnosticAnalyzer : DiagnosticAnalyzer
+    internal abstract class AbstractDiagnosticAnalyzer : DiagnosticAnalyzer
     {
         protected IDiagnosticDescriptorsProvider DiagnosticDescriptorsProvider { get; }
 
