@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\NSubstitute.Analyzers.CSharp\NSubstitute.Analyzers.CSharp.csproj" />
+    <ProjectReference Include="..\..\src\NSubstitute.Analyzers.Shared\NSubstitute.Analyzers.Shared.csproj" />
     <ProjectReference Include="..\NSubstitute.Analyzers.Tests.Shared\NSubstitute.Analyzers.Tests.Shared.csproj" />
   </ItemGroup>
 </Project>

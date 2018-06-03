@@ -29,6 +29,12 @@
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NSubstitute.Analyzers.Shared\NSubstitute.Analyzers.Shared.csproj" />
+    <ProjectReference Include="..\NSubstitute.Analyzers.Shared\NSubstitute.Analyzers.Shared.csproj" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(OutputPath)\NSubstitute.Analyzers.Shared.dll">
+      <Pack>true</Pack>
+      <PackagePath>analyzers/dotnet/cs</PackagePath>
+    </Content>
   </ItemGroup>
 </Project>
