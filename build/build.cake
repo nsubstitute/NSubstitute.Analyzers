@@ -51,7 +51,6 @@ Task("Clean")
 
 Task("Restore-NuGet-Packages")
     .IsDependentOn("Clean")
-    .IsDependentOn("Patch-AssemblyInfo")
     .Does(() =>
 {
     DotNetCoreRestore(paths.Files.Solution.ToString());
@@ -102,6 +101,8 @@ Task("Build")
         Configuration = parameters.Configuration,
         NoRestore = true,
         ArgumentCustomization = arg => arg.AppendSwitch("/p:DebugType","=","Full")
+                                          .AppendSwitch("/p:Version", "=", buildVersion.SemVersion.ToString()),
+        VersionSuffix = buildVersion.SemVersion.ToString()
     });
 });
 
@@ -150,17 +151,6 @@ Task("Publish")
 {
     Information("Publish Task failed, but continuing with next Task...");
     publishingError = true;
-});
-
-Task("Patch-AssemblyInfo")
-.WithCriteria(() => !parameters.IsLocalBuild)
-.Does(() =>
-{
-    GitVersion(new GitVersionSettings
-    {
-        UpdateAssemblyInfo = true,
-        WorkingDirectory = paths.Directories.RootDir
-    });
 });
 
 
