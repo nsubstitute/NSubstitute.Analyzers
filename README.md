@@ -2,8 +2,8 @@ PoC of analyzers which prevent usage of NSubstitute setup methods for non-virtua
 
 | Branch        | Build           | Coverage  |
 | ------------- |-------------| -----|
-| Master      | [![Build status](https://ci.appveyor.com/api/projects/status/ebn5o6nh19306guf/branch/master?svg=true)](https://ci.appveyor.com/project/tpodolak/nsubstitute-analyzers-jnkoh/branch/master)      |   [![Coverage Status](https://coveralls.io/repos/github/nsubstitute/NSubstitute.Analyzers/badge.svg?branch=master)](https://coveralls.io/github/nsubstitute/NSubstitute.Analyzers?branch=master) |
-| Dev      | [![Build status](https://ci.appveyor.com/api/projects/status/ebn5o6nh19306guf/branch/dev?svg=true)](https://ci.appveyor.com/project/tpodolak/nsubstitute-analyzers-jnkoh/branch/dev)      |   [![Coverage Status](https://coveralls.io/repos/github/nsubstitute/NSubstitute.Analyzers/badge.svg?branch=dev)](https://coveralls.io/github/nsubstitute/NSubstitute.Analyzers?branch=dev) |
+| Master      | [![Build status](https://ci.appveyor.com/api/projects/status/t9lhmp61nuy3a7k5/branch/master?svg=true)](https://ci.appveyor.com/project/NSubstitute/nsubstitute-analyzers/branch/master)      |   [![Coverage Status](https://coveralls.io/repos/github/nsubstitute/NSubstitute.Analyzers/badge.svg?branch=master)](https://coveralls.io/github/nsubstitute/NSubstitute.Analyzers?branch=master) |
+| Dev      | [![Build status](https://ci.appveyor.com/api/projects/status/t9lhmp61nuy3a7k5/branch/dev?svg=true)](https://ci.appveyor.com/project/NSubstitute/nsubstitute-analyzers/branch/dev)    |   [![Coverage Status](https://coveralls.io/repos/github/nsubstitute/NSubstitute.Analyzers/badge.svg?branch=dev)](https://coveralls.io/github/nsubstitute/NSubstitute.Analyzers?branch=dev) |
 
 
 C# example
