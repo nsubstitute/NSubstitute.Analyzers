@@ -27,7 +27,4 @@
     <Rule Id="SA1600" Action="None" />
     <Rule Id="SA1204" Action="None" />
   </Rules>
-  <Rules AnalyzerId="xunit.analyzers" RuleNamespace="xunit.analyzers">
-    <Rule Id="xUnit1013" Action="Hidden" />
-  </Rules>
 </RuleSet>
