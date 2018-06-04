@@ -90,7 +90,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         }
     }
 
-    public struct Parent
+    internal struct Parent
     {
         public Type Type { get; }
 
