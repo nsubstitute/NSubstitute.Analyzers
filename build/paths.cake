@@ -20,8 +20,8 @@ public class BuildPaths
                                              .ToList();
         var projectsToPack = new List<FilePath>
         {
-            buildDirectories.SrcRootDir.CombineWithFilePath("NSubstitute.Analyzers/NSubstitute.Analyzers.CSharp.csproj"),
-            buildDirectories.SrcRootDir.CombineWithFilePath("NSubstitute.Analyzers/NSubstitute.Analyzers.VisualBasic.csproj")
+            buildDirectories.SrcRootDir.CombineWithFilePath("NSubstitute.Analyzers.CSharp/NSubstitute.Analyzers.CSharp.csproj"),
+            buildDirectories.SrcRootDir.CombineWithFilePath("NSubstitute.Analyzers.VisualBasic/NSubstitute.Analyzers.VisualBasic.csproj")
         };
 
         var buildFiles = new BuildFiles(
@@ -46,9 +46,9 @@ public class BuildPaths
         var artifacts = rootDir.Combine(".artifacts");
         var testResults = artifacts.Combine("Test-Results");
 
-        var csharpAnalyzerTestDir = rootDir.Combine("tests").Combine("NSubstitute.Analyzers.Test.CSharp");
+        var csharpAnalyzerTestDir = rootDir.Combine("tests").Combine("NSubstitute.Analyzers.Tests.CSharp");
 
-        var visualBasicAnalyzerTestDir = rootDir.Combine("tests").Combine("NSubstitute.Analyzers.Test.VisualBasic");
+        var visualBasicAnalyzerTestDir = rootDir.Combine("tests").Combine("NSubstitute.Analyzers.Tests.VisualBasic");
 
         var testDirs = new []{
                                 csharpAnalyzerTestDir,
