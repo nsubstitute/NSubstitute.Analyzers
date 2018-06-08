@@ -7,5 +7,7 @@ namespace NSubstitute.Analyzers.Shared
         DiagnosticDescriptor NonVirtualSetupSpecification { get; }
 
         DiagnosticDescriptor UnusedReceived { get; }
+
+        DiagnosticDescriptor UnusedReceivedForOrdinaryMethod { get; }
     }
 }

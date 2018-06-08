@@ -134,10 +134,22 @@
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
   <data name="UnusedReceivedMessageFormat" xml:space="preserve">
-    <value>Unused received check.</value>
+    <value>Unused received check. To fix, make sure there is a call after "{0}". Correct: "sub.{0}().SomeCall();". Incorrect: "sub.{0}();"</value>
     <comment>The format-able message the diagnostic displays.</comment>
   </data>
   <data name="UnusedReceivedTitle" xml:space="preserve">
+    <value>Received check.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+  <data name="UnusedReceivedForOrdinaryMethodDescription" xml:space="preserve">
+    <value>Unused received check.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="UnusedReceivedForOrdinaryMethodMessageFormat" xml:space="preserve">
+    <value>Unused received check. To fix, make sure there is a call after "{0}". Correct: "SubstituteExtensions.{0}(sub).SomeCall();". Incorrect: "SubstituteExtensions.{0}(sub);"</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="UnusedReceivedForOrdinaryMethodTitle" xml:space="preserve">
     <value>Received check.</value>
     <comment>The title of the diagnostic.</comment>
   </data>

@@ -30,7 +30,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.UnusedReceived,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Unused received check.",
+                Message = @"Unused received check. To fix, make sure there is a call after ""ReceivedWithAnyArgs"". Correct: ""sub.ReceivedWithAnyArgs().SomeCall();"". Incorrect: ""sub.ReceivedWithAnyArgs();""",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(14, 13)
