@@ -27,7 +27,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.UnusedReceived,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Unused received check.",
+                Message = @"Unused received check. To fix, make sure there is a call after ""Received"". Correct: ""SubstituteExtensions.Received(sub).SomeCall();"". Incorrect: ""SubstituteExtensions.Received(sub);""",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(10, 13)
