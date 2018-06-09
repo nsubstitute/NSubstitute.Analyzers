@@ -20,8 +20,8 @@ public class BuildPaths
                                              .ToList();
         var projectsToPack = new List<FilePath>
         {
-            buildDirectories.SrcRootDir.CombineWithFilePath("NSubstitute.Analyzers/NSubstitute.Analyzers.CSharp.csproj"),
-            buildDirectories.SrcRootDir.CombineWithFilePath("NSubstitute.Analyzers/NSubstitute.Analyzers.VisualBasic.csproj")
+            buildDirectories.SrcRootDir.CombineWithFilePath("NSubstitute.Analyzers.CSharp/NSubstitute.Analyzers.CSharp.csproj"),
+            buildDirectories.SrcRootDir.CombineWithFilePath("NSubstitute.Analyzers.VisualBasic/NSubstitute.Analyzers.VisualBasic.csproj")
         };
 
         var buildFiles = new BuildFiles(
@@ -32,7 +32,7 @@ public class BuildPaths
             buildDirectories.Artifacts.CombineWithFilePath("DupOutpuFinder.xml"),
             projectsToPack,
             testAssemblies);
-        
+
         return new BuildPaths
         {
             Files = buildFiles,
@@ -45,24 +45,24 @@ public class BuildPaths
         var rootDir = context.MakeAbsolute((DirectoryPath)context.Directory("../"));
         var artifacts = rootDir.Combine(".artifacts");
         var testResults = artifacts.Combine("Test-Results");
-        
-        var csharpAnalyzerTestDir = rootDir.Combine("tests").Combine("NSubstitute.Analyzers.Test.CSharp");
-        
-        var visualBasicAnalyzerTestDir = rootDir.Combine("tests").Combine("NSubstitute.Analyzers.Test.VisualBasic");
-        
+
+        var csharpAnalyzerTestDir = rootDir.Combine("tests").Combine("NSubstitute.Analyzers.Tests.CSharp");
+
+        var visualBasicAnalyzerTestDir = rootDir.Combine("tests").Combine("NSubstitute.Analyzers.Tests.VisualBasic");
+
         var testDirs = new []{
                                 csharpAnalyzerTestDir,
                                 visualBasicAnalyzerTestDir
                             };
         var toClean = new[] {
-                                 testResults
+                                 artifacts
                             };
         return new BuildDirectories(rootDir,
                                     rootDir.Combine("src"),
                                     rootDir.Combine("tests"),
                                     artifacts,
                                     testResults,
-                                    testDirs, 
+                                    testDirs,
                                     toClean);
     }
 }
@@ -127,19 +127,28 @@ public class BuildDirectories
 
 public class BuildPackages
 {
-    public FilePath NuGetPackage { get; private set;}
-    public FilePath ZipPackage { get; private set; }
-    public BuildPackages(FilePath nuGetPackage, FilePath zipPackage)
+    public ICollection<FilePath> AllPackages { get; private set; }
+    public FilePath CSharpAnalyzer { get; private set; }
+
+    public FilePath VisualBasicAnalyzer { get; private set; }
+
+    public BuildPackages(ICollection<FilePath> allPackages, FilePath csharpAnalyzer, FilePath  visualBasicAnalyzer)
     {
-        this.NuGetPackage = nuGetPackage;
-        this.ZipPackage = zipPackage;
+        AllPackages = allPackages;
+        CSharpAnalyzer = csharpAnalyzer;
+        VisualBasicAnalyzer = visualBasicAnalyzer;
     }
 
     public static BuildPackages GetPackages(BuildPaths paths, BuildVersion version)
     {
-        var fileNameWithoutExtension = "NSubstitute.Analyzers." + version.SemVersion;
-        return new BuildPackages(
-            paths.Directories.Artifacts.CombineWithFilePath(fileNameWithoutExtension + ".nupkg"),
-            paths.Directories.Artifacts.CombineWithFilePath(fileNameWithoutExtension + ".zip"));
+        var csharpAnalyzer = "NSubstitute.Analyzers.CSharp" + version.SemVersion;
+        var visualBasicAnalyzer = "NSubstitute.Analyzers.VisualBasic" + version.SemVersion;
+        var packages = new [] 
+        {
+            paths.Directories.Artifacts.CombineWithFilePath(csharpAnalyzer + ".nupkg"),
+            paths.Directories.Artifacts.CombineWithFilePath(visualBasicAnalyzer + ".nupkg"),
+        };
+
+        return new BuildPackages(packages, csharpAnalyzer, visualBasicAnalyzer);    
     }
 }

@@ -21,6 +21,12 @@ var releaseNotes = ParseReleaseNotes(paths.Files.AllReleaseNotes);
 Setup(context =>
 {
     Information("Building version {0} of NSubstitute.Analyzers", buildVersion.SemVersion);
+
+    if(DirectoryExists(paths.Directories.Artifacts))
+    {
+       CleanDirectories(paths.Directories.ToClean);
+    }
+
     if (!DirectoryExists(paths.Directories.Artifacts))
     {
         CreateDirectory(paths.Directories.Artifacts);
@@ -41,12 +47,10 @@ Task("Clean")
     .Does(() =>
 {
     DotNetCoreClean(paths.Files.Solution.ToString());
-    CleanDirectories(paths.Directories.ToClean);
 });
 
 Task("Restore-NuGet-Packages")
     .IsDependentOn("Clean")
-    .IsDependentOn("Patch-AssemblyInfo")
     .Does(() =>
 {
     DotNetCoreRestore(paths.Files.Solution.ToString());
@@ -97,6 +101,8 @@ Task("Build")
         Configuration = parameters.Configuration,
         NoRestore = true,
         ArgumentCustomization = arg => arg.AppendSwitch("/p:DebugType","=","Full")
+                                          .AppendSwitch("/p:Version", "=", buildVersion.SemVersion.ToString()),
+        VersionSuffix = buildVersion.SemVersion.ToString()
     });
 });
 
@@ -136,7 +142,7 @@ Task("Publish")
         throw new InvalidOperationException("Could not resolve NuGet API url.");
     }
 
-    NuGetPush(packages.NuGetPackage, new NuGetPushSettings
+    NuGetPush(packages.AllPackages, new NuGetPushSettings
     {
         ApiKey = apiKey,
         Source = apiUrl
@@ -147,23 +153,10 @@ Task("Publish")
     publishingError = true;
 });
 
-Task("Patch-AssemblyInfo")
-.WithCriteria(() => !parameters.IsLocalBuild)
-.Does(() =>
-{
-    GitVersion(new GitVersionSettings
-    {
-        UpdateAssemblyInfo = true,
-        WorkingDirectory = paths.Directories.RootDir
-    });
-});
-
 
 Task("Upload-Coverage-Report")
     .WithCriteria(() => FileExists(paths.Files.TestCoverageOutput))
     .WithCriteria(() => !parameters.IsLocalBuild)
-    .WithCriteria(() => !parameters.IsPullRequest)
-    .WithCriteria(() => parameters.IsMaster || parameters.IsDev)
     .IsDependentOn("Publish")
     .Does(() =>
 {

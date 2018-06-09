@@ -2,12 +2,11 @@
     <PropertyGroup>
         <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
         <CodeAnalysisRuleSet>../../Analyzers.ruleset</CodeAnalysisRuleSet>
-        <LangVersion>7.2</LangVersion>
     </PropertyGroup>
     <ItemGroup>
         <AdditionalFiles Include="../../StyleCop.json" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
+        <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" PrivateAssets="all" />
     </ItemGroup>
 </Project>
