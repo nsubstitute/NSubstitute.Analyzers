@@ -489,6 +489,7 @@ End Namespace
             await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
         }
 
+        [Fact(Skip = "This gives runtime error on VB level, not even NSubstitute level")]
         public override async Task ReturnsDiagnostic_WhenCorrespondingConstructorArgumentsNotCompatible()
         {
             var source = @"Imports NSubstitute

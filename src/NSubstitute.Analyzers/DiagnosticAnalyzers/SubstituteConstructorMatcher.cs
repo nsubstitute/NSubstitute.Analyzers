@@ -15,12 +15,32 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
     // TODO refactor
     public static class SubstituteConstructorMatcher
     {
-        private static readonly SpecialType[] IntegerTypes;
+        // even though conversion returns that key -> value is convertible it fails on the runtime when runninig through substitute creation
+        private static readonly Dictionary<SpecialType, SpecialType> WellKnownUnsupportedConversions =
+            new Dictionary<SpecialType, SpecialType>
+            {
+                [SpecialType.System_Int16] = SpecialType.System_Decimal,
+                [SpecialType.System_Int32] = SpecialType.System_Decimal,
+                [SpecialType.System_Int64] = SpecialType.System_Decimal,
+                [SpecialType.System_UInt16] = SpecialType.System_Decimal,
+                [SpecialType.System_UInt32] = SpecialType.System_Decimal,
+                [SpecialType.System_UInt64] = SpecialType.System_Decimal
+            };
 
-        static SubstituteConstructorMatcher()
-        {
-            IntegerTypes = ((SpecialType[])Enum.GetValues(typeof(SpecialType))).Where(type => (int)type >= 11 && (int)type <= 16).ToArray();
-        }
+        private static readonly Dictionary<SpecialType, HashSet<SpecialType>> WellKnownSupportedConversions =
+            new Dictionary<SpecialType, HashSet<SpecialType>>
+            {
+                [SpecialType.System_Char] = new HashSet<SpecialType>
+                {
+                    SpecialType.System_Int16,
+                    SpecialType.System_Int32,
+                    SpecialType.System_Int64,
+                    SpecialType.System_UInt16,
+                    SpecialType.System_UInt32,
+                    SpecialType.System_UInt64,
+                    SpecialType.System_Single
+                }
+            };
 
         public static bool MatchesInvocation(Compilation compilation, IMethodSymbol methodSymbol, IList<ITypeSymbol> invocationParameters)
         {
@@ -41,17 +61,17 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
                 return true;
             }
 
-            var conversion = compilation.ClassifyConversion(source, destination);
-
-            if (conversion.IsNumeric)
+            if (WellKnownUnsupportedConversions.TryGetValue(source.SpecialType, out var unsupportedSource) && unsupportedSource == destination.SpecialType)
             {
-                // for reasons unknown to me, NSubstitute cannot create mock when assigning int to decimal in constructor
-                if (destination.Equals(compilation.GetSpecialType(SpecialType.System_Decimal)) && IntegerTypes
-                        .Select(compilation.GetSpecialType).Any(specialType => specialType.Equals(source)))
-                {
-                    return false;
-                }
+                return false;
             }
+
+            if (WellKnownSupportedConversions.TryGetValue(source.SpecialType, out var supportedSource) && supportedSource.Contains(destination.SpecialType))
+            {
+                return true;
+            }
+
+            var conversion = compilation.ClassifyConversion(source, destination);
 
 #if CSHARP
                 return conversion.Exists && conversion.IsImplicit;
