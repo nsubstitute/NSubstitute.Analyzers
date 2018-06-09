@@ -21,7 +21,7 @@ Please report any problems or ask questions via the [Issue tracker](https://gith
 ## Examples
 
 ### C# example
-![C#](https://raw.githubusercontent.com/nsubstitute/NSubstitute/NSubstitute.Analyzers/dev/images/csharp-example.png)
+![C#](https://raw.githubusercontent.com/nsubstitute/NSubstitute.Analyzers/dev/images/csharp-example.png)
 
 ### Visual Basic example
 ![VisualBasic](https://raw.githubusercontent.com/nsubstitute/NSubstitute.Analyzers/dev/images/vb-example.png)
