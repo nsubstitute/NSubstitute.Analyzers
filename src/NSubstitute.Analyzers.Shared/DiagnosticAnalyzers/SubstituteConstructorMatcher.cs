@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-#if CSHARP
-using Microsoft.CodeAnalysis.CSharp;
-#elif VISUAL_BASIC
-using Microsoft.CodeAnalysis.VisualBasic;
-using Microsoft.CodeAnalysis.VisualBasic.Syntax;
-#endif
 
-namespace NSubstitute.Analyzers.DiagnosticAnalyzers
+namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
     // TODO refactor
     public static class SubstituteConstructorMatcher

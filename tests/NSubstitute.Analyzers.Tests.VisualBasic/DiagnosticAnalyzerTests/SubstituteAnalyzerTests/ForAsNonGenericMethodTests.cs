@@ -1,11 +1,12 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using NSubstitute.Analyzers.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Shared;
+using NSubstitute.Analyzers.Tests.Shared;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Test.VisualBasic.DiagnosticAnalyzerTests.SubstituteAnalyzersTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzerTests.SubstituteAnalyzerTests
 {
-    public class ForAsGenericMethodTests : SubstituteAnalyzerTests
+    public class ForAsNonGenericMethodTests : SubstituteDiagnosticVerifier
     {
         [Fact]
         public async Task ReturnsNoDiagnostic_WhenUsedForInterface()
@@ -18,12 +19,33 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(IFoo)}, Nothing)
         End Sub
     End Class
-End Namespace";
+End Namespace
+";
 
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
+        }
+
+        [Fact]
+        public async Task ReturnsNoDiagnostic_WhenUsedForInterface_WhenEmptyArrayPassed()
+        {
+            var source = @"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Interface IFoo
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(IFoo)}, New Object() {})
+        End Sub
+    End Class
+End Namespace
+";
+
+            await VerifyDiagnostic(source);
         }
 
         [Fact]
@@ -37,11 +59,11 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)(1)
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(IFoo)}, New Object() {1})
         End Sub
     End Class
-End Namespace";
-
+End Namespace
+";
             var expectedDiagnostic = new DiagnosticResult
             {
                 Id = DiagnosticIdentifiers.SubstituteConstructorArgumentsForInterface,
@@ -53,7 +75,7 @@ End Namespace";
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         [Fact]
@@ -68,12 +90,12 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of Func(Of Integer))()
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(Func(Of Integer))}, Nothing)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         [Fact]
@@ -85,7 +107,7 @@ Imports System
 Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of Func(Of Integer))(1)
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(Func(Of Integer))}, New Object() {1})
         End Sub
     End Class
 End Namespace
@@ -101,11 +123,38 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
+        }
+
+        [Theory]
+        [InlineData("{ GetType(Bar), New Foo().[GetType]() }")]
+        [InlineData("{ GetType(Bar), New Foo().[GetType]() }.ToArray()")]
+        public async Task ReturnsNoDiagnostic_WhenProxyTypeCannotBeInfered(string proxyExpression)
+        {
+            var source = $@"Imports NSubstitute
+Imports System.Linq
+
+Namespace MyNamespace
+    Public Class Foo
+    End Class
+
+    Public Class Bar
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim bar = New Bar()
+            Dim substitute = NSubstitute.Substitute.[For]({proxyExpression}, Nothing)
+        End Sub
+    End Class
+End Namespace
+";
+
+            await VerifyDiagnostic(source);
         }
 
         [Fact]
-        public async Task ReturnsDiagnostic_WhenMultipleGenericTypeParameters_ContainsMultipleClasses()
+        public async Task ReturnsDiagnostic_WhenMultipleTypeParameters_ContainMultipleClasses()
         {
             var source = @"Imports NSubstitute
 
@@ -118,7 +167,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of Foo, Bar)()
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo), GetType(Bar)}, Nothing)
         End Sub
     End Class
 End Namespace
@@ -135,11 +184,11 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         [Fact]
-        public async Task ReturnsNoDiagnostic_WhenMultipleGenericTypeParameters_ContainsMultipleSameClasses()
+        public async Task ReturnsNoDiagnostic_WhenMultipleTypeParameters_ContainsMultipleSameClasses()
         {
             var source = @"Imports NSubstitute
 
@@ -149,17 +198,17 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of Foo, Foo)()
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo), GetType(Foo)}, Nothing)
         End Sub
     End Class
 End Namespace
 ";
 
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         [Fact]
-        public async Task ReturnsNoDiagnostic_WhenMultipleGenericTypeParameters_ContainsMultipleInterfaces()
+        public async Task ReturnsNoDiagnostic_WhenMultipleTypeParameters_ContainsMultipleInterfaces()
         {
             var source = @"Imports NSubstitute
 
@@ -167,45 +216,22 @@ Namespace MyNamespace
     Public Interface IFoo
     End Interface
 
-    Public Interface IBar
+    Interface IBar
     End Interface
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of IFoo, IBar)()
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(IFoo), GetType(IBar)}, Nothing)
         End Sub
     End Class
 End Namespace
 ";
 
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         [Fact]
-        public async Task ReturnsNoDiagnostic_WhenMultipleGenericTypeParameters_ContainsInterfaceNotImplementedByClass()
-        {
-            var source = @"Imports NSubstitute
-
-Namespace MyNamespace
-    Public Interface IFoo
-    End Interface
-
-    Public Class Bar
-    End Class
-
-    Public Class FooTests
-        Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of IFoo, Bar)()
-        End Sub
-    End Class
-End Namespace
-";
-
-            await VerifyVisualBasicDiagnostic(source);
-        }
-
-        [Fact]
-        public async Task ReturnsDiagnostic_WhenMultipleGenericTypeParameters_ContainsClassWithoutMatchingConstructor()
+        public async Task ReturnsNoDiagnostic_WhenMultipleTypeParameters_ContainsInterfaceNotImplementedByClass()
         {
             var source = @"Imports NSubstitute
 
@@ -218,7 +244,30 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of IFoo, Bar)(1)
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(IFoo), GetType(Bar)}, Nothing)
+        End Sub
+    End Class
+End Namespace
+";
+
+            await VerifyDiagnostic(source);
+        }
+
+        [Fact]
+        public async Task ReturnsDiagnostic_WhenMultipleTypeParameters_ContainsClassWithoutMatchingConstructor()
+        {
+            var source = @"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Interface IFoo
+    End Interface
+
+    Public Class Bar
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(IFoo), GetType(Bar)}, New Object() {1})
         End Sub
     End Class
 End Namespace
@@ -234,7 +283,7 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReturnsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor()
@@ -249,7 +298,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, Nothing)
         End Sub
     End Class
 End Namespace
@@ -265,7 +314,7 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReturnsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount()
@@ -280,7 +329,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of Foo)(1, 2, 3)
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, New Object() {1, 2, 3})
         End Sub
     End Class
 End Namespace
@@ -296,7 +345,7 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReturnsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount()
@@ -311,7 +360,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of Foo)(1)
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, New Object() {1})
         End Sub
     End Class
 End Namespace
@@ -327,7 +376,7 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReturnsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters()
@@ -342,7 +391,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of Foo)(1)
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, New Object() {1})
         End Sub
     End Class
 End Namespace
@@ -358,7 +407,7 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToNotApplied()
@@ -371,7 +420,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, Nothing)
         End Sub
     End Class
 End Namespace
@@ -387,11 +436,10 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task
-            ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
+        public override async Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
         {
             var source = @"Imports NSubstitute
 Imports System.Runtime.CompilerServices
@@ -403,12 +451,12 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, Nothing)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly()
@@ -423,7 +471,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, Nothing)
         End Sub
     End Class
 End Namespace
@@ -439,9 +487,10 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
+        [Fact(Skip = "This gives runtime error on VB level, not even NSubstitute level")]
         public override async Task ReturnsDiagnostic_WhenCorrespondingConstructorArgumentsNotCompatible()
         {
             var source = @"Imports NSubstitute
@@ -454,7 +503,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of Foo)(New Object())
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, New Object())
         End Sub
     End Class
 End Namespace
@@ -470,13 +519,13 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [InlineData("ByVal x As Decimal", "1")] // valid c# but doesnt work in NSubstitute
-        [InlineData("ByVal x As Integer", "1D")]
-        [InlineData("ByVal x As Integer", "1R")]
-        [InlineData("ByVal x As List(Of Integer)", "New List(Of Integer)().AsReadOnly()")]
+        [InlineData("ByVal x As Decimal", "New Object() { 1 }")] // valid c# but doesnt work in NSubstitute
+        [InlineData("ByVal x As Integer", "New Object() { 1D }")]
+        [InlineData("ByVal x As Integer", "New Object() { 1R }")]
+        [InlineData("ByVal x As List(Of Integer)", "New Object() { New List(Of Integer)().AsReadOnly() }")]
         public override async Task ReturnsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"Imports NSubstitute
@@ -490,11 +539,10 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of Foo)({invocationValues})
+            Dim substitute = NSubstitute.Substitute.[For]({{GetType(Foo)}}, {invocationValues})
         End Sub
     End Class
-End Namespace
-";
+End Namespace";
             var expectedDiagnostic = new DiagnosticResult
             {
                 Id = DiagnosticIdentifiers.SubstituteConstructorMismatch,
@@ -506,25 +554,18 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [InlineData("ByVal x As Integer", "1")]
-        [InlineData("ByVal x As Single", @"""c""c")]
-        [InlineData("ByVal x As Integer", @"""c""c")]
-        [InlineData("ByVal x As IList(Of Integer)", "New List(Of Integer)()")]
-        [InlineData("ByVal x As IEnumerable(Of Integer)", "New List(Of Integer)()")]
-        [InlineData("ByVal x As IEnumerable(Of Integer)", "New List(Of Integer)().AsReadOnly()")]
-        [InlineData("ByVal x As IEnumerable(Of Char)", @"""value""")]
-        [InlineData("ByVal x As Integer", @"New Object() {1}")]
-        [InlineData("ByVal x As Integer()", @"New Integer() {1}")]
-        [InlineData("ByVal x As Object(), ByVal y As Integer", @"New Object() {1}, 1")]
-        [InlineData("ByVal x As Integer(), ByVal y As Integer", @"New Integer() {1}, 1")]
+        [InlineData("ByVal x As Integer", "New Object() {1}")]
+        [InlineData("ByVal x As Single", "New Object() {\"c\"c}")]
+        [InlineData("ByVal x As Integer", "New Object() {\"c\"c}")]
+        [InlineData("ByVal x As IList(Of Integer)", "New Object() {New List(Of Integer)()}")]
+        [InlineData("ByVal x As IEnumerable(Of Integer)", "New Object() {New List(Of Integer)()}")]
+        [InlineData("ByVal x As IEnumerable(Of Integer)", "New Object() {New List(Of Integer)().AsReadOnly()}")]
+        [InlineData("ByVal x As IEnumerable(Of Char)", @"New Object() {""value""}")]
         [InlineData("", @"New Object() {}")]
         [InlineData("", "New Object() {1, 2}.ToArray()")] // actual values known at runtime only so constructor analysys skipped
-        [InlineData("ByVal x As Integer", "New Object() {Nothing}")] // even though we pass null as first arg, this works fine with NSubstitute
-        [InlineData("ByVal x As Integer, ByVal y As Integer", "New Object() { Nothing, Nothing }")] // even though we pass null as first arg, this works fine with NSubstitute
-        [InlineData("ByVal x As Integer, ByVal y As Integer", "New Object() {1, Nothing}")] // even though we pass null as first arg, this works fine with NSubstitute
         public override async Task ReturnsNoDiagnostic_WhenConstructorArgumentsAreImplicitlyConvertible(string ctorValues, string invocationValues)
         {
             var source = $@"Imports NSubstitute
@@ -539,12 +580,12 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of Foo)({invocationValues})
+            Dim substitute = NSubstitute.Substitute.[For]({{GetType(Foo)}}, {invocationValues})
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
     }
 }

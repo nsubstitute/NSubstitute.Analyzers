@@ -37,11 +37,6 @@ namespace NSubstitute.Analyzers.Tests.Shared
         private static readonly MetadataReference ValueTaskReference =
             MetadataReference.CreateFromFile(typeof(ValueTask<>).Assembly.Location);
 
-        /*
-        private static readonly MetadataReference VisualBasicReference =
-            MetadataReference.CreateFromFile(typeof(StandardModuleAttribute).Assembly.Location);
-        */
-
         public static string DefaultFilePathPrefix { get; } = "Test";
 
         public static string CSharpDefaultFileExt { get; } = "cs";
@@ -358,7 +353,7 @@ Diagnostic:
             }
         }
 
-        private Project CreateProject(string[] sources, string language)
+        protected Project CreateProject(string[] sources, string language)
         {
             string fileNamePrefix = DefaultFilePathPrefix;
             string fileExt = language == LanguageNames.CSharp ? CSharpDefaultFileExt : VisualBasicDefaultExt;

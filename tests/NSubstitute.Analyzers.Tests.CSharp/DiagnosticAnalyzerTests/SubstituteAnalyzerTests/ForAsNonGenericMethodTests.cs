@@ -1,11 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using NSubstitute.Analyzers.DiagnosticAnalyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Test.CSharp.DiagnosticAnalyzerTests.SubstituteAnalyzersTests
+namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.SubstituteAnalyzerTests
 {
-    public class ForAsNonGenericMethodTests : SubstituteAnalyzerTests
+    public class ForAsNonGenericMethodTests : SubstituteDiagnosticVerifier
     {
         [Fact]
         public async Task ReturnsNoDiagnostic_WhenUsedForInterface()
@@ -27,7 +26,7 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyCSharpDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         [Fact]
@@ -50,7 +49,7 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyCSharpDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         [Fact]
@@ -83,7 +82,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         [Fact]
@@ -105,7 +104,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyCSharpDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         [Fact]
@@ -134,7 +133,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         [Theory]
@@ -164,7 +163,7 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyCSharpDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         [Fact]
@@ -202,7 +201,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         [Fact]
@@ -225,7 +224,7 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyCSharpDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         [Fact]
@@ -252,7 +251,7 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyCSharpDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         [Fact]
@@ -279,7 +278,7 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyCSharpDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         [Fact]
@@ -316,7 +315,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReturnsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor()
@@ -351,7 +350,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReturnsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount()
@@ -386,7 +385,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReturnsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount()
@@ -421,7 +420,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReturnsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters()
@@ -456,7 +455,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToNotApplied()
@@ -487,7 +486,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
@@ -509,7 +508,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyCSharpDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly()
@@ -542,7 +541,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReturnsDiagnostic_WhenCorrespondingConstructorArgumentsNotCompatible()
@@ -577,7 +576,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         [InlineData("decimal x", "1")] // valid c# but doesnt work in NSubstitute
@@ -616,7 +615,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyCSharpDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         [InlineData("int x", "new object [] { 1 }")]
@@ -650,7 +649,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyCSharpDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
     }
 }

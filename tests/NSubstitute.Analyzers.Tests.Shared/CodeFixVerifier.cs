@@ -11,33 +11,14 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
 
-namespace NSubstitute.Analyzers.Test
+namespace NSubstitute.Analyzers.Tests.Shared
 {
     /// <summary>
     /// Superclass of all Unit tests made for diagnostics with codefixes.
     /// Contains methods used to verify correctness of codefixes
     /// </summary>
-    public abstract partial class CodeFixProviderTest : AnalyzerTest
+    public abstract class CodeFixVerifier : DiagnosticVerifier
     {
-#if CSHARP
-        /// <summary>
-        /// Called to test a C# codefix when applied on the inputted string as a source
-        /// </summary>
-        /// <param name="oldSource">A class in the form of a string before the CodeFix was applied to it</param>
-        /// <param name="newSource">A class in the form of a string after the CodeFix was applied to it</param>
-        /// <param name="codeFixIndex">Index determining which codefix to apply if there are multiple</param>
-        /// <param name="allowNewCompilerDiagnostics">A bool controlling whether or not the test will fail if the CodeFix introduces other warnings after being applied</param>
-        protected async Task VerifyCSharpFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
-        {
-            await this.VerifyFix(LanguageNames.CSharp, this.GetCSharpDiagnosticAnalyzer(), this.GetCSharpCodeFixProvider(), oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
-        }
-
-        /// <summary>
-        /// Returns the codefix being tested (C#) - to be implemented in non-abstract class
-        /// </summary>
-        /// <returns>The CodeFixProvider to be used for CSharp code</returns>
-        protected abstract CodeFixProvider GetCSharpCodeFixProvider();
-#elif VISUAL_BASIC
         /// <summary>
         /// Called to test a VB codefix when applied on the inputted string as a source
         /// </summary>
@@ -45,17 +26,16 @@ namespace NSubstitute.Analyzers.Test
         /// <param name="newSource">A class in the form of a string after the CodeFix was applied to it</param>
         /// <param name="codeFixIndex">Index determining which codefix to apply if there are multiple</param>
         /// <param name="allowNewCompilerDiagnostics">A bool controlling whether or not the test will fail if the CodeFix introduces other warnings after being applied</param>
-        protected async Task VerifyVisualBasicFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
+        protected async Task VerifyFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
         {
-            await this.VerifyFix(LanguageNames.VisualBasic, this.GetVisualBasicDiagnosticAnalyzer(), this.GetVisualBasicCodeFixProvider(), oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
+            await this.VerifyFix(Language, this.GetDiagnosticAnalyzer(), this.GetCodeFixProvider(), oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
         }
 
         /// <summary>
-        /// Returns the codefix being tested (VB) - to be implemented in non-abstract class
+        /// Returns the codefix being tested - to be implemented in non-abstract class
         /// </summary>
-        /// <returns>The CodeFixProvider to be used for VisualBasic code</returns>
-        protected abstract CodeFixProvider GetVisualBasicCodeFixProvider();
-#endif
+        /// <returns>The CodeFixProvider to be used for code</returns>
+        protected abstract CodeFixProvider GetCodeFixProvider();
 
         /// <summary>
         /// General verifier for codefixes.
@@ -191,6 +171,11 @@ namespace NSubstitute.Analyzers.Test
             var root = simplifiedDoc.GetSyntaxRootAsync().Result;
 
             return root.GetText().ToString();
+        }
+
+        protected  Document CreateDocument(string source, string language)
+        {
+            return CreateProject(new[] { source }, language).Documents.First();
         }
     }
 }

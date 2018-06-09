@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
-namespace NSubstitute.Analyzers.DiagnosticAnalyzers
+namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    public readonly struct ConstructorContext
+    public struct ConstructorContext
     {
         public IList<IMethodSymbol> AccessibleConstructors { get; }
 

@@ -1,13 +1,12 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using NSubstitute.Analyzers.CodeFixProviders;
-using NSubstitute.Analyzers.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Tests.Shared;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Test.CSharp.CodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests
 {
-    public class ForPartsOfUsedForUnsupportedTypeCodeFixProviderTests : CodeFixProviderTest
+    public class ForPartsOfUsedForUnsupportedTypeCodeFixVerifiers : CSharpCodeFixVerifier
     {
         [Fact]
         public async Task ReplacesForPartsOf_WithFor_WhenUsedWithInterface()
@@ -45,7 +44,7 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyCSharpFix(oldSource, newSource);
+            await VerifyFix(oldSource, newSource);
         }
 
         [Fact]
@@ -76,17 +75,17 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyCSharpFix(oldSource, newSource);
+            await VerifyFix(oldSource, newSource);
         }
 
-        protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()
+        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
-            return new SubstituteAnalyzer();
+            return null;
         }
 
-        protected override CodeFixProvider GetCSharpCodeFixProvider()
+        protected override CodeFixProvider GetCodeFixProvider()
         {
-            return new ForPartsOfUsedForUnsupportedTypeCodeFixProvider();
+            return null;
         }
     }
 }

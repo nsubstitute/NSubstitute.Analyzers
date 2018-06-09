@@ -1,11 +1,12 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using NSubstitute.Analyzers.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Shared;
+using NSubstitute.Analyzers.Tests.Shared;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Test.VisualBasic.DiagnosticAnalyzerTests.SubstituteAnalyzersTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzerTests.SubstituteAnalyzerTests
 {
-    public class ForPartsOfMethodTests : SubstituteAnalyzerTests
+    public class ForPartsOfMethodTests : SubstituteDiagnosticVerifier
     {
         [Fact]
         public async Task ReturnsDiagnostic_WhenUsedForInterface()
@@ -34,7 +35,7 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         [Fact]
@@ -65,7 +66,7 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReturnsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor()
@@ -96,7 +97,7 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReturnsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount()
@@ -127,7 +128,7 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReturnsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount()
@@ -158,7 +159,7 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReturnsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters()
@@ -189,7 +190,7 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToNotApplied()
@@ -218,7 +219,7 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
@@ -238,7 +239,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
 
         public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly()
@@ -269,7 +270,7 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReturnsDiagnostic_WhenCorrespondingConstructorArgumentsNotCompatible()
@@ -300,7 +301,7 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         [InlineData("ByVal x As Decimal", "1")] // valid c# but doesnt work in NSubstitute
@@ -336,7 +337,7 @@ End Namespace
                 }
             };
 
-            await VerifyVisualBasicDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         [InlineData("ByVal x As Integer", "New Object() {1}")]
@@ -367,7 +368,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicDiagnostic(source);
+            await VerifyDiagnostic(source);
         }
     }
 }

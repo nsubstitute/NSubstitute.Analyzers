@@ -1,27 +1,22 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using NSubstitute.Analyzers.Extensions;
-#if CSHARP
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-#elif VISUAL_BASIC
-using Microsoft.CodeAnalysis.VisualBasic;
-using Microsoft.CodeAnalysis.VisualBasic.Syntax;
-#endif
+using NSubstitute.Analyzers.Shared.Extensions;
 
-namespace NSubstitute.Analyzers.DiagnosticAnalyzers
+namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
     // TODO remove duplication
-    public static class SubstituteAnalysis
+    public abstract class SubstituteAnalysis<TInvocationExpression>
+        where TInvocationExpression : SyntaxNode
     {
-        public static ConstructorContext CollectConstructorContext(SubstituteContext substituteContext, ITypeSymbol proxyTypeSymbol)
+        public ConstructorContext CollectConstructorContext(SubstituteContext<TInvocationExpression> substituteContext,
+            ITypeSymbol proxyTypeSymbol)
         {
             var accessibleConstructors = GetAccessibleConstructors(proxyTypeSymbol);
             var invocationParameterTypes = GetInvocationInfo(substituteContext);
             var possibleConstructors = invocationParameterTypes != null && accessibleConstructors != null
                 ? accessibleConstructors.Where(ctor => ctor.Parameters.Length == invocationParameterTypes.Count)
-                    .ToList().AsReadOnly()
+                    .ToList()
                 : null;
 
             return new ConstructorContext(
@@ -31,18 +26,7 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
                 invocationParameterTypes);
         }
 
-        public static bool InternalsVisibleToProxyGenerator(ISymbol typeSymbol)
-        {
-            var internalsVisibleToAttribute = typeSymbol.ContainingAssembly.GetAttributes()
-                .FirstOrDefault(att =>
-                    att.AttributeClass.ToString() == MetadataNames.InternalsVisibleToAttributeFullTypeName);
-
-            return internalsVisibleToAttribute != null &&
-                   internalsVisibleToAttribute.ConstructorArguments.Any(arg =>
-                       arg.Value.ToString() == MetadataNames.CastleDynamicProxyGenAssembly2Name);
-        }
-
-        private static IList<ITypeSymbol> GetInvocationInfo(SubstituteContext substituteContext)
+        private IList<ITypeSymbol> GetInvocationInfo(SubstituteContext<TInvocationExpression> substituteContext)
         {
             var infos = substituteContext.MethodSymbol.IsGenericMethod
                 ? GetGenericInvocationArgumentTypes(substituteContext)
@@ -51,14 +35,14 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
             return infos;
         }
 
-        private static IList<ITypeSymbol> GetGenericInvocationArgumentTypes(SubstituteContext substituteContext)
+        private IList<ITypeSymbol> GetGenericInvocationArgumentTypes(SubstituteContext<TInvocationExpression> substituteContext)
         {
-            if (substituteContext.InvocationExpression.ArgumentList == null)
+            var arguments = GetInvocationArguments(substituteContext.InvocationExpression);
+
+            if (arguments == null)
             {
                 return null;
             }
-
-            var arguments = substituteContext.InvocationExpression.ArgumentList.Arguments;
 
             if (arguments.Count == 0)
             {
@@ -83,10 +67,10 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
             return typeInfos.Select(type => type.Type).ToList();
         }
 
-        private static IList<ITypeSymbol> GetNonGenericInvocationArgumentTypes(SubstituteContext substituteContext)
+        private IList<ITypeSymbol> GetNonGenericInvocationArgumentTypes(SubstituteContext<TInvocationExpression> substituteContext)
         {
             // Substitute.For(new [] { typeof(T) }, new object[] { 1, 2, 3}) // actual arguments reside in second arg
-            var arrayArgument = substituteContext.InvocationExpression.ArgumentList?.Arguments.Skip(1).FirstOrDefault();
+            var arrayArgument = GetInvocationArguments(substituteContext.InvocationExpression)?.Skip(1).FirstOrDefault();
             if (arrayArgument == null)
             {
                 return null;
@@ -95,9 +79,11 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
             return GetArgumentTypeInfo(substituteContext, arrayArgument);
         }
 
-        private static IList<ITypeSymbol> GetArgumentTypeInfo(SubstituteContext substituteContext, ArgumentSyntax arrayArgument)
+        private IList<ITypeSymbol> GetArgumentTypeInfo(SubstituteContext<TInvocationExpression> substituteContext, SyntaxNode arrayArgument)
         {
-            var typeInfo = substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(arrayArgument.DescendantNodes().First());
+            var typeInfo =
+                substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(arrayArgument.DescendantNodes()
+                    .First());
 
             if (typeInfo.ConvertedType != null &&
                 typeInfo.ConvertedType.TypeKind == TypeKind.Array &&
@@ -107,8 +93,7 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
             }
 
             // new object[] { }; // means we dont pass any arguments
-            var parameterExpressionsFromArrayArgument =
-                arrayArgument.GetArgumentExpression().GetParameterExpressionsFromArrayArgument();
+            var parameterExpressionsFromArrayArgument = GetParameterExpressionsFromArrayArgument(arrayArgument);
             if (parameterExpressionsFromArrayArgument == null)
             {
                 return null;
@@ -122,9 +107,9 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
             return types;
         }
 
-        private static IList<IMethodSymbol> GetAccessibleConstructors(ITypeSymbol genericArgument)
+        private IList<IMethodSymbol> GetAccessibleConstructors(ITypeSymbol genericArgument)
         {
-            var internalsVisibleToProxy = InternalsVisibleToProxyGenerator(genericArgument);
+            var internalsVisibleToProxy = genericArgument.InternalsVisibleToProxyGenerator();
 
             return genericArgument.GetMembers().OfType<IMethodSymbol>().Where(symbol =>
                 symbol.MethodKind == MethodKind.Constructor &&
@@ -134,9 +119,13 @@ namespace NSubstitute.Analyzers.DiagnosticAnalyzers
                  (internalsVisibleToProxy && symbol.DeclaredAccessibility == Accessibility.Internal))).ToList();
         }
 
-        private static TypeInfo GetTypeInfo(SubstituteContext substituteContext, SyntaxNode syntax)
+        private TypeInfo GetTypeInfo(SubstituteContext<TInvocationExpression> substituteContext, SyntaxNode syntax)
         {
             return substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(syntax);
         }
+
+        protected abstract IList<SyntaxNode> GetInvocationArguments(TInvocationExpression invocationExpression);
+
+        protected abstract IList<SyntaxNode> GetParameterExpressionsFromArrayArgument(SyntaxNode syntaxNode);
     }
 }

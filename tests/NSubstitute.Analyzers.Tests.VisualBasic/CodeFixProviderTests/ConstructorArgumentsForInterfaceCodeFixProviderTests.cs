@@ -1,13 +1,11 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using NSubstitute.Analyzers.CodeFixProviders;
-using NSubstitute.Analyzers.DiagnosticAnalyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Test.VisualBasic.CodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProviderTests
 {
-    public class ConstructorArgumentsForInterfaceCodeFixProviderTests : CodeFixProviderTest
+    public class ConstructorArgumentsForInterfaceCodeFixProviderTests : VisualBasicCodeFixVerifier
     {
         [Fact]
         public async Task RemovesInvocationArguments_WhenGenericFor_UsedWithParametersForInterface()
@@ -39,7 +37,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyVisualBasicFix(source, newSource);
+            await VerifyFix(source, newSource);
         }
 
         [Fact]
@@ -71,17 +69,17 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyVisualBasicFix(source, newSource);
+            await VerifyFix(source, newSource);
         }
 
-        protected override CodeFixProvider GetVisualBasicCodeFixProvider()
+        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
-            return new ConstructorArgumentsForInterfaceCodeFixProvider();
+            return null;
         }
 
-        protected override DiagnosticAnalyzer GetVisualBasicDiagnosticAnalyzer()
+        protected override CodeFixProvider GetCodeFixProvider()
         {
-            return new SubstituteAnalyzer();
+            return null;
         }
     }
 }
