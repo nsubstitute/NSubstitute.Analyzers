@@ -61,8 +61,12 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
+            var diagnosticDescriptor = methodSymbol.MethodKind == MethodKind.Ordinary
+                ? DiagnosticDescriptorsProvider.UnusedReceivedForOrdinaryMethod
+                : DiagnosticDescriptorsProvider.UnusedReceived;
+
             var diagnostic = Diagnostic.Create(
-                DiagnosticDescriptorsProvider.UnusedReceived,
+                diagnosticDescriptor,
                 invocationExpression.GetLocation(),
                 methodSymbol.Name);
 

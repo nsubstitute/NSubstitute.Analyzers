@@ -20,7 +20,7 @@ namespace NSubstitute.Analyzers.VisualBasic {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -99,6 +99,33 @@ namespace NSubstitute.Analyzers.VisualBasic {
         
         /// <summary>
         ///   Looks up a localized string similar to Unused received check..
+        /// </summary>
+        internal static string UnusedReceivedForOrdinaryMethodDescription {
+            get {
+                return ResourceManager.GetString("UnusedReceivedForOrdinaryMethodDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unused received check. To fix, make sure there is a call after &quot;{0}&quot;. Correct: &quot;SubstituteExtensions.{0}(sub).SomeCall();&quot;. Incorrect: &quot;SubstituteExtensions.{0}(sub);&quot;.
+        /// </summary>
+        internal static string UnusedReceivedForOrdinaryMethodMessageFormat {
+            get {
+                return ResourceManager.GetString("UnusedReceivedForOrdinaryMethodMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Received check..
+        /// </summary>
+        internal static string UnusedReceivedForOrdinaryMethodTitle {
+            get {
+                return ResourceManager.GetString("UnusedReceivedForOrdinaryMethodTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unused received check. To fix, make sure there is a call after &quot;{0}&quot;. Correct: &quot;sub.{0}().SomeCall();&quot;. Incorrect: &quot;sub.{0}();&quot;.
         /// </summary>
         internal static string UnusedReceivedMessageFormat {
             get {
