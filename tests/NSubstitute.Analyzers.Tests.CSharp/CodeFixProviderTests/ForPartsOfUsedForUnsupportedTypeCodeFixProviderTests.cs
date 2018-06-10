@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using NSubstitute.Analyzers.Tests.Shared;
+using NSubstitute.Analyzers.CSharp.CodeFixProviders;
+using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests
@@ -80,12 +81,12 @@ namespace MyNamespace
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
-            return null;
+            return new SubstituteAnalyzer();
         }
 
         protected override CodeFixProvider GetCodeFixProvider()
         {
-            return null;
+            return new ForPartsOfUsedForUnsupportedTypeCodeFixProvider();
         }
     }
 }

@@ -8,11 +8,11 @@ using Microsoft.CodeAnalysis.CodeFixes;
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 {
-    internal class AbstractForPartsOfUsedForUnsupportedTypeCodeFixProvider : CodeFixProvider
+    internal abstract class AbstractForPartsOfUsedForUnsupportedTypeCodeFixProvider<TInvocationExpression, TGenericNameSyntax>
+        : CodeFixProvider
+        where TInvocationExpression : SyntaxNode
+        where TGenericNameSyntax : SyntaxNode
     {
-        // no completed task in .net standard
-        private static Task _completedTask = Task.FromResult(1);
-
         public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
         public override ImmutableArray<string> FixableDiagnosticIds { get; } =
@@ -27,31 +27,25 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
                 context.RegisterCodeFix(codeAction, diagnostic);
             }
 
-            return _completedTask;
+            return Task.FromResult(1);
         }
+
+        protected abstract TGenericNameSyntax GetGenericNameSyntax(TInvocationExpression methodInvocationNode);
+
+        protected abstract TGenericNameSyntax GetUpdatedGenericNameSyntax(TGenericNameSyntax nameSyntax, string identifierName);
 
         private async Task<Document> CreateChangedDocument(CancellationToken cancellationToken, CodeFixContext context, Diagnostic diagnostic)
         {
-            /*
             var root = await context.Document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
-            var forPartsOfNode = (InvocationExpressionSyntax)root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
+            var forPartsOfNode = (TInvocationExpression)root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
             var nameNode = GetGenericNameSyntax(forPartsOfNode);
-            var forNode = forPartsOfNode.ReplaceNode(nameNode, nameNode.WithIdentifier(IdentifierName("For").Identifier));
+            var updateNameNode = GetUpdatedGenericNameSyntax(nameNode, "For");
+            var forNode = forPartsOfNode.ReplaceNode(nameNode, updateNameNode);
 
             var replaceNode = root.ReplaceNode(forPartsOfNode, forNode);
 
             return context.Document.WithSyntaxRoot(replaceNode);
-            */
-            return await Task.FromResult(context.Document);
         }
-
-        /*
-        private static GenericNameSyntax GetGenericNameSyntax(InvocationExpressionSyntax methodInvocationNode)
-        {
-            var memberAccess = (MemberAccessExpressionSyntax)methodInvocationNode.Expression;
-            return (GenericNameSyntax)memberAccess.Name;
-        }
-        */
     }
 }
