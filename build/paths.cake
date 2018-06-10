@@ -141,8 +141,8 @@ public class BuildPackages
 
     public static BuildPackages GetPackages(BuildPaths paths, BuildVersion version)
     {
-        var csharpAnalyzer = "NSubstitute.Analyzers.CSharp" + version.SemVersion;
-        var visualBasicAnalyzer = "NSubstitute.Analyzers.VisualBasic" + version.SemVersion;
+        var csharpAnalyzer = "NSubstitute.Analyzers.CSharp." + version.SemVersion;
+        var visualBasicAnalyzer = "NSubstitute.Analyzers.VisualBasic." + version.SemVersion;
         var packages = new [] 
         {
             paths.Directories.Artifacts.CombineWithFilePath(csharpAnalyzer + ".nupkg"),
