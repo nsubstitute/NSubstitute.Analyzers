@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
-using NSubstitute.Analyzers.Tests.Shared;
+using NSubstitute.Analyzers.Tests.Shared.Fixtures;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.ConventionTests
@@ -18,6 +18,12 @@ namespace NSubstitute.Analyzers.Tests.CSharp.ConventionTests
         public void DiagnosticAnalyzersConventionsShouldBeSatisfied()
         {
             _fixture.AssertDiagnosticAnalyzerAttributeUsageFormAssemblyContaining<NonVirtualSetupAnalyzer>(LanguageNames.CSharp);
+        }
+
+        [Fact]
+        public void CodeFixProvidersConventionsShouldBeSatisfied()
+        {
+            _fixture.AssertExportCodeFixProviderAttributeUsageFromAssemblyContaining<NonVirtualSetupAnalyzer>(LanguageNames.CSharp);
         }
     }
 }

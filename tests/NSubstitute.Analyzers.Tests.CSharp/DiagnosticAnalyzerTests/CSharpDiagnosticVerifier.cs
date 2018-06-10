@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.Tests.Shared;
+using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests
 {

@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.Tests.Shared;
+using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.SubstituteAnalyzerTests
