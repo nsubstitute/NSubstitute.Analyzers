@@ -35,7 +35,6 @@ namespace NSubstitute.Analyzers.Shared
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true);
 
-
         public static DiagnosticDescriptor SubstituteForPartsOfUsedForInterface { get; } =
             CreateDiagnosticDescriptor(
                 name: nameof(SubstituteForPartsOfUsedForInterface),

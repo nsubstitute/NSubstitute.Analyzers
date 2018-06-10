@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Document = Microsoft.CodeAnalysis.Document;
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 {
@@ -29,11 +30,13 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
                 context.RegisterCodeFix(codeAction, diagnostic);
             }
 
-            return Task.CompletedTask;
+            return Task.FromResult(1);
         }
 
         private async Task<Document> CreateChangedDocument(CancellationToken cancellationToken, CodeFixContext context, Diagnostic diagnostic)
         {
+            return await Task.FromResult(context.Document);
+            /*
             var root = await context.Document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
             var invocation = (InvocationExpressionSyntax)root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
@@ -60,6 +63,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             var updatedInvocation = invocation.WithArgumentList(argumentListSyntax);
             var replacedRoot = root.ReplaceNode(invocation, updatedInvocation);
             return context.Document.WithSyntaxRoot(replacedRoot);
+            */
         }
     }
 }

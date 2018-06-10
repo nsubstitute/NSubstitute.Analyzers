@@ -44,6 +44,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 
         private async Task<Document> CreateChangedDocument(CancellationToken cancellationToken, CodeFixContext context, Diagnostic diagnostic)
         {
+            /*
             var root = await context.Document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
             var forPartsOfNode = (InvocationExpressionSyntax)root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
@@ -53,12 +54,16 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             var replaceNode = root.ReplaceNode(forPartsOfNode, forNode);
 
             return context.Document.WithSyntaxRoot(replaceNode);
+            */
+            return await Task.FromResult(context.Document);
         }
 
+        /*
         private static GenericNameSyntax GetGenericNameSyntax(InvocationExpressionSyntax methodInvocationNode)
         {
             var memberAccess = (MemberAccessExpressionSyntax)methodInvocationNode.Expression;
             return (GenericNameSyntax)memberAccess.Name;
         }
+        */
     }
 }

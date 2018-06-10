@@ -137,6 +137,46 @@ namespace NSubstitute.Analyzers.Tests.Shared
             return results;
         }
 
+        protected Project CreateProject(string[] sources, string language)
+        {
+            string fileNamePrefix = DefaultFilePathPrefix;
+            string fileExt = language == LanguageNames.CSharp ? CSharpDefaultFileExt : VisualBasicDefaultExt;
+            var referencedAssemblies = typeof(Substitute).Assembly.GetReferencedAssemblies();
+            var systemRuntimeReference = GetAssemblyReference(referencedAssemblies, "System.Runtime");
+            var systemThreadingTasksReference = GetAssemblyReference(referencedAssemblies, "System.Threading.Tasks");
+
+            var projectId = ProjectId.CreateNewId(debugName: TestProjectName);
+
+            using (var adhocWorkspace = new AdhocWorkspace())
+            {
+                var compilationOptions = GetCompilationOptions();
+
+                var solution = adhocWorkspace
+                    .CurrentSolution
+                    .AddProject(projectId, TestProjectName, TestProjectName, language)
+                    .WithProjectCompilationOptions(projectId, compilationOptions)
+                    .AddMetadataReference(projectId, CorlibReference)
+                    .AddMetadataReference(projectId, SystemCoreReference)
+                    .AddMetadataReference(projectId, CodeAnalysisReference)
+                    .AddMetadataReference(projectId, NSubstituteReference)
+                    .AddMetadataReference(projectId, ValueTaskReference)
+                    .AddMetadataReference(projectId, systemRuntimeReference)
+                    .AddMetadataReference(projectId, systemThreadingTasksReference)
+                    .AddMetadataReferences(projectId, GetAdditionalMetadataReferences());
+
+                int count = 0;
+                foreach (var source in sources)
+                {
+                    var newFileName = fileNamePrefix + count + "." + fileExt;
+                    var documentId = DocumentId.CreateNewId(projectId, debugName: newFileName);
+                    solution = solution.AddDocument(documentId, newFileName, SourceText.From(source));
+                    count++;
+                }
+
+                return solution.GetProject(projectId);
+            }
+        }
+
         private static void VerifyDiagnosticResults(IEnumerable<Diagnostic> actualResults, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expectedResults)
         {
             int expectedCount = expectedResults.Count();
@@ -350,46 +390,6 @@ Diagnostic:
                 }
 
                 throw new ArgumentException(messageBuilder.ToString());
-            }
-        }
-
-        protected Project CreateProject(string[] sources, string language)
-        {
-            string fileNamePrefix = DefaultFilePathPrefix;
-            string fileExt = language == LanguageNames.CSharp ? CSharpDefaultFileExt : VisualBasicDefaultExt;
-            var referencedAssemblies = typeof(Substitute).Assembly.GetReferencedAssemblies();
-            var systemRuntimeReference = GetAssemblyReference(referencedAssemblies, "System.Runtime");
-            var systemThreadingTasksReference = GetAssemblyReference(referencedAssemblies, "System.Threading.Tasks");
-
-            var projectId = ProjectId.CreateNewId(debugName: TestProjectName);
-
-            using (var adhocWorkspace = new AdhocWorkspace())
-            {
-                var compilationOptions = GetCompilationOptions();
-
-                var solution = adhocWorkspace
-                    .CurrentSolution
-                    .AddProject(projectId, TestProjectName, TestProjectName, language)
-                    .WithProjectCompilationOptions(projectId, compilationOptions)
-                    .AddMetadataReference(projectId, CorlibReference)
-                    .AddMetadataReference(projectId, SystemCoreReference)
-                    .AddMetadataReference(projectId, CodeAnalysisReference)
-                    .AddMetadataReference(projectId, NSubstituteReference)
-                    .AddMetadataReference(projectId, ValueTaskReference)
-                    .AddMetadataReference(projectId, systemRuntimeReference)
-                    .AddMetadataReference(projectId, systemThreadingTasksReference)
-                    .AddMetadataReferences(projectId, GetAdditionalMetadataReferences());
-
-                int count = 0;
-                foreach (var source in sources)
-                {
-                    var newFileName = fileNamePrefix + count + "." + fileExt;
-                    var documentId = DocumentId.CreateNewId(projectId, debugName: newFileName);
-                    solution = solution.AddDocument(documentId, newFileName, SourceText.From(source));
-                    count++;
-                }
-
-                return solution.GetProject(projectId);
             }
         }
 

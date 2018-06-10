@@ -37,6 +37,11 @@ namespace NSubstitute.Analyzers.Tests.Shared
         /// <returns>The CodeFixProvider to be used for code</returns>
         protected abstract CodeFixProvider GetCodeFixProvider();
 
+        protected Document CreateDocument(string source, string language)
+        {
+            return CreateProject(new[] { source }, language).Documents.First();
+        }
+
         /// <summary>
         /// General verifier for codefixes.
         /// Creates a Document from the source string, then gets diagnostics on it and applies the relevant codefixes.
@@ -171,11 +176,6 @@ namespace NSubstitute.Analyzers.Tests.Shared
             var root = simplifiedDoc.GetSyntaxRootAsync().Result;
 
             return root.GetText().ToString();
-        }
-
-        protected  Document CreateDocument(string source, string language)
-        {
-            return CreateProject(new[] { source }, language).Documents.First();
         }
     }
 }

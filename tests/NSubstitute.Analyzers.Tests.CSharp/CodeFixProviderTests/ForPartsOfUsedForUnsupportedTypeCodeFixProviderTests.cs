@@ -6,7 +6,7 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests
 {
-    public class ForPartsOfUsedForUnsupportedTypeCodeFixVerifiers : CSharpCodeFixVerifier
+    public class ForPartsOfUsedForUnsupportedTypeCodeFixProviderTests : CSharpCodeFixVerifier
     {
         [Fact]
         public async Task ReplacesForPartsOf_WithFor_WhenUsedWithInterface()

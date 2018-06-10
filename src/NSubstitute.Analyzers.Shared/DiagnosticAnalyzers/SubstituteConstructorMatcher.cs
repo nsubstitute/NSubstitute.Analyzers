@@ -63,6 +63,9 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return true;
             }
 
+            return false;
+
+            /*
             var conversion = compilation.ClassifyConversion(source, destination);
 
 #if CSHARP
@@ -72,6 +75,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             // TODO lack of conversion.IsImplicit in VB Conversion object
             return conversion.Exists && conversion.IsNarrowing == false;
 #endif
+*/
         }
     }
 }

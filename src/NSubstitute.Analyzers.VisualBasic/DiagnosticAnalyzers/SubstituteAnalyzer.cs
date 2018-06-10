@@ -1,15 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.VisualBasic;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
+    [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
     internal class SubstituteAnalyzer : AbstractSubstituteAnalyzer<SyntaxKind, InvocationExpressionSyntax, ExpressionSyntax>
     {
-        public SubstituteAnalyzer() : base(new DiagnosticDescriptorsProvider())
+        public SubstituteAnalyzer()
+            : base(new DiagnosticDescriptorsProvider())
         {
         }
 
@@ -20,7 +23,12 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
             return arrayParameters.Where(param => param is GetTypeExpressionSyntax || param is TypeOfExpressionSyntax);
         }
 
-        protected override ConstructorContext CollectConstructorContext(SubstituteContext substituteContext, ITypeSymbol proxyTypeSymbol)
+        protected override IEnumerable<ExpressionSyntax> GetArrayInitializerArguments(InvocationExpressionSyntax invocationExpressionSyntax)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        protected override ConstructorContext CollectConstructorContext(SubstituteContext<InvocationExpressionSyntax> substituteContext, ITypeSymbol proxyTypeSymbol)
         {
             throw new System.NotImplementedException();
         }

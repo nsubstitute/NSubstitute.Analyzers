@@ -9,8 +9,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
     public abstract class SubstituteAnalysis<TInvocationExpression>
         where TInvocationExpression : SyntaxNode
     {
-        public ConstructorContext CollectConstructorContext(SubstituteContext<TInvocationExpression> substituteContext,
-            ITypeSymbol proxyTypeSymbol)
+        public ConstructorContext CollectConstructorContext(SubstituteContext<TInvocationExpression> substituteContext, ITypeSymbol proxyTypeSymbol)
         {
             var accessibleConstructors = GetAccessibleConstructors(proxyTypeSymbol);
             var invocationParameterTypes = GetInvocationInfo(substituteContext);
@@ -25,6 +24,10 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 possibleConstructors,
                 invocationParameterTypes);
         }
+
+        protected abstract IList<SyntaxNode> GetInvocationArguments(TInvocationExpression invocationExpression);
+
+        protected abstract IList<SyntaxNode> GetParameterExpressionsFromArrayArgument(SyntaxNode syntaxNode);
 
         private IList<ITypeSymbol> GetInvocationInfo(SubstituteContext<TInvocationExpression> substituteContext)
         {
@@ -123,9 +126,5 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         {
             return substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(syntax);
         }
-
-        protected abstract IList<SyntaxNode> GetInvocationArguments(TInvocationExpression invocationExpression);
-
-        protected abstract IList<SyntaxNode> GetParameterExpressionsFromArrayArgument(SyntaxNode syntaxNode);
     }
 }

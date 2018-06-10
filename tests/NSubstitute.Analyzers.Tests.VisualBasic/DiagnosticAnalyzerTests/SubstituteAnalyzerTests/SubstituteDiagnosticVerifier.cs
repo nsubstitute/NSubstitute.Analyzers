@@ -1,34 +1,47 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.Tests.Shared;
+using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzerTests.SubstituteAnalyzerTests
 {
     public abstract class SubstituteDiagnosticVerifier : VisualBasicDiagnosticVerifier, ISubstituteAnalyzerVerifier
     {
+        [Fact]
+        public abstract Task ReturnsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor();
+
+        [Fact]
+        public abstract Task ReturnsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount();
+
+        [Fact]
+        public abstract Task ReturnsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount();
+
+        [Fact]
+        public abstract Task ReturnsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters();
+
+        [Fact]
+        public abstract Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToNotApplied();
+
+        [Fact]
+        public abstract Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2();
+
+        [Fact]
+        public abstract Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly();
+
+        [Fact]
+        public abstract Task ReturnsDiagnostic_WhenCorrespondingConstructorArgumentsNotCompatible();
+
+        [Theory]
+#pragma warning disable xUnit1003 // Theory methods must have test data
+        public abstract Task ReturnsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues);
+
+        [Theory]
+        public abstract Task ReturnsNoDiagnostic_WhenConstructorArgumentsAreImplicitlyConvertible(string ctorValues, string invocationValues);
+#pragma warning restore xUnit1003 // Theory methods must have test data
+
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
             return null;
         }
-
-        public abstract Task ReturnsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor();
-
-        public abstract Task ReturnsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount();
-
-        public abstract Task ReturnsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount();
-
-        public abstract Task ReturnsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters();
-
-        public abstract Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToNotApplied();
-
-        public abstract Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2();
-
-        public abstract Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly();
-
-        public abstract Task ReturnsDiagnostic_WhenCorrespondingConstructorArgumentsNotCompatible();
-
-        public abstract Task ReturnsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues);
-
-        public abstract Task ReturnsNoDiagnostic_WhenConstructorArgumentsAreImplicitlyConvertible(string ctorValues, string invocationValues);
     }
 }

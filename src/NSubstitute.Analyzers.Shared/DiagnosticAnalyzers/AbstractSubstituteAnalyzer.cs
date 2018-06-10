@@ -17,7 +17,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             MetadataNames.NSubstituteForMethod,
             MetadataNames.NSubstituteForPartsOfMethod);
 
-        protected AbstractSubstituteAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider): base(diagnosticDescriptorsProvider)
+        protected AbstractSubstituteAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
+            : base(diagnosticDescriptorsProvider)
         {
         }
 
@@ -37,6 +38,12 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         {
             context.RegisterSyntaxNodeAction(AnalyzeInvocation, InvocationExpressionKind);
         }
+
+        protected abstract IEnumerable<TExpressionSyntax> GetTypeOfLikeExpressions(IList<TExpressionSyntax> arrayParameters);
+
+        protected abstract IEnumerable<TExpressionSyntax> GetArrayInitializerArguments(TInvocationExpressionSyntax invocationExpressionSyntax);
+
+        protected abstract ConstructorContext CollectConstructorContext(SubstituteContext<TInvocationExpressionSyntax> substituteContext, ITypeSymbol proxyTypeSymbol);
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
@@ -176,9 +183,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return substituteContext.MethodSymbol.TypeArguments;
             }
 
-            var arrayParameters = substituteContext.InvocationExpression.ArgumentList.Arguments.First()
-                .GetArgumentExpression()
-                .GetParameterExpressionsFromArrayArgument();
+            var arrayParameters = GetArrayInitializerArguments(substituteContext.InvocationExpression)?.ToList();
 
             if (arrayParameters == null)
             {
@@ -314,9 +319,5 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             return symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.Ordinal) == true &&
                    symbol.Symbol?.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteFullTypeName, StringComparison.Ordinal) == true;
         }
-
-        protected abstract IEnumerable<TExpressionSyntax> GetTypeOfLikeExpressions(IList<TExpressionSyntax> arrayParameters);
-
-        protected abstract ConstructorContext CollectConstructorContext(SubstituteContext<TInvocationExpressionSyntax> substituteContext, ITypeSymbol proxyTypeSymbol);
     }
 }

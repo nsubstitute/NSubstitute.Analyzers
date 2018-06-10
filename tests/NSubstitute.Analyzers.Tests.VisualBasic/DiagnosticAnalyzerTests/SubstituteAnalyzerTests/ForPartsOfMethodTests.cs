@@ -304,6 +304,7 @@ End Namespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
+        [Theory]
         [InlineData("ByVal x As Decimal", "1")] // valid c# but doesnt work in NSubstitute
         [InlineData("ByVal x As Integer", "1D")]
         [InlineData("ByVal x As Integer", "1R")]
@@ -340,6 +341,7 @@ End Namespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
+        [Theory]
         [InlineData("ByVal x As Integer", "New Object() {1}")]
         [InlineData("ByVal x As Single", "New Object() {\"c\"c}")]
         [InlineData("ByVal x As Integer", "New Object() {\"c\"c}")]
