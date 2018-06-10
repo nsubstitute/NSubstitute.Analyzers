@@ -45,6 +45,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract ConstructorContext CollectConstructorContext(SubstituteContext<TInvocationExpressionSyntax> substituteContext, ITypeSymbol proxyTypeSymbol);
 
+        protected abstract bool MatchesInvocation(Compilation semanticModelCompilation, IMethodSymbol ctor, IList<ITypeSymbol> constructorContextInvocationParameters);
+
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
             var invocationExpression = (TInvocationExpressionSyntax)syntaxNodeContext.Node;
@@ -277,7 +279,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
 
             if (constructorContext.PossibleConstructors.All(ctor =>
-                    SubstituteConstructorMatcher.MatchesInvocation(
+                    MatchesInvocation(
                         substituteContext.SyntaxNodeAnalysisContext.SemanticModel.Compilation, ctor, constructorContext.InvocationParameters) ==
                     false))
             {

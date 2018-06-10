@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.CSharp.Extensions;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
@@ -11,6 +12,9 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     internal class SubstituteAnalyzer : AbstractSubstituteAnalyzer<SyntaxKind, InvocationExpressionSyntax, ExpressionSyntax>
     {
+        private readonly SubstituteAnalysis _substituteAnalysis = new SubstituteAnalysis();
+        private readonly SubstituteConstructorMatcher _substituteConstructorMatcher = new SubstituteConstructorMatcher();
+
         public SubstituteAnalyzer()
             : base(new DiagnosticDescriptorsProvider())
         {
@@ -25,12 +29,18 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 
         protected override IEnumerable<ExpressionSyntax> GetArrayInitializerArguments(InvocationExpressionSyntax invocationExpressionSyntax)
         {
-            throw new System.NotImplementedException();
+            return invocationExpressionSyntax.ArgumentList.Arguments.Skip(1).First().Expression
+                .GetParameterExpressionsFromArrayArgument();
         }
 
         protected override ConstructorContext CollectConstructorContext(SubstituteContext<InvocationExpressionSyntax> substituteContext, ITypeSymbol proxyTypeSymbol)
         {
-            throw new System.NotImplementedException();
+            return _substituteAnalysis.CollectConstructorContext(substituteContext, proxyTypeSymbol);
+        }
+
+        protected override bool MatchesInvocation(Compilation semanticModelCompilation, IMethodSymbol ctor, IList<ITypeSymbol> constructorContextInvocationParameters)
+        {
+            return _substituteConstructorMatcher.MatchesInvocation(semanticModelCompilation, ctor, constructorContextInvocationParameters);
         }
     }
 }

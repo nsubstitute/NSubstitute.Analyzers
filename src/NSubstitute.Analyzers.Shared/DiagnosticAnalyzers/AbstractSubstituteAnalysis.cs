@@ -6,7 +6,7 @@ using NSubstitute.Analyzers.Shared.Extensions;
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
     // TODO remove duplication
-    public abstract class SubstituteAnalysis<TInvocationExpression>
+    public abstract class AbstractSubstituteAnalysis<TInvocationExpression>
         where TInvocationExpression : SyntaxNode
     {
         public ConstructorContext CollectConstructorContext(SubstituteContext<TInvocationExpression> substituteContext, ITypeSymbol proxyTypeSymbol)

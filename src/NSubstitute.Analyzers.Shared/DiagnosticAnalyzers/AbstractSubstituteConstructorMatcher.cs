@@ -5,10 +5,10 @@ using Microsoft.CodeAnalysis;
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
     // TODO refactor
-    public static class SubstituteConstructorMatcher
+    public abstract class AbstractSubstituteConstructorMatcher
     {
         // even though conversion returns that key -> value is convertible it fails on the runtime when runninig through substitute creation
-        private static readonly Dictionary<SpecialType, SpecialType> WellKnownUnsupportedConversions =
+        protected virtual Dictionary<SpecialType, SpecialType> WellKnownUnsupportedConversions { get; } =
             new Dictionary<SpecialType, SpecialType>
             {
                 [SpecialType.System_Int16] = SpecialType.System_Decimal,
@@ -19,7 +19,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 [SpecialType.System_UInt64] = SpecialType.System_Decimal
             };
 
-        private static readonly Dictionary<SpecialType, HashSet<SpecialType>> WellKnownSupportedConversions =
+        protected virtual Dictionary<SpecialType, HashSet<SpecialType>> WellKnownSupportedConversions { get; } =
             new Dictionary<SpecialType, HashSet<SpecialType>>
             {
                 [SpecialType.System_Char] = new HashSet<SpecialType>
@@ -34,7 +34,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 }
             };
 
-        public static bool MatchesInvocation(Compilation compilation, IMethodSymbol methodSymbol, IList<ITypeSymbol> invocationParameters)
+        public bool MatchesInvocation(Compilation compilation, IMethodSymbol methodSymbol, IList<ITypeSymbol> invocationParameters)
         {
             if (methodSymbol.Parameters.Length != invocationParameters.Count)
             {
@@ -46,7 +46,9 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                        .Count() == methodSymbol.Parameters.Length;
         }
 
-        private static bool IsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)
+        protected abstract bool ClasifyConversion(Compilation compilation, ITypeSymbol source, ITypeSymbol destination);
+
+        private bool IsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)
         {
             if (source == null || source.Equals(destination))
             {

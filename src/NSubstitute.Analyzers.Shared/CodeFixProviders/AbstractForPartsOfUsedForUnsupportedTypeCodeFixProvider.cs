@@ -5,22 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-#if CSHARP
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-#elif VISUAL_BASIC
-using Microsoft.CodeAnalysis.VisualBasic.Syntax;
-using static Microsoft.CodeAnalysis.VisualBasic.SyntaxFactory;
-#endif
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 {
-#if CSHARP
-    [ExportCodeFixProvider(LanguageNames.CSharp)]
-#elif VISUAL_BASIC
-    [ExportCodeFixProvider(LanguageNames.VisualBasic)]
-#endif
-    public class AbstractForPartsOfUsedForUnsupportedTypeCodeFixProvider : CodeFixProvider
+    internal class AbstractForPartsOfUsedForUnsupportedTypeCodeFixProvider : CodeFixProvider
     {
         // no completed task in .net standard
         private static Task _completedTask = Task.FromResult(1);

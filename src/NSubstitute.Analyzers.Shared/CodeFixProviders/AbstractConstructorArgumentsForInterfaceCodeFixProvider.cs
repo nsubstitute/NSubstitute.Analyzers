@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -10,12 +9,7 @@ using Document = Microsoft.CodeAnalysis.Document;
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 {
-#if CSHARP
-    [ExportCodeFixProvider(LanguageNames.CSharp)]
-#elif VISUAL_BASIC
-    [ExportCodeFixProvider(LanguageNames.VisualBasic)]
-#endif
-    public class AbstractConstructorArgumentsForInterfaceCodeFixProvider : CodeFixProvider
+    internal class AbstractConstructorArgumentsForInterfaceCodeFixProvider : CodeFixProvider
     {
         public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 

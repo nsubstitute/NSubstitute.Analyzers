@@ -5,12 +5,16 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.VisualBasic;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.VisualBasic.Extensions;
 
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
     [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
     internal class SubstituteAnalyzer : AbstractSubstituteAnalyzer<SyntaxKind, InvocationExpressionSyntax, ExpressionSyntax>
     {
+        private readonly SubstituteAnalysis _substituteAnalysis = new SubstituteAnalysis();
+        private readonly SubstituteConstructorMatcher _substituteConstructorMatcher = new SubstituteConstructorMatcher();
+
         public SubstituteAnalyzer()
             : base(new DiagnosticDescriptorsProvider())
         {
@@ -25,12 +29,18 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
         protected override IEnumerable<ExpressionSyntax> GetArrayInitializerArguments(InvocationExpressionSyntax invocationExpressionSyntax)
         {
-            throw new System.NotImplementedException();
+            return invocationExpressionSyntax.ArgumentList.Arguments.Skip(1).First().GetExpression()
+                .GetParameterExpressionsFromArrayArgument();
         }
 
         protected override ConstructorContext CollectConstructorContext(SubstituteContext<InvocationExpressionSyntax> substituteContext, ITypeSymbol proxyTypeSymbol)
         {
-            throw new System.NotImplementedException();
+            return _substituteAnalysis.CollectConstructorContext(substituteContext, proxyTypeSymbol);
+        }
+
+        protected override bool MatchesInvocation(Compilation semanticModelCompilation, IMethodSymbol ctor, IList<ITypeSymbol> constructorContextInvocationParameters)
+        {
+            return _substituteConstructorMatcher.MatchesInvocation(semanticModelCompilation, ctor, constructorContextInvocationParameters);
         }
     }
 }
