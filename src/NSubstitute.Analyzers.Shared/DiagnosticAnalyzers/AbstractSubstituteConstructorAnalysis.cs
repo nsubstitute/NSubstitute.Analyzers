@@ -5,7 +5,6 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    // TODO remove duplication
     internal abstract class AbstractSubstituteConstructorAnalysis<TInvocationExpression, TArgumentSyntax>
         where TInvocationExpression : SyntaxNode
         where TArgumentSyntax : SyntaxNode
@@ -53,9 +52,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return new List<ITypeSymbol>();
             }
 
-            var typeInfos = arguments.Select(arg =>
-                    substituteContext.SyntaxNodeAnalysisContext.SemanticModel
-                        .GetTypeInfo(arg.DescendantNodes().First()))
+            var typeInfos = arguments.Select(arg => GetTypeInfo(substituteContext, arg.DescendantNodes().First()))
                 .ToList();
 
             var possibleParamsArgument = typeInfos.First();
@@ -85,9 +82,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private IList<ITypeSymbol> GetArgumentTypeInfo(SubstituteContext<TInvocationExpression> substituteContext, TArgumentSyntax arrayArgument)
         {
-            var typeInfo =
-                substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(arrayArgument.DescendantNodes()
-                    .First());
+            var typeInfo = GetTypeInfo(substituteContext, arrayArgument.DescendantNodes().First());
 
             if (typeInfo.ConvertedType != null &&
                 typeInfo.ConvertedType.TypeKind == TypeKind.Array &&

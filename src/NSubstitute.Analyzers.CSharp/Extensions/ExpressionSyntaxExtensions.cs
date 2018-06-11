@@ -7,11 +7,9 @@ namespace NSubstitute.Analyzers.CSharp.Extensions
 {
     internal static class ExpressionSyntaxExtensions
     {
-        private static readonly IList<ExpressionSyntax> EmptyExpressionList = new ExpressionSyntax[0];
-
         public static IList<ExpressionSyntax> GetParameterExpressionsFromArrayArgument(this ExpressionSyntax expression)
         {
-            InitializerExpressionSyntax initializer = null;
+            InitializerExpressionSyntax initializer;
             switch (expression.Kind())
             {
                 case SyntaxKind.ArrayCreationExpression:
@@ -22,11 +20,6 @@ namespace NSubstitute.Analyzers.CSharp.Extensions
                     break;
                 default:
                     return null;
-            }
-
-            if (initializer == null)
-            {
-                return EmptyExpressionList;
             }
 
             return initializer.Expressions.ToList();
