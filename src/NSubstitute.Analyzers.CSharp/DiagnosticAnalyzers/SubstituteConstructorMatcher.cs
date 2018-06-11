@@ -4,9 +4,9 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 {
-    public class SubstituteConstructorMatcher : AbstractSubstituteConstructorMatcher
+    internal class SubstituteConstructorMatcher : AbstractSubstituteConstructorMatcher
     {
-        protected override bool ClasifyConversion(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)
+        protected override bool IsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)
         {
             var conversion = compilation.ClassifyConversion(source, destination);
 

@@ -6,8 +6,9 @@ using NSubstitute.Analyzers.Shared.Extensions;
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
     // TODO remove duplication
-    public abstract class AbstractSubstituteAnalysis<TInvocationExpression>
+    internal abstract class AbstractSubstituteConstructorAnalysis<TInvocationExpression, TArgumentSyntax>
         where TInvocationExpression : SyntaxNode
+        where TArgumentSyntax : SyntaxNode
     {
         public ConstructorContext CollectConstructorContext(SubstituteContext<TInvocationExpression> substituteContext, ITypeSymbol proxyTypeSymbol)
         {
@@ -25,9 +26,9 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 invocationParameterTypes);
         }
 
-        protected abstract IList<SyntaxNode> GetInvocationArguments(TInvocationExpression invocationExpression);
+        protected abstract IList<TArgumentSyntax> GetInvocationArguments(TInvocationExpression invocationExpression);
 
-        protected abstract IList<SyntaxNode> GetParameterExpressionsFromArrayArgument(SyntaxNode syntaxNode);
+        protected abstract IList<SyntaxNode> GetParameterExpressionsFromArrayArgument(TArgumentSyntax syntaxNode);
 
         private IList<ITypeSymbol> GetInvocationInfo(SubstituteContext<TInvocationExpression> substituteContext)
         {
@@ -82,7 +83,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             return GetArgumentTypeInfo(substituteContext, arrayArgument);
         }
 
-        private IList<ITypeSymbol> GetArgumentTypeInfo(SubstituteContext<TInvocationExpression> substituteContext, SyntaxNode arrayArgument)
+        private IList<ITypeSymbol> GetArgumentTypeInfo(SubstituteContext<TInvocationExpression> substituteContext, TArgumentSyntax arrayArgument)
         {
             var typeInfo =
                 substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(arrayArgument.DescendantNodes()

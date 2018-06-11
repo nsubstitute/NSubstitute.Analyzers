@@ -1,20 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using NSubstitute.Analyzers.CSharp.Extensions;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    internal class SubstituteAnalyzer : AbstractSubstituteAnalyzer<SyntaxKind, InvocationExpressionSyntax, ExpressionSyntax>
+    internal class SubstituteAnalyzer : AbstractSubstituteAnalyzer<SyntaxKind, InvocationExpressionSyntax, ExpressionSyntax, ArgumentSyntax>
     {
-        private readonly SubstituteAnalysis _substituteAnalysis = new SubstituteAnalysis();
-        private readonly SubstituteConstructorMatcher _substituteConstructorMatcher = new SubstituteConstructorMatcher();
-
         public SubstituteAnalyzer()
             : base(new DiagnosticDescriptorsProvider())
         {
@@ -22,25 +16,19 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
-        protected override IEnumerable<ExpressionSyntax> GetTypeOfLikeExpressions(IList<ExpressionSyntax> arrayParameters)
+        protected override AbstractSubstituteProxyAnalysis<InvocationExpressionSyntax, ExpressionSyntax> GetSubstituteProxyAnalysis()
         {
-            return arrayParameters.OfType<TypeOfExpressionSyntax>();
+            return new SubstituteProxyAnalysis();
         }
 
-        protected override IEnumerable<ExpressionSyntax> GetArrayInitializerArguments(InvocationExpressionSyntax invocationExpressionSyntax)
+        protected override AbstractSubstituteConstructorAnalysis<InvocationExpressionSyntax, ArgumentSyntax> GetSubstituteConstructorAnalysis()
         {
-            return invocationExpressionSyntax.ArgumentList.Arguments.Skip(1).First().Expression
-                .GetParameterExpressionsFromArrayArgument();
+            return new SubstituteConstructorAnalysis();
         }
 
-        protected override ConstructorContext CollectConstructorContext(SubstituteContext<InvocationExpressionSyntax> substituteContext, ITypeSymbol proxyTypeSymbol)
+        protected override AbstractSubstituteConstructorMatcher GetSubstituteConstructorMatcher()
         {
-            return _substituteAnalysis.CollectConstructorContext(substituteContext, proxyTypeSymbol);
-        }
-
-        protected override bool MatchesInvocation(Compilation semanticModelCompilation, IMethodSymbol ctor, IList<ITypeSymbol> constructorContextInvocationParameters)
-        {
-            return _substituteConstructorMatcher.MatchesInvocation(semanticModelCompilation, ctor, constructorContextInvocationParameters);
+            return new SubstituteConstructorMatcher();
         }
     }
 }

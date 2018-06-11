@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    public struct SubstituteContext<TInvocationExpression>
+    internal struct SubstituteContext<TInvocationExpression>
         where TInvocationExpression : SyntaxNode
     {
         public SyntaxNodeAnalysisContext SyntaxNodeAnalysisContext { get; }

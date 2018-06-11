@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -8,11 +7,22 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractSubstituteAnalyzer<TSyntaxKind, TInvocationExpressionSyntax, TExpressionSyntax> : AbstractDiagnosticAnalyzer
+    internal abstract class AbstractSubstituteAnalyzer<TSyntaxKind, TInvocationExpressionSyntax, TExpressionSyntax, TArgumentSyntax> : AbstractDiagnosticAnalyzer
         where TSyntaxKind : struct
         where TInvocationExpressionSyntax : SyntaxNode
         where TExpressionSyntax : SyntaxNode
+        where TArgumentSyntax : SyntaxNode
     {
+        private readonly Lazy<AbstractSubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax>> _substituteProxyAnalysis;
+        private readonly Lazy<AbstractSubstituteConstructorAnalysis<TInvocationExpressionSyntax, TArgumentSyntax>> _substituteConstructorAnalysis;
+        private readonly Lazy<AbstractSubstituteConstructorMatcher> _substituteConstructorMatcher;
+
+        private AbstractSubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> SubstituteProxyAnalysis => _substituteProxyAnalysis.Value;
+
+        private AbstractSubstituteConstructorAnalysis<TInvocationExpressionSyntax, TArgumentSyntax> SubstituteConstructorAnalysis => _substituteConstructorAnalysis.Value;
+
+        private AbstractSubstituteConstructorMatcher SubstituteConstructorMatcher => _substituteConstructorMatcher.Value;
+
         private static readonly ImmutableHashSet<string> MethodNames = ImmutableHashSet.Create(
             MetadataNames.NSubstituteForMethod,
             MetadataNames.NSubstituteForPartsOfMethod);
@@ -20,7 +30,16 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         protected AbstractSubstituteAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
             : base(diagnosticDescriptorsProvider)
         {
+            _substituteProxyAnalysis = new Lazy<AbstractSubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax>>(GetSubstituteProxyAnalysis);
+            _substituteConstructorAnalysis = new Lazy<AbstractSubstituteConstructorAnalysis<TInvocationExpressionSyntax, TArgumentSyntax>>(GetSubstituteConstructorAnalysis);
+            _substituteConstructorMatcher = new Lazy<AbstractSubstituteConstructorMatcher>(GetSubstituteConstructorMatcher);
         }
+
+        protected abstract AbstractSubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> GetSubstituteProxyAnalysis();
+
+        protected abstract AbstractSubstituteConstructorAnalysis<TInvocationExpressionSyntax, TArgumentSyntax> GetSubstituteConstructorAnalysis();
+
+        protected abstract AbstractSubstituteConstructorMatcher GetSubstituteConstructorMatcher();
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             DiagnosticDescriptorsProvider.SubstituteForPartsOfUsedForInterface,
@@ -38,14 +57,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         {
             context.RegisterSyntaxNodeAction(AnalyzeInvocation, InvocationExpressionKind);
         }
-
-        protected abstract IEnumerable<TExpressionSyntax> GetTypeOfLikeExpressions(IList<TExpressionSyntax> arrayParameters);
-
-        protected abstract IEnumerable<TExpressionSyntax> GetArrayInitializerArguments(TInvocationExpressionSyntax invocationExpressionSyntax);
-
-        protected abstract ConstructorContext CollectConstructorContext(SubstituteContext<TInvocationExpressionSyntax> substituteContext, ITypeSymbol proxyTypeSymbol);
-
-        protected abstract bool MatchesInvocation(Compilation semanticModelCompilation, IMethodSymbol ctor, IList<ITypeSymbol> constructorContextInvocationParameters);
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
@@ -90,7 +101,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            var proxyType = GetActualProxyTypeSymbol(substituteContext);
+            var proxyType = SubstituteProxyAnalysis.GetActualProxyTypeSymbol(substituteContext);
 
             if (proxyType == null)
             {
@@ -102,7 +113,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            var constructorContext = CollectConstructorContext(substituteContext, proxyType);
+            var constructorContext = SubstituteConstructorAnalysis.CollectConstructorContext(substituteContext, proxyType);
             AnalyzeConstructor(substituteContext, constructorContext);
         }
 
@@ -130,7 +141,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            var constructorContext = CollectConstructorContext(substituteContext, proxyType);
+            var constructorContext = SubstituteConstructorAnalysis.CollectConstructorContext(substituteContext, proxyType);
             AnalyzeConstructor(substituteContext, constructorContext);
         }
 
@@ -154,7 +165,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private bool AnalyzeProxies(SubstituteContext<TInvocationExpressionSyntax> substituteContext)
         {
-            var proxies = GetProxySymbols(substituteContext).ToList();
+            var proxies = SubstituteProxyAnalysis.GetProxySymbols(substituteContext).ToList();
             var classProxies = proxies.Where(proxy => proxy.TypeKind == TypeKind.Class).Distinct();
             if (classProxies.Count() > 1)
             {
@@ -167,40 +178,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
 
             return false;
-        }
-
-        private ITypeSymbol GetActualProxyTypeSymbol(SubstituteContext<TInvocationExpressionSyntax> substituteContext)
-        {
-            var proxies = GetProxySymbols(substituteContext).ToList();
-
-            var classSymbol = proxies.FirstOrDefault(symbol => symbol.TypeKind == TypeKind.Class);
-
-            return classSymbol ?? proxies.FirstOrDefault();
-        }
-
-        private ImmutableArray<ITypeSymbol> GetProxySymbols(SubstituteContext<TInvocationExpressionSyntax> substituteContext)
-        {
-            if (substituteContext.MethodSymbol.IsGenericMethod)
-            {
-                return substituteContext.MethodSymbol.TypeArguments;
-            }
-
-            var arrayParameters = GetArrayInitializerArguments(substituteContext.InvocationExpression)?.ToList();
-
-            if (arrayParameters == null)
-            {
-                return ImmutableArray<ITypeSymbol>.Empty;
-            }
-
-            var proxyTypes = GetTypeOfLikeExpressions(arrayParameters)
-                .Select(exp =>
-                    substituteContext.SyntaxNodeAnalysisContext.SemanticModel
-                        .GetTypeInfo(exp.DescendantNodes().First()))
-                .Where(model => model.Type != null)
-                .Select(model => model.Type)
-                .ToImmutableArray();
-
-            return arrayParameters.Count == proxyTypes.Length ? proxyTypes : ImmutableArray<ITypeSymbol>.Empty;
         }
 
         private bool AnalyzeConstructorParametersCount(SubstituteContext<TInvocationExpressionSyntax> substituteContext, ConstructorContext constructorContext)
@@ -279,7 +256,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
 
             if (constructorContext.PossibleConstructors.All(ctor =>
-                    MatchesInvocation(
+                    SubstituteConstructorMatcher.MatchesInvocation(
                         substituteContext.SyntaxNodeAnalysisContext.SemanticModel.Compilation, ctor, constructorContext.InvocationParameters) ==
                     false))
             {

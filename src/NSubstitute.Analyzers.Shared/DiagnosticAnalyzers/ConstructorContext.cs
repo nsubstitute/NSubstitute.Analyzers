@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    public struct ConstructorContext
+    internal struct ConstructorContext
     {
         public IList<IMethodSymbol> AccessibleConstructors { get; }
 

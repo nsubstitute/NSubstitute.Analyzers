@@ -6,7 +6,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests
 {
     public abstract class VisualBasicCodeFixVerifier : CodeFixVerifier
     {
-        protected override string Language { get; } = LanguageNames.CSharp;
+        protected override string Language { get; } = LanguageNames.VisualBasic;
 
         protected override CompilationOptions GetCompilationOptions()
         {

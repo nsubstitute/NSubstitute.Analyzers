@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
     // TODO refactor
-    public abstract class AbstractSubstituteConstructorMatcher
+    internal abstract class AbstractSubstituteConstructorMatcher
     {
         // even though conversion returns that key -> value is convertible it fails on the runtime when runninig through substitute creation
         protected virtual Dictionary<SpecialType, SpecialType> WellKnownUnsupportedConversions { get; } =
@@ -42,13 +42,13 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
 
             return methodSymbol.Parameters.Length == 0 || methodSymbol.Parameters
-                       .Where((symbol, index) => IsConvertible(compilation, invocationParameters[index], symbol.Type))
+                       .Where((symbol, index) => ClasifyConversion(compilation, invocationParameters[index], symbol.Type))
                        .Count() == methodSymbol.Parameters.Length;
         }
 
-        protected abstract bool ClasifyConversion(Compilation compilation, ITypeSymbol source, ITypeSymbol destination);
+        protected abstract bool IsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination);
 
-        private bool IsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)
+        private bool ClasifyConversion(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)
         {
             if (source == null || source.Equals(destination))
             {
@@ -65,19 +65,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return true;
             }
 
-            return false;
-
-            /*
-            var conversion = compilation.ClassifyConversion(source, destination);
-
-#if CSHARP
-                return conversion.Exists && conversion.IsImplicit;
-
-#elif VISUAL_BASIC
-            // TODO lack of conversion.IsImplicit in VB Conversion object
-            return conversion.Exists && conversion.IsNarrowing == false;
-#endif
-*/
+            return IsConvertible(compilation, source, destination);
         }
     }
 }

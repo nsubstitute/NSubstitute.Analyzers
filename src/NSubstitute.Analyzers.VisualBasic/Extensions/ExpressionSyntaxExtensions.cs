@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 
 namespace NSubstitute.Analyzers.VisualBasic.Extensions
 {
-    public static class ExpressionSyntaxExtensions
+    internal static class ExpressionSyntaxExtensions
     {
         public static IList<ExpressionSyntax> GetParameterExpressionsFromArrayArgument(this ExpressionSyntax expression)
         {

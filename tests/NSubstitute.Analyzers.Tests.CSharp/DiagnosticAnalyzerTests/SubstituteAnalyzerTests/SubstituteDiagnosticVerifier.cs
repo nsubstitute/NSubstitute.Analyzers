@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Diagnostics;
-using NSubstitute.Analyzers.Tests.Shared;
+using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using Xunit;
 
@@ -44,7 +44,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.SubstituteA
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
-            return null;
+            return new SubstituteAnalyzer();
         }
     }
 }

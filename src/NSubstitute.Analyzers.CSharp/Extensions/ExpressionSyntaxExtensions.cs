@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace NSubstitute.Analyzers.CSharp.Extensions
 {
-    public static class ExpressionSyntaxExtensions
+    internal static class ExpressionSyntaxExtensions
     {
         private static readonly IList<ExpressionSyntax> EmptyExpressionList = new ExpressionSyntax[0];
 

@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers.Shared.Extensions
 {
-    public static class ISymbolExtensions
+    internal static class ISymbolExtensions
     {
         public static bool InternalsVisibleToProxyGenerator(this ISymbol typeSymbol)
         {
