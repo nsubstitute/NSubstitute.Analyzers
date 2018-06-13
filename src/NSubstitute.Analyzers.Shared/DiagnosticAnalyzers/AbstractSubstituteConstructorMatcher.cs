@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    // TODO refactor
     internal abstract class AbstractSubstituteConstructorMatcher
     {
         // even though conversion returns that key -> value is convertible it fails on the runtime when runninig through substitute creation

@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 
-namespace NSubstitute.Analyzers.Tests.Shared
+namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
 {
     /// <summary>
     /// Superclass of all Unit tests made for diagnostics with codefixes.
@@ -60,14 +60,14 @@ namespace NSubstitute.Analyzers.Tests.Shared
         {
             var document = CreateDocument(oldSource, language);
             var analyzerDiagnostics = await GetSortedDiagnosticsFromDocuments(analyzer, new[] { document }, false);
-            var compilerDiagnostics = GetCompilerDiagnostics(document);
+            var compilerDiagnostics = await GetCompilerDiagnostics(document);
             var attempts = analyzerDiagnostics.Length;
 
             for (int i = 0; i < attempts; ++i)
             {
                 var actions = new List<CodeAction>();
                 var context = new CodeFixContext(document, analyzerDiagnostics[0], (a, d) => actions.Add(a), CancellationToken.None);
-                codeFixProvider.RegisterCodeFixesAsync(context).Wait();
+                await codeFixProvider.RegisterCodeFixesAsync(context);
 
                 if (!actions.Any())
                 {
@@ -76,24 +76,24 @@ namespace NSubstitute.Analyzers.Tests.Shared
 
                 if (codeFixIndex != null)
                 {
-                    document = ApplyFix(document, actions.ElementAt((int)codeFixIndex));
+                    document = await ApplyFix(document, actions.ElementAt((int)codeFixIndex));
                     break;
                 }
 
-                document = ApplyFix(document, actions.ElementAt(0));
+                document = await ApplyFix(document, actions.ElementAt(0));
                 analyzerDiagnostics = await GetSortedDiagnosticsFromDocuments(analyzer, new[] { document }, false);
 
-                var newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document));
+                var newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, await GetCompilerDiagnostics(document));
 
                 // check if applying the code fix introduced any new compiler diagnostics
                 if (!allowNewCompilerDiagnostics && newCompilerDiagnostics.Any())
                 {
                     // Format and get the compiler diagnostics again so that the locations make sense in the output
-                    document = document.WithSyntaxRoot(Formatter.Format(document.GetSyntaxRootAsync().Result, Formatter.Annotation, document.Project.Solution.Workspace));
-                    newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document));
+                    document = document.WithSyntaxRoot(Formatter.Format(await document.GetSyntaxRootAsync(), Formatter.Annotation, document.Project.Solution.Workspace));
+                    newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, await GetCompilerDiagnostics(document));
 
                     var diagnosticsString = string.Join("\r\n", newCompilerDiagnostics.Select(d => d.ToString()));
-                    var newDocumentString = document.GetSyntaxRootAsync().Result.ToFullString();
+                    var newDocumentString = (await document.GetSyntaxRootAsync()).ToFullString();
                     string message =
                         $"Fix introduced new compiler diagnostics:\r\n{diagnosticsString}\r\n\r\nNew document:\r\n{newDocumentString}\r\n";
 
@@ -119,9 +119,9 @@ namespace NSubstitute.Analyzers.Tests.Shared
         /// <param name="document">The Document to apply the fix on</param>
         /// <param name="codeAction">A CodeAction that will be applied to the Document.</param>
         /// <returns>A Document with the changes from the CodeAction</returns>
-        private static Document ApplyFix(Document document, CodeAction codeAction)
+        private static async Task<Document> ApplyFix(Document document, CodeAction codeAction)
         {
-            var operations = codeAction.GetOperationsAsync(CancellationToken.None).Result;
+            var operations = await codeAction.GetOperationsAsync(CancellationToken.None);
             var solution = operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
             return solution.GetDocument(document.Id);
         }
@@ -161,9 +161,10 @@ namespace NSubstitute.Analyzers.Tests.Shared
         /// </summary>
         /// <param name="document">The Document to run the compiler diagnostic analyzers on</param>
         /// <returns>The compiler diagnostics that were found in the code</returns>
-        private static IEnumerable<Diagnostic> GetCompilerDiagnostics(Document document)
+        private static async Task<IEnumerable<Diagnostic>> GetCompilerDiagnostics(Document document)
         {
-            return document.GetSemanticModelAsync().Result.GetDiagnostics();
+            var semanticModel = await document.GetSemanticModelAsync();
+            return semanticModel.GetDiagnostics();
         }
 
         /// <summary>
@@ -171,10 +172,10 @@ namespace NSubstitute.Analyzers.Tests.Shared
         /// </summary>
         /// <param name="document">The Document to be converted to a string</param>
         /// <returns>A string containing the syntax of the Document after formatting</returns>
-        private static string GetStringFromDocument(Document document)
+        private static async Task<string> GetStringFromDocument(Document document)
         {
-            var simplifiedDoc = Simplifier.ReduceAsync(document, Simplifier.Annotation).Result;
-            var root = simplifiedDoc.GetSyntaxRootAsync().Result;
+            var simplifiedDoc = await Simplifier.ReduceAsync(document, Simplifier.Annotation);
+            var root = await simplifiedDoc.GetSyntaxRootAsync();
 
             return root.GetText().ToString();
         }

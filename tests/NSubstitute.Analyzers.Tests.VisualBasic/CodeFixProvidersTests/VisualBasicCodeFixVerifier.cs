@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.VisualBasic;
 using NSubstitute.Analyzers.Tests.Shared;
+using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests
 {
