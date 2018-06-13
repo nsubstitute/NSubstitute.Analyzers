@@ -10,7 +10,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
     {
         protected override IEnumerable<ExpressionSyntax> GetTypeOfLikeExpressions(IList<ExpressionSyntax> arrayParameters)
         {
-            return arrayParameters.Where(param => param is GetTypeExpressionSyntax || param is TypeOfExpressionSyntax);
+            return arrayParameters.OfType<GetTypeExpressionSyntax>();
         }
 
         protected override IEnumerable<ExpressionSyntax> GetArrayInitializerArguments(InvocationExpressionSyntax invocationExpressionSyntax)

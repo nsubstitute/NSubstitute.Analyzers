@@ -108,7 +108,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
             }
 
             // after applying all of the code fixes, compare the resulting string to the inputted one
-            var actual = GetStringFromDocument(document);
+            var actual = await GetStringFromDocument(document);
             actual.Should().Be(newSource);
         }
 
