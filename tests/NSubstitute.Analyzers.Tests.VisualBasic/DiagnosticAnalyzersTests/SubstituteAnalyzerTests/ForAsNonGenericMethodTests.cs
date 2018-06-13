@@ -491,43 +491,13 @@ End Namespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [Fact(Skip = "This gives runtime error on VB level, not even NSubstitute level")]
-        public override async Task ReturnsDiagnostic_WhenCorrespondingConstructorArgumentsNotCompatible()
-        {
-            var source = @"Imports NSubstitute
-
-Namespace MyNamespace
-    Public Class Foo
-        Public Sub New(ByVal x As Integer)
-        End Sub
-    End Class
-
-    Public Class FooTests
-        Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, New Object())
-        End Sub
-    End Class
-End Namespace
-";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteConstructorMismatch,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Unable to find matching constructor.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(11, 30)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
-        }
-
         [Theory]
         [InlineData("ByVal x As Decimal", "New Object() { 1 }")] // valid c# but doesnt work in NSubstitute
         [InlineData("ByVal x As Integer", "New Object() { 1D }")]
         [InlineData("ByVal x As Integer", "New Object() { 1R }")]
         [InlineData("ByVal x As List(Of Integer)", "New Object() { New List(Of Integer)().AsReadOnly() }")]
+
+        // [InlineData("ByVal x As Integer", "New Object()")] This gives runtime error on VB level, not even NSubstitute level (but compiles just fine)
         public override async Task ReturnsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"Imports NSubstitute
@@ -569,7 +539,7 @@ End Namespace";
         [InlineData("ByVal x As IEnumerable(Of Char)", @"New Object() {""value""}")]
         [InlineData("", @"New Object() {}")]
         [InlineData("", "New Object() {1, 2}.ToArray()")] // actual values known at runtime only so constructor analysys skipped
-        public override async Task ReturnsNoDiagnostic_WhenConstructorArgumentsAreImplicitlyConvertible(string ctorValues, string invocationValues)
+        public override async Task ReturnsNoDiagnostic_WhenConstructorArgumentsDoNotRequireImplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"Imports NSubstitute
 Imports System.Collections.Generic

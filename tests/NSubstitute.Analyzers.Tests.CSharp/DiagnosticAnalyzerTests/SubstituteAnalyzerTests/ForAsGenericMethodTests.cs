@@ -503,48 +503,13 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [Fact]
-        public override async Task ReturnsDiagnostic_WhenCorrespondingConstructorArgumentsNotCompatible()
-        {
-            var source = @"using NSubstitute;
-
-namespace MyNamespace
-{
-    public class Foo
-    {
-        public Foo(int x)
-        {
-        }
-    }
-
-    public class FooTests
-    {
-        public void Test()
-        {
-            var substitute = NSubstitute.Substitute.For<Foo>(new object());
-        }
-    }
-}";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteConstructorMismatch,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Unable to find matching constructor.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(16, 30)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
-        }
-
         [Theory]
         [InlineData("decimal x", "1")] // valid c# but doesnt work in NSubstitute
         [InlineData("int x", "1m")]
         [InlineData("int x", "1D")]
         [InlineData("List<int> x", "new List<int>().AsReadOnly()")]
         [InlineData("int x", "new [] { 1 }")]
+        [InlineData("int x", "new object()")]
         public override async Task ReturnsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"using NSubstitute;
@@ -597,7 +562,7 @@ namespace MyNamespace
         [InlineData("int x", "new object[] { null }")] // even though we pass null as first arg, this works fine with NSubstitute
         [InlineData("int x, int y", "new object[] { null, null }")] // even though we pass null as first arg, this works fine with NSubstitute
         [InlineData("int x, int y", "new object[] { 1, null }")] // even though we pass null as first arg, this works fine with NSubstitute
-        public override async Task ReturnsNoDiagnostic_WhenConstructorArgumentsAreImplicitlyConvertible(string ctorValues, string invocationValues)
+        public override async Task ReturnsNoDiagnostic_WhenConstructorArgumentsDoNotRequireImplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"using NSubstitute;
 using System.Collections.Generic;

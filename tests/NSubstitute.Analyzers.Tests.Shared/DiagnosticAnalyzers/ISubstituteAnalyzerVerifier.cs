@@ -19,10 +19,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly();
 
-        Task ReturnsDiagnostic_WhenCorrespondingConstructorArgumentsNotCompatible();
-
         Task ReturnsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues);
 
-        Task ReturnsNoDiagnostic_WhenConstructorArgumentsAreImplicitlyConvertible(string ctorValues, string invocationValues);
+        Task ReturnsNoDiagnostic_WhenConstructorArgumentsDoNotRequireImplicitConversion(string ctorValues, string invocationValues);
     }
 }

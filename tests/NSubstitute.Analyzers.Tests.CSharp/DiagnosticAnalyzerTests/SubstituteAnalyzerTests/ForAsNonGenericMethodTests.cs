@@ -554,47 +554,12 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [Fact]
-        public override async Task ReturnsDiagnostic_WhenCorrespondingConstructorArgumentsNotCompatible()
-        {
-            var source = @"using NSubstitute;
-
-namespace MyNamespace
-{
-    public class Foo
-    {
-        public Foo(int x)
-        {
-        }
-    }
-
-    public class FooTests
-    {
-        public void Test()
-        {
-            var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo) }, new [] { new object() } );
-        }
-    }
-}";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteConstructorMismatch,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Unable to find matching constructor.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(16, 30)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
-        }
-
         [Theory]
         [InlineData("decimal x", "1")] // valid c# but doesnt work in NSubstitute
         [InlineData("int x", "1m")]
         [InlineData("int x", "1D")]
         [InlineData("List<int> x", "new List<int>().AsReadOnly()")]
+        [InlineData("int x", "new [] { new object() }")]
         public override async Task ReturnsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"using NSubstitute;
@@ -640,7 +605,7 @@ namespace MyNamespace
         [InlineData("IEnumerable<char> x", @"new object [] { ""value"" }")]
         [InlineData("", @"new object[] { }")]
         [InlineData("", "new object[] { 1, 2 }.ToArray()")] // actual values known at runtime only so constructor analysys skipped
-        public override async Task ReturnsNoDiagnostic_WhenConstructorArgumentsAreImplicitlyConvertible(string ctorValues, string invocationValues)
+        public override async Task ReturnsNoDiagnostic_WhenConstructorArgumentsDoNotRequireImplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"using NSubstitute;
 using System.Collections.Generic;

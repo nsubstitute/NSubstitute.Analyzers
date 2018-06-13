@@ -444,42 +444,12 @@ End Namespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task ReturnsDiagnostic_WhenCorrespondingConstructorArgumentsNotCompatible()
-        {
-            var source = @"Imports NSubstitute
-
-Namespace MyNamespace
-    Public Class Foo
-        Public Sub New(ByVal x As Integer)
-        End Sub
-    End Class
-
-    Public Class FooTests
-        Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of Foo)(New Object())
-        End Sub
-    End Class
-End Namespace
-";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteConstructorMismatch,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Unable to find matching constructor.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(11, 30)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
-        }
-
         [Theory]
         [InlineData("ByVal x As Decimal", "1")] // valid c# but doesnt work in NSubstitute
         [InlineData("ByVal x As Integer", "1D")]
         [InlineData("ByVal x As Integer", "1R")]
         [InlineData("ByVal x As List(Of Integer)", "New List(Of Integer)().AsReadOnly()")]
+        [InlineData("ByVal x As Integer", "New Object()")]
         public override async Task ReturnsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"Imports NSubstitute
@@ -528,8 +498,8 @@ End Namespace
         [InlineData("", "New Object() {1, 2}.ToArray()")] // actual values known at runtime only so constructor analysys skipped
         [InlineData("ByVal x As Integer", "New Object() {Nothing}")] // even though we pass null as first arg, this works fine with NSubstitute
         [InlineData("ByVal x As Integer, ByVal y As Integer", "New Object() { Nothing, Nothing }")] // even though we pass null as first arg, this works fine with NSubstitute
-        [InlineData("ByVal x As Integer, ByVal y As Integer", "New Object() {1, Nothing}")] // even though we pass null as first arg, this works fine with NSubstitute
-        public override async Task ReturnsNoDiagnostic_WhenConstructorArgumentsAreImplicitlyConvertible(string ctorValues, string invocationValues)
+        [InlineData("ByVal x As Integer, ByVal y As Integer", "New Object() {1, Nothing}")] // even though we pass null as last arg, this works fine with NSubstitute
+        public override async Task ReturnsNoDiagnostic_WhenConstructorArgumentsDoNotRequireImplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"Imports NSubstitute
 Imports System.Collections.Generic

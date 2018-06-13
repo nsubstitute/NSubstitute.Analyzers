@@ -29,18 +29,9 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.SubstituteA
         [Fact]
         public abstract Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly();
 
-        [Fact]
-        public abstract Task ReturnsDiagnostic_WhenCorrespondingConstructorArgumentsNotCompatible();
-
-        [Theory]
-#pragma warning disable xUnit1003 // Theory methods must have test data
         public abstract Task ReturnsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues);
-#pragma warning restore xUnit1003 // Theory methods must have test data
 
-        [Theory]
-#pragma warning disable xUnit1003 // Theory methods must have test data
-        public abstract Task ReturnsNoDiagnostic_WhenConstructorArgumentsAreImplicitlyConvertible(string ctorValues, string invocationValues);
-#pragma warning restore xUnit1003 // Theory methods must have test data
+        public abstract Task ReturnsNoDiagnostic_WhenConstructorArgumentsDoNotRequireImplicitConversion(string ctorValues, string invocationValues);
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
