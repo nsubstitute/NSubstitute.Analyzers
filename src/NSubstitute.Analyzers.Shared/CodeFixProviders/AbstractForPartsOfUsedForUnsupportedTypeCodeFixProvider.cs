@@ -40,7 +40,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 
             var forPartsOfNode = (TInvocationExpression)root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
             var nameNode = GetGenericNameSyntax(forPartsOfNode);
-            var updateNameNode = GetUpdatedGenericNameSyntax(nameNode, "For");
+            var updateNameNode = GetUpdatedGenericNameSyntax(nameNode, MetadataNames.NSubstituteForMethod);
             var forNode = forPartsOfNode.ReplaceNode(nameNode, updateNameNode);
 
             var replaceNode = root.ReplaceNode(forPartsOfNode, forNode);
