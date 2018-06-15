@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.Shared.Extensions;
+using NSubstitute.Analyzers.Shared.Settings;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
@@ -41,7 +44,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract string GetAccessedMemberName(TMemberAccessExpressionSyntax memberAccessExpressionSyntax);
 
-        protected virtual bool? CanBeSetuped(SyntaxNode accessedMember, SymbolInfo symbolInfo)
+        protected virtual bool? CanBeSetuped(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode accessedMember, SymbolInfo symbolInfo)
         {
             if (KnownNonVirtualSyntaxTypes.Contains(accessedMember.GetType()))
             {
@@ -53,7 +56,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return null;
             }
 
-            return IsInterfaceMember(symbolInfo) || IsVirtual(symbolInfo);
+            return IsInterfaceMember(symbolInfo) || IsVirtual(symbolInfo) || IsSupressed(syntaxNodeContext, symbolInfo.Symbol);
         }
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
@@ -118,7 +121,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var accessedSymbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(accessedMember);
 
-            var canBeSetuped = CanBeSetuped(accessedMember, accessedSymbol);
+            var canBeSetuped = CanBeSetuped(syntaxNodeContext, accessedMember, accessedSymbol);
             if (canBeSetuped.HasValue && canBeSetuped == false)
             {
                 var diagnostic = Diagnostic.Create(
@@ -149,6 +152,36 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                             || member.IsAbstract;
 
             return isVirtual;
+        }
+
+        private bool IsSupressed(SyntaxNodeAnalysisContext syntaxNodeContext, ISymbol symbol)
+        {
+            if (symbol == null)
+            {
+                return false;
+            }
+
+            var analyzersSettings = syntaxNodeContext.GetSettings(CancellationToken.None);
+
+            return IsSupressed(syntaxNodeContext, analyzersSettings, symbol);
+        }
+
+        private bool IsSupressed(SyntaxNodeAnalysisContext syntaxNodeContext, AnalyzersSettings settings, ISymbol symbol)
+        {
+            foreach (var supressedSymbolName in settings.NonVirtualSetupSettings.SupressedSymbols)
+            {
+                foreach (var supressedSymbol in DocumentationCommentId.GetSymbolsForDeclarationId(supressedSymbolName, syntaxNodeContext.Compilation))
+                {
+                    if (supressedSymbol.Equals(symbol) ||
+                        supressedSymbol.Equals(symbol.ContainingType) ||
+                        supressedSymbol.Equals(symbol.ContainingNamespace))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }
