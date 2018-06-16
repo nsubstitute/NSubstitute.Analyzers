@@ -4,7 +4,7 @@ namespace NSubstitute.Analyzers.Shared.Settings
 {
     internal class AnalyzersSettings
     {
-        public static string AnalyzerFileName { get; } = "nsubstituteanalyzers.json";
+        public static string AnalyzerFileName { get; } = "nsubstitute.json";
 
         public static AnalyzersSettings Default => new AnalyzersSettings();
 

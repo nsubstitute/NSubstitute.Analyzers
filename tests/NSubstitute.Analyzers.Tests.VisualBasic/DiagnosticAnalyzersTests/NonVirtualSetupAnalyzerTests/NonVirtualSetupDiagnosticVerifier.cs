@@ -1,6 +1,8 @@
 ﻿using System.Drawing;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Newtonsoft.Json;
+using NSubstitute.Analyzers.Shared.Settings;
 using NSubstitute.Analyzers.Tests.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
@@ -10,6 +12,8 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonVi
 {
     public abstract class NonVirtualSetupDiagnosticVerifier : VisualBasicDiagnosticVerifier, INonVirtualSetupDiagnosticVerifier
     {
+        internal AnalyzersSettings Settings { get; set; }
+
         [Fact]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod();
 
@@ -102,6 +106,11 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonVi
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
             return new NonVirtualSetupAnalyzer();
+        }
+
+        protected override string GetSettings()
+        {
+            return Settings != null ? JsonConvert.SerializeObject(Settings) : null;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Shared;
+using NSubstitute.Analyzers.Shared.Settings;
 using NSubstitute.Analyzers.Tests.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 
@@ -562,49 +563,508 @@ End Namespace
             await VerifyDiagnostic(source);
         }
 
-        public override Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualProperty()
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualProperty()
         {
-            throw new System.NotImplementedException();
+            Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo.Bar");
+
+            var source = @"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class Foo
+        Public ReadOnly Property Bar As Integer
+        Public ReadOnly Property FooBar As Integer
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            SubstituteExtensions.Returns(substitute.Bar, 1)
+            SubstituteExtensions.Returns(substitute.FooBar, 1)
+        End Sub
+    End Class
+End Namespace
+";
+
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(13, 42)
+                }
+            };
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericProperty()
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericProperty()
         {
-            throw new System.NotImplementedException();
+            Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo`1.Bar");
+
+            var source = @"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class Foo(Of T)
+        Public ReadOnly Property Bar As T
+        Public ReadOnly Property FooBar As Integer
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo(Of Integer))()
+            SubstituteExtensions.Returns(substitute.Bar, 1)
+            SubstituteExtensions.Returns(substitute.FooBar, 1)
+        End Sub
+    End Class
+End Namespace
+";
+
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(13, 42)
+                }
+            };
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod()
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod()
         {
-            throw new System.NotImplementedException();
+            Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar(System.Int32,System.Int32)");
+
+            var source = @"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class Foo
+        Public Function Bar(ByVal x As Integer) As Integer
+            Return 1
+        End Function
+
+        Public Function Bar(ByVal x As Integer, ByVal y As Integer) As Integer
+            Return 2
+        End Function
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            SubstituteExtensions.Returns(substitute.Bar(1, 2), 1)
+            SubstituteExtensions.Returns(substitute.Bar(1), 1)
+        End Sub
+    End Class
+End Namespace
+";
+
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(18, 42)
+                }
+            };
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericMethod()
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericMethod()
         {
-            throw new System.NotImplementedException();
+            Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar``1(``0,``0)");
+
+            var source = @"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class Foo
+        Public Function Bar(ByVal x As Integer) As Integer
+            Return 1
+        End Function
+
+        Public Function Bar(Of T)(ByVal x As T, ByVal y As T) As Integer
+            Return 2
+        End Function
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            SubstituteExtensions.Returns(substitute.Bar(Of Integer)(1, 2), 1)
+            SubstituteExtensions.Returns(substitute.Bar(1), 1)
+        End Sub
+    End Class
+End Namespace
+";
+
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(18, 42)
+                }
+            };
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualIndexer()
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualIndexer()
         {
-            throw new System.NotImplementedException();
+            Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo.Item(System.Int32,System.Int32)");
+
+            var source = @"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class Foo
+        Default Public ReadOnly Property Item(ByVal x As Integer) As Integer
+            Get
+                Return 0
+            End Get
+        End Property
+
+        Default Public ReadOnly Property Item(ByVal x As Integer, ByVal y As Integer) As Integer
+            Get
+                Return 0
+            End Get
+        End Property
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            SubstituteExtensions.Returns(substitute(1 ,2), 1)
+            SubstituteExtensions.Returns(substitute(1), 1)
+        End Sub
+    End Class
+End Namespace
+";
+
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(22, 42)
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericIndexer()
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericIndexer()
         {
-            throw new System.NotImplementedException();
+            Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo`1.Item(`0,`0)");
+
+            var source = @"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class Foo(Of T)
+        Default Public ReadOnly Property Item(ByVal x As T) As Integer
+            Get
+                Return 0
+            End Get
+        End Property
+
+        Default Public ReadOnly Property Item(ByVal x As T, ByVal y As T) As Integer
+            Get
+                Return 0
+            End Get
+        End Property
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo(Of Integer))()
+            SubstituteExtensions.Returns(substitute(1 ,2), 1)
+            SubstituteExtensions.Returns(substitute(1), 1)
+        End Sub
+    End Class
+End Namespace
+";
+
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(22, 42)
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireType()
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireType()
         {
-            throw new System.NotImplementedException();
+             Settings = AnalyzersSettings.CreateWithSuppressions("T:MyNamespace.Foo");
+
+            var source = @"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class Foo
+        Public Property Bar As Integer
+
+        Default Public ReadOnly Property Item(ByVal x As Integer) As Integer
+            Get
+                Return 0
+            End Get
+        End Property
+
+        Public Function FooBar() As Integer
+            Return 1
+        End Function
+    End Class
+
+    Public Class FooBarBar
+        Public Property Bar As Integer
+
+        Default Public ReadOnly Property Item(ByVal x As Integer) As Integer
+            Get
+                Return 0
+            End Get
+        End Property
+
+        Public Function FooBar() As Integer
+            Return 1
+        End Function
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            SubstituteExtensions.Returns(substitute(1), 1)
+            SubstituteExtensions.Returns(substitute.Bar, 1)
+            SubstituteExtensions.Returns(substitute.FooBar(), 1)
+            Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar)()
+            SubstituteExtensions.Returns(substituteFooBarBar(1), 1)
+            SubstituteExtensions.Returns(substituteFooBarBar.Bar, 1)
+            SubstituteExtensions.Returns(substituteFooBarBar.FooBar(), 1)
+        End Sub
+    End Class
+End Namespace
+";
+
+            var expectedDiagnostic = new[]
+            {
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(39, 42)
+                    }
+                },
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(40, 42)
+                    }
+                },
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(41, 42)
+                    }
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireGenericType()
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireGenericType()
         {
-            throw new System.NotImplementedException();
+            Settings = AnalyzersSettings.CreateWithSuppressions("T:MyNamespace.Foo`1");
+
+            var source = @"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class Foo(Of T)
+        Public Property Bar As Integer
+
+        Default Public ReadOnly Property Item(ByVal x As Integer) As Integer
+            Get
+                Return 0
+            End Get
+        End Property
+
+        Public Function FooBar() As Integer
+            Return 1
+        End Function
+    End Class
+
+    Public Class FooBarBar(Of T)
+        Public Property Bar As Integer
+
+        Default Public ReadOnly Property Item(ByVal x As Integer) As Integer
+            Get
+                Return 0
+            End Get
+        End Property
+
+        Public Function FooBar() As Integer
+            Return 1
+        End Function
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo(Of Integer))()
+            SubstituteExtensions.Returns(substitute(1), 1)
+            SubstituteExtensions.Returns(substitute.Bar, 1)
+            SubstituteExtensions.Returns(substitute.FooBar(), 1)
+            Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar(Of Integer))()
+            SubstituteExtensions.Returns(substituteFooBarBar(1), 1)
+            SubstituteExtensions.Returns(substituteFooBarBar.Bar, 1)
+            SubstituteExtensions.Returns(substituteFooBarBar.FooBar(), 1)
+        End Sub
+    End Class
+End Namespace
+";
+
+            var expectedDiagnostic = new[]
+            {
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(39, 42)
+                    }
+                },
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(40, 42)
+                    }
+                },
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(41, 42)
+                    }
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireNamespace()
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireNamespace()
         {
-            throw new System.NotImplementedException();
+            Settings = AnalyzersSettings.CreateWithSuppressions("N:MyNamespace");
+
+            var source = @"Imports NSubstitute
+Imports MyOtherNamespace
+
+Namespace MyOtherNamespace
+    Public Class FooBarBar
+        Public Property Bar As Integer
+
+        Default Public ReadOnly Property Item(ByVal x As Integer) As Integer
+            Get
+                Return 0
+            End Get
+        End Property
+
+        Public Function FooBar() As Integer
+            Return 1
+        End Function
+    End Class
+End Namespace
+
+Namespace MyNamespace
+    Public Class Foo
+        Public Property Bar As Integer
+
+        Default Public ReadOnly Property Item(ByVal x As Integer) As Integer
+            Get
+                Return 0
+            End Get
+        End Property
+
+        Public Function FooBar() As Integer
+            Return 1
+        End Function
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            SubstituteExtensions.Returns(substitute(1), 1)
+            SubstituteExtensions.Returns(substitute.Bar, 1)
+            SubstituteExtensions.Returns(substitute.FooBar(), 1)
+            Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar)()
+            SubstituteExtensions.Returns(substituteFooBarBar(1), 1)
+            SubstituteExtensions.Returns(substituteFooBarBar.Bar, 1)
+            SubstituteExtensions.Returns(substituteFooBarBar.FooBar(), 1)
+        End Sub
+    End Class
+End Namespace
+";
+
+            var expectedDiagnostic = new[]
+            {
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(42, 42)
+                    }
+                },
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(43, 42)
+                    }
+                },
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(44, 42)
+                    }
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
     }
 }
