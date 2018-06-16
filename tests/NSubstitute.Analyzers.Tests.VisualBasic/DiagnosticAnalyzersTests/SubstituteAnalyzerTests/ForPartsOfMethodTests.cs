@@ -343,5 +343,20 @@ End Namespace
 ";
             await VerifyDiagnostic(source);
         }
+
+        public override async Task ReturnsNoDiagnostic_WhenUsedWithGenericArgument()
+        {
+            var source = @"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class FooTests
+        Public Function FooPartsOf(Of T As Class)() As T
+            Return Substitute.ForPartsOf(Of T)()
+        End Function
+    End Class
+End Namespace
+";
+            await VerifyDiagnostic(source);
+        }
     }
 }

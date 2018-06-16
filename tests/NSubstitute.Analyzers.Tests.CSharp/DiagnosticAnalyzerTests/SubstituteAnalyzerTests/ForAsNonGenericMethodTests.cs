@@ -629,5 +629,22 @@ namespace MyNamespace
 }}";
             await VerifyDiagnostic(source);
         }
+
+        public override async Task ReturnsNoDiagnostic_WhenUsedWithGenericArgument()
+        {
+            var source = @"using NSubstitute;
+namespace MyNamespace
+{
+
+    public class FooTests
+    {
+        public T Foo<T>() where T : class
+        {
+            return (T)Substitute.For(new [] { typeof(T)}, null);
+        }
+    }
+}";
+            await VerifyDiagnostic(source);
+        }
     }
 }

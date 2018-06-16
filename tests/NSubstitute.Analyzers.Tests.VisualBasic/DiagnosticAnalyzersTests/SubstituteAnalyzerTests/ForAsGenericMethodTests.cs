@@ -520,5 +520,20 @@ End Namespace
 ";
             await VerifyDiagnostic(source);
         }
+
+        public override async Task ReturnsNoDiagnostic_WhenUsedWithGenericArgument()
+        {
+            var source = @"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class FooTests
+        Public Function Foo(Of T As Class)() As T
+            Return Substitute.[For](Of T)()
+        End Function
+    End Class
+End Namespace
+";
+            await VerifyDiagnostic(source);
+        }
     }
 }

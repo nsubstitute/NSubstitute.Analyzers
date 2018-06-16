@@ -11,6 +11,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
     {
         public ConstructorContext CollectConstructorContext(SubstituteContext<TInvocationExpression> substituteContext, ITypeSymbol proxyTypeSymbol)
         {
+            if (proxyTypeSymbol.Kind == SymbolKind.TypeParameter)
+            {
+                return new ConstructorContext(proxyTypeSymbol, null, null, null);
+            }
+
             var accessibleConstructors = GetAccessibleConstructors(proxyTypeSymbol);
             var invocationParameterTypes = GetInvocationInfo(substituteContext);
             var possibleConstructors = invocationParameterTypes != null && accessibleConstructors != null
