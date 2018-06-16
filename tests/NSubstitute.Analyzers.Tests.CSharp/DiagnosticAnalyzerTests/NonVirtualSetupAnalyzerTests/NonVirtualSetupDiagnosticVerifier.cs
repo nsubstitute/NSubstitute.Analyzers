@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Newtonsoft.Json;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Shared.Settings;
 using NSubstitute.Analyzers.Tests.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using Xunit;
@@ -9,6 +11,8 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualS
 {
     public abstract class NonVirtualSetupDiagnosticVerifier : CSharpDiagnosticVerifier, INonVirtualSetupDiagnosticVerifier
     {
+        internal AnalyzersSettings Settings { get; set; }
+
         [Fact]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod();
 
@@ -71,9 +75,29 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualS
         [Fact]
         public abstract Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod();
 
+        [Fact]
+        public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualProperty();
+
+        [Fact]
+        public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod();
+
+        [Fact]
+        public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualIndexer();
+
+        [Fact]
+        public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireType();
+
+        [Fact]
+        public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireNamespace();
+
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
             return new NonVirtualSetupAnalyzer();
+        }
+
+        protected override string GetSettings()
+        {
+            return Settings != null ? JsonConvert.SerializeObject(Settings) : null;
         }
     }
 }

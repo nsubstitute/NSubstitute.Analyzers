@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Drawing;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.Tests.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
@@ -70,6 +71,21 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonVi
 
         [Fact]
         public abstract Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod();
+
+        [Fact]
+        public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualProperty();
+
+        [Fact]
+        public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod();
+
+        [Fact]
+        public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualIndexer();
+
+        [Fact]
+        public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireType();
+
+        [Fact]
+        public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireNamespace();
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {

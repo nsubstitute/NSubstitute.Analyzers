@@ -13,6 +13,8 @@ using FluentAssertions.Execution;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using Newtonsoft.Json;
+using NSubstitute.Analyzers.Shared.Settings;
 
 namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 {
@@ -67,6 +69,11 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
             return Enumerable.Empty<MetadataReference>();
         }
 
+        protected virtual string GetSettings()
+        {
+            return null;
+        }
+
         protected async Task<Diagnostic[]> GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, Document[] documents, bool allowCompilationErrors)
         {
             if (documents == null)
@@ -82,10 +89,18 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
             var diagnostics = new List<Diagnostic>();
             var analyzerExceptions = new List<Exception>();
+            var settings = GetSettings();
+            var additionalTexts = string.IsNullOrEmpty(settings)
+                ? ImmutableArray<AdditionalText>.Empty
+                : ImmutableArray.Create(new AdditionalText[]
+                {
+                    new AnalyzerAdditionalText(AnalyzersSettings.AnalyzerFileName, settings),
+                });
+
             foreach (var project in projects)
             {
                 var options = new CompilationWithAnalyzersOptions(
-                    new AnalyzerOptions(ImmutableArray<AdditionalText>.Empty),
+                    new AnalyzerOptions(additionalTexts),
                     (exception, diagnosticAnalyzer, diagnostic) => analyzerExceptions.Add(exception),
                     false,
                     true);

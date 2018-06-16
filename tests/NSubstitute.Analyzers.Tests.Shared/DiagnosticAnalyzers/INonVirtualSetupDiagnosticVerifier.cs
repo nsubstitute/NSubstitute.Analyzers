@@ -52,5 +52,15 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
         Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer();
 
         Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod();
+
+        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualProperty();
+
+        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod();
+
+        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualIndexer();
+
+        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireType();
+
+        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireNamespace();
     }
 }

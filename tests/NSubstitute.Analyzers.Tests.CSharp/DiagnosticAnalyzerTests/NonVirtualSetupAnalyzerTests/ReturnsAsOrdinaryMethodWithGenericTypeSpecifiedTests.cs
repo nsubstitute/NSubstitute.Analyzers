@@ -563,5 +563,30 @@ namespace NSubstitute
 }";
             await VerifyDiagnostic(source);
         }
+
+        public override Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualProperty()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualIndexer()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireType()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireNamespace()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
