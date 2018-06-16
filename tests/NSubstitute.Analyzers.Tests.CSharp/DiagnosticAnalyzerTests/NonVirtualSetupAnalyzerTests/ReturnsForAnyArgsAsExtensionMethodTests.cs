@@ -2,12 +2,11 @@
 using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Shared.Settings;
-using NSubstitute.Analyzers.Tests.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualSetupAnalyzerTests
 {
-    public class ReturnsForAnyArgsAsOrdinaryMethodTests : NonVirtualSetupDiagnosticVerifier
+    public class ReturnsForAnyArgsAsExtensionMethodTests : NonVirtualSetupDiagnosticVerifier
     {
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod()
         {
@@ -28,7 +27,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(), 1);
+            substitute.Bar().ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -39,7 +38,7 @@ namespace MyNamespace
                 Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(18, 52)
+                    new DiagnosticResultLocation(18, 13)
                 }
             };
 
@@ -56,7 +55,7 @@ namespace MyNamespace
     {{
         public void Test()
         {{
-            SubstituteExtensions.ReturnsForAnyArgs({literal}, {literal});
+            {literal}.ReturnsForAnyArgs<{type}>({literal});
         }}
     }}
 }}";
@@ -68,7 +67,7 @@ namespace MyNamespace
                     $"Member {literal} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(9, 52)
+                    new DiagnosticResultLocation(9, 13)
                 }
             };
 
@@ -93,7 +92,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            SubstituteExtensions.ReturnsForAnyArgs(Foo.Bar(), 1);
+            Foo.Bar().ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -105,7 +104,7 @@ namespace MyNamespace
                     "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(17, 52)
+                    new DiagnosticResultLocation(17, 13)
                 }
             };
 
@@ -131,7 +130,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(), 1);
+            substitute.Bar().ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -162,7 +161,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo2>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(), 1);
+            substitute.Bar().ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -189,7 +188,7 @@ namespace MyNamespace
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
             var returnValue = substitute.Bar();
-            SubstituteExtensions.ReturnsForAnyArgs(returnValue, 1);
+            returnValue.ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -208,7 +207,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = Substitute.For<Func<int>>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute(), 1);
+            substitute().ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -239,7 +238,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo2>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(), 1);
+            substitute.Bar().ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -250,7 +249,7 @@ namespace MyNamespace
                 Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(23, 52)
+                    new DiagnosticResultLocation(23, 13)
                 }
             };
 
@@ -273,7 +272,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(), 1);
+            substitute.Bar().ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -297,30 +296,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<IFoo>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(), 1);
-        }
-    }
-}";
-            await VerifyDiagnostic(source);
-        }
-
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer()
-        {
-            var source = @"using NSubstitute;
-
-namespace MyNamespace
-{
-    public interface IFoo
-    {
-        int this[int i] { get; }
-    }
-
-    public class FooTests
-    {
-        public void Test()
-        {
-            var substitute = NSubstitute.Substitute.For<IFoo>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute[1], 1);
+            substitute.Bar().ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -343,7 +319,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<IFoo>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar, 1);
+            substitute.Bar.ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -356,7 +332,7 @@ namespace MyNamespace
 
 namespace MyNamespace
 {
-    public interface IFoo<T>
+   public interface IFoo<T>
     {
         int Bar<T>();
     }
@@ -366,7 +342,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<IFoo<int>>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar<int>(), 1);
+            substitute.Bar<int>().ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -389,11 +365,34 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar, 1);
+            substitute.Bar.ReturnsForAnyArgs(1);
         }
     }
 }";
 
+            await VerifyDiagnostic(source);
+        }
+
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public interface IFoo
+    {
+        int this[int i] { get; }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<IFoo>();
+            substitute[1].ReturnsForAnyArgs(1);
+        }
+    }
+}";
             await VerifyDiagnostic(source);
         }
 
@@ -413,7 +412,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar, 1);
+            substitute.Bar.ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -437,7 +436,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar, 1);
+            substitute.Bar.ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -449,7 +448,7 @@ namespace MyNamespace
                 Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(15, 52)
+                    new DiagnosticResultLocation(15, 13)
                 }
             };
 
@@ -472,7 +471,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute[1], 1);
+            substitute[1].ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -495,7 +494,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute[1], 1);
+            substitute[1].ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -507,7 +506,7 @@ namespace MyNamespace
                 Message = "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(15, 52)
+                    new DiagnosticResultLocation(15, 13)
                 }
             };
 
@@ -541,7 +540,7 @@ namespace NSubstitute
         public void Test()
         {
             Foo substitute = null;
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(), 1);
+            substitute.Bar().ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -568,8 +567,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar, 1);
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.FooBar, 1);
+            substitute.Bar.ReturnsForAnyArgs(1);
+            substitute.FooBar.ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -581,7 +580,7 @@ namespace MyNamespace
                 Message = "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(18, 52)
+                    new DiagnosticResultLocation(18, 13)
                 }
             };
             await VerifyDiagnostic(source, expectedDiagnostic);
@@ -607,8 +606,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo<int>>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar, 1);
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.FooBar, 1);
+            substitute.Bar.ReturnsForAnyArgs(1);
+            substitute.FooBar.ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -620,7 +619,7 @@ namespace MyNamespace
                 Message = "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(18, 52)
+                    new DiagnosticResultLocation(18, 13)
                 }
             };
             await VerifyDiagnostic(source, expectedDiagnostic);
@@ -652,8 +651,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(1, 2), 1);
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(1), 1);
+            substitute.Bar(1, 2).ReturnsForAnyArgs(1);
+            substitute.Bar(1).ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -665,7 +664,7 @@ namespace MyNamespace
                 Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(24, 52)
+                    new DiagnosticResultLocation(24, 13)
                 }
             };
             await VerifyDiagnostic(source, expectedDiagnostic);
@@ -697,8 +696,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar<int>(1, 2), 1);
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(1), 1);
+            substitute.Bar<int>(1, 2).ReturnsForAnyArgs(1);
+            substitute.Bar(1).ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -710,7 +709,7 @@ namespace MyNamespace
                 Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(24, 52)
+                    new DiagnosticResultLocation(24, 13)
                 }
             };
             await VerifyDiagnostic(source, expectedDiagnostic);
@@ -735,8 +734,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute[1,2], 1);
-            SubstituteExtensions.ReturnsForAnyArgs(substitute[1], 1);
+            substitute[1, 2].ReturnsForAnyArgs(1);
+            substitute[1].ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -748,7 +747,7 @@ namespace MyNamespace
                 Message = "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(17, 52)
+                    new DiagnosticResultLocation(17, 13)
                 }
             };
 
@@ -774,8 +773,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo<int>>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute[1, 2], 1);
-            SubstituteExtensions.ReturnsForAnyArgs(substitute[1], 1);
+            substitute[1, 2].ReturnsForAnyArgs(1);
+            substitute[1].ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -787,7 +786,7 @@ namespace MyNamespace
                 Message = "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(17, 52)
+                    new DiagnosticResultLocation(17, 13)
                 }
             };
 
@@ -827,14 +826,14 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute[1], 1);
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar, 1);
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.FooBar(), 1);
+            substitute[1].ReturnsForAnyArgs(1);
+            substitute.Bar.ReturnsForAnyArgs(1);
+            substitute.FooBar().ReturnsForAnyArgs(1);
 
             var substituteFooBarBar = NSubstitute.Substitute.For<FooBarBar>();
-            SubstituteExtensions.ReturnsForAnyArgs(substituteFooBarBar[1], 1);
-            SubstituteExtensions.ReturnsForAnyArgs(substituteFooBarBar.Bar, 1);
-            SubstituteExtensions.ReturnsForAnyArgs(substituteFooBarBar.FooBar(), 1);
+            substituteFooBarBar[1].ReturnsForAnyArgs(1);
+            substituteFooBarBar.Bar.ReturnsForAnyArgs(1);
+            substituteFooBarBar.FooBar().ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -848,7 +847,7 @@ namespace MyNamespace
                     Message = "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                     Locations = new[]
                     {
-                        new DiagnosticResultLocation(35, 52)
+                        new DiagnosticResultLocation(35, 13)
                     }
                 },
                 new DiagnosticResult
@@ -858,7 +857,7 @@ namespace MyNamespace
                     Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                     Locations = new[]
                     {
-                        new DiagnosticResultLocation(36, 52)
+                        new DiagnosticResultLocation(36, 13)
                     }
                 },
                 new DiagnosticResult
@@ -868,7 +867,7 @@ namespace MyNamespace
                     Message = "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                     Locations = new[]
                     {
-                        new DiagnosticResultLocation(37, 52)
+                        new DiagnosticResultLocation(37, 13)
                     }
                 }
             };
@@ -909,14 +908,14 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo<int>>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute[1], 1);
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar, 1);
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.FooBar(), 1);
+            substitute[1].ReturnsForAnyArgs(1);
+            substitute.Bar.ReturnsForAnyArgs(1);
+            substitute.FooBar().ReturnsForAnyArgs(1);
 
             var substituteFooBarBar = NSubstitute.Substitute.For<FooBarBar<int>>();
-            SubstituteExtensions.ReturnsForAnyArgs(substituteFooBarBar[1], 1);
-            SubstituteExtensions.ReturnsForAnyArgs(substituteFooBarBar.Bar, 1);
-            SubstituteExtensions.ReturnsForAnyArgs(substituteFooBarBar.FooBar(), 1);
+            substituteFooBarBar[1].ReturnsForAnyArgs(1);
+            substituteFooBarBar.Bar.ReturnsForAnyArgs(1);
+            substituteFooBarBar.FooBar().ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -930,7 +929,7 @@ namespace MyNamespace
                     Message = "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                     Locations = new[]
                     {
-                        new DiagnosticResultLocation(35, 52)
+                        new DiagnosticResultLocation(35, 13)
                     }
                 },
                 new DiagnosticResult
@@ -940,7 +939,7 @@ namespace MyNamespace
                     Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                     Locations = new[]
                     {
-                        new DiagnosticResultLocation(36, 52)
+                        new DiagnosticResultLocation(36, 13)
                     }
                 },
                 new DiagnosticResult
@@ -950,7 +949,7 @@ namespace MyNamespace
                     Message = "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                     Locations = new[]
                     {
-                        new DiagnosticResultLocation(37, 52)
+                        new DiagnosticResultLocation(37, 13)
                     }
                 }
             };
@@ -995,14 +994,14 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.ReturnsForAnyArgs(substitute[1], 1);
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar, 1);
-            SubstituteExtensions.ReturnsForAnyArgs(substitute.FooBar(), 1);
+            substitute[1].ReturnsForAnyArgs(1);
+            substitute.Bar.ReturnsForAnyArgs(1);
+            substitute.FooBar().ReturnsForAnyArgs(1);
 
             var substituteFooBarBar = NSubstitute.Substitute.For<FooBarBar>();
-            SubstituteExtensions.ReturnsForAnyArgs(substituteFooBarBar[1], 1);
-            SubstituteExtensions.ReturnsForAnyArgs(substituteFooBarBar.Bar, 1);
-            SubstituteExtensions.ReturnsForAnyArgs(substituteFooBarBar.FooBar(), 1);
+            substituteFooBarBar[1].ReturnsForAnyArgs(1);
+            substituteFooBarBar.Bar.ReturnsForAnyArgs(1);
+            substituteFooBarBar.FooBar().ReturnsForAnyArgs(1);
         }
     }
 }";
@@ -1016,7 +1015,7 @@ namespace MyNamespace
                     Message = "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                     Locations = new[]
                     {
-                        new DiagnosticResultLocation(39, 52)
+                        new DiagnosticResultLocation(39, 13)
                     }
                 },
                 new DiagnosticResult
@@ -1026,7 +1025,7 @@ namespace MyNamespace
                     Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                     Locations = new[]
                     {
-                        new DiagnosticResultLocation(40, 52)
+                        new DiagnosticResultLocation(40, 13)
                     }
                 },
                 new DiagnosticResult
@@ -1036,7 +1035,7 @@ namespace MyNamespace
                     Message = "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                     Locations = new[]
                     {
-                        new DiagnosticResultLocation(41, 52)
+                        new DiagnosticResultLocation(41, 13)
                     }
                 }
             };
