@@ -29,7 +29,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForPartsOfUsedForInterface,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Can only substitute for parts of classes, not interfaces or delegates.",
+                Message = "Can only substitute for parts of classes, not interfaces or delegates.Use Substitute.For(Of MyNamespace.IFoo) instead of Substitute.ForPartsOf(Of MyNamespace.IFoo) here.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(9, 30)
@@ -60,7 +60,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForPartsOfUsedForInterface,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Can only substitute for parts of classes, not interfaces or delegates.",
+                Message = "Can only substitute for parts of classes, not interfaces or delegates.Use Substitute.For(Of System.Func(Of Integer)) instead of Substitute.ForPartsOf(Of System.Func(Of Integer)) here.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(10, 30)
@@ -91,7 +91,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForWithoutAccessibleConstructor,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Missing parameterless constructor.",
+                Message = "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(11, 30)
@@ -213,7 +213,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForInternalMember,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Substitute for internal member.",
+                Message = @"Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via <Assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")>",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(9, 30)
@@ -264,7 +264,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForInternalMember,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Substitute for internal member.",
+                Message = @"Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via <Assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")>",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(11, 30)

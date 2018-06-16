@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace NSubstitute.Analyzers.VisualBasic {
+namespace NSubstitute.Analyzers.CSharp {
     using System;
     using System.Reflection;
     
@@ -40,7 +40,7 @@ namespace NSubstitute.Analyzers.VisualBasic {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NSubstitute.Analyzers.VisualBasic.Resources", typeof(Resources).GetTypeInfo().Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NSubstitute.Analyzers.CSharp.Resources", typeof(Resources).GetTypeInfo().Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -62,7 +62,7 @@ namespace NSubstitute.Analyzers.VisualBasic {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Non-overridable members can not be intercepted..
+        ///   Looks up a localized string similar to Non-virtual members can not be intercepted..
         /// </summary>
         internal static string NonVirtualSetupSpecificationDescription {
             get {
@@ -71,7 +71,7 @@ namespace NSubstitute.Analyzers.VisualBasic {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Member {0} can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted..
+        ///   Looks up a localized string similar to Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted..
         /// </summary>
         internal static string NonVirtualSetupSpecificationMessageFormat {
             get {
@@ -80,7 +80,7 @@ namespace NSubstitute.Analyzers.VisualBasic {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Non-overridable setup specification.
+        ///   Looks up a localized string similar to Non-virtual setup specification..
         /// </summary>
         internal static string NonVirtualSetupSpecificationTitle {
             get {
@@ -107,7 +107,7 @@ namespace NSubstitute.Analyzers.VisualBasic {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for a delegate. Use Substitute.For(Of {0}) instead..
+        ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for a delegate. Use Substitute.For&lt;{0}&gt;() instead..
         /// </summary>
         internal static string SubstituteConstructorArgumentsForDelegateMessageFormat {
             get {
@@ -134,7 +134,7 @@ namespace NSubstitute.Analyzers.VisualBasic {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for an interface. Use Substitute.For(Of {0}) instead..
+        ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for an interface. Use Substitute.For&lt;{0}&gt;() instead..
         /// </summary>
         internal static string SubstituteConstructorArgumentsForInterfaceMessageFormat {
             get {
@@ -206,7 +206,7 @@ namespace NSubstitute.Analyzers.VisualBasic {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via &lt;Assembly: InternalsVisibleTo(&quot;DynamicProxyGenAssembly2&quot;)&gt;.
+        ///   Looks up a localized string similar to Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via [assembly: InternalsVisibleTo(&quot;DynamicProxyGenAssembly2&quot;)].
         /// </summary>
         internal static string SubstituteForInternalMemberMessageFormat {
             get {
@@ -215,7 +215,7 @@ namespace NSubstitute.Analyzers.VisualBasic {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Substitute for internal member..
+        ///   Looks up a localized string similar to Can not create..
         /// </summary>
         internal static string SubstituteForInternalMemberTitle {
             get {
@@ -233,7 +233,7 @@ namespace NSubstitute.Analyzers.VisualBasic {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can only substitute for parts of classes, not interfaces or delegates.Use Substitute.For(Of {0}) instead of Substitute.ForPartsOf(Of {0}) here..
+        ///   Looks up a localized string similar to Can only substitute for parts of classes, not interfaces or delegates.Use Substitute.For&lt;{0}&gt; instead of Substitute.ForPartsOf&lt;{0}&gt; here..
         /// </summary>
         internal static string SubstituteForPartsOfUsedForInterfaceMessageFormat {
             get {

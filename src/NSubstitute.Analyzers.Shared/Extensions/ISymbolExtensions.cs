@@ -15,5 +15,18 @@ namespace NSubstitute.Analyzers.Shared.Extensions
                    internalsVisibleToAttribute.ConstructorArguments.Any(arg =>
                        arg.Value.ToString() == MetadataNames.CastleDynamicProxyGenAssembly2Name);
         }
+
+        public static string ToSimplifiedMethodString(this ISymbol symbol)
+        {
+            if (symbol == null)
+            {
+                return string.Empty;
+            }
+
+            // consider using span
+            var defaultString = symbol.ToString();
+            var bracketIndex = defaultString.IndexOf('(');
+            return bracketIndex > -1 ? defaultString.Substring(0, bracketIndex) : defaultString;
+        }
     }
 }
