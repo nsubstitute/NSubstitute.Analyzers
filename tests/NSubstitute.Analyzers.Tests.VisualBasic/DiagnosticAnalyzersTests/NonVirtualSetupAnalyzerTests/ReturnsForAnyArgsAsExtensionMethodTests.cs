@@ -562,7 +562,17 @@ End Namespace
             throw new System.NotImplementedException();
         }
 
+        public override Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericProperty()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public override Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericMethod()
         {
             throw new System.NotImplementedException();
         }
@@ -572,7 +582,17 @@ End Namespace
             throw new System.NotImplementedException();
         }
 
+        public override Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericIndexer()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public override Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireType()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireGenericType()
         {
             throw new System.NotImplementedException();
         }

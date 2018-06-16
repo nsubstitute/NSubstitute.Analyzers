@@ -174,7 +174,10 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 {
                     if (supressedSymbol.Equals(symbol) ||
                         supressedSymbol.Equals(symbol.ContainingType) ||
-                        supressedSymbol.Equals(symbol.ContainingNamespace))
+                        supressedSymbol.Equals(symbol.ContainingNamespace) ||
+                        (symbol is IMethodSymbol methodSymbol && methodSymbol.ConstructedFrom.Equals(supressedSymbol)) ||
+                        (symbol.ContainingType is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.ConstructedFrom.Equals(supressedSymbol)) ||
+                        (symbol is IPropertySymbol propertySymbol && propertySymbol.OriginalDefinition.Equals(supressedSymbol)))
                     {
                         return true;
                     }
