@@ -16,17 +16,16 @@ namespace NSubstitute.Analyzers.Shared.Extensions
                        arg.Value.ToString() == MetadataNames.CastleDynamicProxyGenAssembly2Name);
         }
 
-        public static string ToSimplifiedMethodString(this ISymbol symbol)
+        public static string ToMinimalMethodString(this ISymbol symbol, SemanticModel semanticModel)
         {
             if (symbol == null)
             {
                 return string.Empty;
             }
 
-            // consider using span
-            var defaultString = symbol.ToString();
-            var bracketIndex = defaultString.IndexOf('(');
-            return bracketIndex > -1 ? defaultString.Substring(0, bracketIndex) : defaultString;
+            var minimumDisplayString = symbol.ToMinimalDisplayString(semanticModel, 0, SymbolDisplayFormat.FullyQualifiedFormat);
+
+            return $"{symbol.ContainingType}.{minimumDisplayString}";
         }
     }
 }

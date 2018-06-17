@@ -210,11 +210,10 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             if (constructorContext.PossibleConstructors != null && constructorContext.PossibleConstructors.Any() == false)
             {
                 var symbol = substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetSymbolInfo(substituteContext.InvocationExpression);
-                var symbol2 = substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetSymbolInfo(substituteContext.InvocationExpression.DescendantNodes().First());
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.SubstituteForConstructorParametersMismatch,
                     substituteContext.InvocationExpression.GetLocation(),
-                    symbol.Symbol.ToSimplifiedMethodString(),
+                    symbol.Symbol.ToMinimalMethodString(substituteContext.SyntaxNodeAnalysisContext.SemanticModel),
                     constructorContext.ConstructorType);
 
                 substituteContext.SyntaxNodeAnalysisContext.ReportDiagnostic(diagnostic);
@@ -272,7 +271,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.SubstituteConstructorMismatch,
                     substituteContext.InvocationExpression.GetLocation(),
-                    symbol.Symbol.ToSimplifiedMethodString(),
+                    symbol.Symbol.ToMinimalMethodString(substituteContext.SyntaxNodeAnalysisContext.SemanticModel),
                     constructorContext.ConstructorType.ToString());
 
                 substituteContext.SyntaxNodeAnalysisContext.ReportDiagnostic(diagnostic);
