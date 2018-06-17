@@ -20,9 +20,15 @@ namespace NSubstitute.Analyzers.Shared.Extensions
                 return AnalyzersSettings.Default;
             }
 
-            var sourceText = settingsText.GetText(cancellationToken);
-
-            return JsonConvert.DeserializeObject<AnalyzersSettings>(sourceText.ToString());
+            try
+            {
+                var sourceText = settingsText.GetText(cancellationToken);
+                return JsonConvert.DeserializeObject<AnalyzersSettings>(sourceText.ToString());
+            }
+            catch (Exception)
+            {
+                return AnalyzersSettings.Default;
+            }
         }
     }
 }
