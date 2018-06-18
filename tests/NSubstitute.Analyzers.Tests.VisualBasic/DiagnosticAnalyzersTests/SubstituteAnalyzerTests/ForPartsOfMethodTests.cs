@@ -29,7 +29,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForPartsOfUsedForInterface,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Can only substitute for parts of classes, not interfaces or delegates.Use Substitute.For(Of MyNamespace.IFoo) instead of Substitute.ForPartsOf(Of MyNamespace.IFoo) here.",
+                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use Substitute.For(Of MyNamespace.IFoo) instead of Substitute.ForPartsOf(Of MyNamespace.IFoo) here.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(9, 30)
@@ -60,7 +60,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForPartsOfUsedForInterface,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Can only substitute for parts of classes, not interfaces or delegates.Use Substitute.For(Of System.Func(Of Integer)) instead of Substitute.ForPartsOf(Of System.Func(Of Integer)) here.",
+                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use Substitute.For(Of System.Func(Of Integer)) instead of Substitute.ForPartsOf(Of System.Func(Of Integer)) here.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(10, 30)
@@ -122,7 +122,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Arguments count passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the constructor arguments count for MyNamespace.Foo. Check the MyNamespace.Foo constructors and make sure you have passed the required arguments count.",
+                Message = "The number of arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(11, 30)
@@ -153,7 +153,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Arguments count passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the constructor arguments count for MyNamespace.Foo. Check the MyNamespace.Foo constructors and make sure you have passed the required arguments count.",
+                Message = "The number of arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(11, 30)
@@ -184,7 +184,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Arguments count passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the constructor arguments count for MyNamespace.Foo. Check the MyNamespace.Foo constructors and make sure you have passed the required arguments count.",
+                Message = "The number of arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(11, 30)
@@ -302,7 +302,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteConstructorMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the constructor arguments for MyNamespace.Foo. Check the MyNamespace.Foo constructors and make sure you have passed the required arguments and argument types.",
+                Message = "Arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required arguments and argument types.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(12, 30)
