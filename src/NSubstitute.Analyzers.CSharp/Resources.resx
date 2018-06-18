@@ -158,7 +158,7 @@
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
   <data name="SubstituteForPartsOfUsedForInterfaceMessageFormat" xml:space="preserve">
-    <value>Can only substitute for parts of classes, not interfaces or delegates.Use Substitute.For&lt;{0}&gt; instead of Substitute.ForPartsOf&lt;{0}&gt; here.</value>
+    <value>Can only substitute for parts of classes, not interfaces or delegates. Use Substitute.For&lt;{0}&gt; instead of Substitute.ForPartsOf&lt;{0}&gt; here.</value>
     <comment>The format-able message the diagnostic displays.</comment>
   </data>
   <data name="SubstituteForPartsOfUsedForInterfaceTitle" xml:space="preserve">
@@ -182,7 +182,7 @@
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
   <data name="SubstituteForConstructorParametersMismatchMessageFormat" xml:space="preserve">
-    <value>Arguments count passed to {0} do not match the constructor arguments count for {1}. Check the {1} constructors and make sure you have passed the required arguments count.</value>
+    <value>The number of arguments passed to {0} do not match the number of constructor arguments for {1}. Check the constructors for {1} and make sure you have passed the required number of arguments.</value>
     <comment>The format-able message the diagnostic displays.</comment>
   </data>
   <data name="SubstituteForConstructorParametersMismatchTitle" xml:space="preserve">
@@ -206,7 +206,7 @@
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
   <data name="SubstituteConstructorMismatchMessageFormat" xml:space="preserve">
-    <value>Arguments passed to {0} do not match the constructor arguments for {1}. Check the {1} constructors and make sure you have passed the required arguments and argument types.</value>
+    <value>Arguments passed to {0} do not match the constructor arguments for {1}. Check the constructors for {1} and make sure you have passed the required arguments and argument types.</value>
     <comment>The format-able message the diagnostic displays.</comment>
   </data>
   <data name="SubstituteConstructorMismatchMemberTitle" xml:space="preserve">

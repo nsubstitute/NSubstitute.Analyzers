@@ -229,7 +229,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Arguments count passed to NSubstitute.Substitute.[For](Of MyNamespace.IFoo, MyNamespace.Bar) do not match the constructor arguments count for MyNamespace.Bar. Check the MyNamespace.Bar constructors and make sure you have passed the required arguments count.",
+                Message = "The number of arguments passed to NSubstitute.Substitute.[For](Of MyNamespace.IFoo, MyNamespace.Bar) do not match the number of constructor arguments for MyNamespace.Bar. Check the constructors for MyNamespace.Bar and make sure you have passed the required number of arguments.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(12, 30)
@@ -291,7 +291,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Arguments count passed to NSubstitute.Substitute.[For](Of MyNamespace.Foo) do not match the constructor arguments count for MyNamespace.Foo. Check the MyNamespace.Foo constructors and make sure you have passed the required arguments count.",
+                Message = "The number of arguments passed to NSubstitute.Substitute.[For](Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(11, 30)
@@ -322,7 +322,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Arguments count passed to NSubstitute.Substitute.[For](Of MyNamespace.Foo) do not match the constructor arguments count for MyNamespace.Foo. Check the MyNamespace.Foo constructors and make sure you have passed the required arguments count.",
+                Message = "The number of arguments passed to NSubstitute.Substitute.[For](Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(11, 30)
@@ -353,7 +353,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Arguments count passed to NSubstitute.Substitute.[For](Of MyNamespace.Foo) do not match the constructor arguments count for MyNamespace.Foo. Check the MyNamespace.Foo constructors and make sure you have passed the required arguments count.",
+                Message = "The number of arguments passed to NSubstitute.Substitute.[For](Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(11, 30)
@@ -472,7 +472,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteConstructorMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Arguments passed to NSubstitute.Substitute.[For](Of MyNamespace.Foo) do not match the constructor arguments for MyNamespace.Foo. Check the MyNamespace.Foo constructors and make sure you have passed the required arguments and argument types.",
+                Message = "Arguments passed to NSubstitute.Substitute.[For](Of MyNamespace.Foo) do not match the constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required arguments and argument types.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(12, 30)
