@@ -129,7 +129,7 @@
     <value>Non-overridable setup specification</value>
     <comment>The title of the diagnostic.</comment>
   </data>
-    <data name="UnusedReceivedDescription" xml:space="preserve">
+  <data name="UnusedReceivedDescription" xml:space="preserve">
     <value>Unused received check.</value>
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
@@ -141,7 +141,7 @@
     <value>Received check.</value>
     <comment>The title of the diagnostic.</comment>
   </data>
-    <data name="UnusedReceivedForOrdinaryMethodDescription" xml:space="preserve">
+  <data name="UnusedReceivedForOrdinaryMethodDescription" xml:space="preserve">
     <value>Unused received check.</value>
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
@@ -151,6 +151,102 @@
   </data>
   <data name="UnusedReceivedForOrdinaryMethodTitle" xml:space="preserve">
     <value>Received check.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+ <data name="SubstituteForPartsOfUsedForInterfaceDescription" xml:space="preserve">
+    <value>Can only substitute for parts of classes, not interfaces or delegates.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteForPartsOfUsedForInterfaceMessageFormat" xml:space="preserve">
+    <value>Can only substitute for parts of classes, not interfaces or delegates. Use Substitute.For(Of {0}) instead of Substitute.ForPartsOf(Of {0}) here.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="SubstituteForPartsOfUsedForInterfaceTitle" xml:space="preserve">
+    <value>Substitute.ForPartsOf used for interface.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+    <data name="SubstituteForWithoutAccessibleConstructorDescription" xml:space="preserve">
+    <value>Could not find accessible constructor.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteForWithoutAccessibleConstructorMessageFormat" xml:space="preserve">
+    <value>Could not find accessible constructor. Make sure that type {0} exposes public or protected constructors.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="SubstituteForWithoutAccessibleConstructorTitle" xml:space="preserve">
+    <value>Could not find accessible constructor.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteForConstructorParametersMismatchDescription" xml:space="preserve">
+    <value>Constructor parameters count mismatch.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteForConstructorParametersMismatchMessageFormat" xml:space="preserve">
+    <value>The number of arguments passed to {0} do not match the number of constructor arguments for {1}. Check the constructors for {1} and make sure you have passed the required number of arguments.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="SubstituteForConstructorParametersMismatchTitle" xml:space="preserve">
+    <value>Constructor parameters count mismatch.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteForInternalMemberDescription" xml:space="preserve">
+    <value>Substitute for internal member.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteForInternalMemberMessageFormat" xml:space="preserve">
+    <value>Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via &lt;Assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")&gt;</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="SubstituteForInternalMemberTitle" xml:space="preserve">
+    <value>Substitute for internal member.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteConstructorMismatchDescription" xml:space="preserve">
+    <value>Unable to find matching constructor.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteConstructorMismatchMessageFormat" xml:space="preserve">
+    <value>Arguments passed to {0} do not match the constructor arguments for {1}. Check the constructors for {1} and make sure you have passed the required arguments and argument types.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="SubstituteConstructorMismatchMemberTitle" xml:space="preserve">
+    <value>Unable to find matching constructor.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteMultipleClassesDescription" xml:space="preserve">
+    <value>Can not substitute for multiple classes.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteMultipleClassesMessageFormat" xml:space="preserve">
+    <value>Can not substitute for multiple classes. To substitute for multiple types only one type can be a concrete class; other types can only be interfaces.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="SubstituteMultipleClassesMemberTitle" xml:space="preserve">
+    <value>Can not substitute for multiple classes.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteConstructorArgumentsForInterfaceDescription" xml:space="preserve">
+    <value>Can not provide constructor arguments when substituting for an interface.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteConstructorArgumentsForInterfaceMessageFormat" xml:space="preserve">
+    <value>Can not provide constructor arguments when substituting for an interface. Use Substitute.For(Of {0}) instead.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="SubstituteConstructorArgumentsForInterfaceMemberTitle" xml:space="preserve">
+    <value>Can not provide constructor arguments when substituting for an interface.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteConstructorArgumentsForDelegateeDescription" xml:space="preserve">
+    <value>Can not provide constructor arguments when substituting for a delegate.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="SubstituteConstructorArgumentsForDelegateMessageFormat" xml:space="preserve">
+    <value>Can not provide constructor arguments when substituting for a delegate. Use Substitute.For(Of {0}) instead.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="SubstituteConstructorArgumentsForDelegateMemberTitle" xml:space="preserve">
+    <value>Can not provide constructor arguments when substituting for a delegate.</value>
     <comment>The title of the diagnostic.</comment>
   </data>
 </root>
