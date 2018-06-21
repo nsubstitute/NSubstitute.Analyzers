@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Newtonsoft.Json;
 using NSubstitute.Analyzers.Shared.Settings;
 
 namespace NSubstitute.Analyzers.Shared.Extensions
@@ -12,8 +11,7 @@ namespace NSubstitute.Analyzers.Shared.Extensions
     {
         public static AnalyzersSettings GetSettings(this AnalyzerOptions options, CancellationToken cancellationToken)
         {
-            var settingsText = options.AdditionalFiles.FirstOrDefault(file =>
-                Path.GetFileName(file.Path).Equals(AnalyzersSettings.AnalyzerFileName, StringComparison.CurrentCultureIgnoreCase));
+            var settingsText = options.AdditionalFiles.FirstOrDefault(file => file.IsSettingsFile());
 
             if (settingsText == null)
             {
@@ -23,7 +21,10 @@ namespace NSubstitute.Analyzers.Shared.Extensions
             try
             {
                 var sourceText = settingsText.GetText(cancellationToken);
-                return JsonConvert.DeserializeObject<AnalyzersSettings>(sourceText.ToString());
+
+                return AnalyzersSettings.Default;
+
+                // return JsonConvert.DeserializeObject<AnalyzersSettings>(sourceText.ToString());
             }
             catch (Exception)
             {

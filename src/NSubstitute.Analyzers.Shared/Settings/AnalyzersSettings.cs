@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace NSubstitute.Analyzers.Shared.Settings
 {
@@ -8,24 +9,21 @@ namespace NSubstitute.Analyzers.Shared.Settings
 
         public static AnalyzersSettings Default => new AnalyzersSettings();
 
-        public NonVirtualSetupSettings NonVirtualSetupSettings { get; set; }
+        public List<Suppression> Suppressions { get; set; }
 
         public AnalyzersSettings()
         {
-            NonVirtualSetupSettings = new NonVirtualSetupSettings();
+            Suppressions = new List<Suppression>();
         }
 
-        public AnalyzersSettings(NonVirtualSetupSettings nonVirtualSetupSettings)
+        public AnalyzersSettings(List<Suppression> suppressions)
         {
-            NonVirtualSetupSettings = nonVirtualSetupSettings;
+            Suppressions = suppressions;
         }
 
         public static AnalyzersSettings CreateWithSuppressions(params string[] suppressions)
         {
-            return new AnalyzersSettings(new NonVirtualSetupSettings
-            {
-                SupressedSymbols = ImmutableList.Create(suppressions)
-            });
+            return new AnalyzersSettings(new List<Suppression>());
         }
     }
 }

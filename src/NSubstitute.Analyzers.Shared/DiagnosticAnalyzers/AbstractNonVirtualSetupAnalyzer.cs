@@ -168,9 +168,9 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private bool IsSupressed(SyntaxNodeAnalysisContext syntaxNodeContext, AnalyzersSettings settings, ISymbol symbol)
         {
-            foreach (var supressedSymbolName in settings.NonVirtualSetupSettings.SupressedSymbols)
+            foreach (var supression in settings.Suppressions.Where(suppression => suppression.Rules.Contains(DiagnosticDescriptorsProvider.NonVirtualSetupSpecification.Id)))
             {
-                foreach (var supressedSymbol in DocumentationCommentId.GetSymbolsForDeclarationId(supressedSymbolName, syntaxNodeContext.Compilation))
+                foreach (var supressedSymbol in DocumentationCommentId.GetSymbolsForDeclarationId(supression.Target, syntaxNodeContext.Compilation))
                 {
                     if (supressedSymbol.Equals(symbol) ||
                         supressedSymbol.Equals(symbol.ContainingType) ||
