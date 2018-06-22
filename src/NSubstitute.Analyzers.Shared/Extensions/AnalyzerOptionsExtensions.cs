@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Newtonsoft.Json;
 using NSubstitute.Analyzers.Shared.Settings;
 
 namespace NSubstitute.Analyzers.Shared.Extensions
@@ -22,9 +23,7 @@ namespace NSubstitute.Analyzers.Shared.Extensions
             {
                 var sourceText = settingsText.GetText(cancellationToken);
 
-                return AnalyzersSettings.Default;
-
-                // return JsonConvert.DeserializeObject<AnalyzersSettings>(sourceText.ToString());
+                return JsonConvert.DeserializeObject<AnalyzersSettings>(sourceText.ToString());
             }
             catch (Exception)
             {
