@@ -5,14 +5,14 @@ using NSubstitute.Analyzers.VisualBasic.CodeFixProviders;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.ForPartsOfUsedForUnsupportedTypeCodeFixProviderTests
 {
-    public class ConstructorArgumentsForInterfaceCodeFixProviderTests : VisualBasicCodeFixVerifier
+    public class ForPartsOfUsedForUnsupportedTypeCodeFixProviderTests : VisualBasicCodeFixVerifier
     {
         [Fact]
-        public async Task RemovesInvocationArguments_WhenGenericFor_UsedWithParametersForInterface()
+        public async Task ReplacesForPartsOf_WithFor_WhenUsedWithInterface()
         {
-            var source = @"Imports NSubstitute
+            var oldSource = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Interface IFoo
@@ -20,7 +20,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)(1, 2, 3)
+            Dim substitute = NSubstitute.Substitute.ForPartsOf(Of IFoo)()
         End Sub
     End Class
 End Namespace
@@ -33,27 +33,24 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
+            Dim substitute = NSubstitute.Substitute.For(Of IFoo)()
         End Sub
     End Class
 End Namespace
 ";
 
-            await VerifyFix(source, newSource);
+            await VerifyFix(oldSource, newSource);
         }
 
         [Fact]
-        public async Task RemovesInvocationArguments_WhenNonGenericFor_UsedWithParametersForInterface()
+        public async Task ReplacesForPartsOf_WithFor_WhenUsedWithDelegate()
         {
-            var source = @"Imports NSubstitute
+            var oldSource = @"Imports NSubstitute
 
 Namespace MyNamespace
-    Public Interface IFoo
-    End Interface
-
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For]({GetType(IFoo)}, New Object() {1})
+            Dim substitute = NSubstitute.Substitute.ForPartsOf(Of System.Func(Of Integer))()
         End Sub
     End Class
 End Namespace
@@ -61,17 +58,15 @@ End Namespace
             var newSource = @"Imports NSubstitute
 
 Namespace MyNamespace
-    Public Interface IFoo
-    End Interface
-
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For]({GetType(IFoo)}, Nothing)
+            Dim substitute = NSubstitute.Substitute.For(Of System.Func(Of Integer))()
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyFix(source, newSource);
+
+            await VerifyFix(oldSource, newSource);
         }
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
@@ -81,7 +76,7 @@ End Namespace
 
         protected override CodeFixProvider GetCodeFixProvider()
         {
-            return new ConstructorArgumentsForInterfaceCodeFixProvider();
+            return new ForPartsOfUsedForUnsupportedTypeCodeFixProvider();
         }
     }
 }
