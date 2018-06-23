@@ -88,24 +88,11 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
             }
 
             var diagnostics = new List<Diagnostic>();
-            var analyzerExceptions = new List<Exception>();
-            var settings = GetSettings();
-            var additionalTexts = string.IsNullOrEmpty(settings)
-                ? ImmutableArray<AdditionalText>.Empty
-                : ImmutableArray.Create(new AdditionalText[]
-                {
-                    new AnalyzerAdditionalText(AnalyzersSettings.AnalyzerFileName, settings),
-                });
 
             foreach (var project in projects)
             {
-                var options = new CompilationWithAnalyzersOptions(
-                    new AnalyzerOptions(additionalTexts),
-                    (exception, diagnosticAnalyzer, diagnostic) => analyzerExceptions.Add(exception),
-                    false,
-                    true);
-                var compilationWithAnalyzers = (await project.GetCompilationAsync())
-                    .WithAnalyzers(ImmutableArray.Create(analyzer), options);
+                var compilation = await project.GetCompilationAsync();
+                var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create(analyzer), project.AnalyzerOptions);
 
                 if (!allowCompilationErrors)
                 {
@@ -113,18 +100,6 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
                 }
 
                 var diags = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
-
-                if (analyzerExceptions.Any())
-                {
-                    if (analyzerExceptions.Count == 1)
-                    {
-                        ExceptionDispatchInfo.Capture(analyzerExceptions[0]).Throw();
-                    }
-                    else
-                    {
-                        throw new AggregateException("Multiple exceptions thrown during analysis", analyzerExceptions);
-                    }
-                }
 
                 foreach (var diag in diags)
                 {
@@ -186,6 +161,13 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
                     var documentId = DocumentId.CreateNewId(projectId, debugName: newFileName);
                     solution = solution.AddDocument(documentId, newFileName, SourceText.From(source));
                     count++;
+                }
+
+                var settings = GetSettings();
+                if (!string.IsNullOrEmpty(settings))
+                {
+                    var documentId = DocumentId.CreateNewId(projectId);
+                    solution = solution.AddAdditionalDocument(documentId, AnalyzersSettings.AnalyzerFileName, settings);
                 }
 
                 return solution.GetProject(projectId);

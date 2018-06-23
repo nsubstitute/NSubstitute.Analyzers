@@ -14,7 +14,7 @@ using NSubstitute.Analyzers.Shared.Threading;
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 {
-    public class AbstractSuppressDiagnosticsCodeFixProvider : CodeFixProvider
+    internal abstract class AbstractSuppressDiagnosticsCodeFixProvider : CodeFixProvider
     {
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
@@ -33,7 +33,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             {
                 context.RegisterCodeFix(
                     CodeAction.Create(
-                        "Suppress in nsubstitute.json",
+                        $"Suppress in {AnalyzersSettings.AnalyzerFileName}",
                         cancellationToken => GetTransformedSolutionAsync(context, diagnostic),
                         nameof(AbstractSuppressDiagnosticsCodeFixProvider)),
                     diagnostic);

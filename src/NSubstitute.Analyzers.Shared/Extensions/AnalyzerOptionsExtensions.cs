@@ -12,7 +12,7 @@ namespace NSubstitute.Analyzers.Shared.Extensions
     {
         public static AnalyzersSettings GetSettings(this AnalyzerOptions options, CancellationToken cancellationToken)
         {
-            var settingsText = options.AdditionalFiles.FirstOrDefault(file => file.IsSettingsFile());
+            var settingsText = options.AdditionalFiles.FirstOrDefault(additionalText => Path.GetFileName(additionalText.Path).Equals(AnalyzersSettings.AnalyzerFileName, StringComparison.CurrentCultureIgnoreCase));
 
             if (settingsText == null)
             {

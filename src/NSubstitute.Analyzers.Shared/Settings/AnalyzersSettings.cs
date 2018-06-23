@@ -21,9 +21,19 @@ namespace NSubstitute.Analyzers.Shared.Settings
             Suppressions = suppressions;
         }
 
-        public static AnalyzersSettings CreateWithSuppressions(params string[] suppressions)
+        public static AnalyzersSettings CreateWithSuppressions(string target, string ruleId)
         {
-            return new AnalyzersSettings(new List<Suppression>());
+            return new AnalyzersSettings(new List<Suppression>
+            {
+                new Suppression
+                {
+                    Target = target,
+                    Rules = new List<string>
+                    {
+                        ruleId
+                    }
+                }
+            });
         }
     }
 }

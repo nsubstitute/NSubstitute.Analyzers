@@ -32,7 +32,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.ExtensionsTests
         [InlineData("NsubStitute.Json")]
         public void GetSettings_ReturnsSerializedSettings_WhenAnalyzerFileExists(string fileName)
         {
-            var analyzersSettings = AnalyzersSettings.CreateWithSuppressions("supression");
+            var analyzersSettings = AnalyzersSettings.CreateWithSuppressions("supression", "NS001");
             var fileContentg = JsonConvert.SerializeObject(analyzersSettings);
             var analyzerAdditionalTexts =
                 ImmutableArray.Create<AdditionalText>(new AnalyzerAdditionalText(fileName, fileContentg));

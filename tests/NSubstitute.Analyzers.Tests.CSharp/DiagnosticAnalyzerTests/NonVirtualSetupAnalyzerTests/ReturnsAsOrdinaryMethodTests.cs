@@ -550,7 +550,7 @@ namespace NSubstitute
 
         public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualProperty()
         {
-            Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo.Bar");
+            Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo.Bar", DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
             var source = @"using NSubstitute;
 
@@ -589,7 +589,7 @@ namespace MyNamespace
 
         public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericProperty()
         {
-            Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo`1.Bar");
+            Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo`1.Bar", DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
             var source = @"using NSubstitute;
 
@@ -628,7 +628,7 @@ namespace MyNamespace
 
         public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod()
         {
-            Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar(System.Int32,System.Int32)");
+            Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar(System.Int32,System.Int32)", DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
             var source = @"using NSubstitute;
 
@@ -673,7 +673,7 @@ namespace MyNamespace
 
         public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericMethod()
         {
-            Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar``1(``0,``0)");
+            Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar``1(``0,``0)", DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
             var source = @"using NSubstitute;
 
@@ -718,7 +718,7 @@ namespace MyNamespace
 
         public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualIndexer()
         {
-            Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo.Item(System.Int32,System.Int32)");
+            Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo.Item(System.Int32,System.Int32)", DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
             var source = @"using NSubstitute;
 
@@ -757,7 +757,7 @@ namespace MyNamespace
 
         public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericIndexer()
         {
-            Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo`1.Item(`0,`0)");
+            Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo`1.Item(`0,`0)", DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
             var source = @"using NSubstitute;
 
@@ -796,7 +796,7 @@ namespace MyNamespace
 
         public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireType()
         {
-             Settings = AnalyzersSettings.CreateWithSuppressions("T:MyNamespace.Foo");
+             Settings = AnalyzersSettings.CreateWithSuppressions("T:MyNamespace.Foo", DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
             var source = @"using NSubstitute;
 
@@ -878,7 +878,7 @@ namespace MyNamespace
 
         public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireGenericType()
         {
-            Settings = AnalyzersSettings.CreateWithSuppressions("T:MyNamespace.Foo`1");
+            Settings = AnalyzersSettings.CreateWithSuppressions("T:MyNamespace.Foo`1", DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
             var source = @"using NSubstitute;
 
@@ -960,7 +960,7 @@ namespace MyNamespace
 
         public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireNamespace()
         {
-            Settings = AnalyzersSettings.CreateWithSuppressions("N:MyNamespace");
+            Settings = AnalyzersSettings.CreateWithSuppressions("N:MyNamespace", DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
             var source = @"using NSubstitute;
 
