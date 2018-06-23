@@ -1,13 +1,14 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 using NSubstitute.Analyzers.VisualBasic.CodeFixProviders;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.ConstructorArgumentsForInterfaceCodeFixProviderTests
 {
-    public class ConstructorArgumentsForInterfaceCodeFixProviderTests : VisualBasicCodeFixVerifier
+    public class ConstructorArgumentsForInterfaceCodeFixProviderTests : VisualBasicCodeFixVerifier, IConstructorArgumentsForInterfaceCodeFixVerifier
     {
         [Fact]
         public async Task RemovesInvocationArguments_WhenGenericFor_UsedWithParametersForInterface()

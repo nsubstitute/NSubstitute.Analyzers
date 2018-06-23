@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using NSubstitute.Analyzers.Shared.Extensions;
-using NSubstitute.Analyzers.Shared.Settings;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
@@ -56,7 +53,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return null;
             }
 
-            return IsInterfaceMember(symbolInfo) || IsVirtual(symbolInfo) || IsSupressed(syntaxNodeContext, symbolInfo.Symbol);
+            return IsInterfaceMember(symbolInfo) || IsVirtual(symbolInfo);
         }
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
@@ -129,7 +126,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     accessedMember.GetLocation(),
                     accessedSymbol.Symbol?.Name ?? accessedMember.ToString());
 
-                syntaxNodeContext.ReportDiagnostic(diagnostic);
+                TryReportDiagnostic(syntaxNodeContext, diagnostic, accessedSymbol.Symbol);
             }
         }
 
@@ -152,39 +149,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                             || member.IsAbstract;
 
             return isVirtual;
-        }
-
-        private bool IsSupressed(SyntaxNodeAnalysisContext syntaxNodeContext, ISymbol symbol)
-        {
-            if (symbol == null)
-            {
-                return false;
-            }
-
-            var analyzersSettings = syntaxNodeContext.GetSettings(CancellationToken.None);
-
-            return IsSupressed(syntaxNodeContext, analyzersSettings, symbol);
-        }
-
-        private bool IsSupressed(SyntaxNodeAnalysisContext syntaxNodeContext, AnalyzersSettings settings, ISymbol symbol)
-        {
-            foreach (var supression in settings.Suppressions.Where(suppression => suppression.Rules.Contains(DiagnosticDescriptorsProvider.NonVirtualSetupSpecification.Id)))
-            {
-                foreach (var supressedSymbol in DocumentationCommentId.GetSymbolsForDeclarationId(supression.Target, syntaxNodeContext.Compilation))
-                {
-                    if (supressedSymbol.Equals(symbol) ||
-                        supressedSymbol.Equals(symbol.ContainingType) ||
-                        supressedSymbol.Equals(symbol.ContainingNamespace) ||
-                        (symbol is IMethodSymbol methodSymbol && methodSymbol.ConstructedFrom.Equals(supressedSymbol)) ||
-                        (symbol.ContainingType is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.ConstructedFrom.Equals(supressedSymbol)) ||
-                        (symbol is IPropertySymbol propertySymbol && propertySymbol.OriginalDefinition.Equals(supressedSymbol)))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
         }
     }
 }

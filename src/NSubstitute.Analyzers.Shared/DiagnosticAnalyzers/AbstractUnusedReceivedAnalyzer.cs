@@ -70,7 +70,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 invocationExpression.GetLocation(),
                 methodSymbol.Name);
 
-            syntaxNodeContext.ReportDiagnostic(diagnostic);
+            TryReportDiagnostic(syntaxNodeContext, diagnostic, methodSymbol);
         }
 
         private static bool IsReceivedLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntax, string memberName)
