@@ -1,13 +1,14 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 using NSubstitute.Analyzers.VisualBasic.CodeFixProviders;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.NonVirtualSetupAnalyzerSuppressDiagnosticsCodeFixProviderTests
 {
-    public class NonVirtualSetupSuppressDiagnosticsCodeFixActionsTests : VisualBasicCodeFixActionsVerifier
+    public class NonVirtualSetupSuppressDiagnosticsCodeFixActionsTests : VisualBasicCodeFixActionsVerifier, INonVirtualSetupSuppressDiagnosticsCodeFixActionsVerifier
     {
         [Fact]
         public async Task CreatesCorrectCodeFixActions_ForIndexer()

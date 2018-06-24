@@ -3,11 +3,12 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.CSharp.CodeFixProviders;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.NonVirtualSetupAnalyzerSuppressDiagnosticsCodeFixProviderTests
 {
-    public class NonVirtualSetupSuppressDiagnosticsCodeFixActionsTests : CSharpCodeFixActionsVerifier
+    public class NonVirtualSetupSuppressDiagnosticsCodeFixActionsTests : CSharpCodeFixActionsVerifier, INonVirtualSetupSuppressDiagnosticsCodeFixActionsVerifier
     {
         [Fact]
         public async Task CreatesCorrectCodeFixActions_ForIndexer()
