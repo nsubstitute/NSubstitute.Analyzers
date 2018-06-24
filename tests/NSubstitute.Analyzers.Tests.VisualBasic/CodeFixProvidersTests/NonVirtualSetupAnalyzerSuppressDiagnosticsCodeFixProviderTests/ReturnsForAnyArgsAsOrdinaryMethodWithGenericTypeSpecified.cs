@@ -140,5 +140,61 @@ End Namespace";
 
             await VerifySuppressionSettings(source, "P:MyNamespace.Foo.Item(System.Int32)", DiagnosticIdentifiers.NonVirtualSetupSpecification);
         }
+
+        public override async Task SuppressesDiagnosticsInSettingsForClass_WhenSettingsValueForNonVirtualMember_AndSelectingClassSuppression()
+        {
+            var source = @"Imports System
+Imports NSubstitute
+
+Namespace MyNamespace
+
+    Public Class Foo
+
+        Public Default ReadOnly Property Item(ByVal x As Integer) As Integer
+            Get
+                Throw New NotImplementedException
+            End Get
+        End Property
+    End Class
+
+    Public Class FooTests
+
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.For(Of Foo)
+            SubstituteExtensions.ReturnsForAnyArgs(Of Integer)(substitute(1), 1)
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifySuppressionSettings(source, "T:MyNamespace.Foo", DiagnosticIdentifiers.NonVirtualSetupSpecification, 1);
+        }
+
+        public override async Task SuppressesDiagnosticsInSettingsForNamespace_WhenSettingsValueForNonVirtualMember_AndSelectingNamespaceSuppression()
+        {
+            var source = @"Imports System
+Imports NSubstitute
+
+Namespace MyNamespace
+
+    Public Class Foo
+
+        Public Default ReadOnly Property Item(ByVal x As Integer) As Integer
+            Get
+                Throw New NotImplementedException
+            End Get
+        End Property
+    End Class
+
+    Public Class FooTests
+
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.For(Of Foo)
+            SubstituteExtensions.ReturnsForAnyArgs(Of Integer)(substitute(1), 1)
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifySuppressionSettings(source, "N:MyNamespace", DiagnosticIdentifiers.NonVirtualSetupSpecification, 2);
+        }
     }
 }

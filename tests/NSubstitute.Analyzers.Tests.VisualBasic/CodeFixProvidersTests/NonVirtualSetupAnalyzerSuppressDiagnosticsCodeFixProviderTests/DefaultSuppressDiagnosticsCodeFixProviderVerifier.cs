@@ -25,6 +25,12 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.NonVirtu
         [Fact]
         public abstract Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualIndexer();
 
+        [Fact]
+        public abstract Task SuppressesDiagnosticsInSettingsForClass_WhenSettingsValueForNonVirtualMember_AndSelectingClassSuppression();
+
+        [Fact]
+        public abstract Task SuppressesDiagnosticsInSettingsForNamespace_WhenSettingsValueForNonVirtualMember_AndSelectingNamespaceSuppression();
+
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
             return new NonVirtualSetupAnalyzer();

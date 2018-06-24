@@ -15,11 +15,11 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
 {
     public abstract class SuppressDiagnosticSettingsVerifier : CodeFixVerifier
     {
-        protected async Task VerifySuppressionSettings(string source, string target, string diagnosticRuleId)
+        protected async Task VerifySuppressionSettings(string source, string target, string diagnosticRuleId, int codeFixIndex = 0)
         {
             var originalSettings = JsonConvert.DeserializeObject<AnalyzersSettings>(GetSettings());
 
-            var document = await ApplySettingsSuppressionFix(source);
+            var document = await ApplySettingsSuppressionFix(source, codeFixIndex);
 
             await VerifySuppressionSettings(document, originalSettings, target, diagnosticRuleId);
         }

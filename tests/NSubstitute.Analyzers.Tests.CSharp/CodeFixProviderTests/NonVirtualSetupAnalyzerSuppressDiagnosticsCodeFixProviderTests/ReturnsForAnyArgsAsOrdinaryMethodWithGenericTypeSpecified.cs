@@ -134,5 +134,53 @@ namespace MyNamespace
 
             await VerifySuppressionSettings(source, "P:MyNamespace.Foo.Item(System.Int32)", DiagnosticIdentifiers.NonVirtualSetupSpecification);
         }
+
+        public override async Task SuppressesDiagnosticsInSettingsForClass_WhenSettingsValueForNonVirtualMember_AndSelectingClassSuppression()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public int this[int x] => 0;
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            SubstituteExtensions.ReturnsForAnyArgs<int>(substitute[1], 1);
+        }
+    }
+}";
+
+            await VerifySuppressionSettings(source, "T:MyNamespace.Foo", DiagnosticIdentifiers.NonVirtualSetupSpecification, 1);
+        }
+
+        public override async Task SuppressesDiagnosticsInSettingsForNamespace_WhenSettingsValueForNonVirtualMember_AndSelectingNamespaceSuppression()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public int this[int x] => 0;
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            SubstituteExtensions.ReturnsForAnyArgs<int>(substitute[1], 1);
+        }
+    }
+}";
+
+            await VerifySuppressionSettings(source, "N:MyNamespace", DiagnosticIdentifiers.NonVirtualSetupSpecification, 2);
+        }
     }
 }

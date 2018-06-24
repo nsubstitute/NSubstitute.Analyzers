@@ -13,5 +13,9 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
         Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualProperty();
 
         Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualIndexer();
+
+        Task SuppressesDiagnosticsInSettingsForClass_WhenSettingsValueForNonVirtualMember_AndSelectingClassSuppression();
+
+        Task SuppressesDiagnosticsInSettingsForNamespace_WhenSettingsValueForNonVirtualMember_AndSelectingNamespaceSuppression();
     }
 }
