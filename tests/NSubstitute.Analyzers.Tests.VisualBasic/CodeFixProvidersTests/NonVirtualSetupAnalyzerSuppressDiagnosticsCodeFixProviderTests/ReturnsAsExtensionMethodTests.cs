@@ -4,7 +4,7 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.NonVirtualSetupAnalyzerSuppressDiagnosticsCodeFixProviderTests
 {
-    public class ReturnsAsExtensionMethodTests : DefaultSuppressDiagnosticsCodeFixProviderVerifier
+    public class ReturnsAsExtensionMethodTests : NonVirtualSetupSuppressDiagnosticsCodeFixVerifier
     {
         public override async Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualMethod()
         {

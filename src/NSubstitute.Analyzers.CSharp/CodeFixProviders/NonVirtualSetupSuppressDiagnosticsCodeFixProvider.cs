@@ -5,7 +5,7 @@ using NSubstitute.Analyzers.Shared.CodeFixProviders;
 namespace NSubstitute.Analyzers.CSharp.CodeFixProviders
 {
     [ExportCodeFixProvider(LanguageNames.CSharp)]
-    internal class DefaultSuppressDiagnosticsCodeFixProvider : AbstractSuppressDiagnosticsCodeFixProvider
+    internal class NonVirtualSetupSuppressDiagnosticsCodeFixProvider : AbstractNonVirtualSetupSuppressDiagnosticsCodeFixProvider
     {
     }
 }

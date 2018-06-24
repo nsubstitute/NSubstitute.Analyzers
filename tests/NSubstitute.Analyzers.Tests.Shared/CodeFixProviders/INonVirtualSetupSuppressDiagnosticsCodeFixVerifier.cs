@@ -2,7 +2,7 @@
 
 namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
 {
-    public interface INonVirtualSetupAnalyzerSuppressDiagnosticsCodeFixVerifier
+    public interface INonVirtualSetupSuppressDiagnosticsCodeFixVerifier
     {
         Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualMethod();
 

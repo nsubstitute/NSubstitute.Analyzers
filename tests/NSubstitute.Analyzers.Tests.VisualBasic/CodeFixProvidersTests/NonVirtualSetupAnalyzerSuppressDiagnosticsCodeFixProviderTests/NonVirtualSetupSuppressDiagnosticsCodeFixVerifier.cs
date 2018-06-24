@@ -1,14 +1,14 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using NSubstitute.Analyzers.CSharp.CodeFixProviders;
-using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
+using NSubstitute.Analyzers.VisualBasic.CodeFixProviders;
+using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.NonVirtualSetupAnalyzerSuppressDiagnosticsCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.NonVirtualSetupAnalyzerSuppressDiagnosticsCodeFixProviderTests
 {
-    public abstract class DefaultSuppressDiagnosticsCodeFixProviderVerifier : CSharpSuppressDiagnosticSettingsVerifier, INonVirtualSetupAnalyzerSuppressDiagnosticsCodeFixVerifier
+    public abstract class NonVirtualSetupSuppressDiagnosticsCodeFixVerifier : VisualBasicSuppressDiagnosticSettingsVerifier, INonVirtualSetupSuppressDiagnosticsCodeFixVerifier
     {
         [Fact]
         public abstract Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualMethod();
@@ -38,7 +38,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.NonVirtualSetu
 
         protected override CodeFixProvider GetCodeFixProvider()
         {
-            return new DefaultSuppressDiagnosticsCodeFixProvider();
+            return new NonVirtualSetupSuppressDiagnosticsCodeFixProvider();
         }
     }
 }

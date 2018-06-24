@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,8 +14,6 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 {
     internal abstract class AbstractSuppressDiagnosticsCodeFixProvider : CodeFixProvider
     {
-        public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.NonVirtualSetupSpecification);
-
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             var project = context.Document.Project;
@@ -39,7 +36,6 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 
             var root = await context.Document.GetSyntaxRootAsync();
             var model = await context.Document.GetSemanticModelAsync();
-            var i = 1;
             foreach (var diagnostic in context.Diagnostics.Where(diagnostic => FixableDiagnosticIds.Contains(diagnostic.Id)))
             {
                 var syntaxNode = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
@@ -50,10 +46,30 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
                     context.RegisterCodeFix(
                         CodeAction.Create(
                             CreateCodeFixTitle(diagnostic, innerSymbol),
-                            cancellationToken => GetTransformedSolutionAsync(context, diagnostic, settingsFile, innerSymbol),
-                            (i++).ToString()),
+                            cancellationToken => GetTransformedSolutionAsync(context, diagnostic, settingsFile, innerSymbol)),
                         diagnostic);
                 }
+            }
+        }
+
+        protected virtual IEnumerable<ISymbol> GetSuppressibleSymbol(ISymbol symbol)
+        {
+            if (symbol == null)
+            {
+                yield break;
+            }
+
+            yield return symbol;
+
+            if (!(symbol is ITypeSymbol))
+            {
+                yield return symbol.ContainingType;
+                yield return symbol.ContainingType.ContainingNamespace;
+            }
+
+            if (symbol is ITypeSymbol)
+            {
+                yield return symbol.ContainingNamespace;
             }
         }
 
@@ -67,15 +83,15 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
         {
             switch (innerSymbol)
             {
-                    case IMethodSymbol methodSymbol:
+                    case IMethodSymbol _:
                         return "method";
                     case IPropertySymbol propertySymbol when propertySymbol.IsIndexer:
                         return "indexer";
-                    case IPropertySymbol propertySymbol:
+                    case IPropertySymbol _:
                         return "property";
-                    case ITypeSymbol typeSymbol:
+                    case ITypeSymbol _:
                         return "class";
-                    case INamespaceSymbol namespaceSymbol:
+                    case INamespaceSymbol _:
                         return "namespace";
                     default:
                         return string.Empty;
@@ -85,12 +101,11 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
         private Task<Solution> GetTransformedSolutionAsync(CodeFixContext context, Diagnostic diagnostic, TextDocument settingsFile, ISymbol symbol)
         {
             var project = context.Document.Project;
-            var solution = project.Solution;
 
             var options = GetUpdatedAnalyzersOptions(context, diagnostic, symbol);
 
             project = project.RemoveAdditionalDocument(settingsFile.Id);
-            solution = project.Solution;
+            var solution = project.Solution;
 
             var newDocumentId = settingsFile.Id ?? DocumentId.CreateNewId(project.Id);
 
@@ -134,27 +149,6 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
         {
             return project.AdditionalDocuments.SingleOrDefault(document =>
                 document.Name.Equals(AnalyzersSettings.AnalyzerFileName, StringComparison.CurrentCultureIgnoreCase));
-        }
-
-        private IEnumerable<ISymbol> GetSuppressibleSymbol(ISymbol symbol)
-        {
-            if (symbol == null)
-            {
-                yield break;
-            }
-
-            yield return symbol;
-
-            if (!(symbol is ITypeSymbol))
-            {
-                yield return symbol.ContainingType;
-                yield return symbol.ContainingType.ContainingNamespace;
-            }
-
-            if (symbol is ITypeSymbol)
-            {
-                yield return symbol.ContainingNamespace;
-            }
         }
     }
 }

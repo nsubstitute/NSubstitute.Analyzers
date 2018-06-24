@@ -4,7 +4,7 @@ using NSubstitute.Analyzers.Shared;
 namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.
     NonVirtualSetupAnalyzerSuppressDiagnosticsCodeFixProviderTests
 {
-    public class ReturnsAsExtensionMethodTests : DefaultSuppressDiagnosticsCodeFixProviderVerifier
+    public class ReturnsAsExtensionMethodTests : NonVirtualSetupSuppressDiagnosticsCodeFixVerifier
     {
         public override async Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualMethod()
         {
