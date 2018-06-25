@@ -24,7 +24,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="15.1.192" PrivateAssets="all" />
+    <DotNetCliToolReference  Include="Microsoft.VSSDK.BuildTools" Version="15.1.192" />
   </ItemGroup>
 
   <ItemGroup>
