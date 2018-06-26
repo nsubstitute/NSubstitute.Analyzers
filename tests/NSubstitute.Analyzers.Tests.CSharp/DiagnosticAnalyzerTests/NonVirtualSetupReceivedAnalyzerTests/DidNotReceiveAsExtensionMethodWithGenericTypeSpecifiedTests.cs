@@ -94,7 +94,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo2>();
-            substitute.DidNotReceive<Foo>().Bar();
+            substitute.DidNotReceive<Foo2>().Bar();
         }
     }
 }";
