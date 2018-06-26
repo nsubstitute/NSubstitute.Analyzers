@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
@@ -48,12 +49,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return false;
             }
 
-            if (symbolInfo.Symbol == null)
-            {
-                return null;
-            }
-
-            return IsInterfaceMember(symbolInfo) || IsVirtual(symbolInfo);
+            return symbolInfo.Symbol?.CanBeSetuped();
         }
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
@@ -133,22 +129,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         private bool IsValidForAnalysis(SyntaxNode accessedMember)
         {
             return accessedMember != null && SupportedMemberAccesses.Contains(accessedMember.RawKind);
-        }
-
-        private bool IsInterfaceMember(SymbolInfo symbolInfo)
-        {
-            return symbolInfo.Symbol?.ContainingType?.TypeKind == TypeKind.Interface;
-        }
-
-        private bool IsVirtual(SymbolInfo symbolInfo)
-        {
-            var member = symbolInfo.Symbol;
-
-            var isVirtual = member.IsVirtual
-                            || (member.IsOverride && !member.IsSealed)
-                            || member.IsAbstract;
-
-            return isVirtual;
         }
     }
 }
