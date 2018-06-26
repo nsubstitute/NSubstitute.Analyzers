@@ -1,59 +1,201 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Shared;
-using NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.UnusedReceivedAnalyzerTests;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualSetupReceivedAnalyzerTests
 {
-    public class DidNotReceiveWithAnyArgsAsOrdinaryMethodWithGenericTypeSpecifiedTests : UnusedReceivedDiagnosticVerifier
+    public class DidNotReceiveWithAnyArgsAsOrdinaryMethodWithGenericTypeSpecifiedTests : NonVirtualSetupReceivedDiagnosticVerifier
     {
-        public override async Task ReportDiagnostics_WhenUsedWithoutMemberCall()
+        public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualMethod()
         {
             var source = @"using NSubstitute;
 
 namespace MyNamespace
 {
-    public interface IFoo
+    public class Foo
     {
+        public int Bar()
+        {
+            return 2;
+        }
     }
 
     public class FooTests
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<IFoo>();
-            SubstituteExtensions.DidNotReceiveWithAnyArgs<IFoo>(substitute);
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo>(substitute).Bar();
         }
     }
 }";
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = DiagnosticIdentifiers.UnusedReceived,
+                Id = DiagnosticIdentifiers.NonVirtualReceivedSetupSpecification,
                 Severity = DiagnosticSeverity.Warning,
-                Message = @"Unused received check. To fix, make sure there is a call after ""DidNotReceiveWithAnyArgs"". Correct: ""SubstituteExtensions.DidNotReceiveWithAnyArgs(sub).SomeCall();"". Incorrect: ""SubstituteExtensions.DidNotReceiveWithAnyArgs(sub);""",
+                Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(14, 13)
+                    new DiagnosticResultLocation(18, 13)
                 }
             };
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task ReportNoDiagnostics_WhenUsedWithMethodMemberAccess()
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualMethod()
         {
             var source = @"using NSubstitute;
 
 namespace MyNamespace
 {
-    public class FooBar
+    public class Foo
     {
+        public virtual int Bar()
+        {
+            return 2;
+        }
     }
 
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo>(substitute).Bar();
+        }
+    }
+}";
+            await VerifyDiagnostic(source);
+        }
+
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForNonSealedMethod()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public virtual int Bar()
+        {
+            return 2;
+        }
+    }
+
+    public class Foo2 : Foo
+    {
+        public override int Bar() => 1;
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo2>();
+            SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo2>(substitute).Bar();
+        }
+    }
+}";
+            await VerifyDiagnostic(source);
+        }
+
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForDelegate()
+        {
+            var source = @"using NSubstitute;
+using System;
+
+namespace MyNamespace
+{
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = Substitute.For<Func<int>>();
+            SubstituteExtensions.DidNotReceiveWithAnyArgs<Func<int>>(substitute)();
+        }
+    }
+}";
+            await VerifyDiagnostic(source);
+        }
+
+        public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForSealedMethod()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public virtual int Bar()
+        {
+            return 2;
+        }
+    }
+
+    public class Foo2 : Foo
+    {
+        public sealed override int Bar() => 1;
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo2>();
+            SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo2>(substitute).Bar();
+        }
+    }
+}";
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualReceivedSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message =
+                    "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(23, 13)
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
+        }
+
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractMethod()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public abstract class Foo
+    {
+        public abstract int Bar();
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo>(substitute).Bar();
+        }
+    }
+}";
+
+            await VerifyDiagnostic(source);
+        }
+
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceMethod()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
     public interface IFoo
     {
-        FooBar Bar();
+        int Bar();
     }
 
     public class FooTests
@@ -65,20 +207,18 @@ namespace MyNamespace
         }
     }
 }";
-
             await VerifyDiagnostic(source);
         }
 
-        public override async Task ReportNoDiagnostics_WhenUsedWithPropertyMemberAccess()
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceProperty()
         {
             var source = @"using NSubstitute;
 
 namespace MyNamespace
 {
-
     public interface IFoo
     {
-        int Bar { get; set; }
+        int Bar { get; }
     }
 
     public class FooTests
@@ -86,7 +226,53 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<IFoo>();
-            var bar = SubstituteExtensions.DidNotReceiveWithAnyArgs<IFoo>(substitute).Bar;
+            var x = SubstituteExtensions.DidNotReceiveWithAnyArgs<IFoo>(substitute).Bar;
+        }
+    }
+}";
+            await VerifyDiagnostic(source);
+        }
+
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForGenericInterfaceMethod()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+   public interface IFoo<T>
+    {
+        int Bar<T>();
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<IFoo<int>>();
+            SubstituteExtensions.DidNotReceiveWithAnyArgs<IFoo<int>>(substitute).Bar<int>();
+        }
+    }
+}";
+            await VerifyDiagnostic(source);
+        }
+
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractProperty()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public abstract class Foo
+    {
+        public abstract int Bar { get; }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            var x = SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo>(substitute).Bar;
         }
     }
 }";
@@ -94,16 +280,15 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        public override async Task ReportNoDiagnostics_WhenUsedWithIndexerMemberAccess()
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceIndexer()
         {
             var source = @"using NSubstitute;
 
 namespace MyNamespace
 {
-
     public interface IFoo
     {
-        int this[int x] { get; }
+        int this[int i] { get; }
     }
 
     public class FooTests
@@ -111,44 +296,151 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<IFoo>();
-            var bar = SubstituteExtensions.DidNotReceiveWithAnyArgs<IFoo>(substitute)[0];
+            var x = SubstituteExtensions.DidNotReceiveWithAnyArgs<IFoo>(substitute)[1];
         }
     }
 }";
-
             await VerifyDiagnostic(source);
         }
 
-        public override async Task ReportNoDiagnostics_WhenUsedWithInvokingDelegate()
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualProperty()
         {
-            var source = @"using System;
-using NSubstitute;
+            var source = @"using NSubstitute;
 
 namespace MyNamespace
 {
+    public class Foo
+    {
+        public virtual int Bar { get; }
+    }
+
     public class FooTests
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<Func<int>>();
-            SubstituteExtensions.DidNotReceiveWithAnyArgs<Func<int>>(substitute)();
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            var x = SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo>(substitute).Bar;
+        }
+    }
+}";
+
+            await VerifyDiagnostic(source);
+        }
+
+        public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualProperty()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public int Bar { get; }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            var x = SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo>(substitute).Bar;
+        }
+    }
+}";
+
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualReceivedSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message =
+                    "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(15, 21)
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
+        }
+
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualIndexer()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public virtual int this[int x] => 0;
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            var x = SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo>(substitute)[1];
         }
     }
 }";
             await VerifyDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod()
+        public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualIndexer()
         {
-            var source = @"using System;
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public int this[int x] => 0;
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            var x = SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo>(substitute)[1];
+        }
+    }
+}";
+
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualReceivedSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message =
+                    "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(15, 21)
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
+        }
+
+        public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod()
+        {
+            var source = @"
 
 namespace NSubstitute
 {
+    public class Foo
+    {
+        public int Bar()
+        {
+            return 1;
+        }
+    }
+
     public static class SubstituteExtensions
     {
-        public static T DidNotReceiveWithAnyArgs<T>(this T substitute, params int[] @params) where T : class
+        public static T DidNotReceiveWithAnyArgs<T>(this T returnValue, int x)
         {
-            return null;
+            return default(T);
         }
     }
 
@@ -156,8 +448,8 @@ namespace NSubstitute
     {
         public void Test()
         {
-            object substitute = null;
-            SubstituteExtensions.DidNotReceiveWithAnyArgs<object>(substitute, 1);
+            Foo substitute = null;
+            substitute.DidNotReceiveWithAnyArgs<Foo>(1).Bar();
         }
     }
 }";
