@@ -12,6 +12,6 @@
         public static readonly string SubstituteMultipleClasses = "NS008";
         public static readonly string SubstituteConstructorArgumentsForInterface = "NS009";
         public static readonly string SubstituteConstructorArgumentsForDelegate = "NS010";
-        public static readonly string NonVirtualReceivedSetupSpecification = "NS010";
+        public static readonly string NonVirtualReceivedSetupSpecification = "NS011";
     }
 }
