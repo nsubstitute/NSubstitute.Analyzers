@@ -112,7 +112,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Func(Of Integer))()
-            substitute().DidNotReceive()
+            substitute.DidNotReceive()()
         End Sub
     End Class
 End Namespace
@@ -158,7 +158,7 @@ End Namespace
                     "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(23, 13)
+                    new DiagnosticResultLocation(24, 13)
                 }
             };
 
@@ -229,7 +229,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            substitute.Bar.DidNotReceive()
+            Dim x As Integer = substitute.DidNotReceive().Bar
         End Sub
     End Class
 End Namespace
@@ -252,7 +252,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo(Of Integer))()
-            substitute.Bar(Of Integer).DidNotReceive()
+            substitute.DidNotReceive().Bar(Of Integer)
         End Sub
     End Class
 End Namespace";
@@ -274,7 +274,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            substitute.Bar.DidNotReceive()
+            Dim x As Integer = substitute.DidNotReceive().Bar
         End Sub
     End Class
 End Namespace";
@@ -297,7 +297,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of IFoo)
-            substitute(1).DidNotReceive()
+            Dim x As Integer = substitute.DidNotReceive()(1)
         End Sub
     End Class
 End Namespace";
@@ -322,7 +322,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            substitute.Bar.DidNotReceive()
+            Dim x As Integer = substitute.DidNotReceive().Bar
         End Sub
     End Class
 End Namespace";
@@ -348,7 +348,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            substitute.Bar.DidNotReceive()
+            Dim x As Integer = substitute.DidNotReceive().Bar
         End Sub
     End Class
 End Namespace";
@@ -361,7 +361,7 @@ End Namespace";
                     "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(15, 21)
+                    new DiagnosticResultLocation(17, 32)
                 }
             };
 
@@ -392,7 +392,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            substitute(1).DidNotReceive()
+            Dim x As Integer = substitute.DidNotReceive()(1)
         End Sub
     End Class
 End Namespace";
@@ -452,7 +452,7 @@ Namespace NSubstitute
 
     Module SubstituteExtensions
         <Extension>
-        Function Returns(Of T)(ByVal returnValue As T, ByVal returnThis As T) As T
+        Function DidNotReceive(Of T)(ByVal returnValue As T, ByVal x as Integer) As T
             Return Nothing
         End Function
     End Module
@@ -460,7 +460,7 @@ Namespace NSubstitute
     Public Class FooTests
         Public Sub Test()
             Dim substitute As Foo = Nothing
-            substitute.DidNotReceive().Bar()
+            substitute.DidNotReceive(1).Bar()
         End Sub
     End Class
 End Namespace
