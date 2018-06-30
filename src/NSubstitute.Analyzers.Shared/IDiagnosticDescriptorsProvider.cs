@@ -25,5 +25,7 @@ namespace NSubstitute.Analyzers.Shared
         DiagnosticDescriptor SubstituteConstructorArgumentsForInterface { get; }
 
         DiagnosticDescriptor SubstituteConstructorArgumentsForDelegate { get; }
+
+        DiagnosticDescriptor NonVirtualWhenSetupSpecification { get; }
     }
 }
