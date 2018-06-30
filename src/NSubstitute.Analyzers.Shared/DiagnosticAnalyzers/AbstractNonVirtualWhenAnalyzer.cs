@@ -53,9 +53,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            var typeSymbol = methodSymbol.MethodKind == MethodKind.ReducedExtension
-                ? methodSymbol.TypeArguments.First()
-                : methodSymbol.TypeArguments.Skip(1).First();
+            var typeSymbol = methodSymbol.TypeArguments.First();
 
             var expressionsForAnalysys = GetExpressionsForAnalysys(syntaxNodeContext, methodSymbol, invocationExpression);
 
