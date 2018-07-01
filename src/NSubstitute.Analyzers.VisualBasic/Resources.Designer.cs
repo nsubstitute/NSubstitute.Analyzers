@@ -89,6 +89,33 @@ namespace NSubstitute.Analyzers.VisualBasic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Non-overridable members can not be intercepted..
+        /// </summary>
+        internal static string NonVirtualWhenSetupSpecificationDescription {
+            get {
+                return ResourceManager.GetString("NonVirtualWhenSetupSpecificationDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Member {0} can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted..
+        /// </summary>
+        internal static string NonVirtualWhenSetupSpecificationMessageFormat {
+            get {
+                return ResourceManager.GetString("NonVirtualWhenSetupSpecificationMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Non-overridable setup specification.
+        /// </summary>
+        internal static string NonVirtualWhenSetupSpecificationTitle {
+            get {
+                return ResourceManager.GetString("NonVirtualWhenSetupSpecificationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for a delegate..
         /// </summary>
         internal static string SubstituteConstructorArgumentsForDelegateeDescription {
@@ -161,7 +188,7 @@ namespace NSubstitute.Analyzers.VisualBasic {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Arguments passed to {0} do not match the constructor arguments for {1}. Check the {1} constructors and make sure you have passed the required arguments and argument types..
+        ///   Looks up a localized string similar to Arguments passed to {0} do not match the constructor arguments for {1}. Check the constructors for {1} and make sure you have passed the required arguments and argument types..
         /// </summary>
         internal static string SubstituteConstructorMismatchMessageFormat {
             get {
@@ -179,7 +206,7 @@ namespace NSubstitute.Analyzers.VisualBasic {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Arguments count passed to {0} do not match the constructor arguments count for {1}. Check the {1} constructors and make sure you have passed the required arguments count..
+        ///   Looks up a localized string similar to The number of arguments passed to {0} do not match the number of constructor arguments for {1}. Check the constructors for {1} and make sure you have passed the required number of arguments..
         /// </summary>
         internal static string SubstituteForConstructorParametersMismatchMessageFormat {
             get {
@@ -233,7 +260,7 @@ namespace NSubstitute.Analyzers.VisualBasic {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can only substitute for parts of classes, not interfaces or delegates.Use Substitute.For(Of {0}) instead of Substitute.ForPartsOf(Of {0}) here..
+        ///   Looks up a localized string similar to Can only substitute for parts of classes, not interfaces or delegates. Use Substitute.For(Of {0}) instead of Substitute.ForPartsOf(Of {0}) here..
         /// </summary>
         internal static string SubstituteForPartsOfUsedForInterfaceMessageFormat {
             get {

@@ -4,7 +4,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 {
     public interface INonVirtualSetupWhenDiagnosticVerifier
     {
-        Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string whenAction, int expectedColumn);
+        Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string whenAction, int expectedLine, int expectedColumn);
 
         Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string whenAction);
 
@@ -12,7 +12,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string whenAction);
 
-        Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string whenAction, int expectedColumn);
+        Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string whenAction, int expectedLine, int expectedColumn);
 
         Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string whenAction);
 
@@ -28,11 +28,11 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string whenAction);
 
-        Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string whenAction, int expectedColumn);
+        Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string whenAction, int expectedLine, int expectedColumn);
 
         Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string whenAction);
 
-        Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string whenAction, int expectedColumn);
+        Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string whenAction, int expectedLine, int expectedColumn);
 
         Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InLocalFunction();
 

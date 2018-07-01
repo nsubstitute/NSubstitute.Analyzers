@@ -9,10 +9,10 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualS
     public class WhenAsExtensionMethodTests : NonVirtualSetupWhenDiagnosticVerifier
     {
         [Theory]
-        [InlineData("sub => sub.Bar()", 36)]
-        [InlineData("delegate(Foo sub) { sub.Bar(); }", 49)]
-        [InlineData("sub => { sub.Bar(); }", 38)]
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string whenAction, int expectedColumn)
+        [InlineData("sub => sub.Bar()", 19, 36)]
+        [InlineData("delegate(Foo sub) { sub.Bar(); }", 19, 49)]
+        [InlineData("sub => { sub.Bar(); }", 19, 38)]
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string whenAction, int expectedLine, int expectedColumn)
         {
             var source = $@"using NSubstitute;
 
@@ -43,7 +43,7 @@ namespace MyNamespace
                 Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(19, expectedColumn)
+                    new DiagnosticResultLocation(expectedLine, expectedColumn)
                 }
             };
 
@@ -142,10 +142,10 @@ namespace MyNamespace
         }
 
         [Theory]
-        [InlineData("sub => sub.Bar()", 36)]
-        [InlineData("delegate(Foo2 sub) { sub.Bar(); }", 50)]
-        [InlineData("sub => { sub.Bar(); }", 38)]
-        public override async Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string whenAction, int expectedColumn)
+        [InlineData("sub => sub.Bar()", 24, 36)]
+        [InlineData("delegate(Foo2 sub) { sub.Bar(); }", 24, 50)]
+        [InlineData("sub => { sub.Bar(); }", 24, 38)]
+        public override async Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string whenAction, int expectedLine, int expectedColumn)
         {
             var source = $@"using NSubstitute;
 
@@ -182,7 +182,7 @@ namespace MyNamespace
                 Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(24, expectedColumn)
+                    new DiagnosticResultLocation(expectedLine, expectedColumn)
                 }
             };
 
@@ -395,9 +395,9 @@ namespace NSubstitute
         }
 
         [Theory]
-        [InlineData("sub => { var x = sub.Bar; }", 46)]
-        [InlineData("delegate(Foo sub) { var x = sub.Bar; }", 57)]
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string whenAction, int expectedColumn)
+        [InlineData("sub => { var x = sub.Bar; }", 16, 46)]
+        [InlineData("delegate(Foo sub) { var x = sub.Bar; }", 16, 57)]
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string whenAction, int expectedLine, int expectedColumn)
         {
             var source = $@"using NSubstitute;
 
@@ -425,7 +425,7 @@ namespace MyNamespace
                 Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(16, expectedColumn)
+                    new DiagnosticResultLocation(expectedLine, expectedColumn)
                 }
             };
 
@@ -461,9 +461,9 @@ namespace MyNamespace
         }
 
         [Theory]
-        [InlineData("sub => { var x = sub[1]; }", 46)]
-        [InlineData("delegate(Foo sub) { var x = sub[1]; }", 57)]
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string whenAction, int expectedColumn)
+        [InlineData("sub => { var x = sub[1]; }", 16, 46)]
+        [InlineData("delegate(Foo sub) { var x = sub[1]; }", 16, 57)]
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string whenAction, int expectedLine, int expectedColumn)
         {
             var source = $@"using NSubstitute;
 
@@ -491,7 +491,7 @@ namespace MyNamespace
                 Message = "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(16, expectedColumn)
+                    new DiagnosticResultLocation(expectedLine, expectedColumn)
                 }
             };
 

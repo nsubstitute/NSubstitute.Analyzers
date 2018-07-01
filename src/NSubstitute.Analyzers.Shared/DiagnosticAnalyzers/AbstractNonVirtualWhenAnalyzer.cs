@@ -53,10 +53,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            var typeSymbol = methodSymbol.TypeArguments.First();
-
             var expressionsForAnalysys = GetExpressionsForAnalysys(syntaxNodeContext, methodSymbol, invocationExpression);
-
+            var typeSymbol = methodSymbol.TypeArguments.FirstOrDefault() ?? methodSymbol.ReceiverType;
             foreach (var analysedSyntax in expressionsForAnalysys)
             {
                 var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(analysedSyntax);
