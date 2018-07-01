@@ -28,7 +28,8 @@ namespace NSubstitute.Analyzers.Shared.Extensions
                 return string.Empty;
             }
 
-            var minimumDisplayString = symbol.ToMinimalDisplayString(semanticModel, 0, SymbolDisplayFormat.FullyQualifiedFormat);
+            var minimumDisplayString =
+                symbol.ToMinimalDisplayString(semanticModel, 0, SymbolDisplayFormat.FullyQualifiedFormat);
 
             return $"{symbol.ContainingType}.{minimumDisplayString}";
         }

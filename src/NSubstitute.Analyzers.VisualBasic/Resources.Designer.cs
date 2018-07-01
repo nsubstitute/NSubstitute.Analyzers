@@ -62,6 +62,33 @@ namespace NSubstitute.Analyzers.VisualBasic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Non-virtual members can not be intercepted..
+        /// </summary>
+        internal static string NonVirtualReceivedSetupSpecificationDescription {
+            get {
+                return ResourceManager.GetString("NonVirtualReceivedSetupSpecificationDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Member {0} can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted..
+        /// </summary>
+        internal static string NonVirtualReceivedSetupSpecificationMessageFormat {
+            get {
+                return ResourceManager.GetString("NonVirtualReceivedSetupSpecificationMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Non-virtual setup specification..
+        /// </summary>
+        internal static string NonVirtualReceivedSetupSpecificationTitle {
+            get {
+                return ResourceManager.GetString("NonVirtualReceivedSetupSpecificationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Non-overridable members can not be intercepted..
         /// </summary>
         internal static string NonVirtualSetupSpecificationDescription {
