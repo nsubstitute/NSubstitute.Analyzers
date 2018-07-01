@@ -248,6 +248,7 @@ namespace MyNamespace
 
         [Theory]
         [InlineData("delegate(IFoo sub) { var x = sub.Bar; }")]
+        [InlineData("sub => { int x; x = sub.Bar; }")]
         [InlineData("sub => { var x = sub.Bar; }")]
         public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string whenAction)
         {
@@ -303,6 +304,7 @@ namespace MyNamespace
 
         [Theory]
         [InlineData("sub => { var x = sub.Bar; }")]
+        [InlineData("sub => { int x; x = sub.Bar; }")]
         [InlineData("delegate(Foo sub) { var x = sub.Bar; }")]
         public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string whenAction)
         {
@@ -396,6 +398,7 @@ namespace NSubstitute
 
         [Theory]
         [InlineData("sub => { var x = sub.Bar; }", 16, 56)]
+        [InlineData("sub => { int x; x = sub.Bar; }", 16, 59)]
         [InlineData("delegate(Foo sub) { var x = sub.Bar; }", 16, 67)]
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string whenAction, int expectedLine, int expectedColumn)
         {
@@ -434,6 +437,7 @@ namespace MyNamespace
 
         [Theory]
         [InlineData("sub => { var x = sub.Bar; }")]
+        [InlineData("sub => { int x; x = sub.Bar; }")]
         [InlineData("delegate(Foo sub) { var x = sub.Bar; }")]
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string whenAction)
         {

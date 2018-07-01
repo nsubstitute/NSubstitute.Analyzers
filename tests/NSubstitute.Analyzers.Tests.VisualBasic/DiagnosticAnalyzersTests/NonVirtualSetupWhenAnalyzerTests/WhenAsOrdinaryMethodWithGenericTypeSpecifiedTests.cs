@@ -258,6 +258,11 @@ End Namespace";
             @"Sub(sb As IFoo)
                 Dim x = sb.Bar
             End Sub")]
+        [InlineData(
+            @"Sub(sb As IFoo)
+                Dim x as Integer
+                x = sb.Bar
+            End Sub")]
         public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string whenAction)
         {
             var source = $@"Imports NSubstitute
@@ -313,6 +318,11 @@ End Namespace";
         [InlineData(
             @"Sub(sb As Foo)
                 Dim x = sb.Bar
+            End Sub")]
+        [InlineData(
+            @"Sub(sb As Foo)
+                Dim x as Integer
+                x = sb.Bar
             End Sub")]
         public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string whenAction)
         {
