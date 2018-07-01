@@ -596,41 +596,5 @@ End Namespace
 
             await VerifyDiagnostic(source);
         }
-
-        [Fact(Skip = "Expression bodied functions not supported in VB")]
-        public override Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularExpressionBodiedFunction()
-        {
-            return Task.CompletedTask;
-        }
-
-        [Fact(Skip = "Local functions not supported in VB")]
-        public override Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InLocalFunction()
-        {
-            return Task.CompletedTask;
-        }
-
-        [Fact]
-        public override Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InExpressionBodiedLocalFunction()
-        {
-            return Task.CompletedTask;
-        }
-
-        [Fact(Skip = "Expression bodied functions not supported in VB")]
-        public override Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularExpressionBodiedFunction()
-        {
-            return Task.CompletedTask;
-        }
-
-        [Fact(Skip = "Local functions not supported in VB")]
-        public override Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InLocalFunction()
-        {
-            return Task.CompletedTask;
-        }
-
-        [Fact(Skip = "Expression bodied local functions not supported in VB")]
-        public override Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InExpressionBodiedLocalFunction()
-        {
-            return Task.CompletedTask;
-        }
     }
 }

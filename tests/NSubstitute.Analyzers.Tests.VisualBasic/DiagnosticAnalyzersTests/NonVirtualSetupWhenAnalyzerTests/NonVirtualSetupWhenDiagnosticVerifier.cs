@@ -37,21 +37,9 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonVi
 
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string whenAction, int expectedLine, int expectedColumn);
 
-        public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InLocalFunction();
-
-        public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InExpressionBodiedLocalFunction();
-
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularFunction();
 
-        public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularExpressionBodiedFunction();
-
-        public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InLocalFunction();
-
-        public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InExpressionBodiedLocalFunction();
-
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularFunction();
-
-        public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularExpressionBodiedFunction();
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {

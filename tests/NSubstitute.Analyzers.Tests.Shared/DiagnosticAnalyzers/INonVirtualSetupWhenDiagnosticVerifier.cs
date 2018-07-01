@@ -34,20 +34,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string whenAction, int expectedLine, int expectedColumn);
 
-        Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InLocalFunction();
-
-        Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InExpressionBodiedLocalFunction();
-
         Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularFunction();
 
-        Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularExpressionBodiedFunction();
-
-        Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InLocalFunction();
-
-        Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InExpressionBodiedLocalFunction();
-
         Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularFunction();
-
-        Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularExpressionBodiedFunction();
     }
 }
