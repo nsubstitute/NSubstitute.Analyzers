@@ -116,6 +116,33 @@ namespace NSubstitute.Analyzers.CSharp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Non-virtual members can not be intercepted..
+        /// </summary>
+        internal static string NonVirtualWhenSetupSpecificationDescription {
+            get {
+                return ResourceManager.GetString("NonVirtualWhenSetupSpecificationDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted..
+        /// </summary>
+        internal static string NonVirtualWhenSetupSpecificationMessageFormat {
+            get {
+                return ResourceManager.GetString("NonVirtualWhenSetupSpecificationMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Non-virtual setup specification..
+        /// </summary>
+        internal static string NonVirtualWhenSetupSpecificationTitle {
+            get {
+                return ResourceManager.GetString("NonVirtualWhenSetupSpecificationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for a delegate..
         /// </summary>
         internal static string SubstituteConstructorArgumentsForDelegateeDescription {
