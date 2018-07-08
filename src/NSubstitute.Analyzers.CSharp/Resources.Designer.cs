@@ -143,6 +143,33 @@ namespace NSubstitute.Analyzers.CSharp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Re-entrant substitute call..
+        /// </summary>
+        internal static string ReEntrantSubstituteCallDescription {
+            get {
+                return ResourceManager.GetString("ReEntrantSubstituteCallDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}() is set with a method that itself calls {1}. This can cause problems with NSubstitute. Consider replacing with a lambda: {0}(x =&gt; {2})..
+        /// </summary>
+        internal static string ReEntrantSubstituteCallMessageFormat {
+            get {
+                return ResourceManager.GetString("ReEntrantSubstituteCallMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Re-entrant substitute call..
+        /// </summary>
+        internal static string ReEntrantSubstituteCallTitle {
+            get {
+                return ResourceManager.GetString("ReEntrantSubstituteCallTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for a delegate..
         /// </summary>
         internal static string SubstituteConstructorArgumentsForDelegateeDescription {
