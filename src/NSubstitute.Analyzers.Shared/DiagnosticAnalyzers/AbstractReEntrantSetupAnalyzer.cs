@@ -20,7 +20,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         private readonly Lazy<AbstractReEntrantCallFinder> _reEntrantCallFinderProxy;
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(DiagnosticDescriptorsProvider.NonVirtualReceivedSetupSpecification);
+            ImmutableArray.Create(DiagnosticDescriptorsProvider.ReEntrantSubstituteCall);
 
         protected AbstractReEntrantSetupAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
             : base(diagnosticDescriptorsProvider)
