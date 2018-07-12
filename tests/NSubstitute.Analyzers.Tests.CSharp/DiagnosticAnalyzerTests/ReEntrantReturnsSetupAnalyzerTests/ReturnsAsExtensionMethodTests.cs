@@ -243,6 +243,154 @@ namespace MyNamespace
         }
 
         [Theory]
+        [InlineData("MyMethod()", "substitute.Foo().Returns(1);")]
+        [InlineData("MyProperty", "substitute.Foo().Returns(1);")]
+        [InlineData("x => ReturnThis()", "substitute.Foo().Returns(1);")]
+        [InlineData("x => { return ReturnThis(); }", "substitute.Foo().Returns(1);")]
+        [InlineData("MyMethod()", "substitute.Foo().Returns<int>(1);")]
+        [InlineData("MyProperty", "substitute.Foo().Returns<int>(1);")]
+        [InlineData("x => ReturnThis()", "substitute.Foo().Returns<int>(1);")]
+        [InlineData("x => { return ReturnThis(); }", "substitute.Foo().Returns<int>(1);")]
+        [InlineData("MyMethod()", "SubstituteExtensions.Returns(substitute.Foo(), 1);")]
+        [InlineData("MyProperty", "SubstituteExtensions.Returns(substitute.Foo(), 1);")]
+        [InlineData("x => ReturnThis()", "SubstituteExtensions.Returns(substitute.Foo(), 1);")]
+        [InlineData("x => { return ReturnThis(); }", "SubstituteExtensions.Returns(substitute.Foo(), 1);")]
+        [InlineData("MyMethod()", "SubstituteExtensions.Returns<int>(substitute.Foo(), 1);")]
+        [InlineData("MyProperty", "SubstituteExtensions.Returns<int>(substitute.Foo(), 1);")]
+        [InlineData("x => ReturnThis()", "SubstituteExtensions.Returns<int>(substitute.Foo(), 1);")]
+        [InlineData("x => { return ReturnThis(); }", "SubstituteExtensions.Returns<int>(substitute.Foo(), 1);")]
+        public async Task ReturnsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsCallExists(string rootCall, string reEntrantCall)
+        {
+            var source = $@"using NSubstitute;
+using NSubstitute.Core;
+using System;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        int Bar();
+    }}
+
+    public interface IBar
+    {{
+        int Foo();
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = Substitute.For<IFoo>();
+            substitute.Bar().Returns({rootCall});
+        }}
+
+        private int ReturnThis()
+        {{
+            return OtherReturn();
+        }}
+
+        private int OtherReturn()
+        {{
+            var substitute = Substitute.For<IBar>();
+            {reEntrantCall}
+            return 1;
+        }}
+
+        private int ReturnThisWithCallInfo(CallInfo info)
+        {{
+            return OtherReturn();
+        }}
+
+        Func<CallInfo, int> MyMethod()
+        {{
+            return ReturnThisWithCallInfo;
+        }}
+
+        Func<CallInfo, int> MyProperty
+        {{
+            get {{ return ReturnThisWithCallInfo; }}
+        }}
+    }}
+}}";
+            await VerifyDiagnostic(source);
+        }
+
+        [Theory]
+        [InlineData("MyMethod()", "substitute.Foo().ReturnsForAnyArgs(1);")]
+        [InlineData("MyProperty", "substitute.Foo().ReturnsForAnyArgs(1);")]
+        [InlineData("x => ReturnThis()", "substitute.Foo().ReturnsForAnyArgs(1);")]
+        [InlineData("x => { return ReturnThis(); }", "substitute.Foo().ReturnsForAnyArgs(1);")]
+        [InlineData("MyMethod()", "substitute.Foo().ReturnsForAnyArgs<int>(1);")]
+        [InlineData("MyProperty", "substitute.Foo().ReturnsForAnyArgs<int>(1);")]
+        [InlineData("x => ReturnThis()", "substitute.Foo().ReturnsForAnyArgs<int>(1);")]
+        [InlineData("x => { return ReturnThis(); }", "substitute.Foo().ReturnsForAnyArgs<int>(1);")]
+        [InlineData("MyMethod()", "SubstituteExtensions.ReturnsForAnyArgs(substitute.Foo(), 1);")]
+        [InlineData("MyProperty", "SubstituteExtensions.ReturnsForAnyArgs(substitute.Foo(), 1);")]
+        [InlineData("x => ReturnThis()", "SubstituteExtensions.ReturnsForAnyArgs(substitute.Foo(), 1);")]
+        [InlineData("x => { return ReturnThis(); }", "SubstituteExtensions.ReturnsForAnyArgs(substitute.Foo(), 1);")]
+        [InlineData("MyMethod()", "SubstituteExtensions.ReturnsForAnyArgs<int>(substitute.Foo(), 1);")]
+        [InlineData("MyProperty", "SubstituteExtensions.ReturnsForAnyArgs<int>(substitute.Foo(), 1);")]
+        [InlineData("x => ReturnThis()", "SubstituteExtensions.ReturnsForAnyArgs<int>(substitute.Foo(), 1);")]
+        [InlineData("x => { return ReturnThis(); }", "SubstituteExtensions.ReturnsForAnyArgs<int>(substitute.Foo(), 1);")]
+        public async Task ReturnsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsForAnyArgsCallExists(string rootCall, string reEntrantCall)
+        {
+            var source = $@"using NSubstitute;
+using NSubstitute.Core;
+using System;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        int Bar();
+    }}
+
+    public interface IBar
+    {{
+        int Foo();
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = Substitute.For<IFoo>();
+            substitute.Bar().Returns({rootCall});
+        }}
+
+        private int ReturnThis()
+        {{
+            return OtherReturn();
+        }}
+
+        private int OtherReturn()
+        {{
+            var substitute = Substitute.For<IBar>();
+            {reEntrantCall}
+            return 1;
+        }}
+
+        private int ReturnThisWithCallInfo(CallInfo info)
+        {{
+            return OtherReturn();
+        }}
+
+        Func<CallInfo, int> MyMethod()
+        {{
+            return ReturnThisWithCallInfo;
+        }}
+
+        Func<CallInfo, int> MyProperty
+        {{
+            get {{ return ReturnThisWithCallInfo; }}
+        }}
+    }}
+}}";
+            await VerifyDiagnostic(source);
+        }
+
+        [Theory]
         [InlineData("ReturnThis()", "OtherReturn()")]
         [InlineData("ReturnThis", "OtherReturn")]
         [InlineData("1", "2")]

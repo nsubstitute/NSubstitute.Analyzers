@@ -10,7 +10,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 {
     internal class ReEntrantCallFinder : AbstractReEntrantCallFinder
     {
-        public override ImmutableList<ISymbol> GetReEntrantCalls(SemanticModel semanticModel, SyntaxNode rootNode)
+        protected override ImmutableList<ISymbol> GetReEntrantSymbols(SemanticModel semanticModel, SyntaxNode rootNode)
         {
             var visitor = new ReEntrantCallVisitor(this, semanticModel);
             visitor.Visit(rootNode);

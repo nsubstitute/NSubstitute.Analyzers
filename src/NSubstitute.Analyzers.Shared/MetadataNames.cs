@@ -4,6 +4,7 @@
     {
         public const string NSubstituteAssemblyName = "NSubstitute";
         public const string NSubstituteSubstituteExtensionsFullTypeName = "NSubstitute.SubstituteExtensions";
+        public const string NSubstituteCoreFullTypeName = "NSubstitute.Core.CallInfo";
         public const string NSubstituteSubstituteFullTypeName = "NSubstitute.Substitute";
         public const string NSubstituteReturnsMethod = "Returns";
         public const string NSubstituteReturnsForAnyArgsMethod = "ReturnsForAnyArgs";

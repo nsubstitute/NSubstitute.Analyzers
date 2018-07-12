@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -25,7 +26,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 
         protected override IEnumerable<SyntaxNode> ExtractArguments(InvocationExpressionSyntax invocationExpressionSyntax)
         {
-            return invocationExpressionSyntax.ArgumentList.Arguments;
+            return invocationExpressionSyntax.ArgumentList.Arguments.Select(arg => arg.Expression);
         }
     }
 }
