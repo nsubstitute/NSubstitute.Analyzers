@@ -12,7 +12,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         {
             [MetadataNames.NSubstituteReturnsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
             [MetadataNames.NSubstituteReturnsForAnyArgsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-            [MetadataNames.NSubstituteDoMethod] = "NSubstitute.Core.WhenCalled<T>"
+            [MetadataNames.NSubstituteDoMethod] = MetadataNames.NSubstituteWhenCalledType
         }.ToImmutableDictionary();
 
         public ImmutableList<ISymbol> GetReEntrantCalls(SemanticModel semanticModel, SyntaxNode rootNode)
@@ -53,7 +53,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
 
             return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.ContainingType?.ConstructedFrom.ToString().Equals(containingType, StringComparison.OrdinalIgnoreCase) == true;
+                   (symbol.ContainingType?.ToString().Equals(containingType, StringComparison.OrdinalIgnoreCase) == true ||
+                    (symbol.ContainingType?.ConstructedFrom.Name)?.Equals(containingType, StringComparison.OrdinalIgnoreCase) == true);
         }
 
         private static bool IsCalledViaDelegate(SemanticModel semanticModel, TypeInfo typeInfo)

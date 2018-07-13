@@ -19,5 +19,6 @@
         public const string CastleDynamicProxyGenAssembly2Name = "DynamicProxyGenAssembly2";
         public const string NSubstituteWhenMethod = "When";
         public const string NSubstituteWhenForAnyArgsMethod = "WhenForAnyArgs";
+        public const string NSubstituteWhenCalledType = "WhenCalled";
     }
 }
