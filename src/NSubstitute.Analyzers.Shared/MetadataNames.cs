@@ -8,6 +8,7 @@
         public const string NSubstituteSubstituteFullTypeName = "NSubstitute.Substitute";
         public const string NSubstituteReturnsMethod = "Returns";
         public const string NSubstituteReturnsForAnyArgsMethod = "ReturnsForAnyArgs";
+        public const string NSubstituteDoMethod = "Do";
         public const string NSubstituteReceivedMethod = "Received";
         public const string NSubstituteReceivedWithAnyArgsMethod = "ReceivedWithAnyArgs";
         public const string NSubstituteDidNotReceiveMethod = "DidNotReceive";

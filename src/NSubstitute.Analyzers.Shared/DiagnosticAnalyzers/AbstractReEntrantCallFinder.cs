@@ -8,9 +8,12 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
     internal abstract class AbstractReEntrantCallFinder
     {
-        private static readonly ImmutableHashSet<string> MethodNames = ImmutableHashSet.Create(
-            MetadataNames.NSubstituteReturnsMethod,
-            MetadataNames.NSubstituteReturnsForAnyArgsMethod);
+        private static readonly ImmutableDictionary<string, string> MethodNames = new Dictionary<string, string>()
+        {
+            [MetadataNames.NSubstituteReturnsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
+            [MetadataNames.NSubstituteReturnsForAnyArgsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
+            [MetadataNames.NSubstituteDoMethod] = "NSubstitute.Core.WhenCalled<T>"
+        }.ToImmutableDictionary();
 
         public ImmutableList<ISymbol> GetReEntrantCalls(SemanticModel semanticModel, SyntaxNode rootNode)
         {
@@ -44,13 +47,13 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected bool IsReturnsLikeMethod(SemanticModel semanticModel, ISymbol symbol)
         {
-            if (symbol == null || MethodNames.Contains(symbol.Name) == false)
+            if (symbol == null || MethodNames.TryGetValue(symbol.Name, out var containingType) == false)
             {
                 return false;
             }
 
             return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteExtensionsFullTypeName, StringComparison.OrdinalIgnoreCase) == true;
+                   symbol.ContainingType?.ConstructedFrom.ToString().Equals(containingType, StringComparison.OrdinalIgnoreCase) == true;
         }
 
         private static bool IsCalledViaDelegate(SemanticModel semanticModel, TypeInfo typeInfo)
