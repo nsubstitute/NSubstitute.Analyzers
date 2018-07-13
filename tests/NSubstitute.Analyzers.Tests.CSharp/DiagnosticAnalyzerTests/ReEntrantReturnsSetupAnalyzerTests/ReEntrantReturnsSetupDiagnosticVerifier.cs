@@ -7,21 +7,21 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ReEntrantRe
 {
     public abstract class ReEntrantReturnsSetupDiagnosticVerifier : CSharpDiagnosticVerifier, IReEntrantReturnsSetupDiagnosticVerifier
     {
-        public abstract Task ReturnsDiagnostic_WhenUsingReEntrantReturnsViaMethodCall(string reEntrantCall);
+        public abstract Task ReportsDiagnostic_WhenUsingReEntrantReturnsViaMethodCall(string reEntrantCall);
 
-        public abstract Task ReturnsDiagnostic_WhenUsingReEntrantReturnsForAnyArgsViaMethodCall(string reEntrantCall);
+        public abstract Task ReportsDiagnostic_WhenUsingReEntrantReturnsForAnyArgsViaMethodCall(string reEntrantCall);
 
-        public abstract Task ReturnsDiagnostic_WhenUsingReEntrantWhenDo(string reEntrantCall);
+        public abstract Task ReportsDiagnostic_WhenUsingReEntrantWhenDo(string reEntrantCall);
 
-        public abstract Task ReturnsDiagnostic_ForNestedReEntrantCall();
+        public abstract Task ReportsDiagnostic_ForNestedReEntrantCall();
 
-        public abstract Task ReturnsDiagnostic_ForSpecificNestedReEntrantCall();
+        public abstract Task ReportsDiagnostic_ForSpecificNestedReEntrantCall();
 
-        public abstract Task ReturnsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsCallExists(string rootCall, string reEntrantCall);
+        public abstract Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsCallExists(string rootCall, string reEntrantCall);
 
-        public abstract Task ReturnsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsForAnyArgsCallExists(string rootCall, string reEntrantCall);
+        public abstract Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsForAnyArgsCallExists(string rootCall, string reEntrantCall);
 
-        public abstract Task ReturnsNoDiagnostic_WhenReEntrantSubstituteNotUsed(string firstReturn, string secondReturn);
+        public abstract Task ReportsNoDiagnostic_WhenReEntrantSubstituteNotUsed(string firstReturn, string secondReturn);
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {

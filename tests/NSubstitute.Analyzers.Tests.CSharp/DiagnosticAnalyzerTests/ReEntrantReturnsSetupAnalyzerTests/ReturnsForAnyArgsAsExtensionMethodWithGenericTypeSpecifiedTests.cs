@@ -14,7 +14,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ReEntrantRe
         [InlineData("substitute.Foo().Returns<int>(1);")]
         [InlineData("SubstituteExtensions.Returns(substitute.Foo(), 1);")]
         [InlineData("SubstituteExtensions.Returns<int>(substitute.Foo(), 1);")]
-        public override async Task ReturnsDiagnostic_WhenUsingReEntrantReturnsViaMethodCall(string reEntrantCall)
+        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsViaMethodCall(string reEntrantCall)
         {
             var source = $@"using NSubstitute;
 
@@ -86,7 +86,7 @@ namespace MyNamespace
         [InlineData("substitute.Foo().ReturnsForAnyArgs<int>(1);")]
         [InlineData("SubstituteExtensions.ReturnsForAnyArgs(substitute.Foo(), 1);")]
         [InlineData("SubstituteExtensions.ReturnsForAnyArgs<int>(substitute.Foo(), 1);")]
-        public override async Task ReturnsDiagnostic_WhenUsingReEntrantReturnsForAnyArgsViaMethodCall(string reEntrantCall)
+        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsForAnyArgsViaMethodCall(string reEntrantCall)
         {
             var source = $@"using NSubstitute;
 
@@ -155,7 +155,7 @@ namespace MyNamespace
         [Theory]
         [InlineData("substitute.When(x => x.Foo()).Do(callInfo => { });")]
         [InlineData("OtherReturn(); substitute.When(x => x.Foo()).Do(callInfo => { });")]
-        public override async Task ReturnsDiagnostic_WhenUsingReEntrantWhenDo(string reEntrantCall)
+        public override async Task ReportsDiagnostic_WhenUsingReEntrantWhenDo(string reEntrantCall)
         {
             var source = $@"using NSubstitute;
 
@@ -221,7 +221,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public override async Task ReturnsDiagnostic_ForNestedReEntrantCall()
+        public override async Task ReportsDiagnostic_ForNestedReEntrantCall()
         {
             var source = @"using NSubstitute;
 
@@ -311,7 +311,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public override async Task ReturnsDiagnostic_ForSpecificNestedReEntrantCall()
+        public override async Task ReportsDiagnostic_ForSpecificNestedReEntrantCall()
         {
             var source = @"using NSubstitute;
 
@@ -393,7 +393,7 @@ namespace MyNamespace
         [InlineData("MyProperty", "SubstituteExtensions.Returns<int>(substitute.Foo(), 1);")]
         [InlineData("x => ReturnThis()", "SubstituteExtensions.Returns<int>(substitute.Foo(), 1);")]
         [InlineData("x => { return ReturnThis(); }", "SubstituteExtensions.Returns<int>(substitute.Foo(), 1);")]
-        public override async Task ReturnsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsCallExists(string rootCall, string reEntrantCall)
+        public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsCallExists(string rootCall, string reEntrantCall)
         {
             var source = $@"using NSubstitute;
 using NSubstitute.Core;
@@ -467,7 +467,7 @@ namespace MyNamespace
         [InlineData("MyProperty", "SubstituteExtensions.ReturnsForAnyArgs<int>(substitute.Foo(), 1);")]
         [InlineData("x => ReturnThis()", "SubstituteExtensions.ReturnsForAnyArgs<int>(substitute.Foo(), 1);")]
         [InlineData("x => { return ReturnThis(); }", "SubstituteExtensions.ReturnsForAnyArgs<int>(substitute.Foo(), 1);")]
-        public override async Task ReturnsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsForAnyArgsCallExists(string rootCall, string reEntrantCall)
+        public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsForAnyArgsCallExists(string rootCall, string reEntrantCall)
         {
             var source = $@"using NSubstitute;
 using NSubstitute.Core;
@@ -529,7 +529,7 @@ namespace MyNamespace
         [InlineData("ReturnThis", "OtherReturn")]
         [InlineData("1", "2")]
         [InlineData("x => 1", "x => 2")]
-        public override async Task ReturnsNoDiagnostic_WhenReEntrantSubstituteNotUsed(string firstReturn, string secondReturn)
+        public override async Task ReportsNoDiagnostic_WhenReEntrantSubstituteNotUsed(string firstReturn, string secondReturn)
         {
             var source = $@"using NSubstitute;
 using NSubstitute.Core;
