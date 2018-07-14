@@ -62,6 +62,33 @@ namespace NSubstitute.Analyzers.VisualBasic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Non-virtual members can not be intercepted..
+        /// </summary>
+        internal static string NonVirtualReceivedSetupSpecificationDescription {
+            get {
+                return ResourceManager.GetString("NonVirtualReceivedSetupSpecificationDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Member {0} can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted..
+        /// </summary>
+        internal static string NonVirtualReceivedSetupSpecificationMessageFormat {
+            get {
+                return ResourceManager.GetString("NonVirtualReceivedSetupSpecificationMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Non-virtual setup specification..
+        /// </summary>
+        internal static string NonVirtualReceivedSetupSpecificationTitle {
+            get {
+                return ResourceManager.GetString("NonVirtualReceivedSetupSpecificationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Non-overridable members can not be intercepted..
         /// </summary>
         internal static string NonVirtualSetupSpecificationDescription {
@@ -89,9 +116,36 @@ namespace NSubstitute.Analyzers.VisualBasic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Non-overridable members can not be intercepted..
+        /// </summary>
+        internal static string NonVirtualWhenSetupSpecificationDescription {
+            get {
+                return ResourceManager.GetString("NonVirtualWhenSetupSpecificationDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Member {0} can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted..
+        /// </summary>
+        internal static string NonVirtualWhenSetupSpecificationMessageFormat {
+            get {
+                return ResourceManager.GetString("NonVirtualWhenSetupSpecificationMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Non-overridable setup specification.
+        /// </summary>
+        internal static string NonVirtualWhenSetupSpecificationTitle {
+            get {
+                return ResourceManager.GetString("NonVirtualWhenSetupSpecificationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for a delegate..
         /// </summary>
-        public static string SubstituteConstructorArgumentsForDelegateeDescription {
+        internal static string SubstituteConstructorArgumentsForDelegateeDescription {
             get {
                 return ResourceManager.GetString("SubstituteConstructorArgumentsForDelegateeDescription", resourceCulture);
             }
@@ -100,16 +154,16 @@ namespace NSubstitute.Analyzers.VisualBasic {
         /// <summary>
         ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for a delegate..
         /// </summary>
-        public static string SubstituteConstructorArgumentsForDelegateMemberTitle {
+        internal static string SubstituteConstructorArgumentsForDelegateMemberTitle {
             get {
                 return ResourceManager.GetString("SubstituteConstructorArgumentsForDelegateMemberTitle", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for a delegate..
+        ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for a delegate. Use Substitute.For(Of {0}) instead..
         /// </summary>
-        public static string SubstituteConstructorArgumentsForDelegateMessageFormat {
+        internal static string SubstituteConstructorArgumentsForDelegateMessageFormat {
             get {
                 return ResourceManager.GetString("SubstituteConstructorArgumentsForDelegateMessageFormat", resourceCulture);
             }
@@ -118,7 +172,7 @@ namespace NSubstitute.Analyzers.VisualBasic {
         /// <summary>
         ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for an interface..
         /// </summary>
-        public static string SubstituteConstructorArgumentsForInterfaceDescription {
+        internal static string SubstituteConstructorArgumentsForInterfaceDescription {
             get {
                 return ResourceManager.GetString("SubstituteConstructorArgumentsForInterfaceDescription", resourceCulture);
             }
@@ -127,16 +181,16 @@ namespace NSubstitute.Analyzers.VisualBasic {
         /// <summary>
         ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for an interface..
         /// </summary>
-        public static string SubstituteConstructorArgumentsForInterfaceMemberTitle {
+        internal static string SubstituteConstructorArgumentsForInterfaceMemberTitle {
             get {
                 return ResourceManager.GetString("SubstituteConstructorArgumentsForInterfaceMemberTitle", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for an interface..
+        ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for an interface. Use Substitute.For(Of {0}) instead..
         /// </summary>
-        public static string SubstituteConstructorArgumentsForInterfaceMessageFormat {
+        internal static string SubstituteConstructorArgumentsForInterfaceMessageFormat {
             get {
                 return ResourceManager.GetString("SubstituteConstructorArgumentsForInterfaceMessageFormat", resourceCulture);
             }
@@ -145,7 +199,7 @@ namespace NSubstitute.Analyzers.VisualBasic {
         /// <summary>
         ///   Looks up a localized string similar to Unable to find matching constructor..
         /// </summary>
-        public static string SubstituteConstructorMismatchDescription {
+        internal static string SubstituteConstructorMismatchDescription {
             get {
                 return ResourceManager.GetString("SubstituteConstructorMismatchDescription", resourceCulture);
             }
@@ -154,16 +208,16 @@ namespace NSubstitute.Analyzers.VisualBasic {
         /// <summary>
         ///   Looks up a localized string similar to Unable to find matching constructor..
         /// </summary>
-        public static string SubstituteConstructorMismatchMemberTitle {
+        internal static string SubstituteConstructorMismatchMemberTitle {
             get {
                 return ResourceManager.GetString("SubstituteConstructorMismatchMemberTitle", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to find matching constructor..
+        ///   Looks up a localized string similar to Arguments passed to {0} do not match the constructor arguments for {1}. Check the constructors for {1} and make sure you have passed the required arguments and argument types..
         /// </summary>
-        public static string SubstituteConstructorMismatchMessageFormat {
+        internal static string SubstituteConstructorMismatchMessageFormat {
             get {
                 return ResourceManager.GetString("SubstituteConstructorMismatchMessageFormat", resourceCulture);
             }
@@ -172,16 +226,16 @@ namespace NSubstitute.Analyzers.VisualBasic {
         /// <summary>
         ///   Looks up a localized string similar to Constructor parameters count mismatch..
         /// </summary>
-        public static string SubstituteForConstructorParametersMismatchDescription {
+        internal static string SubstituteForConstructorParametersMismatchDescription {
             get {
                 return ResourceManager.GetString("SubstituteForConstructorParametersMismatchDescription", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Constructor parameters count mismatch..
+        ///   Looks up a localized string similar to The number of arguments passed to {0} do not match the number of constructor arguments for {1}. Check the constructors for {1} and make sure you have passed the required number of arguments..
         /// </summary>
-        public static string SubstituteForConstructorParametersMismatchMessageFormat {
+        internal static string SubstituteForConstructorParametersMismatchMessageFormat {
             get {
                 return ResourceManager.GetString("SubstituteForConstructorParametersMismatchMessageFormat", resourceCulture);
             }
@@ -190,7 +244,7 @@ namespace NSubstitute.Analyzers.VisualBasic {
         /// <summary>
         ///   Looks up a localized string similar to Constructor parameters count mismatch..
         /// </summary>
-        public static string SubstituteForConstructorParametersMismatchTitle {
+        internal static string SubstituteForConstructorParametersMismatchTitle {
             get {
                 return ResourceManager.GetString("SubstituteForConstructorParametersMismatchTitle", resourceCulture);
             }
@@ -199,16 +253,16 @@ namespace NSubstitute.Analyzers.VisualBasic {
         /// <summary>
         ///   Looks up a localized string similar to Substitute for internal member..
         /// </summary>
-        public static string SubstituteForInternalMemberDescription {
+        internal static string SubstituteForInternalMemberDescription {
             get {
                 return ResourceManager.GetString("SubstituteForInternalMemberDescription", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Substitute for internal member..
+        ///   Looks up a localized string similar to Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via &lt;Assembly: InternalsVisibleTo(&quot;DynamicProxyGenAssembly2&quot;)&gt;.
         /// </summary>
-        public static string SubstituteForInternalMemberMessageFormat {
+        internal static string SubstituteForInternalMemberMessageFormat {
             get {
                 return ResourceManager.GetString("SubstituteForInternalMemberMessageFormat", resourceCulture);
             }
@@ -217,7 +271,7 @@ namespace NSubstitute.Analyzers.VisualBasic {
         /// <summary>
         ///   Looks up a localized string similar to Substitute for internal member..
         /// </summary>
-        public static string SubstituteForInternalMemberTitle {
+        internal static string SubstituteForInternalMemberTitle {
             get {
                 return ResourceManager.GetString("SubstituteForInternalMemberTitle", resourceCulture);
             }
@@ -226,16 +280,16 @@ namespace NSubstitute.Analyzers.VisualBasic {
         /// <summary>
         ///   Looks up a localized string similar to Can only substitute for parts of classes, not interfaces or delegates..
         /// </summary>
-        public static string SubstituteForPartsOfUsedForInterfaceDescription {
+        internal static string SubstituteForPartsOfUsedForInterfaceDescription {
             get {
                 return ResourceManager.GetString("SubstituteForPartsOfUsedForInterfaceDescription", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can only substitute for parts of classes, not interfaces or delegates..
+        ///   Looks up a localized string similar to Can only substitute for parts of classes, not interfaces or delegates. Use Substitute.For(Of {0}) instead of Substitute.ForPartsOf(Of {0}) here..
         /// </summary>
-        public static string SubstituteForPartsOfUsedForInterfaceMessageFormat {
+        internal static string SubstituteForPartsOfUsedForInterfaceMessageFormat {
             get {
                 return ResourceManager.GetString("SubstituteForPartsOfUsedForInterfaceMessageFormat", resourceCulture);
             }
@@ -244,34 +298,34 @@ namespace NSubstitute.Analyzers.VisualBasic {
         /// <summary>
         ///   Looks up a localized string similar to Substitute.ForPartsOf used for interface..
         /// </summary>
-        public static string SubstituteForPartsOfUsedForInterfaceTitle {
+        internal static string SubstituteForPartsOfUsedForInterfaceTitle {
             get {
                 return ResourceManager.GetString("SubstituteForPartsOfUsedForInterfaceTitle", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Missing parameterless constructor..
+        ///   Looks up a localized string similar to Could not find accessible constructor..
         /// </summary>
-        public static string SubstituteForWithoutAccessibleConstructorDescription {
+        internal static string SubstituteForWithoutAccessibleConstructorDescription {
             get {
                 return ResourceManager.GetString("SubstituteForWithoutAccessibleConstructorDescription", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Missing parameterless constructor..
+        ///   Looks up a localized string similar to Could not find accessible constructor. Make sure that type {0} exposes public or protected constructors..
         /// </summary>
-        public static string SubstituteForWithoutAccessibleConstructorMessageFormat {
+        internal static string SubstituteForWithoutAccessibleConstructorMessageFormat {
             get {
                 return ResourceManager.GetString("SubstituteForWithoutAccessibleConstructorMessageFormat", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Missing parameterless constructor..
+        ///   Looks up a localized string similar to Could not find accessible constructor..
         /// </summary>
-        public static string SubstituteForWithoutAccessibleConstructorTitle {
+        internal static string SubstituteForWithoutAccessibleConstructorTitle {
             get {
                 return ResourceManager.GetString("SubstituteForWithoutAccessibleConstructorTitle", resourceCulture);
             }
@@ -280,7 +334,7 @@ namespace NSubstitute.Analyzers.VisualBasic {
         /// <summary>
         ///   Looks up a localized string similar to Can not substitute for multiple classes..
         /// </summary>
-        public static string SubstituteMultipleClassesDescription {
+        internal static string SubstituteMultipleClassesDescription {
             get {
                 return ResourceManager.GetString("SubstituteMultipleClassesDescription", resourceCulture);
             }
@@ -289,7 +343,7 @@ namespace NSubstitute.Analyzers.VisualBasic {
         /// <summary>
         ///   Looks up a localized string similar to Can not substitute for multiple classes..
         /// </summary>
-        public static string SubstituteMultipleClassesMemberTitle {
+        internal static string SubstituteMultipleClassesMemberTitle {
             get {
                 return ResourceManager.GetString("SubstituteMultipleClassesMemberTitle", resourceCulture);
             }
@@ -298,7 +352,7 @@ namespace NSubstitute.Analyzers.VisualBasic {
         /// <summary>
         ///   Looks up a localized string similar to Can not substitute for multiple classes. To substitute for multiple types only one type can be a concrete class; other types can only be interfaces..
         /// </summary>
-        public static string SubstituteMultipleClassesMessageFormat {
+        internal static string SubstituteMultipleClassesMessageFormat {
             get {
                 return ResourceManager.GetString("SubstituteMultipleClassesMessageFormat", resourceCulture);
             }

@@ -33,6 +33,9 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.SubstituteA
         public abstract Task ReturnsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues);
 
         public abstract Task ReturnsNoDiagnostic_WhenConstructorArgumentsDoNotRequireImplicitConversion(string ctorValues, string invocationValues);
+
+        [Fact]
+        public abstract Task ReturnsNoDiagnostic_WhenUsedWithGenericArgument();
 #pragma warning restore xUnit1013 // Public method should be marked as test
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()

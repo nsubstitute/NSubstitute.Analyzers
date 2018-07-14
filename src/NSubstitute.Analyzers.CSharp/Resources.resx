@@ -158,7 +158,7 @@
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
   <data name="SubstituteForPartsOfUsedForInterfaceMessageFormat" xml:space="preserve">
-    <value>Can only substitute for parts of classes, not interfaces or delegates.</value>
+    <value>Can only substitute for parts of classes, not interfaces or delegates. Use Substitute.For&lt;{0}&gt; instead of Substitute.ForPartsOf&lt;{0}&gt; here.</value>
     <comment>The format-able message the diagnostic displays.</comment>
   </data>
   <data name="SubstituteForPartsOfUsedForInterfaceTitle" xml:space="preserve">
@@ -166,15 +166,15 @@
     <comment>The title of the diagnostic.</comment>
   </data>
     <data name="SubstituteForWithoutAccessibleConstructorDescription" xml:space="preserve">
-    <value>Missing parameterless constructor.</value>
+    <value>Could not find accessible constructor.</value>
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
   <data name="SubstituteForWithoutAccessibleConstructorMessageFormat" xml:space="preserve">
-    <value>Missing parameterless constructor.</value>
+    <value>Could not find accessible constructor. Make sure that type {0} exposes public or protected constructors.</value>
     <comment>The format-able message the diagnostic displays.</comment>
   </data>
   <data name="SubstituteForWithoutAccessibleConstructorTitle" xml:space="preserve">
-    <value>Missing parameterless constructor.</value>
+    <value>Could not find accessible constructor.</value>
     <comment>The title of the diagnostic.</comment>
   </data>
   <data name="SubstituteForConstructorParametersMismatchDescription" xml:space="preserve">
@@ -182,7 +182,7 @@
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
   <data name="SubstituteForConstructorParametersMismatchMessageFormat" xml:space="preserve">
-    <value>Constructor parameters count mismatch.</value>
+    <value>The number of arguments passed to {0} do not match the number of constructor arguments for {1}. Check the constructors for {1} and make sure you have passed the required number of arguments.</value>
     <comment>The format-able message the diagnostic displays.</comment>
   </data>
   <data name="SubstituteForConstructorParametersMismatchTitle" xml:space="preserve">
@@ -194,11 +194,11 @@
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
   <data name="SubstituteForInternalMemberMessageFormat" xml:space="preserve">
-    <value>Substitute for internal member.</value>
+    <value>Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]</value>
     <comment>The format-able message the diagnostic displays.</comment>
   </data>
   <data name="SubstituteForInternalMemberTitle" xml:space="preserve">
-    <value>Substitute for internal member.</value>
+    <value>Can not create.</value>
     <comment>The title of the diagnostic.</comment>
   </data>
   <data name="SubstituteConstructorMismatchDescription" xml:space="preserve">
@@ -206,7 +206,7 @@
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
   <data name="SubstituteConstructorMismatchMessageFormat" xml:space="preserve">
-    <value>Unable to find matching constructor.</value>
+    <value>Arguments passed to {0} do not match the constructor arguments for {1}. Check the constructors for {1} and make sure you have passed the required arguments and argument types.</value>
     <comment>The format-able message the diagnostic displays.</comment>
   </data>
   <data name="SubstituteConstructorMismatchMemberTitle" xml:space="preserve">
@@ -230,7 +230,7 @@
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
   <data name="SubstituteConstructorArgumentsForInterfaceMessageFormat" xml:space="preserve">
-    <value>Can not provide constructor arguments when substituting for an interface.</value>
+    <value>Can not provide constructor arguments when substituting for an interface. Use Substitute.For&lt;{0}&gt;() instead.</value>
     <comment>The format-able message the diagnostic displays.</comment>
   </data>
   <data name="SubstituteConstructorArgumentsForInterfaceMemberTitle" xml:space="preserve">
@@ -242,11 +242,35 @@
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
   <data name="SubstituteConstructorArgumentsForDelegateMessageFormat" xml:space="preserve">
-    <value>Can not provide constructor arguments when substituting for a delegate.</value>
+    <value>Can not provide constructor arguments when substituting for a delegate. Use Substitute.For&lt;{0}&gt;() instead.</value>
     <comment>The format-able message the diagnostic displays.</comment>
   </data>
   <data name="SubstituteConstructorArgumentsForDelegateMemberTitle" xml:space="preserve">
     <value>Can not provide constructor arguments when substituting for a delegate.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+    <data name="NonVirtualReceivedSetupSpecificationDescription" xml:space="preserve">
+    <value>Non-virtual members can not be intercepted.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="NonVirtualReceivedSetupSpecificationMessageFormat" xml:space="preserve">
+    <value>Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="NonVirtualReceivedSetupSpecificationTitle" xml:space="preserve">
+    <value>Non-virtual setup specification.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+<data name="NonVirtualWhenSetupSpecificationDescription" xml:space="preserve">
+    <value>Non-virtual members can not be intercepted.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="NonVirtualWhenSetupSpecificationMessageFormat" xml:space="preserve">
+    <value>Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="NonVirtualWhenSetupSpecificationTitle" xml:space="preserve">
+    <value>Non-virtual setup specification.</value>
     <comment>The title of the diagnostic.</comment>
   </data>
 </root>

@@ -188,7 +188,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 case TypeKind.Interface when invocationArgumentTypes > 0:
                     var diagnostic = Diagnostic.Create(
                         DiagnosticDescriptorsProvider.SubstituteConstructorArgumentsForInterface,
-                        substituteContext.InvocationExpression.GetLocation());
+                        substituteContext.InvocationExpression.GetLocation(),
+                        constructorContext.ConstructorType.ToString());
 
                     substituteContext.SyntaxNodeAnalysisContext.ReportDiagnostic(diagnostic);
                     return true;
@@ -197,7 +198,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 case TypeKind.Delegate when invocationArgumentTypes > 0:
                     var delegateDiagnostic = Diagnostic.Create(
                         DiagnosticDescriptorsProvider.SubstituteConstructorArgumentsForDelegate,
-                        substituteContext.InvocationExpression.GetLocation());
+                        substituteContext.InvocationExpression.GetLocation(),
+                        constructorContext.ConstructorType.ToString());
 
                     substituteContext.SyntaxNodeAnalysisContext.ReportDiagnostic(delegateDiagnostic);
                     return true;
@@ -207,9 +209,12 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             if (constructorContext.PossibleConstructors != null && constructorContext.PossibleConstructors.Any() == false)
             {
+                var symbol = substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetSymbolInfo(substituteContext.InvocationExpression);
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.SubstituteForConstructorParametersMismatch,
-                    substituteContext.InvocationExpression.GetLocation());
+                    substituteContext.InvocationExpression.GetLocation(),
+                    symbol.Symbol.ToMinimalMethodString(substituteContext.SyntaxNodeAnalysisContext.SemanticModel),
+                    constructorContext.ConstructorType);
 
                 substituteContext.SyntaxNodeAnalysisContext.ReportDiagnostic(diagnostic);
                 return true;
@@ -224,7 +229,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             {
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.SubstituteForPartsOfUsedForInterface,
-                    substituteContext.InvocationExpression.GetLocation());
+                    substituteContext.InvocationExpression.GetLocation(),
+                    proxyType.ToString());
 
                 substituteContext.SyntaxNodeAnalysisContext.ReportDiagnostic(diagnostic);
                 return true;
@@ -260,9 +266,13 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                         substituteContext.SyntaxNodeAnalysisContext.SemanticModel.Compilation, ctor, constructorContext.InvocationParameters) ==
                     false))
             {
+                var symbol = substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetSymbolInfo(substituteContext.InvocationExpression);
+                var x = symbol.Symbol.ToMinimalDisplayString(substituteContext.SyntaxNodeAnalysisContext.SemanticModel, 10, SymbolDisplayFormat.CSharpErrorMessageFormat);
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.SubstituteConstructorMismatch,
-                    substituteContext.InvocationExpression.GetLocation());
+                    substituteContext.InvocationExpression.GetLocation(),
+                    symbol.Symbol.ToMinimalMethodString(substituteContext.SyntaxNodeAnalysisContext.SemanticModel),
+                    constructorContext.ConstructorType.ToString());
 
                 substituteContext.SyntaxNodeAnalysisContext.ReportDiagnostic(diagnostic);
                 return true;
@@ -277,7 +287,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             {
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.SubstituteForWithoutAccessibleConstructor,
-                    substituteContext.InvocationExpression.GetLocation());
+                    substituteContext.InvocationExpression.GetLocation(),
+                    constructorContext.ConstructorType.ToString());
 
                 substituteContext.SyntaxNodeAnalysisContext.ReportDiagnostic(diagnostic);
                 return true;

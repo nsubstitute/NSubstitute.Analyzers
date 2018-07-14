@@ -55,7 +55,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.SubstituteConstructorArgumentsForInterface,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Can not provide constructor arguments when substituting for an interface.",
+                Message = "Can not provide constructor arguments when substituting for an interface. Use Substitute.For<MyNamespace.IFoo>() instead.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(13, 30)
@@ -106,7 +106,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.SubstituteConstructorArgumentsForDelegate,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Can not provide constructor arguments when substituting for a delegate.",
+                Message = "Can not provide constructor arguments when substituting for a delegate. Use Substitute.For<System.Func<int>>() instead.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(9, 30)
@@ -258,7 +258,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Constructor parameters count mismatch.",
+                Message = "The number of arguments passed to NSubstitute.Substitute.For<MyNamespace.IFoo, MyNamespace.Bar> do not match the number of constructor arguments for MyNamespace.Bar. Check the constructors for MyNamespace.Bar and make sure you have passed the required number of arguments.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(17, 30)
@@ -294,7 +294,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForWithoutAccessibleConstructor,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Missing parameterless constructor.",
+                Message = "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(16, 30)
@@ -330,7 +330,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Constructor parameters count mismatch.",
+                Message = "The number of arguments passed to NSubstitute.Substitute.For<MyNamespace.Foo> do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(16, 30)
@@ -366,7 +366,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Constructor parameters count mismatch.",
+                Message = "The number of arguments passed to NSubstitute.Substitute.For<MyNamespace.Foo> do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(16, 30)
@@ -402,7 +402,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Constructor parameters count mismatch.",
+                Message = "The number of arguments passed to NSubstitute.Substitute.For<MyNamespace.Foo> do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(16, 30)
@@ -434,7 +434,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForInternalMember,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Substitute for internal member.",
+                Message = @"Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via [assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(12, 30)
@@ -493,7 +493,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForInternalMember,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Substitute for internal member.",
+                Message = @"Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via [assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(14, 30)
@@ -535,7 +535,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.SubstituteConstructorMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Unable to find matching constructor.",
+                Message = "Arguments passed to NSubstitute.Substitute.For<MyNamespace.Foo> do not match the constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required arguments and argument types.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(16, 30)
@@ -584,6 +584,23 @@ namespace MyNamespace
         }}
     }}
 }}";
+            await VerifyDiagnostic(source);
+        }
+
+        public override async Task ReturnsNoDiagnostic_WhenUsedWithGenericArgument()
+        {
+            var source = @"using NSubstitute;
+namespace MyNamespace
+{
+
+    public class FooTests
+    {
+        public T Foo<T>() where T : class
+        {
+            return Substitute.For<T>();
+        }
+    }
+}";
             await VerifyDiagnostic(source);
         }
     }

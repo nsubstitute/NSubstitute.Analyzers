@@ -25,5 +25,11 @@ namespace NSubstitute.Analyzers.Tests.CSharp.ConventionTests
         {
             _fixture.AssertExportCodeFixProviderAttributeUsageFromAssemblyContaining<NonVirtualSetupAnalyzer>(LanguageNames.CSharp);
         }
+
+        [Fact]
+        public void DiagnosticIdsConventionsShouldBeSatisfied()
+        {
+            _fixture.AssertDiagnosticIdsDefinitionsFromAssemblyContaining<NonVirtualSetupAnalyzer>();
+        }
     }
 }

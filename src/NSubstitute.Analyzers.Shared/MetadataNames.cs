@@ -15,5 +15,7 @@
         public const string NSubstituteForPartsOfMethod = "ForPartsOf";
         public const string InternalsVisibleToAttributeFullTypeName = "System.Runtime.CompilerServices.InternalsVisibleToAttribute";
         public const string CastleDynamicProxyGenAssembly2Name = "DynamicProxyGenAssembly2";
+        public const string NSubstituteWhenMethod = "When";
+        public const string NSubstituteWhenForAnyArgsMethod = "WhenForAnyArgs";
     }
 }

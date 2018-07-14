@@ -29,7 +29,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForPartsOfUsedForInterface,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Can only substitute for parts of classes, not interfaces or delegates.",
+                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use Substitute.For(Of MyNamespace.IFoo) instead of Substitute.ForPartsOf(Of MyNamespace.IFoo) here.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(9, 30)
@@ -60,7 +60,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForPartsOfUsedForInterface,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Can only substitute for parts of classes, not interfaces or delegates.",
+                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use Substitute.For(Of System.Func(Of Integer)) instead of Substitute.ForPartsOf(Of System.Func(Of Integer)) here.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(10, 30)
@@ -91,7 +91,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForWithoutAccessibleConstructor,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Missing parameterless constructor.",
+                Message = "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(11, 30)
@@ -122,7 +122,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Constructor parameters count mismatch.",
+                Message = "The number of arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(11, 30)
@@ -153,7 +153,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Constructor parameters count mismatch.",
+                Message = "The number of arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(11, 30)
@@ -184,7 +184,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Constructor parameters count mismatch.",
+                Message = "The number of arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(11, 30)
@@ -213,7 +213,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForInternalMember,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Substitute for internal member.",
+                Message = @"Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via <Assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")>",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(9, 30)
@@ -264,7 +264,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForInternalMember,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Substitute for internal member.",
+                Message = @"Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via <Assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")>",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(11, 30)
@@ -302,7 +302,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteConstructorMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Unable to find matching constructor.",
+                Message = "Arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required arguments and argument types.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(12, 30)
@@ -338,6 +338,21 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.ForPartsOf(Of Foo)({invocationValues})
         End Sub
+    End Class
+End Namespace
+";
+            await VerifyDiagnostic(source);
+        }
+
+        public override async Task ReturnsNoDiagnostic_WhenUsedWithGenericArgument()
+        {
+            var source = @"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class FooTests
+        Public Function FooPartsOf(Of T As Class)() As T
+            Return Substitute.ForPartsOf(Of T)()
+        End Function
     End Class
 End Namespace
 ";
