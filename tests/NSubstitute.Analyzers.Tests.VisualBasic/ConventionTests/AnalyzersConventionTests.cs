@@ -17,7 +17,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.ConventionTests
         [Fact]
         public void DiagnosticAnalyzersConventionsShouldBeSatisfied()
         {
-            _fixture.AssertDiagnosticAnalyzerAttributeUsageFormAssemblyContaining<NonVirtualSetupAnalyzer>(LanguageNames.VisualBasic);
+            _fixture.AssertDiagnosticAnalyzerAttributeUsageFromAssemblyContaining<NonVirtualSetupAnalyzer>(LanguageNames.VisualBasic);
         }
 
         [Fact]

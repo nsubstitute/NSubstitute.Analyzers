@@ -6,7 +6,7 @@ namespace NSubstitute.Analyzers.Shared
 {
     internal class DiagnosticDescriptors<T>
     {
-        public static readonly ResourceManager ResourceManager =
+        private static readonly ResourceManager SpecificResourceManager =
             new ResourceManager(
                 $"{typeof(T).GetTypeInfo().Assembly.GetName().Name}.Resources",
                 typeof(T).GetTypeInfo().Assembly);
@@ -134,7 +134,10 @@ namespace NSubstitute.Analyzers.Shared
 
         private static LocalizableResourceString GetDiagnosticResourceString(string name, string propertyName)
         {
-            return new LocalizableResourceString(name + propertyName, ResourceManager, typeof(T));
+            var localizableResource = name + propertyName;
+            var resourceManager = string.IsNullOrWhiteSpace(SpecificResourceManager.GetString(localizableResource)) ? SharedResourceManager.Instance : SpecificResourceManager;
+
+            return new LocalizableResourceString(localizableResource, resourceManager, typeof(T));
         }
     }
 }

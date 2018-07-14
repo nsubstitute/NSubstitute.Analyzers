@@ -10,9 +10,9 @@ namespace NSubstitute.Analyzers.Tests.Shared.Fixtures
 {
     public class AnalyzersConventionFixture
     {
-        public void AssertDiagnosticAnalyzerAttributeUsageFormAssemblyContaining<T>(string expectedLanguage)
+        public void AssertDiagnosticAnalyzerAttributeUsageFromAssemblyContaining<T>(string expectedLanguage)
         {
-            AssertDiagnosticAnalyzerAttributeUsageFormAssemblyContaining(typeof(T), expectedLanguage);
+            AssertDiagnosticAnalyzerAttributeUsageFromAssemblyContaining(typeof(T), expectedLanguage);
         }
 
         public void AssertExportCodeFixProviderAttributeUsageFromAssemblyContaining<T>(string expectedLanguage)
@@ -31,7 +31,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.Fixtures
                     $"because each code fix provider should support only selected language ${expectedLanguage}");
         }
 
-        public void AssertDiagnosticAnalyzerAttributeUsageFormAssemblyContaining(Type type, string expectedLanguage)
+        public void AssertDiagnosticAnalyzerAttributeUsageFromAssemblyContaining(Type type, string expectedLanguage)
         {
             var types = GetTypesAssignableTo<DiagnosticAnalyzer>(type.Assembly).ToList();
 
