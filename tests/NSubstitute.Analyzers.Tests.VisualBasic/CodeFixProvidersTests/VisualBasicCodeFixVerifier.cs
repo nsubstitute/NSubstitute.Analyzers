@@ -11,7 +11,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests
 
         protected override CompilationOptions GetCompilationOptions()
         {
-            return new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optionStrict: OptionStrict.On);
+            return new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optionStrict: OptionStrict.Off);
         }
     }
 }

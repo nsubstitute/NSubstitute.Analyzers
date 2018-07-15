@@ -8,6 +8,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
 
         Task SuppressesDiagnosticsInSettings_WhenSettingValueForStaticMethod();
 
+        Task SuppressesDiagnosticsInSettings_WhenSettingValueForExtensionMethod();
+
         Task SuppressesDiagnosticsInSettings_WhenSettingValueForSealedOverrideMethod();
 
         Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualProperty();

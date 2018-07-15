@@ -55,6 +55,43 @@ End Namespace
             await VerifySuppressionSettings(source, "M:MyNamespace.Foo.Bar~System.Int32", DiagnosticIdentifiers.NonVirtualSetupSpecification);
         }
 
+        public override async Task SuppressesDiagnosticsInSettings_WhenSettingValueForExtensionMethod()
+        {
+            var source = @"Imports NSubstitute
+Imports System.Runtime.CompilerServices
+
+Namespace MyNamespace
+    Public Class FooTests
+        Public Sub Test()
+            Bar = NSubstitute.Substitute.[For](Of IBar)()
+            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
+            SubstituteExtensions.Returns(Of Integer)(substitute.GetBar(), 1)
+        End Sub
+    End Class
+
+    Module MyExtensions
+        Public Property Bar As IBar
+
+        <Extension()>
+        Function GetBar(ByVal foo As IFoo) As Integer
+            Return Bar.Foo()
+            Return 1
+        End Function
+
+    End Module
+
+    Interface IBar
+        Function Foo() As Integer
+    End Interface
+
+    Interface IFoo
+        Function Bar() As Integer
+    End Interface
+End Namespace";
+
+            await VerifySuppressionSettings(source, "M:MyNamespace.MyExtensions.GetBar(MyNamespace.IFoo)~System.Int32", DiagnosticIdentifiers.NonVirtualSetupSpecification);
+        }
+
         public override async Task SuppressesDiagnosticsInSettings_WhenSettingValueForSealedOverrideMethod()
         {
             var source = @"Imports NSubstitute

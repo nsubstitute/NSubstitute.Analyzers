@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Newtonsoft.Json;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Shared.Settings;
-using NSubstitute.Analyzers.Tests.Shared;
+using NSubstitute.Analyzers.Shared.TinyJson;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using Xunit;
 
@@ -102,6 +101,9 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualS
         [Fact]
         public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireNamespace();
 
+        [Fact]
+        public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingExtensionMethod();
+
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
             return new NonVirtualSetupAnalyzer();
@@ -109,7 +111,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualS
 
         protected override string GetSettings()
         {
-            return Settings != null ? JsonConvert.SerializeObject(Settings) : null;
+            return Settings != null ? Json.Encode(Settings) : null;
         }
     }
 }

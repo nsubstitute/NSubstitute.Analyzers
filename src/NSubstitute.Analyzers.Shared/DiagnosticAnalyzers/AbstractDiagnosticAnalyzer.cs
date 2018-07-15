@@ -1,9 +1,9 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.Shared.Extensions;
-using NSubstitute.Analyzers.Shared.Settings;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
@@ -18,7 +18,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected void TryReportDiagnostic(SyntaxNodeAnalysisContext syntaxNodeContext, Diagnostic diagnostic, ISymbol symbol)
         {
-            if (IsSupressed(syntaxNodeContext, diagnostic, symbol))
+            if (IsSuppressed(syntaxNodeContext, diagnostic, symbol))
             {
                 return;
             }
@@ -26,37 +26,45 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             syntaxNodeContext.ReportDiagnostic(diagnostic);
         }
 
-        protected bool IsSupressed(SyntaxNodeAnalysisContext syntaxNodeContext, Diagnostic diagnostic, ISymbol symbol)
+        protected bool IsSuppressed(SyntaxNodeAnalysisContext syntaxNodeContext, Diagnostic diagnostic, ISymbol symbol)
         {
-            if (symbol == null)
-            {
-                return false;
-            }
-
-            return IsSupressed(syntaxNodeContext, symbol, diagnostic.Id);
+            return symbol != null && IsSuppressed(syntaxNodeContext, symbol, diagnostic.Id);
         }
 
-        private bool IsSupressed(SyntaxNodeAnalysisContext syntaxNodeContext, ISymbol symbol, string diagnosticId)
+        private bool IsSuppressed(SyntaxNodeAnalysisContext syntaxNodeContext, ISymbol symbol, string diagnosticId)
         {
             var analyzersSettings = syntaxNodeContext.GetSettings(CancellationToken.None);
+            var possibleSymbols = GetPossibleSymbols(symbol).ToList();
 
-            foreach (var supression in analyzersSettings.Suppressions.Where(suppression => suppression.Rules.Contains(diagnosticId)))
+            return analyzersSettings.Suppressions.Where(suppression => suppression.Rules.Contains(diagnosticId))
+                .SelectMany(suppression => DocumentationCommentId.GetSymbolsForDeclarationId(suppression.Target, syntaxNodeContext.Compilation))
+                .Any(possibleSymbols.Contains);
+        }
+
+        private IEnumerable<ISymbol> GetPossibleSymbols(ISymbol symbol)
+        {
+            yield return symbol;
+            yield return symbol.ContainingType;
+            yield return symbol.ContainingNamespace;
+
+            if (symbol is IMethodSymbol methodSymbol)
             {
-                foreach (var supressedSymbol in DocumentationCommentId.GetSymbolsForDeclarationId(supression.Target, syntaxNodeContext.Compilation))
+                yield return methodSymbol.ConstructedFrom;
+                if (methodSymbol.ReducedFrom != null)
                 {
-                    if (supressedSymbol.Equals(symbol) ||
-                        supressedSymbol.Equals(symbol.ContainingType) ||
-                        supressedSymbol.Equals(symbol.ContainingNamespace) ||
-                        (symbol is IMethodSymbol methodSymbol && methodSymbol.ConstructedFrom.Equals(supressedSymbol)) ||
-                        (symbol.ContainingType is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.ConstructedFrom.Equals(supressedSymbol)) ||
-                        (symbol is IPropertySymbol propertySymbol && propertySymbol.OriginalDefinition.Equals(supressedSymbol)))
-                    {
-                        return true;
-                    }
+                    yield return methodSymbol.ReducedFrom;
                 }
             }
 
-            return false;
+            if (symbol.ContainingType is INamedTypeSymbol namedTypeSymbol)
+            {
+                yield return namedTypeSymbol.ConstructedFrom;
+            }
+
+            if (symbol is IPropertySymbol propertySymbol)
+            {
+                yield return propertySymbol.OriginalDefinition;
+            }
         }
     }
 }

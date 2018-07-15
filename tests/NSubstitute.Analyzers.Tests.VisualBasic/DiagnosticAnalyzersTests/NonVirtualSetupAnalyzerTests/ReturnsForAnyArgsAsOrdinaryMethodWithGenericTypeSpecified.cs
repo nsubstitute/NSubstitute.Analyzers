@@ -1083,5 +1083,63 @@ End Namespace
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
+
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingExtensionMethod()
+        {
+            Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.MyExtensions.GetBar(MyNamespace.IFoo)~System.Int32", DiagnosticIdentifiers.NonVirtualSetupSpecification);
+
+            var source = @"Imports NSubstitute
+Imports System.Runtime.CompilerServices
+
+Namespace MyNamespace
+    Public Class FooTests
+        Public Sub Test()
+            Bar = NSubstitute.Substitute.[For](Of IBar)()
+            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
+            SubstituteExtensions.ReturnsForAnyArgs(Of Integer)(substitute.GetBar(), 1)
+            SubstituteExtensions.ReturnsForAnyArgs(Of Integer)(substitute.GetFooBar(), 1)
+        End Sub
+    End Class
+
+    Module MyExtensions
+        Public Property Bar As IBar
+
+        <Extension()>
+        Function GetBar(ByVal foo As IFoo) As Integer
+            Return Bar.Foo()
+            Return 1
+        End Function
+
+        <Extension()>
+        Function GetFooBar(ByVal foo As IFoo) As Integer
+            Return 1
+        End Function
+    End Module
+
+    Interface IBar
+        Function Foo() As Integer
+    End Interface
+
+    Interface IFoo
+        Function Bar() As Integer
+    End Interface
+End Namespace";
+
+            var expectedDiagnostic = new[]
+            {
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member GetFooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(10, 64)
+                    }
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
+        }
     }
 }

@@ -1043,5 +1043,61 @@ namespace MyNamespace
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
+
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingExtensionMethod()
+        {
+            Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.MyExtensions.GetBar(System.Object)~System.Int32", DiagnosticIdentifiers.NonVirtualSetupSpecification);
+
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class FooTests
+    {
+        public void Test()
+        {
+            MyExtensions.Bar = Substitute.For<IBar>();
+            var substitute = Substitute.For<object>();
+            SubstituteExtensions.Returns(substitute.GetBar(), 1);
+            SubstituteExtensions.Returns(substitute.GetFooBar(), 1);
+        }
+    }
+
+    public static class MyExtensions
+    {
+        public static IBar Bar { get; set; }
+
+        public static int GetBar(this object @object)
+        {
+            return Bar.Foo(@object);
+        }
+
+        public static int GetFooBar(this object @object)
+        {
+            return 1;
+        }
+    }
+
+    public interface IBar
+    {
+        int Foo(object @obj);
+    }
+}";
+            var expectedDiagnostic = new[]
+            {
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member GetFooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(12, 42)
+                    }
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
+        }
     }
 }

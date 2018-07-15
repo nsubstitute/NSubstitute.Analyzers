@@ -70,5 +70,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
         Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireGenericType();
 
         Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireNamespace();
+
+        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingExtensionMethod();
     }
 }

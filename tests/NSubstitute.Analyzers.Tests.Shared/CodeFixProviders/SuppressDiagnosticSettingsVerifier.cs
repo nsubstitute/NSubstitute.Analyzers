@@ -8,8 +8,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Newtonsoft.Json;
 using NSubstitute.Analyzers.Shared.Settings;
+using NSubstitute.Analyzers.Shared.TinyJson;
 
 namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
 {
@@ -17,7 +17,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
     {
         protected async Task VerifySuppressionSettings(string source, string target, string diagnosticRuleId, int codeFixIndex = 0)
         {
-            var originalSettings = JsonConvert.DeserializeObject<AnalyzersSettings>(GetSettings());
+            var originalSettings = Json.Decode<AnalyzersSettings>(GetSettings());
 
             var document = await ApplySettingsSuppressionFix(source, codeFixIndex);
 
@@ -26,7 +26,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
 
         protected override string GetSettings()
         {
-            return JsonConvert.SerializeObject(new object());
+            return Json.Encode(new object());
         }
 
         private async Task VerifySuppressionSettings(Document document, AnalyzersSettings originalSettings, string target, string diagnosticRuleId)
@@ -39,7 +39,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
 
             var text = await textDocument.GetTextAsync();
 
-            var updatedSettings = JsonConvert.DeserializeObject<AnalyzersSettings>(text.ToString());
+            var updatedSettings = Json.Decode<AnalyzersSettings>(text.ToString());
             var expectedSettings = GetExpectedSettings(originalSettings, target, diagnosticRuleId);
 
             updatedSettings.Should().BeEquivalentTo(expectedSettings);
@@ -81,7 +81,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
 
         private static AnalyzersSettings GetExpectedSettings(AnalyzersSettings originalSettings, string target, string diagnosticRuleId)
         {
-            var originalSupressions = originalSettings.Suppressions ?? new List<Suppression>();
+            var originalSupressions = originalSettings?.Suppressions ?? new List<Suppression>();
             var targetSuppression = originalSupressions.SingleOrDefault(suppression => suppression.Target == target);
             if (targetSuppression != null)
             {

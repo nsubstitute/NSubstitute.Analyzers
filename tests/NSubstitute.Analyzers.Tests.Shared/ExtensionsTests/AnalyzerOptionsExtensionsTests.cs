@@ -3,9 +3,9 @@ using System.Threading;
 using FluentAssertions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Newtonsoft.Json;
 using NSubstitute.Analyzers.Shared.Extensions;
 using NSubstitute.Analyzers.Shared.Settings;
+using NSubstitute.Analyzers.Shared.TinyJson;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using Xunit;
 
@@ -33,7 +33,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.ExtensionsTests
         public void GetSettings_ReturnsSerializedSettings_WhenAnalyzerFileExists(string fileName)
         {
             var analyzersSettings = AnalyzersSettings.CreateWithSuppressions("supression", "NS001");
-            var fileContentg = JsonConvert.SerializeObject(analyzersSettings);
+            var fileContentg = Json.Encode(analyzersSettings);
             var analyzerAdditionalTexts =
                 ImmutableArray.Create<AdditionalText>(new AnalyzerAdditionalText(fileName, fileContentg));
 

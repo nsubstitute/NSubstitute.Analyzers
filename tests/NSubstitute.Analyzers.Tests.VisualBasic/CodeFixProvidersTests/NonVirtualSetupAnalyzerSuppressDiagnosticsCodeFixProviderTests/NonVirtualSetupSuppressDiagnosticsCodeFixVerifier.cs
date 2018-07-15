@@ -17,6 +17,9 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.NonVirtu
         public abstract Task SuppressesDiagnosticsInSettings_WhenSettingValueForStaticMethod();
 
         [Fact]
+        public abstract Task SuppressesDiagnosticsInSettings_WhenSettingValueForExtensionMethod();
+
+        [Fact]
         public abstract Task SuppressesDiagnosticsInSettings_WhenSettingValueForSealedOverrideMethod();
 
         [Fact]

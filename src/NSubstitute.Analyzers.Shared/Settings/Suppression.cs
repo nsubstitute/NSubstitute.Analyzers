@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Immutable;
 
 namespace NSubstitute.Analyzers.Shared.Settings
 {
@@ -7,12 +6,6 @@ namespace NSubstitute.Analyzers.Shared.Settings
     {
         public Suppression()
         {
-        }
-
-        public Suppression(string target, List<string> rules)
-        {
-            Target = target;
-            Rules = rules;
         }
 
         public string Target { get; set; }

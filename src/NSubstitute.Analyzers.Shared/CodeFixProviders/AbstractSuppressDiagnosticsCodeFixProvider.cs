@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Newtonsoft.Json;
 using NSubstitute.Analyzers.Shared.Extensions;
 using NSubstitute.Analyzers.Shared.Settings;
+using NSubstitute.Analyzers.Shared.TinyJson;
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 {
@@ -36,7 +36,8 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 
             var root = await context.Document.GetSyntaxRootAsync();
             var model = await context.Document.GetSemanticModelAsync();
-            foreach (var diagnostic in context.Diagnostics.Where(diagnostic => FixableDiagnosticIds.Contains(diagnostic.Id)))
+            foreach (var diagnostic in context.Diagnostics.Where(diagnostic =>
+                FixableDiagnosticIds.Contains(diagnostic.Id)))
             {
                 var syntaxNode = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
                 var symbolInfo = model.GetSymbolInfo(syntaxNode);
@@ -83,36 +84,42 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
         {
             switch (innerSymbol)
             {
-                    case IMethodSymbol _:
-                        return "method";
-                    case IPropertySymbol propertySymbol when propertySymbol.IsIndexer:
-                        return "indexer";
-                    case IPropertySymbol _:
-                        return "property";
-                    case ITypeSymbol _:
-                        return "class";
-                    case INamespaceSymbol _:
-                        return "namespace";
-                    default:
-                        return string.Empty;
+                case IMethodSymbol _:
+                    return "method";
+                case IPropertySymbol propertySymbol when propertySymbol.IsIndexer:
+                    return "indexer";
+                case IPropertySymbol _:
+                    return "property";
+                case ITypeSymbol _:
+                    return "class";
+                case INamespaceSymbol _:
+                    return "namespace";
+                default:
+                    return string.Empty;
             }
         }
 
         private Task<Solution> GetTransformedSolutionAsync(CodeFixContext context, Diagnostic diagnostic, TextDocument settingsFile, ISymbol symbol)
         {
             var project = context.Document.Project;
+            var settingsFileId = settingsFile?.Id;
+            if (settingsFileId != null)
+            {
+                project = project.RemoveAdditionalDocument(settingsFileId);
+            }
+            else
+            {
+                settingsFileId = DocumentId.CreateNewId(project.Id);
+            }
 
             var options = GetUpdatedAnalyzersOptions(context, diagnostic, symbol);
 
-            project = project.RemoveAdditionalDocument(settingsFile.Id);
             var solution = project.Solution;
 
-            var newDocumentId = settingsFile.Id ?? DocumentId.CreateNewId(project.Id);
-
             solution = solution.AddAdditionalDocument(
-                newDocumentId,
+                settingsFileId,
                 AnalyzersSettings.AnalyzerFileName,
-                JsonConvert.SerializeObject(options, Formatting.Indented));
+                Json.Encode(options, pretty: true));
 
             return Task.FromResult(solution);
         }
@@ -120,7 +127,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
         private static AnalyzersSettings GetUpdatedAnalyzersOptions(CodeFixContext context, Diagnostic diagnostic, ISymbol symbol)
         {
             var options = context.Document.Project.AnalyzerOptions.GetSettings(default(CancellationToken));
-            var target = DocumentationCommentId.CreateDeclarationId(symbol);
+            var target = CreateSuppressionTarget(symbol);
             options.Suppressions = options.Suppressions ?? new List<Suppression>();
 
             var existingSuppression = options.Suppressions.FirstOrDefault(suppression => suppression.Target == target);
@@ -134,7 +141,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             {
                 options.Suppressions.Add(new Suppression
                 {
-                    Target = DocumentationCommentId.CreateDeclarationId(symbol),
+                    Target = target,
                     Rules = new List<string>
                     {
                         diagnostic.Id
@@ -143,6 +150,17 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             }
 
             return options;
+        }
+
+        private static string CreateSuppressionTarget(ISymbol symbol)
+        {
+            ISymbol actualSymbol = symbol;
+            if (actualSymbol is IMethodSymbol methodSymbol && methodSymbol.ReducedFrom != null)
+            {
+                actualSymbol = methodSymbol.ReducedFrom;
+            }
+
+            return DocumentationCommentId.CreateDeclarationId(actualSymbol);
         }
 
         private static TextDocument GetSettingsFile(Project project)

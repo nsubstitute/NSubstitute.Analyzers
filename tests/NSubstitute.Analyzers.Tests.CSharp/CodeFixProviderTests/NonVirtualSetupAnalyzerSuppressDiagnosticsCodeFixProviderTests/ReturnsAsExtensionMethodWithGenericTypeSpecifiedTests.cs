@@ -58,6 +58,41 @@ namespace MyNamespace
             await VerifySuppressionSettings(source, "M:MyNamespace.Foo.Bar~System.Int32", DiagnosticIdentifiers.NonVirtualSetupSpecification);
         }
 
+        public override async Task SuppressesDiagnosticsInSettings_WhenSettingValueForExtensionMethod()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class FooTests
+    {
+        public void Test()
+        {
+            MyExtensions.Bar = Substitute.For<IBar>();
+            var substitute = Substitute.For<object>();
+            substitute.GetBar().Returns<int>(1);
+        }
+    }
+
+    public static class MyExtensions
+    {
+        public static IBar Bar { get; set; }
+
+        public static int GetBar(this object @object)
+        {
+            return Bar.Foo(@object);
+        }
+    }
+
+    public interface IBar
+    {
+        int Foo(object @obj);
+    }
+}";
+
+            await VerifySuppressionSettings(source, "M:MyNamespace.MyExtensions.GetBar(System.Object)~System.Int32", DiagnosticIdentifiers.NonVirtualSetupSpecification);
+        }
+
         public override async Task SuppressesDiagnosticsInSettings_WhenSettingValueForSealedOverrideMethod()
         {
             var source = @"using NSubstitute;

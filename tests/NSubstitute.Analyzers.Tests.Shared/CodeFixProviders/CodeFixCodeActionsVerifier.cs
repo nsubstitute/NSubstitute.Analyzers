@@ -7,7 +7,7 @@ using FluentAssertions;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Newtonsoft.Json;
+using NSubstitute.Analyzers.Shared.TinyJson;
 
 namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
 {
@@ -23,7 +23,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
 
         protected override string GetSettings()
         {
-            return JsonConvert.SerializeObject(new object());
+            return Json.Encode(new object());
         }
 
         private async Task<List<CodeAction>> ApplyFixProvider(string language, DiagnosticAnalyzer analyzer, CodeFixProvider codeFixProvider, string source)

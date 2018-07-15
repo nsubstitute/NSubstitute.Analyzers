@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using NSubstitute.Analyzers.Shared.Threading;
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 {
@@ -28,7 +27,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
                 context.RegisterCodeFix(codeAction, diagnostic);
             }
 
-            return SpecializedTasks.CompletedTask;
+            return Task.CompletedTask;
         }
 
         protected abstract TGenericNameSyntax GetGenericNameSyntax(TInvocationExpression methodInvocationNode);
