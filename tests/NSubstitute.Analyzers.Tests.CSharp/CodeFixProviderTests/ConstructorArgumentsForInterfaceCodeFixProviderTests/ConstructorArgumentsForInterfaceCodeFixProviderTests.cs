@@ -3,11 +3,12 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.CSharp.CodeFixProviders;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.ConstructorArgumentsForInterfaceCodeFixProviderTests
 {
-    public class ConstructorArgumentsForInterfaceCodeFixProviderTests : CSharpCodeFixVerifier
+    public class ConstructorArgumentsForInterfaceCodeFixProviderTests : CSharpCodeFixVerifier, IConstructorArgumentsForInterfaceCodeFixVerifier
     {
         [Fact]
         public async Task RemovesInvocationArguments_WhenGenericFor_UsedWithParametersForInterface()

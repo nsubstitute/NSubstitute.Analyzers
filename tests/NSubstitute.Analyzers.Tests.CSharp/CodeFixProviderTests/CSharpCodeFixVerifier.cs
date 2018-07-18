@@ -1,6 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using NSubstitute.Analyzers.Tests.Shared;
 using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests
