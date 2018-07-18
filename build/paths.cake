@@ -46,11 +46,12 @@ public class BuildPaths
         var artifacts = rootDir.Combine(".artifacts");
         var testResults = artifacts.Combine("Test-Results");
 
+        var sharedTestsDir = rootDir.Combine("tests").Combine("NSubstitute.Analyzers.Tests.Shared");
         var csharpAnalyzerTestDir = rootDir.Combine("tests").Combine("NSubstitute.Analyzers.Tests.CSharp");
-
         var visualBasicAnalyzerTestDir = rootDir.Combine("tests").Combine("NSubstitute.Analyzers.Tests.VisualBasic");
 
         var testDirs = new []{
+                                sharedTestsDir,
                                 csharpAnalyzerTestDir,
                                 visualBasicAnalyzerTestDir
                             };

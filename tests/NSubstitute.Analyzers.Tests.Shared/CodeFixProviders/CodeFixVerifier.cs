@@ -11,6 +11,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
+using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
 {
@@ -41,6 +42,20 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
         protected Document CreateDocument(string source, string language)
         {
             return CreateProject(new[] { source }, language).Documents.First();
+        }
+
+        /// <summary>
+        /// Apply the inputted CodeAction to the inputted document.
+        /// Meant to be used to apply codefixes.
+        /// </summary>
+        /// <param name="document">The Document to apply the fix on</param>
+        /// <param name="codeAction">A CodeAction that will be applied to the Document.</param>
+        /// <returns>A Document with the changes from the CodeAction</returns>
+        protected static async Task<Document> ApplyFix(Document document, CodeAction codeAction)
+        {
+            var operations = await codeAction.GetOperationsAsync(CancellationToken.None);
+            var solution = operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
+            return solution.GetDocument(document.Id);
         }
 
         /// <summary>
@@ -97,33 +112,24 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
                     string message =
                         $"Fix introduced new compiler diagnostics:\r\n{diagnosticsString}\r\n\r\nNew document:\r\n{newDocumentString}\r\n";
 
-                    Execute.Assertion.FailWith(message);
+                    message.Should().BeEmpty();
                 }
 
                 // check if there are analyzer diagnostics left after the code fix
-                if (!analyzerDiagnostics.Any())
+                if (analyzerDiagnostics.Any())
                 {
-                    break;
+                    var diagnosticsString = string.Join("\r\n", analyzerDiagnostics.Select(d => d.ToString()));
+                    var newDocumentString = (await document.GetSyntaxRootAsync()).ToFullString();
+                    string message =
+                        $"Fix didn't fix compiler diagnostics:\r\n{diagnosticsString}\r\n\r\nNew document:\r\n{newDocumentString}\r\n";
+
+                    message.Should().BeEmpty();
                 }
             }
 
             // after applying all of the code fixes, compare the resulting string to the inputted one
             var actual = await GetStringFromDocument(document);
             actual.Should().Be(newSource);
-        }
-
-        /// <summary>
-        /// Apply the inputted CodeAction to the inputted document.
-        /// Meant to be used to apply codefixes.
-        /// </summary>
-        /// <param name="document">The Document to apply the fix on</param>
-        /// <param name="codeAction">A CodeAction that will be applied to the Document.</param>
-        /// <returns>A Document with the changes from the CodeAction</returns>
-        private static async Task<Document> ApplyFix(Document document, CodeAction codeAction)
-        {
-            var operations = await codeAction.GetOperationsAsync(CancellationToken.None);
-            var solution = operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
-            return solution.GetDocument(document.Id);
         }
 
         /// <summary>
