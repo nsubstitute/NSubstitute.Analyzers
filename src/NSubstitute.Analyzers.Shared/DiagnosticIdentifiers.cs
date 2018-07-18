@@ -14,5 +14,6 @@
         public static readonly string SubstituteConstructorArgumentsForDelegate = "NS010";
         public static readonly string NonVirtualReceivedSetupSpecification = "NS011";
         public static readonly string NonVirtualWhenSetupSpecification = "NS012";
+        public static readonly string ReEntrantSubstituteCall = "NS013";
     }
 }

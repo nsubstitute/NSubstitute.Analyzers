@@ -115,6 +115,14 @@ namespace NSubstitute.Analyzers.Shared
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true);
 
+        public static DiagnosticDescriptor ReEntrantSubstituteCall { get; } =
+            CreateDiagnosticDescriptor(
+                name: nameof(ReEntrantSubstituteCall),
+                id: DiagnosticIdentifiers.ReEntrantSubstituteCall,
+                category: DiagnosticCategories.Usage,
+                defaultSeverity: DiagnosticSeverity.Warning,
+                isEnabledByDefault: true);
+
         private static DiagnosticDescriptor CreateDiagnosticDescriptor(
             string name, string id, string category, DiagnosticSeverity defaultSeverity, bool isEnabledByDefault)
         {

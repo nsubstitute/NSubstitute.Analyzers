@@ -273,4 +273,16 @@
     <value>Non-virtual setup specification.</value>
     <comment>The title of the diagnostic.</comment>
   </data>
+    <data name="ReEntrantSubstituteCallDescription" xml:space="preserve">
+    <value>Re-entrant substitute call.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="ReEntrantSubstituteCallMessageFormat" xml:space="preserve">
+    <value>{0}() is set with a method that itself calls {1}. This can cause problems with NSubstitute. Consider replacing with a lambda: {0}(x => {2}).</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="ReEntrantSubstituteCallTitle" xml:space="preserve">
+    <value>Re-entrant substitute call.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
 </root>
