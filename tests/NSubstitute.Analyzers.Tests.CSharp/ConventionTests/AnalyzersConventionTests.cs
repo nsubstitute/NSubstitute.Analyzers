@@ -17,7 +17,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.ConventionTests
         [Fact]
         public void DiagnosticAnalyzersConventionsShouldBeSatisfied()
         {
-            _fixture.AssertDiagnosticAnalyzerAttributeUsageFormAssemblyContaining<NonVirtualSetupAnalyzer>(LanguageNames.CSharp);
+            _fixture.AssertDiagnosticAnalyzerAttributeUsageFromAssemblyContaining<NonVirtualSetupAnalyzer>(LanguageNames.CSharp);
         }
 
         [Fact]
