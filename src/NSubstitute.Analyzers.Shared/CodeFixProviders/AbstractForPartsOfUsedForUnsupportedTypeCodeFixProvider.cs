@@ -27,7 +27,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
                 context.RegisterCodeFix(codeAction, diagnostic);
             }
 
-            return Task.FromResult(1);
+            return Task.CompletedTask;
         }
 
         protected abstract TGenericNameSyntax GetGenericNameSyntax(TInvocationExpression methodInvocationNode);

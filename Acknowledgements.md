@@ -21,3 +21,7 @@ Cake (C# Make) is used for NSubstitute.Analyzers's build. Cake is distributed un
 
 ## Microsoft .NET Framework [http://www.microsoft.com/net/]
 NSubstitute.Analyzers is coded in C# and compiled using Microsoft .NET.
+
+## TinyJson [https://github.com/gering/Tiny-JSON]
+TinyJson is used for serialization of settings file. Due to its small size it was incorporated directly into NSubstitute.Analyzers which solved our issues with NuGet references to Newtonsoft.Json.
+TinyJson is distributed under MIT license [https://github.com/gering/Tiny-JSON/blob/master/LICENSE]

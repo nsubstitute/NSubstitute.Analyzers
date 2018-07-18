@@ -4,7 +4,6 @@ using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +12,7 @@ using FluentAssertions.Execution;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using NSubstitute.Analyzers.Shared.Settings;
 
 namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 {
@@ -67,6 +67,11 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
             return Enumerable.Empty<MetadataReference>();
         }
 
+        protected virtual string GetSettings()
+        {
+            return null;
+        }
+
         protected async Task<Diagnostic[]> GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, Document[] documents, bool allowCompilationErrors)
         {
             if (documents == null)
@@ -81,16 +86,11 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
             }
 
             var diagnostics = new List<Diagnostic>();
-            var analyzerExceptions = new List<Exception>();
+
             foreach (var project in projects)
             {
-                var options = new CompilationWithAnalyzersOptions(
-                    new AnalyzerOptions(ImmutableArray<AdditionalText>.Empty),
-                    (exception, diagnosticAnalyzer, diagnostic) => analyzerExceptions.Add(exception),
-                    false,
-                    true);
-                var compilationWithAnalyzers = (await project.GetCompilationAsync())
-                    .WithAnalyzers(ImmutableArray.Create(analyzer), options);
+                var compilation = await project.GetCompilationAsync();
+                var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create(analyzer), project.AnalyzerOptions);
 
                 if (!allowCompilationErrors)
                 {
@@ -98,18 +98,6 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
                 }
 
                 var diags = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
-
-                if (analyzerExceptions.Any())
-                {
-                    if (analyzerExceptions.Count == 1)
-                    {
-                        ExceptionDispatchInfo.Capture(analyzerExceptions[0]).Throw();
-                    }
-                    else
-                    {
-                        throw new AggregateException("Multiple exceptions thrown during analysis", analyzerExceptions);
-                    }
-                }
 
                 foreach (var diag in diags)
                 {
@@ -171,6 +159,13 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
                     var documentId = DocumentId.CreateNewId(projectId, debugName: newFileName);
                     solution = solution.AddDocument(documentId, newFileName, SourceText.From(source));
                     count++;
+                }
+
+                var settings = GetSettings();
+                if (!string.IsNullOrEmpty(settings))
+                {
+                    var documentId = DocumentId.CreateNewId(projectId);
+                    solution = solution.AddAdditionalDocument(documentId, AnalyzersSettings.AnalyzerFileName, settings);
                 }
 
                 return solution.GetProject(projectId);

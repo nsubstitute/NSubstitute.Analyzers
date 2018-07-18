@@ -42,7 +42,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract string GetAccessedMemberName(TMemberAccessExpressionSyntax memberAccessExpressionSyntax);
 
-        protected virtual bool? CanBeSetuped(SyntaxNode accessedMember, SymbolInfo symbolInfo)
+        protected virtual bool? CanBeSetuped(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode accessedMember, SymbolInfo symbolInfo)
         {
             if (KnownNonVirtualSyntaxTypes.Contains(accessedMember.GetType()))
             {
@@ -114,7 +114,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var accessedSymbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(accessedMember);
 
-            var canBeSetuped = CanBeSetuped(accessedMember, accessedSymbol);
+            var canBeSetuped = CanBeSetuped(syntaxNodeContext, accessedMember, accessedSymbol);
             if (canBeSetuped.HasValue && canBeSetuped == false)
             {
                 var diagnostic = Diagnostic.Create(
@@ -122,7 +122,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     accessedMember.GetLocation(),
                     accessedSymbol.Symbol?.Name ?? accessedMember.ToString());
 
-                syntaxNodeContext.ReportDiagnostic(diagnostic);
+                TryReportDiagnostic(syntaxNodeContext, diagnostic, accessedSymbol.Symbol);
             }
         }
 
