@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -23,9 +24,14 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private AbstractSubstituteConstructorMatcher SubstituteConstructorMatcher => _substituteConstructorMatcher.Value;
 
-        private static readonly ImmutableHashSet<string> MethodNames = ImmutableHashSet.Create(
-            MetadataNames.NSubstituteForMethod,
-            MetadataNames.NSubstituteForPartsOfMethod);
+        private static readonly ImmutableDictionary<string, string> MethodNamesMap =
+            new Dictionary<string, string>
+            {
+                [MetadataNames.NSubstituteForMethod] = MetadataNames.NSubstituteSubstituteFullTypeName,
+                [MetadataNames.NSubstituteForPartsOfMethod] = MetadataNames.NSubstituteSubstituteFullTypeName,
+                [MetadataNames.SubstituteFactoryCreate] = MetadataNames.NSubstituteFactoryFullTypeName,
+                [MetadataNames.SubstituteFactoryCreatePartial] = MetadataNames.NSubstituteFactoryFullTypeName
+            }.ToImmutableDictionary();
 
         protected AbstractSubstituteAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
             : base(diagnosticDescriptorsProvider)
@@ -81,13 +87,13 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var substituteContext = new SubstituteContext<TInvocationExpressionSyntax>(syntaxNodeContext, invocationExpression, methodSymbol);
 
-            if (methodSymbol.Name.Equals(MetadataNames.NSubstituteForMethod, StringComparison.Ordinal))
+            if (methodSymbol.Name.Equals(MetadataNames.NSubstituteForMethod, StringComparison.Ordinal) || methodSymbol.Name.Equals(MetadataNames.SubstituteFactoryCreate, StringComparison.Ordinal))
             {
                 AnalyzeSubstituteForMethod(substituteContext);
                 return;
             }
 
-            if (methodSymbol.Name.Equals(MetadataNames.NSubstituteForPartsOfMethod, StringComparison.Ordinal))
+            if (methodSymbol.Name.Equals(MetadataNames.NSubstituteForPartsOfMethod, StringComparison.Ordinal) || methodSymbol.Name.Equals(MetadataNames.SubstituteFactoryCreatePartial, StringComparison.Ordinal))
             {
                 AnalyzeSubstituteForPartsOf(substituteContext);
                 return;
@@ -119,7 +125,12 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private void AnalyzeSubstituteForPartsOf(SubstituteContext<TInvocationExpressionSyntax> substituteContext)
         {
-            var proxyType = substituteContext.MethodSymbol.TypeArguments.FirstOrDefault();
+            if (AnalyzeProxies(substituteContext))
+            {
+                return;
+            }
+
+            var proxyType = SubstituteProxyAnalysis.GetActualProxyTypeSymbol(substituteContext);
 
             if (proxyType == null)
             {
@@ -299,7 +310,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private static bool IsSubstituteMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntax, string memberName)
         {
-            if (MethodNames.Contains(memberName) == false)
+            if (MethodNamesMap.TryGetValue(memberName, out var containingType) == false)
             {
                 return false;
             }
@@ -307,7 +318,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax);
 
             return symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.Ordinal) == true &&
-                   symbol.Symbol?.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteFullTypeName, StringComparison.Ordinal) == true;
+                   symbol.Symbol?.ContainingType?.ToString().Equals(containingType, StringComparison.Ordinal) == true;
         }
     }
 }
