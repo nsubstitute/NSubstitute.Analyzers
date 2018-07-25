@@ -70,6 +70,69 @@ End Namespace
             await VerifyFix(oldSource, newSource);
         }
 
+        [Fact]
+        public async Task ReplacesSubstituteFactoryCreatePartial_WithSubstituteFactoryCreate_WhenUsedWithDelegate()
+        {
+            var oldSource = @"Imports NSubstitute
+Imports NSubstitute.Core
+
+Namespace MyNamespace
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial({GetType(System.Func(Of Integer))}, Nothing)
+        End Sub
+    End Class
+End Namespace
+";
+            var newSource = @"Imports NSubstitute
+Imports NSubstitute.Core
+
+Namespace MyNamespace
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = SubstitutionContext.Current.SubstituteFactory.Create({GetType(System.Func(Of Integer))}, Nothing)
+        End Sub
+    End Class
+End Namespace
+";
+
+            await VerifyFix(oldSource, newSource);
+        }
+
+        [Fact]
+        public async Task ReplacesSubstituteFactoryCreatePartial_WithSubstituteFactoryCreate_WhenUsedWithInterface()
+        {
+            var oldSource = @"Imports NSubstitute
+Imports NSubstitute.Core
+
+Namespace MyNamespace
+    Public Interface IFoo
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial({GetType(IFoo)}, Nothing)
+        End Sub
+    End Class
+End Namespace";
+
+            var newSource = @"Imports NSubstitute
+Imports NSubstitute.Core
+
+Namespace MyNamespace
+    Public Interface IFoo
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = SubstitutionContext.Current.SubstituteFactory.Create({GetType(IFoo)}, Nothing)
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifyFix(oldSource, newSource);
+        }
+
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
             return new SubstituteAnalyzer();

@@ -7,5 +7,9 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
         Task ReplacesForPartsOf_WithFor_WhenUsedWithInterface();
 
         Task ReplacesForPartsOf_WithFor_WhenUsedWithDelegate();
+
+        Task ReplacesSubstituteFactoryCreatePartial_WithSubstituteFactoryCreate_WhenUsedWithDelegate();
+
+        Task ReplacesSubstituteFactoryCreatePartial_WithSubstituteFactoryCreate_WhenUsedWithInterface();
     }
 }

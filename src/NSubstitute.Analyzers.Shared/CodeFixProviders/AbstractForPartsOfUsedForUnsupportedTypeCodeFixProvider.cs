@@ -8,10 +8,12 @@ using Microsoft.CodeAnalysis.CodeFixes;
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 {
-    internal abstract class AbstractForPartsOfUsedForUnsupportedTypeCodeFixProvider<TInvocationExpression, TGenericNameSyntax>
+    internal abstract class AbstractForPartsOfUsedForUnsupportedTypeCodeFixProvider<TInvocationExpression, TGenericNameSyntax, TIdentifierNameSyntax, TNameSyntax>
         : CodeFixProvider
         where TInvocationExpression : SyntaxNode
-        where TGenericNameSyntax : SyntaxNode
+        where TGenericNameSyntax : TNameSyntax
+        where TIdentifierNameSyntax : TNameSyntax
+        where TNameSyntax : SyntaxNode
     {
         public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
@@ -30,17 +32,35 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             return Task.CompletedTask;
         }
 
-        protected abstract TGenericNameSyntax GetGenericNameSyntax(TInvocationExpression methodInvocationNode);
+        protected abstract TInnerNameSyntax GetNameSyntax<TInnerNameSyntax>(TInvocationExpression methodInvocationNode) where TInnerNameSyntax : TNameSyntax;
 
-        protected abstract TGenericNameSyntax GetUpdatedGenericNameSyntax(TGenericNameSyntax nameSyntax, string identifierName);
+        protected abstract TInnerNameSyntax GetUpdatedNameSyntax<TInnerNameSyntax>(TInnerNameSyntax nameSyntax, string identifierName) where TInnerNameSyntax : TNameSyntax;
 
         private async Task<Document> CreateChangedDocument(CancellationToken cancellationToken, CodeFixContext context, Diagnostic diagnostic)
         {
             var root = await context.Document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
             var forPartsOfNode = (TInvocationExpression)root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
-            var nameNode = GetGenericNameSyntax(forPartsOfNode);
-            var updateNameNode = GetUpdatedGenericNameSyntax(nameNode, MetadataNames.NSubstituteForMethod);
+
+            SyntaxNode nameNode;
+            SyntaxNode updateNameNode;
+
+            var semanticModel = await context.Document.GetSemanticModelAsync(cancellationToken);
+            var symbolInfo = semanticModel.GetSymbolInfo(forPartsOfNode);
+
+            if (symbolInfo.Symbol is IMethodSymbol methodSymbol && methodSymbol.IsGenericMethod)
+            {
+                var genericNameSyntax = GetNameSyntax<TGenericNameSyntax>(forPartsOfNode);
+                nameNode = genericNameSyntax;
+                updateNameNode = GetUpdatedNameSyntax<TGenericNameSyntax>(genericNameSyntax, MetadataNames.NSubstituteForMethod);
+            }
+            else
+            {
+                var identifierNameSyntax = GetNameSyntax<TIdentifierNameSyntax>(forPartsOfNode);
+                nameNode = identifierNameSyntax;
+                updateNameNode = GetUpdatedNameSyntax<TIdentifierNameSyntax>(identifierNameSyntax, MetadataNames.SubstituteFactoryCreate);
+            }
+
             var forNode = forPartsOfNode.ReplaceNode(nameNode, updateNameNode);
 
             var replaceNode = root.ReplaceNode(forPartsOfNode, forNode);

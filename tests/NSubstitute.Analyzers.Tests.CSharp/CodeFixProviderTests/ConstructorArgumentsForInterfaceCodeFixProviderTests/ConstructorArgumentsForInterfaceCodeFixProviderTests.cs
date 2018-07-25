@@ -87,6 +87,46 @@ namespace MyNamespace
             await VerifyFix(source, newSource);
         }
 
+        [Fact]
+        public async Task RemovesInvocationArguments_WhenSubstituteFactoryCreate_UsedWithParametersForInterface()
+        {
+            var source = @"using NSubstitute;
+using NSubstitute.Core;
+
+namespace MyNamespace
+{
+    public interface IFoo
+    {
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = SubstitutionContext.Current.SubstituteFactory.Create(new[] {typeof(IFoo)}, new object[] { 1 });
+        }
+    }
+}";
+            var newSource = @"using NSubstitute;
+using NSubstitute.Core;
+
+namespace MyNamespace
+{
+    public interface IFoo
+    {
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = SubstitutionContext.Current.SubstituteFactory.Create(new[] {typeof(IFoo)}, null);
+        }
+    }
+}";
+            await VerifyFix(source, newSource);
+        }
+
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
             return new SubstituteAnalyzer();
