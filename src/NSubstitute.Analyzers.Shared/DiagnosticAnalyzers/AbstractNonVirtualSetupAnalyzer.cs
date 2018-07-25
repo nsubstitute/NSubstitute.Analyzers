@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
@@ -41,19 +42,14 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract string GetAccessedMemberName(TMemberAccessExpressionSyntax memberAccessExpressionSyntax);
 
-        protected virtual bool? CanBeSetuped(SyntaxNode accessedMember, SymbolInfo symbolInfo)
+        protected virtual bool? CanBeSetuped(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode accessedMember, SymbolInfo symbolInfo)
         {
             if (KnownNonVirtualSyntaxTypes.Contains(accessedMember.GetType()))
             {
                 return false;
             }
 
-            if (symbolInfo.Symbol == null)
-            {
-                return null;
-            }
-
-            return IsInterfaceMember(symbolInfo) || IsVirtual(symbolInfo);
+            return symbolInfo.Symbol?.CanBeSetuped();
         }
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
@@ -118,7 +114,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var accessedSymbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(accessedMember);
 
-            var canBeSetuped = CanBeSetuped(accessedMember, accessedSymbol);
+            var canBeSetuped = CanBeSetuped(syntaxNodeContext, accessedMember, accessedSymbol);
             if (canBeSetuped.HasValue && canBeSetuped == false)
             {
                 var diagnostic = Diagnostic.Create(
@@ -126,29 +122,13 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     accessedMember.GetLocation(),
                     accessedSymbol.Symbol?.Name ?? accessedMember.ToString());
 
-                syntaxNodeContext.ReportDiagnostic(diagnostic);
+                TryReportDiagnostic(syntaxNodeContext, diagnostic, accessedSymbol.Symbol);
             }
         }
 
         private bool IsValidForAnalysis(SyntaxNode accessedMember)
         {
             return accessedMember != null && SupportedMemberAccesses.Contains(accessedMember.RawKind);
-        }
-
-        private bool IsInterfaceMember(SymbolInfo symbolInfo)
-        {
-            return symbolInfo.Symbol?.ContainingType?.TypeKind == TypeKind.Interface;
-        }
-
-        private bool IsVirtual(SymbolInfo symbolInfo)
-        {
-            var member = symbolInfo.Symbol;
-
-            var isVirtual = member.IsVirtual
-                            || (member.IsOverride && !member.IsSealed)
-                            || member.IsAbstract;
-
-            return isVirtual;
         }
     }
 }

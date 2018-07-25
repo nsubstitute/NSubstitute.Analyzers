@@ -1,7 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Shared;
+using NSubstitute.Analyzers.Shared.Settings;
 using NSubstitute.Analyzers.Tests.Shared;
+using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualSetupAnalyzerTests
 {
@@ -544,6 +546,558 @@ namespace NSubstitute
     }
 }";
             await VerifyDiagnostic(source);
+        }
+
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualProperty()
+        {
+            Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo.Bar", DiagnosticIdentifiers.NonVirtualSetupSpecification);
+
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public int Bar { get; }
+
+        public int FooBar { get; }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            SubstituteExtensions.Returns(substitute.Bar, 1);
+            SubstituteExtensions.Returns(substitute.FooBar, 1);
+        }
+    }
+}";
+
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(18, 42)
+                }
+            };
+            await VerifyDiagnostic(source, expectedDiagnostic);
+        }
+
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericProperty()
+        {
+            Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo`1.Bar", DiagnosticIdentifiers.NonVirtualSetupSpecification);
+
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo<T>
+    {
+        public T Bar { get; }
+
+        public int FooBar { get; }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo<int>>();
+            SubstituteExtensions.Returns(substitute.Bar, 1);
+            SubstituteExtensions.Returns(substitute.FooBar, 1);
+        }
+    }
+}";
+
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(18, 42)
+                }
+            };
+            await VerifyDiagnostic(source, expectedDiagnostic);
+        }
+
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod()
+        {
+            Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar(System.Int32,System.Int32)", DiagnosticIdentifiers.NonVirtualSetupSpecification);
+
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public int Bar(int x)
+        {
+            return 1;
+        }
+
+        public int Bar(int x, int y)
+        {
+            return 2;
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            SubstituteExtensions.Returns(substitute.Bar(1, 2), 1);
+            SubstituteExtensions.Returns(substitute.Bar(1), 1);
+        }
+    }
+}";
+
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(24, 42)
+                }
+            };
+            await VerifyDiagnostic(source, expectedDiagnostic);
+        }
+
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericMethod()
+        {
+            Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar``1(``0,``0)", DiagnosticIdentifiers.NonVirtualSetupSpecification);
+
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public int Bar(int x)
+        {
+            return 1;
+        }
+
+        public int Bar<T>(T x, T y)
+        {
+            return 2;
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            SubstituteExtensions.Returns(substitute.Bar<int>(1, 2), 1);
+            SubstituteExtensions.Returns(substitute.Bar(1), 1);
+        }
+    }
+}";
+
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(24, 42)
+                }
+            };
+            await VerifyDiagnostic(source, expectedDiagnostic);
+        }
+
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualIndexer()
+        {
+            Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo.Item(System.Int32,System.Int32)", DiagnosticIdentifiers.NonVirtualSetupSpecification);
+
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public int this[int x] => 0;
+        public int this[int x, int y] => 0;
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            SubstituteExtensions.Returns(substitute[1,2], 1);
+            SubstituteExtensions.Returns(substitute[1], 1);
+        }
+    }
+}";
+
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(17, 42)
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
+        }
+
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericIndexer()
+        {
+            Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo`1.Item(`0,`0)", DiagnosticIdentifiers.NonVirtualSetupSpecification);
+
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo<T>
+    {
+        public int this[T x] => 0;
+        public int this[T x, T y] => 0;
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo<int>>();
+            SubstituteExtensions.Returns(substitute[1, 2], 1);
+            SubstituteExtensions.Returns(substitute[1], 1);
+        }
+    }
+}";
+
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(17, 42)
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
+        }
+
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireType()
+        {
+             Settings = AnalyzersSettings.CreateWithSuppressions("T:MyNamespace.Foo", DiagnosticIdentifiers.NonVirtualSetupSpecification);
+
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public int Bar { get; set; }
+        public int this[int x] => 0;
+        public int FooBar()
+        {
+            return 1;
+        }
+    }
+
+    public class FooBarBar
+    {
+        public int Bar { get;set; }
+        public int this[int x] => 0;
+        public int FooBar()
+        {
+            return 1;
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            SubstituteExtensions.Returns(substitute[1], 1);
+            SubstituteExtensions.Returns(substitute.Bar, 1);
+            SubstituteExtensions.Returns(substitute.FooBar(), 1);
+
+            var substituteFooBarBar = NSubstitute.Substitute.For<FooBarBar>();
+            SubstituteExtensions.Returns(substituteFooBarBar[1], 1);
+            SubstituteExtensions.Returns(substituteFooBarBar.Bar, 1);
+            SubstituteExtensions.Returns(substituteFooBarBar.FooBar(), 1);
+        }
+    }
+}";
+
+            var expectedDiagnostic = new[]
+            {
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(35, 42)
+                    }
+                },
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(36, 42)
+                    }
+                },
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(37, 42)
+                    }
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
+        }
+
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireGenericType()
+        {
+            Settings = AnalyzersSettings.CreateWithSuppressions("T:MyNamespace.Foo`1", DiagnosticIdentifiers.NonVirtualSetupSpecification);
+
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo<T>
+    {
+        public int Bar { get; set; }
+        public int this[int x] => 0;
+        public int FooBar()
+        {
+            return 1;
+        }
+    }
+
+    public class FooBarBar<T>
+    {
+        public int Bar { get;set; }
+        public int this[int x] => 0;
+        public int FooBar()
+        {
+            return 1;
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo<int>>();
+            SubstituteExtensions.Returns(substitute[1], 1);
+            SubstituteExtensions.Returns(substitute.Bar, 1);
+            SubstituteExtensions.Returns(substitute.FooBar(), 1);
+
+            var substituteFooBarBar = NSubstitute.Substitute.For<FooBarBar<int>>();
+            SubstituteExtensions.Returns(substituteFooBarBar[1], 1);
+            SubstituteExtensions.Returns(substituteFooBarBar.Bar, 1);
+            SubstituteExtensions.Returns(substituteFooBarBar.FooBar(), 1);
+        }
+    }
+}";
+
+            var expectedDiagnostic = new[]
+            {
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(35, 42)
+                    }
+                },
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(36, 42)
+                    }
+                },
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(37, 42)
+                    }
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
+        }
+
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireNamespace()
+        {
+            Settings = AnalyzersSettings.CreateWithSuppressions("N:MyNamespace", DiagnosticIdentifiers.NonVirtualSetupSpecification);
+
+            var source = @"using NSubstitute;
+
+namespace MyOtherNamespace
+{
+    public class FooBarBar
+    {
+        public int Bar { get; set; }
+        public int this[int x] => 0;
+        public int FooBar()
+        {
+            return 1;
+        }
+    }
+}
+
+namespace MyNamespace
+{
+    using MyOtherNamespace;
+    public class Foo
+    {
+        public int Bar { get; set; }
+        public int this[int x] => 0;
+        public int FooBar()
+        {
+            return 1;
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            SubstituteExtensions.Returns(substitute[1], 1);
+            SubstituteExtensions.Returns(substitute.Bar, 1);
+            SubstituteExtensions.Returns(substitute.FooBar(), 1);
+
+            var substituteFooBarBar = NSubstitute.Substitute.For<FooBarBar>();
+            SubstituteExtensions.Returns(substituteFooBarBar[1], 1);
+            SubstituteExtensions.Returns(substituteFooBarBar.Bar, 1);
+            SubstituteExtensions.Returns(substituteFooBarBar.FooBar(), 1);
+        }
+    }
+}";
+
+            var expectedDiagnostic = new[]
+            {
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(39, 42)
+                    }
+                },
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(40, 42)
+                    }
+                },
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(41, 42)
+                    }
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
+        }
+
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingExtensionMethod()
+        {
+            Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.MyExtensions.GetBar(System.Object)~System.Int32", DiagnosticIdentifiers.NonVirtualSetupSpecification);
+
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class FooTests
+    {
+        public void Test()
+        {
+            MyExtensions.Bar = Substitute.For<IBar>();
+            var substitute = Substitute.For<object>();
+            SubstituteExtensions.Returns(substitute.GetBar(), 1);
+            SubstituteExtensions.Returns(substitute.GetFooBar(), 1);
+        }
+    }
+
+    public static class MyExtensions
+    {
+        public static IBar Bar { get; set; }
+
+        public static int GetBar(this object @object)
+        {
+            return Bar.Foo(@object);
+        }
+
+        public static int GetFooBar(this object @object)
+        {
+            return 1;
+        }
+    }
+
+    public interface IBar
+    {
+        int Foo(object @obj);
+    }
+}";
+            var expectedDiagnostic = new[]
+            {
+                new DiagnosticResult
+                {
+                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
+                    Severity = DiagnosticSeverity.Warning,
+                    Message = "Member GetFooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                    Locations = new[]
+                    {
+                        new DiagnosticResultLocation(12, 42)
+                    }
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
     }
 }

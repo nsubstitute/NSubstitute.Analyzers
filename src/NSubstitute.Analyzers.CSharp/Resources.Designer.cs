@@ -62,11 +62,11 @@ namespace NSubstitute.Analyzers.CSharp {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Non-virtual members can not be intercepted..
+        ///   Looks up a localized string similar to Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted..
         /// </summary>
-        internal static string NonVirtualSetupSpecificationDescription {
+        internal static string NonVirtualReceivedSetupSpecificationMessageFormat {
             get {
-                return ResourceManager.GetString("NonVirtualSetupSpecificationDescription", resourceCulture);
+                return ResourceManager.GetString("NonVirtualReceivedSetupSpecificationMessageFormat", resourceCulture);
             }
         }
         
@@ -80,65 +80,56 @@ namespace NSubstitute.Analyzers.CSharp {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Non-virtual setup specification..
+        ///   Looks up a localized string similar to Member {0} can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted..
         /// </summary>
-        internal static string NonVirtualSetupSpecificationTitle {
+        internal static string NonVirtualWhenSetupSpecificationMessageFormat {
             get {
-                return ResourceManager.GetString("NonVirtualSetupSpecificationTitle", resourceCulture);
+                return ResourceManager.GetString("NonVirtualWhenSetupSpecificationMessageFormat", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unused received check..
+        ///   Looks up a localized string similar to {0}() is set with a method that itself calls {1}. This can cause problems with NSubstitute. Consider replacing with a lambda: {0}(x =&gt; {2})..
         /// </summary>
-        internal static string UnusedReceivedDescription {
+        internal static string ReEntrantSubstituteCallMessageFormat {
             get {
-                return ResourceManager.GetString("UnusedReceivedDescription", resourceCulture);
+                return ResourceManager.GetString("ReEntrantSubstituteCallMessageFormat", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unused received check..
+        ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for a delegate. Use Substitute.For&lt;{0}&gt;() instead..
         /// </summary>
-        internal static string UnusedReceivedForOrdinaryMethodDescription {
+        internal static string SubstituteConstructorArgumentsForDelegateMessageFormat {
             get {
-                return ResourceManager.GetString("UnusedReceivedForOrdinaryMethodDescription", resourceCulture);
+                return ResourceManager.GetString("SubstituteConstructorArgumentsForDelegateMessageFormat", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unused received check. To fix, make sure there is a call after &quot;{0}&quot;. Correct: &quot;SubstituteExtensions.{0}(sub).SomeCall();&quot;. Incorrect: &quot;SubstituteExtensions.{0}(sub);&quot;.
+        ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for an interface. Use Substitute.For&lt;{0}&gt;() instead..
         /// </summary>
-        internal static string UnusedReceivedForOrdinaryMethodMessageFormat {
+        internal static string SubstituteConstructorArgumentsForInterfaceMessageFormat {
             get {
-                return ResourceManager.GetString("UnusedReceivedForOrdinaryMethodMessageFormat", resourceCulture);
+                return ResourceManager.GetString("SubstituteConstructorArgumentsForInterfaceMessageFormat", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Received check..
+        ///   Looks up a localized string similar to Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via [assembly: InternalsVisibleTo(&quot;DynamicProxyGenAssembly2&quot;)].
         /// </summary>
-        internal static string UnusedReceivedForOrdinaryMethodTitle {
+        internal static string SubstituteForInternalMemberMessageFormat {
             get {
-                return ResourceManager.GetString("UnusedReceivedForOrdinaryMethodTitle", resourceCulture);
+                return ResourceManager.GetString("SubstituteForInternalMemberMessageFormat", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unused received check. To fix, make sure there is a call after &quot;{0}&quot;. Correct: &quot;sub.{0}().SomeCall();&quot;. Incorrect: &quot;sub.{0}();&quot;.
+        ///   Looks up a localized string similar to Can only substitute for parts of classes, not interfaces or delegates. Use Substitute.For&lt;{0}&gt; instead of Substitute.ForPartsOf&lt;{0}&gt; here..
         /// </summary>
-        internal static string UnusedReceivedMessageFormat {
+        internal static string SubstituteForPartsOfUsedForInterfaceMessageFormat {
             get {
-                return ResourceManager.GetString("UnusedReceivedMessageFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Received check..
-        /// </summary>
-        internal static string UnusedReceivedTitle {
-            get {
-                return ResourceManager.GetString("UnusedReceivedTitle", resourceCulture);
+                return ResourceManager.GetString("SubstituteForPartsOfUsedForInterfaceMessageFormat", resourceCulture);
             }
         }
     }
