@@ -87,20 +87,21 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var substituteContext = new SubstituteContext<TInvocationExpressionSyntax>(syntaxNodeContext, invocationExpression, methodSymbol);
 
-            if (methodSymbol.Name.Equals(MetadataNames.NSubstituteForMethod, StringComparison.Ordinal) || methodSymbol.Name.Equals(MetadataNames.SubstituteFactoryCreate, StringComparison.Ordinal))
+            if (methodSymbol.Name.Equals(MetadataNames.NSubstituteForMethod, StringComparison.Ordinal) ||
+                methodSymbol.Name.Equals(MetadataNames.SubstituteFactoryCreate, StringComparison.Ordinal))
             {
-                AnalyzeSubstituteForMethod(substituteContext);
+                AnalyzeSubstitute(substituteContext);
                 return;
             }
 
-            if (methodSymbol.Name.Equals(MetadataNames.NSubstituteForPartsOfMethod, StringComparison.Ordinal) || methodSymbol.Name.Equals(MetadataNames.SubstituteFactoryCreatePartial, StringComparison.Ordinal))
+            if (methodSymbol.Name.Equals(MetadataNames.NSubstituteForPartsOfMethod, StringComparison.Ordinal) ||
+                methodSymbol.Name.Equals(MetadataNames.SubstituteFactoryCreatePartial, StringComparison.Ordinal))
             {
-                AnalyzeSubstituteForPartsOf(substituteContext);
-                return;
+                AnalyzePartialSubstitute(substituteContext);
             }
         }
 
-        private void AnalyzeSubstituteForMethod(SubstituteContext<TInvocationExpressionSyntax> substituteContext)
+        private void AnalyzeSubstitute(SubstituteContext<TInvocationExpressionSyntax> substituteContext)
         {
             if (AnalyzeProxies(substituteContext))
             {
@@ -123,7 +124,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             AnalyzeConstructor(substituteContext, constructorContext);
         }
 
-        private void AnalyzeSubstituteForPartsOf(SubstituteContext<TInvocationExpressionSyntax> substituteContext)
+        private void AnalyzePartialSubstitute(SubstituteContext<TInvocationExpressionSyntax> substituteContext)
         {
             if (AnalyzeProxies(substituteContext))
             {
@@ -278,7 +279,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     false))
             {
                 var symbol = substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetSymbolInfo(substituteContext.InvocationExpression);
-                var x = symbol.Symbol.ToMinimalDisplayString(substituteContext.SyntaxNodeAnalysisContext.SemanticModel, 10, SymbolDisplayFormat.CSharpErrorMessageFormat);
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.SubstituteConstructorMismatch,
                     substituteContext.InvocationExpression.GetLocation(),

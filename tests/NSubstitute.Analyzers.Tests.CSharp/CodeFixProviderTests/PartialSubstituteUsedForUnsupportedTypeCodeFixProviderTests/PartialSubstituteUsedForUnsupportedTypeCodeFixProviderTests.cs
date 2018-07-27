@@ -6,9 +6,9 @@ using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.ForPartsOfUsedForUnsupportedTypeCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.PartialSubstituteUsedForUnsupportedTypeCodeFixProviderTests
 {
-    public class ForPartsOfUsedForUnsupportedTypeCodeFixProviderTests : CSharpCodeFixVerifier, IForPartsOfUsedForUnsupportedTypeCodeFixVerifier
+    public class PartialSubstituteUsedForUnsupportedTypeCodeFixProviderTests : CSharpCodeFixVerifier, IForPartsOfUsedForUnsupportedTypeCodeFixVerifier
     {
         [Fact]
         public async Task ReplacesForPartsOf_WithFor_WhenUsedWithInterface()
@@ -161,7 +161,7 @@ namespace MyNamespace
 
         protected override CodeFixProvider GetCodeFixProvider()
         {
-            return new ForPartsOfUsedForUnsupportedTypeCodeFixProvider();
+            return new PartialSubstituteUsedForUnsupportedTypeCodeFixProvider();
         }
     }
 }

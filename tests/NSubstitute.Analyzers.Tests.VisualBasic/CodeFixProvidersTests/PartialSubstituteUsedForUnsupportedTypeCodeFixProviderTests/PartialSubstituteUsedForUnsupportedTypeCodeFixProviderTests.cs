@@ -6,9 +6,9 @@ using NSubstitute.Analyzers.VisualBasic.CodeFixProviders;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.ForPartsOfUsedForUnsupportedTypeCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.PartialSubstituteUsedForUnsupportedTypeCodeFixProviderTests
 {
-    public class ForPartsOfUsedForUnsupportedTypeCodeFixProviderTests : VisualBasicCodeFixVerifier, IForPartsOfUsedForUnsupportedTypeCodeFixVerifier
+    public class PartialSubstituteUsedForUnsupportedTypeCodeFixProviderTests : VisualBasicCodeFixVerifier, IForPartsOfUsedForUnsupportedTypeCodeFixVerifier
     {
         [Fact]
         public async Task ReplacesForPartsOf_WithFor_WhenUsedWithInterface()
@@ -140,7 +140,7 @@ End Namespace";
 
         protected override CodeFixProvider GetCodeFixProvider()
         {
-            return new ForPartsOfUsedForUnsupportedTypeCodeFixProvider();
+            return new PartialSubstituteUsedForUnsupportedTypeCodeFixProvider();
         }
     }
 }
