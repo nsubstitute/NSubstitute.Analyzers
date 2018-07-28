@@ -123,6 +123,14 @@ namespace NSubstitute.Analyzers.Shared
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true);
 
+        public static DiagnosticDescriptor CallInfoArgumentOutOfRange { get; } =
+            CreateDiagnosticDescriptor(
+                name: nameof(CallInfoArgumentOutOfRange),
+                id: DiagnosticIdentifiers.CallInfoArgumentOutOfRange,
+                category: DiagnosticCategories.Usage,
+                defaultSeverity: DiagnosticSeverity.Warning,
+                isEnabledByDefault: true);
+
         private static DiagnosticDescriptor CreateDiagnosticDescriptor(
             string name, string id, string category, DiagnosticSeverity defaultSeverity, bool isEnabledByDefault)
         {

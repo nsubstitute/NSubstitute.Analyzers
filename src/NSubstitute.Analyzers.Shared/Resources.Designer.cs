@@ -20,7 +20,7 @@ namespace NSubstitute.Analyzers.Shared {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -58,6 +58,33 @@ namespace NSubstitute.Analyzers.Shared {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to find argument..
+        /// </summary>
+        internal static string CallInfoArgumentOutOfRangeDescription {
+            get {
+                return ResourceManager.GetString("CallInfoArgumentOutOfRangeDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There is no argument at position {0}.
+        /// </summary>
+        internal static string CallInfoArgumentOutOfRangeMessageFormat {
+            get {
+                return ResourceManager.GetString("CallInfoArgumentOutOfRangeMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to find matching argument..
+        /// </summary>
+        internal static string CallInfoArgumentOutOfRangeTitle {
+            get {
+                return ResourceManager.GetString("CallInfoArgumentOutOfRangeTitle", resourceCulture);
             }
         }
         

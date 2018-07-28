@@ -31,5 +31,7 @@ namespace NSubstitute.Analyzers.Shared
         DiagnosticDescriptor NonVirtualWhenSetupSpecification { get; }
 
         DiagnosticDescriptor ReEntrantSubstituteCall { get; }
+
+        DiagnosticDescriptor CallInfoArgumentOutOfRange { get; }
     }
 }

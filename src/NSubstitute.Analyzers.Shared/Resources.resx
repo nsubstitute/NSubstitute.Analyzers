@@ -230,7 +230,6 @@
     <value>Can not provide constructor arguments when substituting for a delegate.</value>
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
-
   <data name="SubstituteConstructorArgumentsForDelegateTitle" xml:space="preserve">
     <value>Can not provide constructor arguments when substituting for a delegate.</value>
     <comment>The title of the diagnostic.</comment>
@@ -257,6 +256,18 @@
   </data>
   <data name="ReEntrantSubstituteCallTitle" xml:space="preserve">
     <value>Re-entrant substitute call.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+     <data name="CallInfoArgumentOutOfRangeDescription" xml:space="preserve">
+    <value>Unable to find argument.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="CallInfoArgumentOutOfRangeMessageFormat" xml:space="preserve">
+    <value>There is no argument at position {0}</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="CallInfoArgumentOutOfRangeTitle" xml:space="preserve">
+    <value>Unable to find matching argument.</value>
     <comment>The title of the diagnostic.</comment>
   </data>
 </root>

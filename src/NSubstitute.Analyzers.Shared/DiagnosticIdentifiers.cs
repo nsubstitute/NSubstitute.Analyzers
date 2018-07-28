@@ -15,5 +15,6 @@
         public static readonly string NonVirtualReceivedSetupSpecification = "NS011";
         public static readonly string NonVirtualWhenSetupSpecification = "NS012";
         public static readonly string ReEntrantSubstituteCall = "NS013";
+        public static readonly string CallInfoArgumentOutOfRange = "NS014";
     }
 }
