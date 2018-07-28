@@ -35,8 +35,11 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
         protected override InvocationExpressionSyntax GetCorrespondingSubstituteInvocationExpressionSyntax(InvocationExpressionSyntax invocationExpressionSyntax, string substituteName)
         {
-            var simpleNameSyntax = (SimpleNameSyntax)invocationExpressionSyntax.Expression;
-            return invocationExpressionSyntax.WithExpression(simpleNameSyntax.WithIdentifier(IdentifierName(substituteName).Identifier));
+            var memberAccessExpressionSyntax = (MemberAccessExpressionSyntax)invocationExpressionSyntax.Expression;
+
+            return invocationExpressionSyntax.WithExpression(
+                memberAccessExpressionSyntax.WithName(
+                    memberAccessExpressionSyntax.Name.WithIdentifier(Identifier(substituteName))));
         }
 
         protected override InvocationExpressionSyntax GetSubstituteInvocationExpressionSyntaxWithoutConstructorArguments(InvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol methodSymbol)

@@ -29,7 +29,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForPartsOfUsedForInterface,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use Substitute.For(Of MyNamespace.IFoo) instead of Substitute.ForPartsOf(Of MyNamespace.IFoo) here.",
+                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use NSubstitute.Substitute.For(Of IFoo)() instead of NSubstitute.Substitute.ForPartsOf(Of IFoo)() here.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(9, 30)
@@ -60,7 +60,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForPartsOfUsedForInterface,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use Substitute.For(Of System.Func(Of Integer)) instead of Substitute.ForPartsOf(Of System.Func(Of Integer)) here.",
+                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use NSubstitute.Substitute.For(Of Func(Of Integer))() instead of NSubstitute.Substitute.ForPartsOf(Of Func(Of Integer))() here.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(10, 30)
