@@ -127,7 +127,7 @@ Task("NuGet-Pack")
 
 Task("Publish")
     .IsDependentOn("NuGet-Pack")
-    .WithCriteria(context => parameters.ShouldPublish && releaseNotes.Version.ToString() == buildVersion.SemVersion)
+    .WithCriteria(context => parameters.ShouldPublish)
     .Does(() =>
 {
     var apiKey = EnvironmentVariable("NUGET_API_KEY");
