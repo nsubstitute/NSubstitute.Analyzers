@@ -30,7 +30,7 @@ namespace MyNamespace
 }";
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = DiagnosticIdentifiers.SubstituteForPartsOfUsedForInterface,
+                Id = DiagnosticIdentifiers.PartialSubstituteForUnsupportedType,
                 Severity = DiagnosticSeverity.Warning,
                 Message = "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(new Type[] { typeof(IFoo)}, null) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(IFoo)}, null) here.",
                 Locations = new[]
@@ -64,7 +64,7 @@ namespace MyNamespace
 }";
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = DiagnosticIdentifiers.SubstituteForPartsOfUsedForInterface,
+                Id = DiagnosticIdentifiers.PartialSubstituteForUnsupportedType,
                 Severity = DiagnosticSeverity.Warning,
                 Message = "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(new Type[] { typeof(Func<int>)}, null) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Func<int>)}, null) here.",
                 Locations = new[]

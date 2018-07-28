@@ -27,7 +27,7 @@ End Namespace
 ";
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = DiagnosticIdentifiers.SubstituteForPartsOfUsedForInterface,
+                Id = DiagnosticIdentifiers.PartialSubstituteForUnsupportedType,
                 Severity = DiagnosticSeverity.Warning,
                 Message = "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(New Type() {GetType(IFoo)}, Nothing) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(IFoo)}, Nothing) here.",
                 Locations = new[]
@@ -58,7 +58,7 @@ End Namespace
 ";
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = DiagnosticIdentifiers.SubstituteForPartsOfUsedForInterface,
+                Id = DiagnosticIdentifiers.PartialSubstituteForUnsupportedType,
                 Severity = DiagnosticSeverity.Warning,
                 Message = "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(New Type() {GetType(Func(Of Integer))}, Nothing) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Func(Of Integer))}, Nothing) here.",
                 Locations = new[]

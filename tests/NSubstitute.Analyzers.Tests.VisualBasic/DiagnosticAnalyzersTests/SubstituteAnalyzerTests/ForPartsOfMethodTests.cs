@@ -27,7 +27,7 @@ End Namespace
 ";
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = DiagnosticIdentifiers.SubstituteForPartsOfUsedForInterface,
+                Id = DiagnosticIdentifiers.PartialSubstituteForUnsupportedType,
                 Severity = DiagnosticSeverity.Warning,
                 Message = "Can only substitute for parts of classes, not interfaces or delegates. Use NSubstitute.Substitute.For(Of IFoo)() instead of NSubstitute.Substitute.ForPartsOf(Of IFoo)() here.",
                 Locations = new[]
@@ -58,7 +58,7 @@ End Namespace
 ";
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = DiagnosticIdentifiers.SubstituteForPartsOfUsedForInterface,
+                Id = DiagnosticIdentifiers.PartialSubstituteForUnsupportedType,
                 Severity = DiagnosticSeverity.Warning,
                 Message = "Can only substitute for parts of classes, not interfaces or delegates. Use NSubstitute.Substitute.For(Of Func(Of Integer))() instead of NSubstitute.Substitute.ForPartsOf(Of Func(Of Integer))() here.",
                 Locations = new[]

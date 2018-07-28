@@ -30,7 +30,7 @@ namespace MyNamespace
 }";
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = DiagnosticIdentifiers.SubstituteForPartsOfUsedForInterface,
+                Id = DiagnosticIdentifiers.PartialSubstituteForUnsupportedType,
                 Severity = DiagnosticSeverity.Warning,
                 Message = "Can only substitute for parts of classes, not interfaces or delegates. Use NSubstitute.Substitute.For<IFoo>() instead of NSubstitute.Substitute.ForPartsOf<IFoo>() here.",
                 Locations = new[]
@@ -63,7 +63,7 @@ namespace MyNamespace
 }";
             var expectedDiagnostic = new DiagnosticResult
             {
-                Id = DiagnosticIdentifiers.SubstituteForPartsOfUsedForInterface,
+                Id = DiagnosticIdentifiers.PartialSubstituteForUnsupportedType,
                 Severity = DiagnosticSeverity.Warning,
                 Message = "Can only substitute for parts of classes, not interfaces or delegates. Use NSubstitute.Substitute.For<Func<int>>() instead of NSubstitute.Substitute.ForPartsOf<Func<int>>() here.",
                 Locations = new[]

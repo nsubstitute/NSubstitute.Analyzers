@@ -52,7 +52,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         protected abstract TInvocationExpressionSyntax GetSubstituteInvocationExpressionSyntaxWithoutConstructorArguments(TInvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol methodSymbol);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
-            DiagnosticDescriptorsProvider.SubstituteForPartsOfUsedForInterface,
+            DiagnosticDescriptorsProvider.PartialSubstituteForUnsupportedType,
             DiagnosticDescriptorsProvider.SubstituteForWithoutAccessibleConstructor,
             DiagnosticDescriptorsProvider.SubstituteForConstructorParametersMismatch,
             DiagnosticDescriptorsProvider.SubstituteForInternalMember,
@@ -244,7 +244,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             if (proxyType.TypeKind == TypeKind.Interface || proxyType.TypeKind == TypeKind.Delegate)
             {
                 var diagnostic = Diagnostic.Create(
-                    DiagnosticDescriptorsProvider.SubstituteForPartsOfUsedForInterface,
+                    DiagnosticDescriptorsProvider.PartialSubstituteForUnsupportedType,
                     substituteContext.InvocationExpression.GetLocation(),
                     GetCorrespondingSubstituteMethod(substituteContext.InvocationExpression, substituteContext.MethodSymbol),
                     substituteContext.InvocationExpression.ToString());
