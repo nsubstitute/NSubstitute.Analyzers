@@ -56,7 +56,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.SubstituteConstructorArgumentsForInterface,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Can not provide constructor arguments when substituting for an interface. Use Substitute.For<MyNamespace.IFoo>() instead.",
+                Message = "Can not provide constructor arguments when substituting for an interface. Use SubstitutionContext.Current.SubstituteFactory.Create(new[] {typeof(IFoo)},null) instead.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(14, 30)
@@ -113,7 +113,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.SubstituteConstructorArgumentsForDelegate,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Can not provide constructor arguments when substituting for a delegate. Use Substitute.For<System.Func<int>>() instead.",
+                Message = "Can not provide constructor arguments when substituting for a delegate. Use SubstitutionContext.Current.SubstituteFactory.Create(new[] {typeof(Func<int>)},null) instead.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(14, 30)

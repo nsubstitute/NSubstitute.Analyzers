@@ -1,8 +1,10 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.VisualBasic;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
+using static Microsoft.CodeAnalysis.VisualBasic.SyntaxFactory;
 
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
@@ -29,6 +31,28 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
         protected override AbstractSubstituteConstructorMatcher GetSubstituteConstructorMatcher()
         {
             return new SubstituteConstructorMatcher();
+        }
+
+        protected override InvocationExpressionSyntax GetCorrespondingSubstituteInvocationExpressionSyntax(InvocationExpressionSyntax invocationExpressionSyntax, string substituteName)
+        {
+            var simpleNameSyntax = (SimpleNameSyntax)invocationExpressionSyntax.Expression;
+            return invocationExpressionSyntax.WithExpression(simpleNameSyntax.WithIdentifier(IdentifierName(substituteName).Identifier));
+        }
+
+        protected override InvocationExpressionSyntax GetSubstituteInvocationExpressionSyntaxWithoutConstructorArguments(InvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol methodSymbol)
+        {
+            ArgumentListSyntax argumentListSyntax;
+            if (methodSymbol.IsGenericMethod)
+            {
+                argumentListSyntax = ArgumentList();
+            }
+            else
+            {
+                var nullSyntax = SimpleArgument(LiteralExpression(SyntaxKind.NothingLiteralExpression, Token(SyntaxKind.NothingKeyword)));
+                argumentListSyntax = ArgumentList(SeparatedList(invocationExpressionSyntax.ArgumentList.Arguments.Take(1)).Add(nullSyntax));
+            }
+
+            return invocationExpressionSyntax.WithArgumentList(argumentListSyntax);
         }
     }
 }

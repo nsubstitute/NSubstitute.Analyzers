@@ -32,7 +32,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForPartsOfUsedForInterface,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use Substitute.For<MyNamespace.IFoo> instead of Substitute.ForPartsOf<MyNamespace.IFoo> here.",
+                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(new Type[] { typeof(IFoo)}, null) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(IFoo)}, null) here.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(14, 30)
@@ -66,7 +66,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForPartsOfUsedForInterface,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use Substitute.For<System.Func<int>> instead of Substitute.ForPartsOf<System.Func<int>> here.",
+                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(new Type[] { typeof(Func<int>)}, null) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Func<int>)}, null) here.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(14, 30)

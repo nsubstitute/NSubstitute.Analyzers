@@ -98,7 +98,7 @@ namespace NSubstitute.Analyzers.CSharp {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for a delegate. Use Substitute.For&lt;{0}&gt;() instead..
+        ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for a delegate. Use {0} instead..
         /// </summary>
         internal static string SubstituteConstructorArgumentsForDelegateMessageFormat {
             get {
@@ -107,7 +107,7 @@ namespace NSubstitute.Analyzers.CSharp {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for an interface. Use Substitute.For&lt;{0}&gt;() instead..
+        ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for an interface. Use {0} instead..
         /// </summary>
         internal static string SubstituteConstructorArgumentsForInterfaceMessageFormat {
             get {
@@ -125,7 +125,7 @@ namespace NSubstitute.Analyzers.CSharp {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can only substitute for parts of classes, not interfaces or delegates. Use Substitute.For&lt;{0}&gt; instead of Substitute.ForPartsOf&lt;{0}&gt; here..
+        ///   Looks up a localized string similar to Can only substitute for parts of classes, not interfaces or delegates. Use {0} instead of {1} here..
         /// </summary>
         internal static string SubstituteForPartsOfUsedForInterfaceMessageFormat {
             get {

@@ -20,7 +20,7 @@ namespace NSubstitute.Analyzers.Shared {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -143,6 +143,15 @@ namespace NSubstitute.Analyzers.Shared {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for a delegate. Use {0} instead..
+        /// </summary>
+        internal static string SubstituteConstructorArgumentsForDelegateMessageFormat {
+            get {
+                return ResourceManager.GetString("SubstituteConstructorArgumentsForDelegateMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for a delegate..
         /// </summary>
         internal static string SubstituteConstructorArgumentsForDelegateTitle {
@@ -157,6 +166,15 @@ namespace NSubstitute.Analyzers.Shared {
         internal static string SubstituteConstructorArgumentsForInterfaceDescription {
             get {
                 return ResourceManager.GetString("SubstituteConstructorArgumentsForInterfaceDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for an interface. Use {0} instead..
+        /// </summary>
+        internal static string SubstituteConstructorArgumentsForInterfaceMessageFormat {
+            get {
+                return ResourceManager.GetString("SubstituteConstructorArgumentsForInterfaceMessageFormat", resourceCulture);
             }
         }
         
@@ -247,6 +265,15 @@ namespace NSubstitute.Analyzers.Shared {
         internal static string SubstituteForPartsOfUsedForInterfaceDescription {
             get {
                 return ResourceManager.GetString("SubstituteForPartsOfUsedForInterfaceDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can only substitute for parts of classes, not interfaces or delegates. Use {0} instead of {1} here..
+        /// </summary>
+        internal static string SubstituteForPartsOfUsedForInterfaceMessageFormat {
+            get {
+                return ResourceManager.GetString("SubstituteForPartsOfUsedForInterfaceMessageFormat", resourceCulture);
             }
         }
         

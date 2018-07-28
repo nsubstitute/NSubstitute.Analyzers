@@ -158,6 +158,10 @@
     <value>Can only substitute for parts of classes, not interfaces or delegates.</value>
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
+  <data name="SubstituteForPartsOfUsedForInterfaceMessageFormat" xml:space="preserve">
+    <value>Can only substitute for parts of classes, not interfaces or delegates. Use {0} instead of {1} here.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
   <data name="SubstituteForPartsOfUsedForInterfaceTitle" xml:space="preserve">
     <value>Substitute.ForPartsOf used for interface.</value>
     <comment>The title of the diagnostic.</comment>
@@ -222,6 +226,10 @@
     <value>Can not provide constructor arguments when substituting for an interface.</value>
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
+    <data name="SubstituteConstructorArgumentsForInterfaceMessageFormat" xml:space="preserve">
+    <value>Can not provide constructor arguments when substituting for an interface. Use {0} instead.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
   <data name="SubstituteConstructorArgumentsForInterfaceTitle" xml:space="preserve">
     <value>Can not provide constructor arguments when substituting for an interface.</value>
     <comment>The title of the diagnostic.</comment>
@@ -230,7 +238,10 @@
     <value>Can not provide constructor arguments when substituting for a delegate.</value>
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
-
+  <data name="SubstituteConstructorArgumentsForDelegateMessageFormat" xml:space="preserve">
+    <value>Can not provide constructor arguments when substituting for a delegate. Use {0} instead.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
   <data name="SubstituteConstructorArgumentsForDelegateTitle" xml:space="preserve">
     <value>Can not provide constructor arguments when substituting for a delegate.</value>
     <comment>The title of the diagnostic.</comment>
