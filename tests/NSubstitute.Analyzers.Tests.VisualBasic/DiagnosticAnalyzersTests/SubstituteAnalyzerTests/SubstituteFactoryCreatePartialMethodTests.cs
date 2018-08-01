@@ -1,18 +1,18 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Shared;
-using NSubstitute.Analyzers.Tests.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.SubstituteAnalyzerTests
 {
-    public class ForPartsOfMethodTests : SubstituteDiagnosticVerifier
+    public class SubstituteFactoryCreatePartialMethodTests : SubstituteDiagnosticVerifier
     {
         [Fact]
         public async Task ReturnsDiagnostic_WhenUsedForInterface()
         {
-            var source = @"Imports NSubstitute
+            var source = @"Imports System
+Imports NSubstitute.Core
 
 Namespace MyNamespace
     Public Interface IFoo
@@ -20,7 +20,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.ForPartsOf(Of IFoo)()
+            Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(IFoo)}, Nothing)
         End Sub
     End Class
 End Namespace
@@ -29,38 +29,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.PartialSubstituteForUnsupportedType,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use NSubstitute.Substitute.For(Of IFoo)() instead of NSubstitute.Substitute.ForPartsOf(Of IFoo)() here.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(9, 30)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
-        }
-
-        [Fact]
-        public async Task ReturnsDiagnostic_WhenUsedForDelegate()
-        {
-            var source = @"Imports NSubstitute
-Imports System
-
-Namespace MyNamespace
-    Public Interface IFoo
-    End Interface
-
-    Public Class FooTests
-        Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.ForPartsOf(Of Func(Of Integer))()
-        End Sub
-    End Class
-End Namespace
-";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.PartialSubstituteForUnsupportedType,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use NSubstitute.Substitute.For(Of Func(Of Integer))() instead of NSubstitute.Substitute.ForPartsOf(Of Func(Of Integer))() here.",
+                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(New Type() {GetType(IFoo)}, Nothing) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(IFoo)}, Nothing) here.",
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(10, 30)
@@ -70,9 +39,42 @@ End Namespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
+        [Fact]
+        public async Task ReturnsDiagnostic_WhenUsedForDelegate()
+        {
+            var source = @"Imports System
+Imports NSubstitute.Core
+
+Namespace MyNamespace
+    Public Interface IFoo
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Func(Of Integer))}, Nothing)
+        End Sub
+    End Class
+End Namespace
+";
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.PartialSubstituteForUnsupportedType,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(New Type() {GetType(Func(Of Integer))}, Nothing) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Func(Of Integer))}, Nothing) here.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(10, 30)
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
+        }
+
+        [Fact]
         public override async Task ReturnsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor()
         {
-            var source = @"Imports NSubstitute
+            var source = @"Imports System
+Imports NSubstitute.Core
 
 Namespace MyNamespace
     Public Class Foo
@@ -82,7 +84,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.ForPartsOf(Of Foo)()
+            Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Foo)}, Nothing)
         End Sub
     End Class
 End Namespace
@@ -94,16 +96,18 @@ End Namespace
                 Message = "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(11, 30)
+                    new DiagnosticResultLocation(12, 30)
                 }
             };
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
+        [Fact]
         public override async Task ReturnsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount()
         {
-            var source = @"Imports NSubstitute
+            var source = @"Imports System
+Imports NSubstitute.Core
 
 Namespace MyNamespace
     Public Class Foo
@@ -113,7 +117,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.ForPartsOf(Of Foo)(1, 2, 3)
+            Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Foo)}, New Object() {1, 2, 3})
         End Sub
     End Class
 End Namespace
@@ -122,19 +126,21 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "The number of arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
+                Message = "The number of arguments passed to NSubstitute.Core.ISubstituteFactory.CreatePartial do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(11, 30)
+                    new DiagnosticResultLocation(12, 30)
                 }
             };
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
+        [Fact]
         public override async Task ReturnsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount()
         {
-            var source = @"Imports NSubstitute
+            var source = @"Imports System
+Imports NSubstitute.Core
 
 Namespace MyNamespace
     Public Class Foo
@@ -144,7 +150,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.ForPartsOf(Of Foo)(1)
+            Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Foo)}, New Object() {1})
         End Sub
     End Class
 End Namespace
@@ -153,19 +159,22 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "The number of arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
+                Message = "The number of arguments passed to NSubstitute.Core.ISubstituteFactory.CreatePartial do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(11, 30)
+                    new DiagnosticResultLocation(12, 30)
                 }
             };
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
+        [Fact]
         public override async Task ReturnsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters()
         {
-            var source = @"Imports NSubstitute
+            var source = @"Imports System
+Imports NSubstitute
+Imports NSubstitute.Core
 
 Namespace MyNamespace
     Public Class Foo
@@ -175,7 +184,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.ForPartsOf(Of Foo)(1)
+            Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Foo)}, New Object() {1})
         End Sub
     End Class
 End Namespace
@@ -184,19 +193,21 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "The number of arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
+                Message = "The number of arguments passed to NSubstitute.Core.ISubstituteFactory.CreatePartial do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(11, 30)
+                    new DiagnosticResultLocation(13, 30)
                 }
             };
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
+        [Fact]
         public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToNotApplied()
         {
-            var source = @"Imports NSubstitute
+            var source = @"Imports System
+Imports NSubstitute.Core
 
 Namespace MyNamespace
     Friend Class Foo
@@ -204,7 +215,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.ForPartsOf(Of Foo)()
+            Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Foo)}, Nothing)
         End Sub
     End Class
 End Namespace
@@ -216,17 +227,19 @@ End Namespace
                 Message = @"Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via <Assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")>",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(9, 30)
+                    new DiagnosticResultLocation(10, 30)
                 }
             };
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
+        [Fact]
         public override async Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
         {
-            var source = @"Imports NSubstitute
+            var source = @"Imports System
 Imports System.Runtime.CompilerServices
+Imports NSubstitute.Core
 
 <Assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")>
 Namespace MyNamespace
@@ -235,7 +248,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.ForPartsOf(Of Foo)()
+            Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Foo)}, Nothing)
         End Sub
     End Class
 End Namespace
@@ -243,10 +256,12 @@ End Namespace
             await VerifyDiagnostic(source);
         }
 
+        [Fact]
         public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly()
         {
-            var source = @"Imports NSubstitute
+            var source = @"Imports System
 Imports System.Runtime.CompilerServices
+Imports NSubstitute.Core
 
 <Assembly: InternalsVisibleTo(""SomeValue"")>
 Namespace MyNamespace
@@ -255,7 +270,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.ForPartsOf(Of Foo)()
+            Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Foo)}, Nothing)
         End Sub
     End Class
 End Namespace
@@ -267,7 +282,7 @@ End Namespace
                 Message = @"Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via <Assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")>",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(11, 30)
+                    new DiagnosticResultLocation(12, 30)
                 }
             };
 
@@ -275,15 +290,17 @@ End Namespace
         }
 
         [Theory]
-        [InlineData("ByVal x As Decimal", "1")] // valid c# but doesnt work in NSubstitute
-        [InlineData("ByVal x As Integer", "1D")]
-        [InlineData("ByVal x As Integer", "1R")]
-        [InlineData("ByVal x As List(Of Integer)", "New List(Of Integer)().AsReadOnly()")]
-        [InlineData("ByVal x As Integer", "New Object()")]
+        [InlineData("ByVal x As Decimal", "New Object() { 1 }")] // valid c# but doesnt work in NSubstitute
+        [InlineData("ByVal x As Integer", "New Object() { 1D }")]
+        [InlineData("ByVal x As Integer", "New Object() { 1R }")]
+        [InlineData("ByVal x As List(Of Integer)", "New Object() { New List(Of Integer)().AsReadOnly() }")]
+
+        // [InlineData("ByVal x As Integer", "New Object()")] This gives runtime error on VB level, not even NSubstitute level (but compiles just fine)
         public override async Task ReturnsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"Imports NSubstitute
 Imports System.Collections.Generic
+Imports NSubstitute.Core
 
 Namespace MyNamespace
     Public Class Foo
@@ -293,19 +310,18 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.ForPartsOf(Of Foo)({invocationValues})
+            Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial({{GetType(Foo)}}, {invocationValues})
         End Sub
     End Class
-End Namespace
-";
+End Namespace";
             var expectedDiagnostic = new DiagnosticResult
             {
                 Id = DiagnosticIdentifiers.SubstituteConstructorMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required arguments and argument types.",
+                Message = "Arguments passed to NSubstitute.Core.ISubstituteFactory.CreatePartial do not match the constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required arguments and argument types.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(12, 30)
+                    new DiagnosticResultLocation(13, 30)
                 }
             };
 
@@ -327,6 +343,7 @@ End Namespace
             var source = $@"Imports NSubstitute
 Imports System.Collections.Generic
 Imports System.Linq
+Imports NSubstitute.Core
 
 Namespace MyNamespace
     Public Class Foo
@@ -336,7 +353,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.ForPartsOf(Of Foo)({invocationValues})
+            Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial({{GetType(Foo)}}, {invocationValues})
         End Sub
     End Class
 End Namespace
@@ -346,12 +363,14 @@ End Namespace
 
         public override async Task ReturnsNoDiagnostic_WhenUsedWithGenericArgument()
         {
-            var source = @"Imports NSubstitute
+            var source = @"Imports System
+Imports NSubstitute
+Imports NSubstitute.Core
 
 Namespace MyNamespace
     Public Class FooTests
-        Public Function FooPartsOf(Of T As Class)() As T
-            Return Substitute.ForPartsOf(Of T)()
+        Public Function Foo(Of T As Class)() As T
+            Return CType(SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(T)}, Nothing), T)
         End Function
     End Class
 End Namespace

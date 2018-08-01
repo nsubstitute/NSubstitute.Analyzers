@@ -7,6 +7,7 @@
         public const string NSubstituteCoreFullTypeName = "NSubstitute.Core.CallInfo";
         public const string NSubstituteSubstituteFullTypeName = "NSubstitute.Substitute";
         public const string NSubstituteExceptionExtensionsFullTypeName = "NSubstitute.ExceptionExtensions.ExceptionExtensions";
+        public const string NSubstituteFactoryFullTypeName = "NSubstitute.Core.ISubstituteFactory";
         public const string NSubstituteReturnsMethod = "Returns";
         public const string NSubstituteReturnsForAnyArgsMethod = "ReturnsForAnyArgs";
         public const string NSubstituteThrows = "Throws";
@@ -18,6 +19,8 @@
         public const string NSubstituteDidNotReceiveWithAnyArgsMethod = "DidNotReceiveWithAnyArgs";
         public const string NSubstituteForMethod = "For";
         public const string NSubstituteForPartsOfMethod = "ForPartsOf";
+        public const string SubstituteFactoryCreate = "Create";
+        public const string SubstituteFactoryCreatePartial = "CreatePartial";
         public const string InternalsVisibleToAttributeFullTypeName = "System.Runtime.CompilerServices.InternalsVisibleToAttribute";
         public const string CastleDynamicProxyGenAssembly2Name = "DynamicProxyGenAssembly2";
         public const string NSubstituteWhenMethod = "When";

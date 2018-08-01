@@ -7,5 +7,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
         Task RemovesInvocationArguments_WhenGenericFor_UsedWithParametersForInterface();
 
         Task RemovesInvocationArguments_WhenNonGenericFor_UsedWithParametersForInterface();
+
+        Task RemovesInvocationArguments_WhenSubstituteFactoryCreate_UsedWithParametersForInterface();
     }
 }

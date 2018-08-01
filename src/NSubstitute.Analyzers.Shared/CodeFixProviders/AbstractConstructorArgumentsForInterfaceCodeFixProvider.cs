@@ -22,7 +22,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             var diagnostic = context.Diagnostics.FirstOrDefault(diag => diag.Descriptor.Id == DiagnosticIdentifiers.SubstituteConstructorArgumentsForInterface);
             if (diagnostic != null)
             {
-                var codeAction = CodeAction.Create("Remove constructor arguments", ct => CreateChangedDocument(ct, context, diagnostic), "equvalencyKey");
+                var codeAction = CodeAction.Create("Remove constructor arguments", ct => CreateChangedDocument(ct, context, diagnostic), nameof(AbstractConstructorArgumentsForInterfaceCodeFixProvider<TInvocationExpressionSyntax>));
                 context.RegisterCodeFix(codeAction, diagnostic);
             }
 

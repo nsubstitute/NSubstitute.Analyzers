@@ -35,10 +35,10 @@ namespace NSubstitute.Analyzers.Shared
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true);
 
-        public static DiagnosticDescriptor SubstituteForPartsOfUsedForInterface { get; } =
+        public static DiagnosticDescriptor PartialSubstituteForUnsupportedType { get; } =
             CreateDiagnosticDescriptor(
-                name: nameof(SubstituteForPartsOfUsedForInterface),
-                id: DiagnosticIdentifiers.SubstituteForPartsOfUsedForInterface,
+                name: nameof(PartialSubstituteForUnsupportedType),
+                id: DiagnosticIdentifiers.PartialSubstituteForUnsupportedType,
                 category: DiagnosticCategories.Usage,
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true);
