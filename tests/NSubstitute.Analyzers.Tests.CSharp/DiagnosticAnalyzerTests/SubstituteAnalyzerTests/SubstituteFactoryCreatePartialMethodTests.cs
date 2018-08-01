@@ -1,18 +1,18 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Shared;
-using NSubstitute.Analyzers.Tests.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.SubstituteAnalyzerTests
 {
-    public class ForPartsOfMethodTests : SubstituteDiagnosticVerifier
+    public class SubstituteFactoryCreatePartialMethodTests : SubstituteDiagnosticVerifier
     {
         [Fact]
         public async Task ReturnsDiagnostic_WhenUsedForInterface()
         {
-            var source = @"using NSubstitute;
+            var source = @"using System;
+using NSubstitute.Core;
 
 namespace MyNamespace
 {
@@ -24,7 +24,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.ForPartsOf<IFoo>();
+            var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(IFoo)}, null);
         }
     }
 }";
@@ -32,10 +32,10 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.PartialSubstituteForUnsupportedType,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use NSubstitute.Substitute.For<IFoo>() instead of NSubstitute.Substitute.ForPartsOf<IFoo>() here.",
+                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(new Type[] { typeof(IFoo)}, null) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(IFoo)}, null) here.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(13, 30)
+                    new DiagnosticResultLocation(14, 30)
                 }
             };
 
@@ -45,8 +45,9 @@ namespace MyNamespace
         [Fact]
         public async Task ReturnsDiagnostic_WhenUsedForDelegate()
         {
-            var source = @"using NSubstitute;
-using System;
+            var source = @"using System;
+using NSubstitute.Core;
+
 namespace MyNamespace
 {
     public interface IFoo
@@ -57,7 +58,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.ForPartsOf<Func<int>>();
+            var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Func<int>)}, null);
         }
     }
 }";
@@ -65,10 +66,10 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.PartialSubstituteForUnsupportedType,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use NSubstitute.Substitute.For<Func<int>>() instead of NSubstitute.Substitute.ForPartsOf<Func<int>>() here.",
+                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(new Type[] { typeof(Func<int>)}, null) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Func<int>)}, null) here.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(13, 30)
+                    new DiagnosticResultLocation(14, 30)
                 }
             };
 
@@ -78,7 +79,8 @@ namespace MyNamespace
         [Fact]
         public override async Task ReturnsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor()
         {
-            var source = @"using NSubstitute;
+            var source = @"using System;
+using NSubstitute.Core;
 
 namespace MyNamespace
 {
@@ -93,7 +95,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.ForPartsOf<Foo>();
+            var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, null);
         }
     }
 }";
@@ -104,7 +106,7 @@ namespace MyNamespace
                 Message = "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(16, 30)
+                    new DiagnosticResultLocation(17, 30)
                 }
             };
 
@@ -114,7 +116,8 @@ namespace MyNamespace
         [Fact]
         public override async Task ReturnsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount()
         {
-            var source = @"using NSubstitute;
+            var source = @"using System;
+using NSubstitute.Core;
 
 namespace MyNamespace
 {
@@ -129,7 +132,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.ForPartsOf<Foo>(1, 2, 3);
+            var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, new object[] { 1, 2, 3});
         }
     }
 }";
@@ -137,10 +140,10 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "The number of arguments passed to NSubstitute.Substitute.ForPartsOf<MyNamespace.Foo> do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
+                Message = "The number of arguments passed to NSubstitute.Core.ISubstituteFactory.CreatePartial do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(16, 30)
+                    new DiagnosticResultLocation(17, 30)
                 }
             };
 
@@ -150,7 +153,8 @@ namespace MyNamespace
         [Fact]
         public override async Task ReturnsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount()
         {
-            var source = @"using NSubstitute;
+            var source = @"using System;
+using NSubstitute.Core;
 
 namespace MyNamespace
 {
@@ -165,7 +169,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.ForPartsOf<Foo>(1);
+            var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, new object[] { 1 });
         }
     }
 }";
@@ -173,10 +177,10 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "The number of arguments passed to NSubstitute.Substitute.ForPartsOf<MyNamespace.Foo> do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
+                Message = "The number of arguments passed to NSubstitute.Core.ISubstituteFactory.CreatePartial do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(16, 30)
+                    new DiagnosticResultLocation(17, 30)
                 }
             };
 
@@ -186,7 +190,9 @@ namespace MyNamespace
         [Fact]
         public override async Task ReturnsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters()
         {
-            var source = @"using NSubstitute;
+            var source = @"using System;
+using NSubstitute;
+using NSubstitute.Core;
 
 namespace MyNamespace
 {
@@ -201,7 +207,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.ForPartsOf<Foo>(1);
+            var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, new object[] { 1 });
         }
     }
 }";
@@ -209,10 +215,10 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "The number of arguments passed to NSubstitute.Substitute.ForPartsOf<MyNamespace.Foo> do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
+                Message = "The number of arguments passed to NSubstitute.Core.ISubstituteFactory.CreatePartial do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(16, 30)
+                    new DiagnosticResultLocation(18, 30)
                 }
             };
 
@@ -222,7 +228,9 @@ namespace MyNamespace
         [Fact]
         public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToNotApplied()
         {
-            var source = @"using NSubstitute;
+            var source = @"using System;
+using NSubstitute.Core;
+
 namespace MyNamespace
 {
     internal class Foo
@@ -233,64 +241,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.ForPartsOf<Foo>();
-        }
-    }
-}";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteForInternalMember,
-                Severity = DiagnosticSeverity.Warning,
-                Message = @"Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via [assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(12, 30)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
-        }
-
-        [Fact]
-        public override async Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
-        {
-            var source = @"using NSubstitute;
-using System.Runtime.CompilerServices;
-[assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
-namespace MyNamespace
-{
-    internal class Foo
-    {
-    }
-
-    public class FooTests
-    {
-        public void Test()
-        {
-            var substitute = NSubstitute.Substitute.ForPartsOf<Foo>();
-        }
-    }
-}";
-            await VerifyDiagnostic(source);
-        }
-
-        [Fact]
-        public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly()
-        {
-            var source = @"using NSubstitute;
-using System.Runtime.CompilerServices;
-[assembly: InternalsVisibleTo(""SomeValue"")]
-namespace MyNamespace
-{
-    internal class Foo
-    {
-    }
-
-    public class FooTests
-    {
-        public void Test()
-        {
-            var substitute = NSubstitute.Substitute.ForPartsOf<Foo>();
+            var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, null);
         }
     }
 }";
@@ -308,6 +259,69 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
+        [Fact]
+        public override async Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
+        {
+            var source = @"using System;
+using System.Runtime.CompilerServices;
+using NSubstitute.Core;
+
+[assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
+
+namespace MyNamespace
+{
+    internal class Foo
+    {
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, null);
+        }
+    }
+}";
+            await VerifyDiagnostic(source);
+        }
+
+        [Fact]
+        public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly()
+        {
+            var source = @"using System;
+using System.Runtime.CompilerServices;
+using NSubstitute.Core;
+
+[assembly: InternalsVisibleTo(""SomeValue"")]
+
+namespace MyNamespace
+{
+    internal class Foo
+    {
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, null);
+        }
+    }
+}";
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.SubstituteForInternalMember,
+                Severity = DiagnosticSeverity.Warning,
+                Message = @"Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via [assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(17, 30)
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
+        }
+
         [Theory]
         [InlineData("decimal x", "1")] // valid c# but doesnt work in NSubstitute
         [InlineData("int x", "1m")]
@@ -316,14 +330,16 @@ namespace MyNamespace
         [InlineData("int x", "new object()")]
         public override async Task ReturnsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues)
         {
-            var source = $@"using NSubstitute;
-using System.Collections.Generic;
+            var source = $@"using System.Collections.Generic;
+using NSubstitute.Core;
+
 namespace MyNamespace
 {{
     public class Foo
     {{
         public Foo({ctorValues})
         {{
+
         }}
     }}
 
@@ -331,7 +347,7 @@ namespace MyNamespace
     {{
         public void Test()
         {{
-            var substitute = NSubstitute.Substitute.ForPartsOf<Foo>({invocationValues});
+            var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new[] {{typeof(Foo)}}, new object[] {{{invocationValues}}});
         }}
     }}
 }}";
@@ -339,10 +355,10 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.SubstituteConstructorMismatch,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Arguments passed to NSubstitute.Substitute.ForPartsOf<MyNamespace.Foo> do not match the constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required arguments and argument types.",
+                Message = "Arguments passed to NSubstitute.Core.ISubstituteFactory.CreatePartial do not match the constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required arguments and argument types.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(16, 30)
+                    new DiagnosticResultLocation(18, 30)
                 }
             };
 
@@ -350,30 +366,28 @@ namespace MyNamespace
         }
 
         [Theory]
-        [InlineData("int x", "1")]
-        [InlineData("float x", "'c'")]
-        [InlineData("int x", "'c'")]
-        [InlineData("IList<int> x", "new List<int>()")]
-        [InlineData("IEnumerable<int> x", "new List<int>()")]
-        [InlineData("IEnumerable<int> x", "new List<int>().AsReadOnly()")]
-        [InlineData("IEnumerable<char> x", @"""value""")]
-        [InlineData("int x", @"new object[] { 1 }")]
-        [InlineData("int[] x", @"new int[] { 1 }")]
-        [InlineData("object[] x , int y", @"new object[] { 1 }, 1")]
-        [InlineData("int[] x , int y", @"new int[] { 1 }, 1")]
+        [InlineData("int x", "new object [] { 1 }")]
+        [InlineData("float x", "new object [] { 'c' }")]
+        [InlineData("int x", "new object [] { 'c' }")]
+        [InlineData("IList<int> x", "new object [] { new List<int>() }")]
+        [InlineData("IEnumerable<int> x", "new object [] { new List<int>() }")]
+        [InlineData("IEnumerable<int> x", "new object [] { new List<int>().AsReadOnly() }")]
+        [InlineData("IEnumerable<char> x", @"new object [] { ""value"" }")]
         [InlineData("", @"new object[] { }")]
-        [InlineData("", "new object[] { 1, 2 }.ToArray()")] // actual values known at runtime only
+        [InlineData("", "new object[] { 1, 2 }.ToArray()")] // actual values known at runtime only so constructor analysys skipped
         public override async Task ReturnsNoDiagnostic_WhenConstructorArgumentsDoNotRequireImplicitConversion(string ctorValues, string invocationValues)
         {
-            var source = $@"using NSubstitute;
-using System.Collections.Generic;
+            var source = $@"using System.Collections.Generic;
 using System.Linq;
+using NSubstitute.Core;
+
 namespace MyNamespace
 {{
     public class Foo
     {{
         public Foo({ctorValues})
         {{
+
         }}
     }}
 
@@ -381,7 +395,7 @@ namespace MyNamespace
     {{
         public void Test()
         {{
-            var substitute = NSubstitute.Substitute.ForPartsOf<Foo>({invocationValues});
+            var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new[] {{typeof(Foo)}}, {invocationValues});
         }}
     }}
 }}";
@@ -390,15 +404,18 @@ namespace MyNamespace
 
         public override async Task ReturnsNoDiagnostic_WhenUsedWithGenericArgument()
         {
-            var source = @"using NSubstitute;
+            var source = @"using System;
+using NSubstitute;
+using NSubstitute.Core;
+
 namespace MyNamespace
 {
 
     public class FooTests
     {
-        public T FooPartsOf<T>() where T : class
+        public T Foo<T>() where T : class
         {
-            return Substitute.ForPartsOf<T>();
+            return (T) SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] {typeof(T)}, null);
         }
     }
 }";
