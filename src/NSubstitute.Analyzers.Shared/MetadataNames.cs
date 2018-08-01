@@ -20,5 +20,9 @@
         public const string NSubstituteWhenMethod = "When";
         public const string NSubstituteWhenForAnyArgsMethod = "WhenForAnyArgs";
         public const string NSubstituteWhenCalledType = "WhenCalled";
+        public const string CallInfoArgAtMethod = "ArgAt";
+        public const string CallInfoArgMethod = "Arg";
+        public const string CallInfoArgsMethod = "Args";
+        public const string CallInfoArgTypesMethod = "ArgTypes";
     }
 }

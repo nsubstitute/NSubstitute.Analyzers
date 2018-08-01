@@ -131,6 +131,45 @@ namespace NSubstitute.Analyzers.Shared
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true);
 
+        public static DiagnosticDescriptor CallInfoCouldNotConvertParameterAtPosition { get; } =
+            CreateDiagnosticDescriptor(
+            name: nameof(CallInfoCouldNotConvertParameterAtPosition),
+            id: DiagnosticIdentifiers.CallInfoCouldNotConvertParameterAtPosition,
+            category: DiagnosticCategories.Usage,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
+
+        public static DiagnosticDescriptor CallInfoCouldNotFindArgumentToThisCall { get; } =
+            CreateDiagnosticDescriptor(
+                name: nameof(CallInfoCouldNotFindArgumentToThisCall),
+                id: DiagnosticIdentifiers.CallInfoCouldNotFindArgumentToThisCall,
+                category: DiagnosticCategories.Usage,
+                defaultSeverity: DiagnosticSeverity.Warning,
+                isEnabledByDefault: true);
+
+        public static DiagnosticDescriptor CallInfoMoreThanOneArgumentOfType { get; } =
+            CreateDiagnosticDescriptor(
+                name: nameof(CallInfoMoreThanOneArgumentOfType),
+                id: DiagnosticIdentifiers.CallInfoMoreThanOneArgumentOfType,
+                category: DiagnosticCategories.Usage,
+                defaultSeverity: DiagnosticSeverity.Warning,
+                isEnabledByDefault: true);
+
+        public static DiagnosticDescriptor CallInfoArgumentSetWithIncompatibleValue { get; } =
+            CreateDiagnosticDescriptor(
+                name: nameof(CallInfoArgumentSetWithIncompatibleValue),
+                id: DiagnosticIdentifiers.CallInfoArgumentSetWithIncompatibleValue,
+                category: DiagnosticCategories.Usage,
+                defaultSeverity: DiagnosticSeverity.Warning,
+                isEnabledByDefault: true);
+
+        public static DiagnosticDescriptor CallInfoArgumentIsNotOutOrRef { get; } = CreateDiagnosticDescriptor(
+            name: nameof(CallInfoArgumentIsNotOutOrRef),
+            id: DiagnosticIdentifiers.CallInfoArgumentIsNotOutOrRef,
+            category: DiagnosticCategories.Usage,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
+
         private static DiagnosticDescriptor CreateDiagnosticDescriptor(
             string name, string id, string category, DiagnosticSeverity defaultSeverity, bool isEnabledByDefault)
         {
