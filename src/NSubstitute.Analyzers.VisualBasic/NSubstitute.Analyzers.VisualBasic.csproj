@@ -15,6 +15,7 @@
     <PackageLicenseUrl>https://github.com/nsubstitute/NSubstitute.Analyzers/blob/master/LICENSE.md</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/nsubstitute/NSubstitute.Analyzers</PackageProjectUrl>
     <RepositoryUrl>https://github.com/nsubstitute/NSubstitute.Analyzers</RepositoryUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/nsubstitute/NSubstitute.Analyzers/master/images/nsubstitute-analyser%400%2C25x.png</PackageIconUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>Provides diagnostic analyzers to warn about incorrect usage of NSubstitute in VB.NET.</Description>
     <PackageTags>$(PackageTags);visualbasic;vb;vb.net</PackageTags>

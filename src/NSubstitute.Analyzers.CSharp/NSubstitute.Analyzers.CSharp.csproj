@@ -14,6 +14,7 @@
     <Authors>Tomasz Podolak, NSubstitute.Analyzers contributors</Authors>
     <PackageLicenseUrl>https://github.com/nsubstitute/NSubstitute.Analyzers/blob/master/LICENSE.md</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/nsubstitute/NSubstitute.Analyzers</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/nsubstitute/NSubstitute.Analyzers/master/images/nsubstitute-analyser%400%2C25x.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/nsubstitute/NSubstitute.Analyzers</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>Provides diagnostic analyzers to warn about incorrect usage of NSubstitute in C#.</Description>
