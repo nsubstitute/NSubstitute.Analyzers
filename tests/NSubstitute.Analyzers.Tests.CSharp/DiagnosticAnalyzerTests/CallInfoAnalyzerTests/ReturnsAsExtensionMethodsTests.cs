@@ -146,8 +146,77 @@ namespace MyNamespace
         [InlineData("var x = callInfo[0] as Bar;")]
         [InlineData("var x = (Bar)callInfo.Args()[0];")]
         [InlineData("var x = callInfo.Args()[0] as Bar;")]
-        [InlineData("var x = callInfo.ArgTypes()[0] as object;")]
         public async Task ReportsNoDiagnostic_WhenConvertingTypeToSupportedType(string argAccess)
+        {
+            var source = $@"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public interface Foo
+    {{
+        int Bar(Bar x);
+    }}
+
+    public class Bar
+    {{
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            substitute.Bar(Arg.Any<Bar>()).Returns(callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+        }}
+    }}
+}}";
+            await VerifyDiagnostic(source);
+        }
+
+        [Theory]
+        [InlineData("var x = callInfo.ArgTypes() as object;")]
+        [InlineData("var x = (object)callInfo.ArgTypes();")]
+        public async Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string argAccess)
+        {
+            var source = $@"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public interface Foo
+    {{
+        int Bar(Bar x);
+    }}
+
+    public class Bar
+    {{
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            substitute.Bar(Arg.Any<Bar>()).Returns(callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+        }}
+    }}
+}}";
+            await VerifyDiagnostic(source);
+        }
+
+        [Theory]
+        [InlineData("callInfo.ArgTypes()[0] = typeof(object);")]
+        [InlineData("callInfo.Args()[0] = 1m;")]
+        public async Task ReportsNoDiagnostic_WhenAssigningValueToNotRefNorOutArgumentViaIndirectCall(string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
