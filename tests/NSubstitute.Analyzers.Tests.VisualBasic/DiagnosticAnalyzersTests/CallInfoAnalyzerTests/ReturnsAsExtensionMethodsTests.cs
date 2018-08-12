@@ -141,12 +141,13 @@ namespace MyNamespace
         }
 
         [Theory]
+        [InlineData("callInfo.ArgAt(Of Bar)(0)")]
         [InlineData("Dim x = TryCast(callInfo.Args()(0), Bar)")]
-
-// [InlineData("var x = (Bar)callInfo[0];")]
-// [InlineData("var x = callInfo[0] as Bar;")]
-// [InlineData("var x = (Bar)callInfo.Args()[0];")]
-// [InlineData("var x = callInfo.Args()[0] as Bar;")]
+        [InlineData("Dim x = DirectCast(callInfo.Args()(0), Bar)")]
+        [InlineData("Dim x = CType(callInfo.Args()(0), Bar)")]
+        [InlineData("Dim x = TryCast(callInfo(0), Bar)")]
+        [InlineData("Dim x = DirectCast(callInfo(0), Bar)")]
+        [InlineData("Dim x = CType(callInfo(0), Bar)")]
         public override async Task ReportsNoDiagnostic_WhenConvertingTypeToSupportedType(string argAccess)
         {
             var source = $@"Imports System

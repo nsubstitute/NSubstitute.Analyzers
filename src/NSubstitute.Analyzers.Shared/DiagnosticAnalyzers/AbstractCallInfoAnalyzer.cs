@@ -43,9 +43,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract AbstractCallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> GetCallInfoFinder();
 
-        protected abstract SyntaxNode GetSafeCastTypeExpression(TIndexerExpressionSyntax indexerExpressionSyntax);
-
-        protected abstract SyntaxNode GetUnsafeCastTypeExpression(TIndexerExpressionSyntax indexerExpressionSyntax);
+        protected abstract SyntaxNode GetCastTypeExpression(TIndexerExpressionSyntax indexerExpressionSyntax);
 
         protected abstract SyntaxNode GetAssignmentExpression(TIndexerExpressionSyntax indexerExpressionSyntax);
 
@@ -171,26 +169,10 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                         continue;
                     }
 
-                    var safeCastTypeExpression = GetSafeCastTypeExpression(indexer);
-                    if (indexerInfo.VerifyIndexerCast && safeCastTypeExpression != null)
+                    var castTypeExpression = GetCastTypeExpression(indexer);
+                    if (indexerInfo.VerifyIndexerCast && castTypeExpression != null)
                     {
-                        var typeInfo = syntaxNodeContext.SemanticModel.GetTypeInfo(safeCastTypeExpression);
-                        if (typeInfo.Type != null && !Equals(typeInfo.Type, parentCallInfo.Parameters[position.Value].Type))
-                        {
-                            var diagnostic = Diagnostic.Create(
-                                DiagnosticDescriptorsProvider.CallInfoCouldNotConvertParameterAtPosition,
-                                indexer.GetLocation(),
-                                position.Value,
-                                typeInfo.Type);
-                            syntaxNodeContext.ReportDiagnostic(diagnostic);
-                            continue;
-                        }
-                    }
-
-                    var unsafeExpressionType = GetUnsafeCastTypeExpression(indexer);
-                    if (indexerInfo.VerifyIndexerCast && unsafeExpressionType != null)
-                    {
-                        var typeInfo = syntaxNodeContext.SemanticModel.GetTypeInfo(unsafeExpressionType);
+                        var typeInfo = syntaxNodeContext.SemanticModel.GetTypeInfo(castTypeExpression);
                         if (typeInfo.Type != null && !Equals(typeInfo.Type, parentCallInfo.Parameters[position.Value].Type))
                         {
                             var diagnostic = Diagnostic.Create(

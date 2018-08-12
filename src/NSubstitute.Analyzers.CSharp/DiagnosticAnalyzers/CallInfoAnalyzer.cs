@@ -33,24 +33,17 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
             return new CallInfoCallFinder();
         }
 
-        protected override SyntaxNode GetSafeCastTypeExpression(ElementAccessExpressionSyntax indexerExpressionSyntax)
+        protected override SyntaxNode GetCastTypeExpression(ElementAccessExpressionSyntax indexerExpressionSyntax)
         {
-            if (indexerExpressionSyntax.Parent is BinaryExpressionSyntax binaryExpressionSyntax && binaryExpressionSyntax.OperatorToken.Kind() == SyntaxKind.AsKeyword)
+            switch (indexerExpressionSyntax.Parent)
             {
-                return binaryExpressionSyntax.Right;
+                case BinaryExpressionSyntax binaryExpressionSyntax when binaryExpressionSyntax.OperatorToken.Kind() == SyntaxKind.AsKeyword:
+                    return binaryExpressionSyntax.Right;
+                case CastExpressionSyntax castExpressionSyntax:
+                    return castExpressionSyntax.Type;
+                default:
+                    return null;
             }
-
-            return null;
-        }
-
-        protected override SyntaxNode GetUnsafeCastTypeExpression(ElementAccessExpressionSyntax indexerExpressionSyntax)
-        {
-            if (indexerExpressionSyntax.Parent is CastExpressionSyntax castExpressionSyntax)
-            {
-                return castExpressionSyntax.Type;
-            }
-
-            return null;
         }
 
         protected override SyntaxNode GetAssignmentExpression(ElementAccessExpressionSyntax indexerExpressionSyntax)

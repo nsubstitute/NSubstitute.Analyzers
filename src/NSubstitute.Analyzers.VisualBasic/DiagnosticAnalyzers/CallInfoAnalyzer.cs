@@ -33,26 +33,11 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
             return new CallInfoCallFinder();
         }
 
-        protected override SyntaxNode GetSafeCastTypeExpression(InvocationExpressionSyntax indexerExpressionSyntax)
+        protected override SyntaxNode GetCastTypeExpression(InvocationExpressionSyntax indexerExpressionSyntax)
         {
-            if (indexerExpressionSyntax.Parent is TryCastExpressionSyntax directCastExpressionSyntax)
+            if (indexerExpressionSyntax.Parent is CastExpressionSyntax castExpressionSyntax)
             {
-                return directCastExpressionSyntax.Type;
-            }
-
-            return null;
-        }
-
-        protected override SyntaxNode GetUnsafeCastTypeExpression(InvocationExpressionSyntax indexerExpressionSyntax)
-        {
-            if (indexerExpressionSyntax.Parent is DirectCastExpressionSyntax directCastExpressionSyntax)
-            {
-                return directCastExpressionSyntax.Type;
-            }
-
-            if (indexerExpressionSyntax.Parent is CTypeExpressionSyntax cTypeExpressionSyntax)
-            {
-                return cTypeExpressionSyntax.Type;
+                return castExpressionSyntax.Type;
             }
 
             return null;
