@@ -41,29 +41,31 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
                 if (symbol != null && symbol.ContainingType.ToString().Equals(MetadataNames.NSubstituteCoreFullTypeName))
                 {
-                    if (symbol.Name == MetadataNames.CallInfoArgAtMethod)
+                    switch (symbol.Name)
                     {
-                        ArgAtInvocations.Add(node);
-                    }
-
-                    if (symbol.Name == MetadataNames.CallInfoArgMethod)
-                    {
-                        ArgInvocations.Add(node);
+                        case MetadataNames.CallInfoArgAtMethod:
+                            ArgAtInvocations.Add(node);
+                            break;
+                        case MetadataNames.CallInfoArgMethod:
+                            ArgInvocations.Add(node);
+                            break;
+                        case "Item":
+                            DirectIndexerAccesses.Add(node);
+                            break;
                     }
                 }
 
-                var expressionSymbol = _semanticModel.GetSymbolInfo(node.Expression).Symbol;
-                if (symbol == null && expressionSymbol != null && expressionSymbol.ContainingType.ToString().Equals(MetadataNames.NSubstituteCoreFullTypeName))
+                if (symbol == null)
                 {
-                    DirectIndexerAccesses.Add(node);
+                    var expressionSymbol = _semanticModel.GetSymbolInfo(node.Expression).Symbol;
+
+                    if (expressionSymbol != null && expressionSymbol.ContainingType.ToString().Equals(MetadataNames.NSubstituteCoreFullTypeName))
+                    {
+                        DirectIndexerAccesses.Add(node);
+                    }
                 }
 
                 base.VisitInvocationExpression(node);
-            }
-
-            public override void VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
-            {
-                base.VisitMemberAccessExpression(node);
             }
         }
     }
