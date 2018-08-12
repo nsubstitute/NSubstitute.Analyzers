@@ -4,7 +4,7 @@ using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAnalyzerTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallInfoAnalyzerTests
 {
     public class ReturnsAsExtensionMethodsTests : CallInfoDiagnosticVerifier
     {
@@ -141,40 +141,37 @@ namespace MyNamespace
         }
 
         [Theory]
-        [InlineData("callInfo.ArgAt<Bar>(0);")]
-        [InlineData("var x = (Bar)callInfo[0];")]
-        [InlineData("var x = callInfo[0] as Bar;")]
-        [InlineData("var x = (Bar)callInfo.Args()[0];")]
-        [InlineData("var x = callInfo.Args()[0] as Bar;")]
+        [InlineData("Dim x = TryCast(callInfo.Args()(0), Bar)")]
+
+// [InlineData("var x = (Bar)callInfo[0];")]
+// [InlineData("var x = callInfo[0] as Bar;")]
+// [InlineData("var x = (Bar)callInfo.Args()[0];")]
+// [InlineData("var x = callInfo.Args()[0] as Bar;")]
         public override async Task ReportsNoDiagnostic_WhenConvertingTypeToSupportedType(string argAccess)
         {
-            var source = $@"using System;
-using NSubstitute;
+            var source = $@"Imports System
+Imports NSubstitute
 
-namespace MyNamespace
-{{
-    public interface Foo
-    {{
-        int Bar(Bar x);
-    }}
+Namespace MyNamespace
+    Interface Foo
+        Function Bar(ByVal x As Bar) As Integer
+    End Interface
 
-    public class Bar
-    {{
-    }}
+    Public Class Bar
+    End Class
 
-    public class FooTests
-    {{
-        public void Test()
-        {{
-            var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar(Arg.Any<Bar>()).Returns(callInfo =>
-            {{
-                {argAccess}
-                return 1;
-            }});
-        }}
-    }}
-}}";
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            substitute.Bar(Arg.Any(Of Bar)()).Returns(Function(callInfo)
+                                                          {argAccess}
+                                                          Return 1
+                                                      End Function)
+        End Sub
+    End Class
+End Namespace
+";
+
             await VerifyDiagnostic(source);
         }
 
