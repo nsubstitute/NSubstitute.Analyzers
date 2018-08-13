@@ -18,9 +18,17 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
-        protected override SyntaxNode GetParentMethodCall(InvocationExpressionSyntax invocationExpressionSyntax)
+        protected override SyntaxNode GetSubstituteCall(IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax)
         {
-            return invocationExpressionSyntax.Expression.DescendantNodes().First();
+            switch (methodSymbol.MethodKind)
+            {
+                case MethodKind.ReducedExtension:
+                    return invocationExpressionSyntax.Expression.DescendantNodes().First();
+                case MethodKind.Ordinary:
+                    return invocationExpressionSyntax.ArgumentList.Arguments.First().Expression;
+                default:
+                    return null;
+            }
         }
 
         protected override IEnumerable<ExpressionSyntax> GetArgumentExpressions(InvocationExpressionSyntax invocationExpressionSyntax)

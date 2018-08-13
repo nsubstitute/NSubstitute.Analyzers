@@ -37,7 +37,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
-        protected abstract SyntaxNode GetParentMethodCall(TInvocationExpressionSyntax invocationExpressionSyntax);
+        protected abstract SyntaxNode GetSubstituteCall(IMethodSymbol methodSymbol, TInvocationExpressionSyntax invocationExpressionSyntax);
 
         protected abstract IEnumerable<TExpressionSyntax> GetArgumentExpressions(TInvocationExpressionSyntax invocationExpressionSyntax);
 
@@ -80,7 +80,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            var parentMethodCallSyntax = GetParentMethodCall(invocationExpression);
+            var parentMethodCallSyntax = GetSubstituteCall(methodSymbol, invocationExpression);
             var parentCallInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(parentMethodCallSyntax).Symbol as IMethodSymbol;
             if (parentCallInfo == null)
             {
