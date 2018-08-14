@@ -15,7 +15,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAna
         [InlineData("var x = callInfo.Args()[1];", 18, 25)]
         [InlineData("callInfo.Args()[1] = 1;", 18, 17)]
         [InlineData("callInfo.ArgTypes()[1] = typeof(int);", 18, 17)]
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string argAccess, int expectedLine, int expectedColumn)
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string call, string argAccess, int expectedLine, int expectedColumn)
         {
             var source = $@"using System;
 using NSubstitute;

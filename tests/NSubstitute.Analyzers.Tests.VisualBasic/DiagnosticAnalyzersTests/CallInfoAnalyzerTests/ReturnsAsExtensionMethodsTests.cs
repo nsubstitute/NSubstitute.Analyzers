@@ -9,13 +9,13 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallI
     public class ReturnsAsExtensionMethodsTests : CallInfoDiagnosticVerifier
     {
         [Theory]
-        [InlineData("callInfo.ArgAt(Of Integer)(1)", 13, 63)]
-        [InlineData("Dim x = callInfo(1)", 13, 71)]
-        [InlineData("callInfo(1) = 1", 13, 63)]
-        [InlineData("Dim x = callInfo.Args()(1)", 13, 71)]
-        [InlineData("callInfo.Args()(1) = 1", 13, 63)]
-        [InlineData("callInfo.ArgTypes()(1) = GetType(Integer)", 13, 63)]
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string argAccess, int expectedLine, int expectedColumn)
+        [InlineData("", "callInfo.ArgAt(Of Integer)(1)", 13, 63)]
+        [InlineData("", "Dim x = callInfo(1)", 13, 71)]
+        [InlineData("", "callInfo(1) = 1", 13, 63)]
+        [InlineData("", "Dim x = callInfo.Args()(1)", 13, 71)]
+        [InlineData("", "callInfo.Args()(1) = 1", 13, 63)]
+        [InlineData("", "callInfo.ArgTypes()(1) = GetType(Integer)", 13, 63)]
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string call, string argAccess, int expectedLine, int expectedColumn)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -28,7 +28,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            substitute.Bar(Arg.Any(Of Integer)()).Returns(Function(callInfo)
+            {call}.Returns(Function(callInfo)
                                                               {argAccess}
                                                               Return 1
                                                           End Function)

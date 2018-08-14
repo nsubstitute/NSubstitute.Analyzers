@@ -7,27 +7,27 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAna
 {
     public abstract class CallInfoDiagnosticVerifier : CSharpDiagnosticVerifier, ICallInfoDiagnosticVerifier
     {
-        public abstract Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string argAccess, int expectedLine, int expectedColumn);
+        public abstract Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string call, string argAccess, int expectedLine, int expectedColumn);
 
-        public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string argAccess);
+        public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string call, string argAccess);
 
-        public abstract Task ReportsDiagnostic_WhenConvertingTypeToUnsupportedType(string argAccess, int expectedLine, int expectedColumn);
+        public abstract Task ReportsDiagnostic_WhenConvertingTypeToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn);
 
-        public abstract Task ReportsNoDiagnostic_WhenConvertingTypeToSupportedType(string argAccess);
+        public abstract Task ReportsNoDiagnostic_WhenConvertingTypeToSupportedType(string call, string argAccess);
 
-        public abstract Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string argAccess);
+        public abstract Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string call, string argAccess);
 
-        public abstract Task ReportsNoDiagnostic_WhenAssigningValueToNotRefNorOutArgumentViaIndirectCall(string argAccess);
+        public abstract Task ReportsNoDiagnostic_WhenAssigningValueToNotRefNorOutArgumentViaIndirectCall(string call, string argAccess);
 
-        public abstract Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation();
+        public abstract Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string call);
 
-        public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation();
+        public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call);
 
-        public abstract Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation();
+        public abstract Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call);
 
-        public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation();
+        public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(string call);
 
-        public abstract Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument();
+        public abstract Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string call);
 
         public abstract Task ReportsNoDiagnostic_WhenAssigningValueToRefArgument();
 

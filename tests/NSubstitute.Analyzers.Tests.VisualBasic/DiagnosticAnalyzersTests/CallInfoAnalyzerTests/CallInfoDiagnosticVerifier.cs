@@ -7,7 +7,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallI
 {
     public abstract class CallInfoDiagnosticVerifier : VisualBasicDiagnosticVerifier, ICallInfoDiagnosticVerifier
     {
-        public abstract Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string argAccess, int expectedLine, int expectedColumn);
+        public abstract Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string call, string argAccess, int expectedLine, int expectedColumn);
 
         public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string argAccess);
 
