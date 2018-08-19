@@ -6,7 +6,7 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAnalyzerTests
 {
-    public class ReturnsAsExtensionMethodsWithGenericTypeSpecifiedTests : CallInfoDiagnosticVerifier
+    public class ReturnsForAnyArgsAsOrdinaryMethodTests : CallInfoDiagnosticVerifier
     {
         [Theory]
         [InlineData("substitute[Arg.Any<int>()]", "callInfo.ArgAt<int>(1);", 22, 17)]
@@ -48,7 +48,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns<int>(callInfo =>
+            SubstituteExtensions.ReturnsForAnyArgs({call}, callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -108,7 +108,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns<int>(callInfo =>
+            SubstituteExtensions.ReturnsForAnyArgs({call}, callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -153,7 +153,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns<int>(callInfo =>
+            SubstituteExtensions.ReturnsForAnyArgs({call}, callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -209,7 +209,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns<int>(callInfo =>
+            SubstituteExtensions.ReturnsForAnyArgs({call}, callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -252,7 +252,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns<int>(callInfo =>
+            SubstituteExtensions.ReturnsForAnyArgs({call}, callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -275,7 +275,7 @@ using NSubstitute;
 
 namespace MyNamespace
 {{
-    public interface Foo
+     public interface Foo
     {{
         int Bar(Bar x);
 
@@ -291,7 +291,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns<int>(callInfo =>
+            SubstituteExtensions.ReturnsForAnyArgs({call}, callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -327,7 +327,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns<int>(callInfo =>
+            SubstituteExtensions.ReturnsForAnyArgs({call}, callInfo =>
             {{
                 callInfo.Arg<double>();
                 return 1;
@@ -371,7 +371,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns<int>(callInfo =>
+            SubstituteExtensions.ReturnsForAnyArgs({call}, callInfo =>
             {{
                 callInfo.Arg<int>();
                 return 1;
@@ -404,7 +404,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns<int>(callInfo =>
+            SubstituteExtensions.ReturnsForAnyArgs({call}, callInfo =>
             {{
                 callInfo.Arg<int>();
                 return 1;
@@ -447,7 +447,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns<int>(callInfo =>
+            SubstituteExtensions.ReturnsForAnyArgs({call}, callInfo =>
             {{
                 callInfo.Arg<int>();
                 return 1;
@@ -480,7 +480,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns<int>(callInfo =>
+            SubstituteExtensions.ReturnsForAnyArgs({call}, callInfo =>
             {{
                 callInfo[1] = 1;
                 return 1;
@@ -520,7 +520,7 @@ namespace MyNamespace
         {
             int value = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar(ref value).Returns<int>(callInfo =>
+            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(ref value), callInfo =>
             {
                 callInfo[0] = 1;
                 return 1;
@@ -549,7 +549,7 @@ namespace MyNamespace
         {
             int value = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar(out value).Returns<int>(callInfo =>
+            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(out value), callInfo =>
             {
                 callInfo[0] = 1;
                 return 1;
@@ -578,7 +578,7 @@ namespace MyNamespace
         {
             int value = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar(out value).Returns<int>(callInfo =>
+            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(out value), callInfo =>
             {
                 callInfo[1] = 1;
                 return 1;
@@ -618,7 +618,7 @@ namespace MyNamespace
         {
             decimal value = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar(out value).Returns<int>(callInfo =>
+            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(out value), callInfo =>
             {
                 callInfo[0] = 1;
                 return 1;
@@ -659,7 +659,7 @@ namespace MyNamespace
         {
             decimal value = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar(out value).Returns<int>(callInfo =>
+            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(out value), callInfo =>
             {
                 callInfo[0] = 1M;
                 return 1;

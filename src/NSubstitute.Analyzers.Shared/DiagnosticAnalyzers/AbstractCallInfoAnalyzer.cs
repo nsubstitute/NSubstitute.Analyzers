@@ -18,9 +18,13 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         {
         }
 
-        private static readonly ImmutableHashSet<string> MethodNames = ImmutableHashSet.Create(
-            MetadataNames.NSubstituteReturnsMethod,
-            MetadataNames.NSubstituteReturnsForAnyArgsMethod);
+        private static readonly ImmutableDictionary<string, string> MethodNames = new Dictionary<string, string>()
+        {
+            [MetadataNames.NSubstituteReturnsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
+            [MetadataNames.NSubstituteReturnsForAnyArgsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
+            [MetadataNames.NSubstituteThrowsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName,
+            [MetadataNames.NSubstituteThrowsForAnyArgsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName
+        }.ToImmutableDictionary();
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             DiagnosticDescriptorsProvider.CallInfoArgumentOutOfRange,
@@ -223,7 +227,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             var argumentsForAnalysis = methodSymbol.MethodKind == MethodKind.ReducedExtension
                 ? allArguments
                 : allArguments.Skip(1);
-            if (MethodNames.Contains(methodSymbol.Name) == false)
+
+            if (MethodNames.TryGetValue(methodSymbol.Name, out var typeName) == false)
             {
                 return false;
             }
@@ -232,7 +237,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var supportsCallInfo =
                 symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                symbol.Symbol?.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteExtensionsFullTypeName, StringComparison.OrdinalIgnoreCase) == true;
+                symbol.Symbol?.ContainingType?.ToString().Equals(typeName, StringComparison.OrdinalIgnoreCase) == true;
 
             return supportsCallInfo && IsCalledViaDelegate(syntaxNodeContext.SemanticModel, syntaxNodeContext.SemanticModel.GetTypeInfo(argumentsForAnalysis.First()));
         }
