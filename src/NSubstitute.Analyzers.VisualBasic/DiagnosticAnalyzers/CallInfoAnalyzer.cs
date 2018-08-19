@@ -20,7 +20,15 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
         protected override SyntaxNode GetSubstituteCall(IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax)
         {
-            return invocationExpressionSyntax.Expression.DescendantNodes().First();
+            switch (methodSymbol.MethodKind)
+            {
+                case MethodKind.ReducedExtension:
+                    return invocationExpressionSyntax.Expression.DescendantNodes().First();
+                case MethodKind.Ordinary:
+                    return invocationExpressionSyntax.ArgumentList.Arguments.First().GetExpression();
+                default:
+                    return null;
+            }
         }
 
         protected override IEnumerable<ExpressionSyntax> GetArgumentExpressions(InvocationExpressionSyntax invocationExpressionSyntax)
