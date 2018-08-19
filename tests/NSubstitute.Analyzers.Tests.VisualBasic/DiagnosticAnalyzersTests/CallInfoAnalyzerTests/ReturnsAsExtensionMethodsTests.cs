@@ -9,12 +9,24 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallI
     public class ReturnsAsExtensionMethodsTests : CallInfoDiagnosticVerifier
     {
         [Theory]
-        [InlineData("", "callInfo.ArgAt(Of Integer)(1)", 13, 63)]
-        [InlineData("", "Dim x = callInfo(1)", 13, 71)]
-        [InlineData("", "callInfo(1) = 1", 13, 63)]
-        [InlineData("", "Dim x = callInfo.Args()(1)", 13, 71)]
-        [InlineData("", "callInfo.Args()(1) = 1", 13, 63)]
-        [InlineData("", "callInfo.ArgTypes()(1) = GetType(Integer)", 13, 63)]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo.ArgAt(Of Integer)(1)", 15, 32)]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "Dim x = callInfo(1)", 15, 40)]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo(1) = 1", 15, 32)]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "Dim x = callInfo.Args()(1)", 15, 40)]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo.Args()(1) = 1", 15, 32)]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo.ArgTypes()(1) = GetType(Integer)", 15, 32)]
+        [InlineData("substitute.Barr", "callInfo.ArgAt(Of Integer)(1)", 15, 32)]
+        [InlineData("substitute.Barr", "Dim x = callInfo(1)", 15, 40)]
+        [InlineData("substitute.Barr", "callInfo(1) = 1", 15, 32)]
+        [InlineData("substitute.Barr", "Dim x = callInfo.Args()(1)", 15, 40)]
+        [InlineData("substitute.Barr", "callInfo.Args()(1) = 1", 15, 32)]
+        [InlineData("substitute.Barr", "callInfo.ArgTypes()(1) = GetType(Integer)", 15, 32)]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "callInfo.ArgAt(Of Integer)(1)", 15, 32)]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "Dim x = callInfo(1)", 15, 40)]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "callInfo(1) = 1", 15, 32)]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "Dim x = callInfo.Args()(1)", 15, 40)]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "callInfo.Args()(1) = 1", 15, 32)]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "callInfo.ArgTypes()(1) = GetType(Integer)", 15, 32)]
         public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string call, string argAccess, int expectedLine, int expectedColumn)
         {
             var source = $@"Imports System
@@ -23,15 +35,17 @@ Imports NSubstitute
 Namespace MyNamespace
     Interface Foo
         Function Bar(ByVal x As Integer) As Integer
+        ReadOnly Property Barr As Integer
+        Default ReadOnly Property Item(ByVal x As Integer) As Integer
     End Interface
 
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {call}.Returns(Function(callInfo)
-                                                              {argAccess}
-                                                              Return 1
-                                                          End Function)
+                               {argAccess}
+                               Return 1
+                           End Function)
         End Sub
     End Class
 End Namespace
@@ -51,15 +65,23 @@ End Namespace
         }
 
         [Theory]
-        [InlineData("callInfo.ArgAt(Of Integer)(0)")]
-        [InlineData("callInfo.ArgAt(Of Integer)(1)")]
-        [InlineData("Dim x = callInfo(0)")]
-        [InlineData("Dim x = callInfo(1)")]
-        [InlineData("Dim x = callInfo.Args()(0)")]
-        [InlineData("Dim x = callInfo.Args()(1)")]
-        [InlineData("Dim x = callInfo.ArgTypes()(0)")]
-        [InlineData("Dim x = callInfo.ArgTypes()(1)")]
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string argAccess)
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "callInfo.ArgAt(Of Integer)(0)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "callInfo.ArgAt(Of Integer)(1)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "Dim x = callInfo(0)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "Dim x = callInfo(1)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "Dim x = callInfo.Args()(0)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "Dim x = callInfo.Args()(1)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "Dim x = callInfo.ArgTypes()(0)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "Dim x = callInfo.ArgTypes()(1)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "callInfo.ArgAt(Of Integer)(0)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "callInfo.ArgAt(Of Integer)(1)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "Dim x = callInfo(0)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "Dim x = callInfo(1)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "Dim x = callInfo.Args()(0)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "Dim x = callInfo.Args()(1)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "Dim x = callInfo.ArgTypes()(0)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "Dim x = callInfo.ArgTypes()(1)")]
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string call, string argAccess)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -67,15 +89,17 @@ Imports NSubstitute
 Namespace MyNamespace
     Interface Foo
         Function Bar(ByVal x As Integer, ByVal y As Integer) As Integer
+        ReadOnly Property Barr As Integer
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Integer) As Integer
     End Interface
 
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)()).Returns(Function(callInfo)
-                                                                                     {argAccess}
-                                                                                     Return 1
-                                                                                 End Function)
+            {call}.Returns(Function(callInfo)
+                                   {argAccess}
+                                   Return 1
+                           End Function)
         End Sub
     End Class
 End Namespace
@@ -84,14 +108,21 @@ End Namespace
         }
 
         [Theory]
-        [InlineData("callInfo.ArgAt(Of Bar)(1)", 16, 85)]
-        [InlineData("Dim x = CType(callInfo(1), Bar)", 16, 99)]
-        [InlineData("Dim x = TryCast(callInfo(1), Bar)", 16, 101)]
-        [InlineData("Dim x = DirectCast(callInfo(1), Bar)", 16, 104)]
-        [InlineData("Dim x = CType(callInfo.Args()(1), Bar)", 16, 99)]
-        [InlineData("Dim x = TryCast(callInfo.Args()(1), Bar)", 16, 101)]
-        [InlineData("Dim x = DirectCast(callInfo.Args()(1), Bar)", 16, 104)]
-        public override async Task ReportsDiagnostic_WhenConvertingTypeToUnsupportedType(string argAccess, int expectedLine, int expectedColumn)
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "callInfo.ArgAt(Of Bar)(1)", 17, 32)]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = CType(callInfo(1), Bar)", 17, 46)]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = TryCast(callInfo(1), Bar)", 17, 48)]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = DirectCast(callInfo(1), Bar)", 17, 51)]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = CType(callInfo.Args()(1), Bar)", 17, 46)]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = TryCast(callInfo.Args()(1), Bar)", 17, 48)]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = DirectCast(callInfo.Args()(1), Bar)", 17, 51)]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "callInfo.ArgAt(Of Bar)(1)", 17, 32)]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = CType(callInfo(1), Bar)", 17, 46)]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = TryCast(callInfo(1), Bar)", 17, 48)]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = DirectCast(callInfo(1), Bar)", 17, 51)]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = CType(callInfo.Args()(1), Bar)", 17, 46)]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = TryCast(callInfo.Args()(1), Bar)", 17, 48)]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = DirectCast(callInfo.Args()(1), Bar)", 17, 51)]
+        public override async Task ReportsDiagnostic_WhenConvertingTypeToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -99,6 +130,7 @@ Imports NSubstitute
 Namespace MyNamespace
     Interface Foo
         Function Bar(ByVal x As Integer, ByVal y As Double) As Integer
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Double) As Integer
     End Interface
 
     Public Class Bar
@@ -107,10 +139,10 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)()).Returns(Function(callInfo)
-                                                                                    {argAccess}
-                                                                                    Return 1
-                                                                                End Function)
+            {call}.Returns(Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function)
         End Sub
     End Class
 End Namespace
@@ -130,14 +162,21 @@ End Namespace
         }
 
         [Theory]
-        [InlineData("callInfo.ArgAt(Of Bar)(0)")]
-        [InlineData("Dim x = TryCast(callInfo.Args()(0), Bar)")]
-        [InlineData("Dim x = DirectCast(callInfo.Args()(0), Bar)")]
-        [InlineData("Dim x = CType(callInfo.Args()(0), Bar)")]
-        [InlineData("Dim x = TryCast(callInfo(0), Bar)")]
-        [InlineData("Dim x = DirectCast(callInfo(0), Bar)")]
-        [InlineData("Dim x = CType(callInfo(0), Bar)")]
-        public override async Task ReportsNoDiagnostic_WhenConvertingTypeToSupportedType(string argAccess)
+        [InlineData("substitute.Bar(Arg.Any(Of Bar)())", "callInfo.ArgAt(Of Bar)(0)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Bar)())", "Dim x = TryCast(callInfo(0), Bar)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Bar)())", "Dim x = CType(callInfo(0), Bar)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo(0), Bar)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Bar)())", "Dim x = TryCast(callInfo.Args()(0), Bar)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Bar)())", "Dim x = CType(callInfo.Args()(0), Bar)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo.Args()(0), Bar)")]
+        [InlineData("substitute(Arg.Any(Of Bar)())", "callInfo.ArgAt(Of Bar)(0)")]
+        [InlineData("substitute(Arg.Any(Of Bar)())", "Dim x = TryCast(callInfo(0), Bar)")]
+        [InlineData("substitute(Arg.Any(Of Bar)())", "Dim x = CType(callInfo(0), Bar)")]
+        [InlineData("substitute(Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo(0), Bar)")]
+        [InlineData("substitute(Arg.Any(Of Bar)())", "Dim x = TryCast(callInfo.Args()(0), Bar)")]
+        [InlineData("substitute(Arg.Any(Of Bar)())", "Dim x = CType(callInfo.Args()(0), Bar)")]
+        [InlineData("substitute(Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo.Args()(0), Bar)")]
+        public override async Task ReportsNoDiagnostic_WhenConvertingTypeToSupportedType(string call, string argAccess)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -145,6 +184,7 @@ Imports NSubstitute
 Namespace MyNamespace
     Interface Foo
         Function Bar(ByVal x As Bar) As Integer
+        Default ReadOnly Property Item(ByVal x As Bar) As Integer
     End Interface
 
     Public Class Bar
@@ -153,10 +193,10 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            substitute.Bar(Arg.Any(Of Bar)()).Returns(Function(callInfo)
-                                                          {argAccess}
-                                                          Return 1
-                                                      End Function)
+            {call}.Returns(Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function)
         End Sub
     End Class
 End Namespace
@@ -166,10 +206,19 @@ End Namespace
         }
 
         [Theory]
-        [InlineData("Dim x = TryCast(callInfo.ArgTypes(), Object)")]
-        [InlineData("Dim x = DirectCast(callInfo.ArgTypes(), Object)")]
-        [InlineData("Dim x = CType(callInfo.ArgTypes(), Object)")]
-        public override async Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string argAccess)
+        [InlineData("substitute.Bar(Arg.Any(Of Bar)())", "Dim x = TryCast(callInfo.ArgTypes(), Object)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo.ArgTypes(), Object)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Bar)())", "Dim x = CType(callInfo.ArgTypes(), Object)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Bar)())", "Dim x = TryCast(callInfo.ArgTypes()(0), Object)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo.ArgTypes()(0), Object)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Bar)())", "Dim x = CType(callInfo.ArgTypes()(0), Object)")]
+        [InlineData("substitute(Arg.Any(Of Bar)())", "Dim x = TryCast(callInfo.ArgTypes(), Object)")]
+        [InlineData("substitute(Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo.ArgTypes(), Object)")]
+        [InlineData("substitute(Arg.Any(Of Bar)())", "Dim x = CType(callInfo.ArgTypes(), Object)")]
+        [InlineData("substitute(Arg.Any(Of Bar)())", "Dim x = TryCast(callInfo.ArgTypes()(0), Object)")]
+        [InlineData("substitute(Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo.ArgTypes()(0), Object)")]
+        [InlineData("substitute(Arg.Any(Of Bar)())", "Dim x = CType(callInfo.ArgTypes()(0), Object)")]
+        public override async Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string call, string argAccess)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -177,6 +226,7 @@ Imports NSubstitute
 Namespace MyNamespace
     Interface Foo
         Function Bar(ByVal x As Bar) As Integer
+        Default ReadOnly Property Item(ByVal x As Bar) As Integer
     End Interface
 
     Public Class Bar
@@ -185,10 +235,10 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            substitute.Bar(Arg.Any(Of Bar)()).Returns(Function(callInfo)
-                                                          {argAccess}
-                                                          Return 1
-                                                      End Function)
+            {call}.Returns(Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function)
         End Sub
     End Class
 End Namespace
@@ -197,9 +247,11 @@ End Namespace
         }
 
         [Theory]
-        [InlineData("callInfo.ArgTypes()(0) = GetType(Object)")]
-        [InlineData("callInfo.Args()(0) = 1D")]
-        public override async Task ReportsNoDiagnostic_WhenAssigningValueToNotRefNorOutArgumentViaIndirectCall(string argAccess)
+        [InlineData("substitute.Bar(Arg.Any(Of Bar)())", "callInfo.ArgTypes()(0) = GetType(Object)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Bar)())", "callInfo.Args()(0) = 1D")]
+        [InlineData("substitute(Arg.Any(Of Bar)())", "callInfo.ArgTypes()(0) = GetType(Object)")]
+        [InlineData("substitute(Arg.Any(Of Bar)())", "callInfo.Args()(0) = 1D")]
+        public override async Task ReportsNoDiagnostic_WhenAssigningValueToNotRefNorOutArgumentViaIndirectCall(string call, string argAccess)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -207,6 +259,7 @@ Imports NSubstitute
 Namespace MyNamespace
     Interface Foo
         Function Bar(ByVal x As Bar) As Integer
+        Default ReadOnly Property Item(ByVal x As Bar) As Integer
     End Interface
 
     Public Class Bar
@@ -215,10 +268,10 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            substitute.Bar(Arg.Any(Of Bar)()).Returns(Function(callInfo)
-                                                          {argAccess}
-                                                          Return 1
-                                                      End Function)
+            {call}.Returns(Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function)
         End Sub
     End Class
 End Namespace
@@ -226,24 +279,30 @@ End Namespace
             await VerifyDiagnostic(source);
         }
 
-        [Fact]
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation()
+        [Theory]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())")]
+        [InlineData("substitute.Barr")]
+        [InlineData("substitute(Arg.Any(Of Integer)())")]
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string call)
         {
-            var source = @"Imports System
+            var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
     Interface Foo
         Function Bar(ByVal x As Integer) As Integer
+        ReadOnly Property Barr As Integer
+        Default ReadOnly Property Item(ByVal x As Integer) As Integer
+
     End Interface
 
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            substitute.Bar(Arg.Any(Of Integer)()).Returns(Function(callInfo)
-                                                              callInfo.Arg(Of Double)()
-                                                              Return 1
-                                                          End Function)
+            {call}.Returns(Function(callInfo)
+                               callInfo.Arg(Of Double)()
+                               Return 1
+                           End Function)
         End Sub
     End Class
 End Namespace
@@ -255,31 +314,34 @@ End Namespace
                 Message = "Can not find an argument of type Double to this call.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(13, 63)
+                    new DiagnosticResultLocation(16, 32)
                 }
             };
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [Fact]
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation()
+        [Theory]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())")]
+        [InlineData("substitute(Arg.Any(Of Integer)())")]
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call)
         {
-            var source = @"Imports System
+            var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
     Interface Foo
         Function Bar(ByVal x As Integer) As Integer
+        Default ReadOnly Property Item(ByVal x As Integer) As Integer
     End Interface
 
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            substitute.Bar(Arg.Any(Of Integer)()).Returns(Function(callInfo)
-                                                              callInfo.Arg(Of Integer)()
-                                                              Return 1
-                                                          End Function)
+            {call}.Returns(Function(callInfo)
+                               callInfo.Arg(Of Integer)()
+                               Return 1
+                           End Function)
         End Sub
     End Class
 End Namespace
@@ -288,23 +350,26 @@ End Namespace
             await VerifyDiagnostic(source);
         }
 
-        [Fact]
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation()
+        [Theory]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())")]
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface Foo
         Function Bar(ByVal x As Integer, ByVal y As Integer) As Integer
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Integer) As Integer
     End Interface
 
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)()).Returns(Function(callInfo)
-                                                                                     callInfo.Arg(Of Integer)()
-                                                                                     Return 1
-                                                                                 End Function)
+            {call}.Returns(Function(callInfo)
+                               callInfo.Arg(Of Integer)()
+                               Return 1
+                           End Function)
         End Sub
     End Class
 End Namespace
@@ -316,30 +381,33 @@ End Namespace
                 Message = "There is more than one argument of type Integer to this call.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(12, 86)
+                    new DiagnosticResultLocation(13, 32)
                 }
             };
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [Fact]
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation()
+        [Theory]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())")]
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(string call)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface Foo
         Function Bar(ByVal x As Integer, ByVal y As Double) As Integer
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Double) As Integer
     End Interface
 
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)()).Returns(Function(callInfo)
-                                                                                    callInfo.Arg(Of Integer)()
-                                                                                    Return 1
-                                                                                End Function)
+            {call}.Returns(Function(callInfo)
+                               callInfo.Arg(Of Integer)()
+                               Return 1
+                           End Function)
         End Sub
     End Class
 End Namespace
@@ -348,23 +416,26 @@ End Namespace
             await VerifyDiagnostic(source);
         }
 
-        [Fact]
-        public override async Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument()
+        [Theory]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())")]
+        public override async Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string call)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface Foo
         Function Bar(ByVal x As Integer, ByVal y As Double) As Integer
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Double) As Integer
     End Interface
 
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)()).Returns(Function(callInfo)
-                                                                                    callInfo(1) = 1
-                                                                                    Return 1
-                                                                                End Function)
+            {call}.Returns(Function(callInfo)
+                               callInfo(1) = 1
+                               Return 1
+                           End Function)
         End Sub
     End Class
 End Namespace
@@ -376,7 +447,7 @@ End Namespace
                 Message = "Could not set argument 1 (Double) as it is not an out or ref argument.",
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(12, 85)
+                    new DiagnosticResultLocation(13, 32)
                 }
             };
 

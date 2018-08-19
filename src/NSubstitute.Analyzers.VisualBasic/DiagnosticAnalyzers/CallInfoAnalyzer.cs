@@ -18,7 +18,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
-        protected override SyntaxNode GetSubstituteCall(InvocationExpressionSyntax invocationExpressionSyntax)
+        protected override SyntaxNode GetSubstituteCall(IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax)
         {
             return invocationExpressionSyntax.Expression.DescendantNodes().First();
         }
