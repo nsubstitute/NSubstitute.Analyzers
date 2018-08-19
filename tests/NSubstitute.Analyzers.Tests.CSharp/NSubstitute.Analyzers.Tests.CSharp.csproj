@@ -15,9 +15,4 @@
     <ProjectReference Include="..\..\src\NSubstitute.Analyzers.Shared\NSubstitute.Analyzers.Shared.csproj" />
     <ProjectReference Include="..\NSubstitute.Analyzers.Tests.Shared\NSubstitute.Analyzers.Tests.Shared.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="DiagnosticAnalyzerTests\CallInfoAnalyzerTests\ReturnsAsExtensionMethodsWithGenericTypeSpecifiedTests.cs" />
-    <Compile Remove="DiagnosticAnalyzerTests\CallInfoAnalyzerTests\ReturnsAsOrdinaryMethodTests.cs" />
-    <Compile Remove="DiagnosticAnalyzerTests\CallInfoAnalyzerTests\ReturnsAsOrdinaryMethodWithGenericTypeSpecifiedTests.cs" />
-  </ItemGroup>
 </Project>
