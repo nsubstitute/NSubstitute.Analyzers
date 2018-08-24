@@ -37,19 +37,18 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 
             public override void VisitInvocationExpression(InvocationExpressionSyntax node)
             {
-                var symbolInfo = ModelExtensions.GetSymbolInfo(_semanticModel, node);
+                var symbolInfo = _semanticModel.GetSymbolInfo(node);
 
-                if (symbolInfo.Symbol != null &&
-                    symbolInfo.Symbol.ContainingType.ToString().Equals(MetadataNames.NSubstituteCoreFullTypeName))
+                if (symbolInfo.Symbol != null && symbolInfo.Symbol.ContainingType.ToString().Equals(MetadataNames.NSubstituteCoreFullTypeName))
                 {
-                    if (symbolInfo.Symbol.Name == MetadataNames.CallInfoArgAtMethod)
+                    switch (symbolInfo.Symbol.Name)
                     {
-                        ArgAtInvocations.Add(node);
-                    }
-
-                    if (symbolInfo.Symbol.Name == MetadataNames.CallInfoArgMethod)
-                    {
-                        ArgInvocations.Add(node);
+                        case MetadataNames.CallInfoArgAtMethod:
+                            ArgAtInvocations.Add(node);
+                            break;
+                        case MetadataNames.CallInfoArgMethod:
+                            ArgInvocations.Add(node);
+                            break;
                     }
                 }
 

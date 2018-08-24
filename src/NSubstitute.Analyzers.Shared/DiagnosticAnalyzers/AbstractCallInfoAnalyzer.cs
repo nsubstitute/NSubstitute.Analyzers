@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
@@ -13,9 +14,14 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         where TIndexerExpressionSyntax : SyntaxNode
         where TSyntaxKind : struct
     {
+        private readonly Lazy<AbstractCallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax>> _callInfoFinderProxy;
+
+        private AbstractCallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> CallInfoFinder => _callInfoFinderProxy.Value;
+
         protected AbstractCallInfoAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
             : base(diagnosticDescriptorsProvider)
         {
+            _callInfoFinderProxy = new Lazy<AbstractCallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax>>(GetCallInfoFinder);
         }
 
         private static readonly ImmutableDictionary<string, string> MethodNames = new Dictionary<string, string>()
@@ -57,17 +63,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract int? GetIndexerPosition(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax);
 
-        private IndexerInfo GetIndexerInfo(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax)
-        {
-            var info = GetIndexerSymbol(syntaxNodeAnalysisContext, indexerExpressionSyntax);
-            var symbol = info as IMethodSymbol;
-            var verifyIndexerCast = symbol == null || symbol.Name != MetadataNames.CallInfoArgTypesMethod;
-            var verifyAssignment = symbol == null;
-
-            var indexerInfo = new IndexerInfo(verifyIndexerCast, verifyAssignment);
-            return indexerInfo;
-        }
-
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
             var invocationExpression = (TInvocationExpressionSyntax)syntaxNodeContext.Node;
@@ -95,130 +90,174 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             {
                 var finder = GetCallInfoFinder();
                 var callInfoContext = finder.GetCallInfoContext(syntaxNodeContext.SemanticModel, argumentExpressionSyntax);
-                foreach (var argAtInvocation in callInfoContext.ArgAtInvocations)
+
+                AnalyzeArgAtInvocations(syntaxNodeContext, callInfoContext, substituteCallParameters);
+
+                AnalyzeArgInvocations(syntaxNodeContext, callInfoContext, substituteCallParameters);
+
+                AnalyzeIndexerInvocations(syntaxNodeContext, callInfoContext, substituteCallParameters);
+            }
+        }
+
+        private void AnalyzeIndexerInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, CallInfoContext<TInvocationExpressionSyntax, TIndexerExpressionSyntax> callInfoContext, IList<IParameterSymbol> substituteCallParameters)
+        {
+            foreach (var indexer in callInfoContext.IndexerAccesses)
+            {
+                var indexerInfo = GetIndexerInfo(syntaxNodeContext, indexer);
+
+                var position = GetIndexerPosition(syntaxNodeContext, indexer);
+
+                if (AnalyzeArgumentAccess(syntaxNodeContext, substituteCallParameters, position, indexer))
                 {
-                    var position = GetArgAtPosition(syntaxNodeContext, argAtInvocation);
-                    if (position.HasValue)
-                    {
-                        if (position.Value > substituteCallParameters.Count - 1)
-                        {
-                            var diagnostic = Diagnostic.Create(
-                                DiagnosticDescriptorsProvider.CallInfoArgumentOutOfRange,
-                                argAtInvocation.GetLocation(),
-                                position);
-
-                            syntaxNodeContext.ReportDiagnostic(diagnostic);
-                            continue;
-                        }
-
-                        var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(argAtInvocation);
-                        if (symbolInfo.Symbol != null &&
-                            symbolInfo.Symbol is IMethodSymbol argAtMethodSymbol &&
-                            Equals(substituteCallParameters[position.Value].Type, argAtMethodSymbol.TypeArguments.First()) == false)
-                        {
-                            var diagnostic = Diagnostic.Create(
-                                DiagnosticDescriptorsProvider.CallInfoCouldNotConvertParameterAtPosition,
-                                argAtInvocation.GetLocation(),
-                                position,
-                                argAtMethodSymbol.TypeArguments.First());
-
-                            syntaxNodeContext.ReportDiagnostic(diagnostic);
-                        }
-                    }
+                    continue;
                 }
 
-                foreach (var argInvocation in callInfoContext.ArgInvocations)
+                if (AnalyzeCast(syntaxNodeContext, substituteCallParameters, indexer, position, indexerInfo))
                 {
-                    var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(argInvocation);
-                    if (symbolInfo.Symbol != null && symbolInfo.Symbol is IMethodSymbol argMethodSymbol)
-                    {
-                        var typeSymbol = argMethodSymbol.TypeArguments.First();
-                        var parameterCount = substituteCallParameters.Count(param => Equals(param.Type, typeSymbol));
-                        if (parameterCount == 0)
-                        {
-                            var diagnostic = Diagnostic.Create(
-                                DiagnosticDescriptorsProvider.CallInfoCouldNotFindArgumentToThisCall,
-                                argInvocation.GetLocation(),
-                                typeSymbol);
-
-                            syntaxNodeContext.ReportDiagnostic(diagnostic);
-                            continue;
-                        }
-
-                        if (parameterCount > 1)
-                        {
-                            var diagnostic = Diagnostic.Create(
-                                DiagnosticDescriptorsProvider.CallInfoMoreThanOneArgumentOfType,
-                                argInvocation.GetLocation(),
-                                typeSymbol);
-
-                            syntaxNodeContext.ReportDiagnostic(diagnostic);
-                        }
-                    }
+                    continue;
                 }
 
-                foreach (var indexer in callInfoContext.IndexerAccesses)
-                {
-                    var indexerInfo = GetIndexerInfo(syntaxNodeContext, indexer);
+                AnalyzeAssignment(syntaxNodeContext, substituteCallParameters, indexer, indexerInfo, position);
+            }
+        }
 
-                    var position = GetIndexerPosition(syntaxNodeContext, indexer);
-                    if (position.HasValue && position.Value > substituteCallParameters.Count - 1)
+        private void AnalyzeArgAtInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, CallInfoContext<TInvocationExpressionSyntax, TIndexerExpressionSyntax> callInfoContext, IList<IParameterSymbol> substituteCallParameters)
+        {
+            foreach (var argAtInvocation in callInfoContext.ArgAtInvocations)
+            {
+                var position = GetArgAtPosition(syntaxNodeContext, argAtInvocation);
+                if (position.HasValue)
+                {
+                    if (position.Value > substituteCallParameters.Count - 1)
                     {
                         var diagnostic = Diagnostic.Create(
                             DiagnosticDescriptorsProvider.CallInfoArgumentOutOfRange,
-                            indexer.GetLocation(),
-                            position.Value);
+                            argAtInvocation.GetLocation(),
+                            position);
 
                         syntaxNodeContext.ReportDiagnostic(diagnostic);
                         continue;
                     }
 
-                    var castTypeExpression = GetCastTypeExpression(indexer);
-                    if (indexerInfo.VerifyIndexerCast && castTypeExpression != null)
+                    var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(argAtInvocation);
+                    if (symbolInfo.Symbol != null &&
+                        symbolInfo.Symbol is IMethodSymbol argAtMethodSymbol &&
+                        Equals(substituteCallParameters[position.Value].Type, argAtMethodSymbol.TypeArguments.First()) == false)
                     {
-                        var typeInfo = syntaxNodeContext.SemanticModel.GetTypeInfo(castTypeExpression);
-                        if (typeInfo.Type != null && !Equals(typeInfo.Type, substituteCallParameters[position.Value].Type))
-                        {
-                            var diagnostic = Diagnostic.Create(
-                                DiagnosticDescriptorsProvider.CallInfoCouldNotConvertParameterAtPosition,
-                                indexer.GetLocation(),
-                                position.Value,
-                                typeInfo.Type);
-                            syntaxNodeContext.ReportDiagnostic(diagnostic);
-                            continue;
-                        }
-                    }
+                        var diagnostic = Diagnostic.Create(
+                            DiagnosticDescriptorsProvider.CallInfoCouldNotConvertParameterAtPosition,
+                            argAtInvocation.GetLocation(),
+                            position,
+                            argAtMethodSymbol.TypeArguments.First());
 
-                    var assignmentExpressionSyntax = GetAssignmentExpression(indexer);
-                    if (indexerInfo.VerifyAssignment && assignmentExpressionSyntax != null && position.HasValue && position.Value < substituteCallParameters.Count)
-                    {
-                        var parameterSymbol = substituteCallParameters[position.Value];
-                        if (parameterSymbol.RefKind != RefKind.Out && parameterSymbol.RefKind != RefKind.Ref)
-                        {
-                            var diagnostic = Diagnostic.Create(
-                                DiagnosticDescriptorsProvider.CallInfoArgumentIsNotOutOrRef,
-                                indexer.GetLocation(),
-                                position.Value,
-                                parameterSymbol.Type);
-                            syntaxNodeContext.ReportDiagnostic(diagnostic);
-                            continue;
-                        }
-
-                        var typeInfo = syntaxNodeContext.SemanticModel.GetTypeInfo(assignmentExpressionSyntax);
-                        if (typeInfo.Type != null && !Equals(typeInfo.Type, substituteCallParameters[position.Value].Type))
-                        {
-                            var diagnostic = Diagnostic.Create(
-                                DiagnosticDescriptorsProvider.CallInfoArgumentSetWithIncompatibleValue,
-                                indexer.GetLocation(),
-                                typeInfo.Type,
-                                position.Value,
-                                substituteCallParameters[position.Value].Type);
-                            syntaxNodeContext.ReportDiagnostic(diagnostic);
-                            continue;
-                        }
+                        syntaxNodeContext.ReportDiagnostic(diagnostic);
                     }
                 }
             }
+        }
+
+        private void AnalyzeArgInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, CallInfoContext<TInvocationExpressionSyntax, TIndexerExpressionSyntax> callInfoContext, IList<IParameterSymbol> substituteCallParameters)
+        {
+            foreach (var argInvocation in callInfoContext.ArgInvocations)
+            {
+                var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(argInvocation);
+                if (symbolInfo.Symbol != null && symbolInfo.Symbol is IMethodSymbol argMethodSymbol)
+                {
+                    var typeSymbol = argMethodSymbol.TypeArguments.First();
+                    var parameterCount = substituteCallParameters.Count(param => Equals(param.Type, typeSymbol));
+                    if (parameterCount == 0)
+                    {
+                        var diagnostic = Diagnostic.Create(
+                            DiagnosticDescriptorsProvider.CallInfoCouldNotFindArgumentToThisCall,
+                            argInvocation.GetLocation(),
+                            typeSymbol);
+
+                        syntaxNodeContext.ReportDiagnostic(diagnostic);
+                        continue;
+                    }
+
+                    if (parameterCount > 1)
+                    {
+                        var diagnostic = Diagnostic.Create(
+                            DiagnosticDescriptorsProvider.CallInfoMoreThanOneArgumentOfType,
+                            argInvocation.GetLocation(),
+                            typeSymbol);
+
+                        syntaxNodeContext.ReportDiagnostic(diagnostic);
+                    }
+                }
+            }
+        }
+
+        private bool AnalyzeArgumentAccess(SyntaxNodeAnalysisContext syntaxNodeContext, IList<IParameterSymbol> substituteCallParameters, int? position, TIndexerExpressionSyntax indexer)
+        {
+            if (position.HasValue && position.Value > substituteCallParameters.Count - 1)
+            {
+                var diagnostic = Diagnostic.Create(
+                    DiagnosticDescriptorsProvider.CallInfoArgumentOutOfRange,
+                    indexer.GetLocation(),
+                    position.Value);
+
+                syntaxNodeContext.ReportDiagnostic(diagnostic);
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool AnalyzeCast(SyntaxNodeAnalysisContext syntaxNodeContext, IList<IParameterSymbol> substituteCallParameters, TIndexerExpressionSyntax indexer, int? position, IndexerInfo indexerInfo)
+        {
+            var castTypeExpression = GetCastTypeExpression(indexer);
+            if (position.HasValue && indexerInfo.VerifyIndexerCast && castTypeExpression != null)
+            {
+                var typeInfo = syntaxNodeContext.SemanticModel.GetTypeInfo(castTypeExpression);
+                if (typeInfo.Type != null && !Equals(typeInfo.Type, substituteCallParameters[position.Value].Type))
+                {
+                    var diagnostic = Diagnostic.Create(
+                        DiagnosticDescriptorsProvider.CallInfoCouldNotConvertParameterAtPosition,
+                        indexer.GetLocation(),
+                        position.Value,
+                        typeInfo.Type);
+                    syntaxNodeContext.ReportDiagnostic(diagnostic);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool AnalyzeAssignment(SyntaxNodeAnalysisContext syntaxNodeContext, IList<IParameterSymbol> substituteCallParameters, TIndexerExpressionSyntax indexer, IndexerInfo indexerInfo, int? position)
+        {
+            var assignmentExpressionSyntax = GetAssignmentExpression(indexer);
+            if (indexerInfo.VerifyAssignment && assignmentExpressionSyntax != null && position.HasValue && position.Value < substituteCallParameters.Count)
+            {
+                var parameterSymbol = substituteCallParameters[position.Value];
+                if (parameterSymbol.RefKind != RefKind.Out && parameterSymbol.RefKind != RefKind.Ref)
+                {
+                    var diagnostic = Diagnostic.Create(
+                        DiagnosticDescriptorsProvider.CallInfoArgumentIsNotOutOrRef,
+                        indexer.GetLocation(),
+                        position.Value,
+                        parameterSymbol.Type);
+                    syntaxNodeContext.ReportDiagnostic(diagnostic);
+                    return true;
+                }
+
+                var typeInfo = syntaxNodeContext.SemanticModel.GetTypeInfo(assignmentExpressionSyntax);
+                if (typeInfo.Type != null && Equals(typeInfo.Type, substituteCallParameters[position.Value].Type) == false)
+                {
+                    var diagnostic = Diagnostic.Create(
+                        DiagnosticDescriptorsProvider.CallInfoArgumentSetWithIncompatibleValue,
+                        indexer.GetLocation(),
+                        typeInfo.Type,
+                        position.Value,
+                        substituteCallParameters[position.Value].Type);
+                    syntaxNodeContext.ReportDiagnostic(diagnostic);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private bool SupportsCallInfo(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax syntax, IMethodSymbol methodSymbol)
@@ -239,7 +278,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
                 symbol.Symbol?.ContainingType?.ToString().Equals(typeName, StringComparison.OrdinalIgnoreCase) == true;
 
-            return supportsCallInfo && IsCalledViaDelegate(syntaxNodeContext.SemanticModel, syntaxNodeContext.SemanticModel.GetTypeInfo(argumentsForAnalysis.First()));
+            return supportsCallInfo && argumentsForAnalysis.Any(arg => syntaxNodeContext.SemanticModel.GetTypeInfo(arg).IsCallInfoDelegate(syntaxNodeContext.SemanticModel));
         }
 
         private IList<IParameterSymbol> GetSubstituteCallParameters(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, TInvocationExpressionSyntax invocationExpression)
@@ -258,23 +297,15 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
         }
 
-        private static bool IsCalledViaDelegate(SemanticModel semanticModel, TypeInfo typeInfo)
+        private IndexerInfo GetIndexerInfo(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax)
         {
-            var typeSymbol = typeInfo.Type ?? typeInfo.ConvertedType;
-            var isCalledViaDelegate = typeSymbol != null &&
-                                      typeSymbol.TypeKind == TypeKind.Delegate &&
-                                      typeSymbol is INamedTypeSymbol namedTypeSymbol &&
-                                      namedTypeSymbol.ConstructedFrom.Equals(
-                                          semanticModel.Compilation.GetTypeByMetadataName("System.Func`2")) &&
-                                      IsCallInfoParameter(namedTypeSymbol.TypeArguments.First());
+            var info = GetIndexerSymbol(syntaxNodeAnalysisContext, indexerExpressionSyntax);
+            var symbol = info as IMethodSymbol;
+            var verifyIndexerCast = symbol == null || symbol.Name != MetadataNames.CallInfoArgTypesMethod;
+            var verifyAssignment = symbol == null;
 
-            return isCalledViaDelegate;
-        }
-
-        private static bool IsCallInfoParameter(ITypeSymbol symbol)
-        {
-            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.ToString().Equals(MetadataNames.NSubstituteCoreFullTypeName, StringComparison.OrdinalIgnoreCase) == true;
+            var indexerInfo = new IndexerInfo(verifyIndexerCast, verifyAssignment);
+            return indexerInfo;
         }
     }
 }

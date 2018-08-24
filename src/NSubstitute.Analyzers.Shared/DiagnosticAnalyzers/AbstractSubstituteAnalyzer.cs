@@ -267,7 +267,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     false))
             {
                 var symbol = substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetSymbolInfo(substituteContext.InvocationExpression);
-                var x = symbol.Symbol.ToMinimalDisplayString(substituteContext.SyntaxNodeAnalysisContext.SemanticModel, 10, SymbolDisplayFormat.CSharpErrorMessageFormat);
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.SubstituteConstructorMismatch,
                     substituteContext.InvocationExpression.GetLocation(),
