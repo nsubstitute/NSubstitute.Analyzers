@@ -69,16 +69,24 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
         protected override int? GetArgAtPosition(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, InvocationExpressionSyntax invocationExpressionSyntax)
         {
-            var argAtPosition = syntaxNodeAnalysisContext.SemanticModel.GetConstantValue(invocationExpressionSyntax.ArgumentList.Arguments.First().GetExpression());
-
-            return (int?)(argAtPosition.HasValue ? argAtPosition.Value : null);
+            return ExtractPositionFromInvocation(syntaxNodeAnalysisContext, invocationExpressionSyntax);
         }
 
         protected override int? GetIndexerPosition(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, InvocationExpressionSyntax indexerExpressionSyntax)
         {
-            var indexerPosition = syntaxNodeAnalysisContext.SemanticModel.GetConstantValue(indexerExpressionSyntax.ArgumentList.Arguments.First().GetExpression());
+            return ExtractPositionFromInvocation(syntaxNodeAnalysisContext, indexerExpressionSyntax);
+        }
 
-            return (int?)(indexerPosition.HasValue ? indexerPosition.Value : null);
+        protected override bool CanCast(Compilation compilation, ITypeSymbol sourceSymbol, ITypeSymbol destinationSymbol)
+        {
+            return compilation.ClassifyConversion(sourceSymbol, destinationSymbol).Exists;
+        }
+
+        private static int? ExtractPositionFromInvocation(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, InvocationExpressionSyntax invocationExpressionSyntax)
+        {
+            var argAtPosition = syntaxNodeAnalysisContext.SemanticModel.GetConstantValue(invocationExpressionSyntax.ArgumentList.Arguments.First().GetExpression());
+
+            return (int?)(argAtPosition.HasValue ? argAtPosition.Value : null);
         }
     }
 }

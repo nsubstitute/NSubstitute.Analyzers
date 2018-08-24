@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers.Shared.Extensions
 {
-    public static class TypeInfoExtensions
+    internal static class TypeInfoExtensions
     {
         public static bool IsCallInfoDelegate(this TypeInfo typeInfo, SemanticModel semanticModel)
         {

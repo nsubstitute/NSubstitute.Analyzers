@@ -81,5 +81,10 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
             var position = syntaxNodeAnalysisContext.SemanticModel.GetConstantValue(indexerExpressionSyntax.ArgumentList.Arguments.First().Expression);
             return (int?)(position.HasValue ? position.Value : null);
         }
+
+        protected override bool CanCast(Compilation compilation, ITypeSymbol sourceSymbol, ITypeSymbol destinationSymbol)
+        {
+            return compilation.ClassifyConversion(sourceSymbol, destinationSymbol).Exists;
+        }
     }
 }

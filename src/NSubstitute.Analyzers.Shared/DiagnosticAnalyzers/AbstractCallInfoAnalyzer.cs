@@ -63,6 +63,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract int? GetIndexerPosition(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax);
 
+        protected abstract bool CanCast(Compilation compilation, ITypeSymbol sourceSymbol, ITypeSymbol destinationSymbol);
+
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
             var invocationExpression = (TInvocationExpressionSyntax)syntaxNodeContext.Node;
@@ -88,8 +90,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             foreach (var argumentExpressionSyntax in GetArgumentExpressions(invocationExpression))
             {
-                var finder = GetCallInfoFinder();
-                var callInfoContext = finder.GetCallInfoContext(syntaxNodeContext.SemanticModel, argumentExpressionSyntax);
+                var callInfoContext = CallInfoFinder.GetCallInfoContext(syntaxNodeContext.SemanticModel, argumentExpressionSyntax);
 
                 AnalyzeArgAtInvocations(syntaxNodeContext, callInfoContext, substituteCallParameters);
 
@@ -107,12 +108,12 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
                 var position = GetIndexerPosition(syntaxNodeContext, indexer);
 
-                if (AnalyzeArgumentAccess(syntaxNodeContext, substituteCallParameters, position, indexer))
+                if (AnalyzeArgumentAccess(syntaxNodeContext, substituteCallParameters, indexer, position))
                 {
                     continue;
                 }
 
-                if (AnalyzeCast(syntaxNodeContext, substituteCallParameters, indexer, position, indexerInfo))
+                if (AnalyzeCast(syntaxNodeContext, substituteCallParameters, indexer, indexerInfo, position))
                 {
                     continue;
                 }
@@ -189,7 +190,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
         }
 
-        private bool AnalyzeArgumentAccess(SyntaxNodeAnalysisContext syntaxNodeContext, IList<IParameterSymbol> substituteCallParameters, int? position, TIndexerExpressionSyntax indexer)
+        private bool AnalyzeArgumentAccess(SyntaxNodeAnalysisContext syntaxNodeContext, IList<IParameterSymbol> substituteCallParameters, TIndexerExpressionSyntax indexer, int? position)
         {
             if (position.HasValue && position.Value > substituteCallParameters.Count - 1)
             {
@@ -205,13 +206,13 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             return false;
         }
 
-        private bool AnalyzeCast(SyntaxNodeAnalysisContext syntaxNodeContext, IList<IParameterSymbol> substituteCallParameters, TIndexerExpressionSyntax indexer, int? position, IndexerInfo indexerInfo)
+        private bool AnalyzeCast(SyntaxNodeAnalysisContext syntaxNodeContext, IList<IParameterSymbol> substituteCallParameters, TIndexerExpressionSyntax indexer, IndexerInfo indexerInfo, int? position)
         {
             var castTypeExpression = GetCastTypeExpression(indexer);
             if (position.HasValue && indexerInfo.VerifyIndexerCast && castTypeExpression != null)
             {
                 var typeInfo = syntaxNodeContext.SemanticModel.GetTypeInfo(castTypeExpression);
-                if (typeInfo.Type != null && !Equals(typeInfo.Type, substituteCallParameters[position.Value].Type))
+                if (typeInfo.Type != null && CanCast(syntaxNodeContext.Compilation, substituteCallParameters[position.Value].Type, typeInfo.Type) == false)
                 {
                     var diagnostic = Diagnostic.Create(
                         DiagnosticDescriptorsProvider.CallInfoCouldNotConvertParameterAtPosition,
@@ -306,6 +307,19 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var indexerInfo = new IndexerInfo(verifyIndexerCast, verifyAssignment);
             return indexerInfo;
+        }
+
+        private struct IndexerInfo
+        {
+            public bool VerifyIndexerCast { get; }
+
+            public bool VerifyAssignment { get; }
+
+            public IndexerInfo(bool verifyIndexerCast, bool verifyAssignment)
+            {
+                VerifyIndexerCast = verifyIndexerCast;
+                VerifyAssignment = verifyAssignment;
+            }
         }
     }
 }
