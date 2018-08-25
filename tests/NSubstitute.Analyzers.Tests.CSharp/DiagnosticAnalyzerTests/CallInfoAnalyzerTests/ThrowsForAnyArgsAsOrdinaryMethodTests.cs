@@ -122,16 +122,75 @@ namespace MyNamespace
         }
 
         [Theory]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "callInfo.ArgAt<Bar>(1);", 25, 17)]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "var x = (Bar)callInfo[1];", 25, 30)]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "var x = callInfo[1] as Bar;", 25, 25)]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "var x = (Bar)callInfo.Args()[1];", 25, 30)]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "var x = callInfo.Args()[1] as Bar;", 25, 25)]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "callInfo.ArgAt<Bar>(1);", 25, 17)]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "var x = (Bar)callInfo[1];", 25, 30)]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "var x = callInfo[1] as Bar;", 25, 25)]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "var x = (Bar)callInfo.Args()[1];", 25, 30)]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "var x = callInfo.Args()[1] as Bar;", 25, 25)]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "var x = (BarBase)callInfo[1];")]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "var x = (object)callInfo[1];")]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "var x = (BarBase)callInfo.Args()[1];")]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "var x = (object)callInfo.Args()[1];")]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "var x = callInfo[1] as BarBase;")]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "var x = callInfo[1] as object;")]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "var x = callInfo.Args()[1] as BarBase;")]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "var x = callInfo.Args()[1] as object;")]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = (BarBase)callInfo[1];")]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = (object)callInfo[1];")]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = (BarBase)callInfo.Args()[1];")]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = (object)callInfo.Args()[1];")]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = callInfo[1] as BarBase;")]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = callInfo[1] as object;")]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = callInfo.Args()[1] as BarBase;")]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = callInfo.Args()[1] as object;")]
+        public override async Task ReportsNoDiagnostic_WhenConvertingTypeToAssignableTypeForIndirectCasts(string call, string argAccess)
+        {
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
+
+namespace MyNamespace
+{{
+    public interface Foo
+    {{
+        int Bar(int x, Bar y);
+
+        int this[int x, Bar y] {{ get; }}
+    }}
+
+    public class BarBase
+    {{
+    }}
+
+    public class Bar : BarBase
+    {{
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            ExceptionExtensions.ThrowsForAnyArgs({call}, callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }});
+        }}
+    }}
+}}";
+
+            await VerifyDiagnostic(source);
+        }
+
+        [Theory]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "callInfo.ArgAt<Bar>(1);", 33, 17)]
+        [InlineData("substitute.Foo(Arg.Any<int>(), Arg.Any<FooBar>())", "callInfo.ArgAt<Bar>(1);", 33, 17)]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "var x = (Bar)callInfo[1];", 33, 30)]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "var x = callInfo[1] as Bar;", 33, 25)]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "var x = (Bar)callInfo.Args()[1];", 33, 30)]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "var x = callInfo.Args()[1] as Bar;", 33, 25)]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "callInfo.ArgAt<Bar>(1);", 33, 17)]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "var x = (Bar)callInfo[1];", 33, 30)]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "var x = callInfo[1] as Bar;", 33, 25)]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "var x = (Bar)callInfo.Args()[1];", 33, 30)]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "var x = callInfo.Args()[1] as Bar;", 33, 25)]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<FooBar>()]", "callInfo.ArgAt<Bar>(1);", 33, 17)]
         public override async Task ReportsDiagnostic_WhenConvertingTypeToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn)
         {
             var source = $@"using System;
@@ -144,10 +203,18 @@ namespace MyNamespace
     {{
         int Bar(int x, double y);
 
+        int Foo(int x, FooBar bar);
+
         int this[int x, double y] {{ get; }}
+
+        int this[int x, FooBar bar] {{ get; }}
     }}
 
     public class Bar
+    {{
+    }}
+
+    public class FooBar : Bar
     {{
     }}
 

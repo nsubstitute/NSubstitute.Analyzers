@@ -8,6 +8,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string call, string argAccess);
 
+        Task ReportsNoDiagnostic_WhenConvertingTypeToAssignableTypeForIndirectCasts(string call, string argAccess);
+
         Task ReportsDiagnostic_WhenConvertingTypeToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn);
 
         Task ReportsNoDiagnostic_WhenConvertingTypeToSupportedType(string call, string argAccess);

@@ -108,20 +108,79 @@ End Namespace
         }
 
         [Theory]
-        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "callInfo.ArgAt(Of Bar)(1)", 17, 32)]
-        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = CType(callInfo(1), Bar)", 17, 46)]
-        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = TryCast(callInfo(1), Bar)", 17, 48)]
-        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = DirectCast(callInfo(1), Bar)", 17, 51)]
-        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = CType(callInfo.Args()(1), Bar)", 17, 46)]
-        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = TryCast(callInfo.Args()(1), Bar)", 17, 48)]
-        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = DirectCast(callInfo.Args()(1), Bar)", 17, 51)]
-        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "callInfo.ArgAt(Of Bar)(1)", 17, 32)]
-        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = CType(callInfo(1), Bar)", 17, 46)]
-        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = TryCast(callInfo(1), Bar)", 17, 48)]
-        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = DirectCast(callInfo(1), Bar)", 17, 51)]
-        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = CType(callInfo.Args()(1), Bar)", 17, 46)]
-        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = TryCast(callInfo.Args()(1), Bar)", 17, 48)]
-        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = DirectCast(callInfo.Args()(1), Bar)", 17, 51)]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = TryCast(callInfo(1), BarBase)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = CType(callInfo(1), BarBase)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo(1), BarBase)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = TryCast(callInfo.Args()(1), BarBase)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = CType(callInfo.Args()(1), BarBase)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo.Args()(1), BarBase)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = TryCast(callInfo(1), Object)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = CType(callInfo(1), Object)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo(1), Object)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = TryCast(callInfo.Args()(1), Object)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = CType(callInfo.Args()(1), Object)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo.Args()(1), Object)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = TryCast(callInfo(1), BarBase)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = CType(callInfo(1), BarBase)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo(1), BarBase)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = TryCast(callInfo.Args()(1), BarBase)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = CType(callInfo.Args()(1), BarBase)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo.Args()(1), BarBase)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = TryCast(callInfo(1), Object)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = CType(callInfo(1), Object)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo(1), Object)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = TryCast(callInfo.Args()(1), Object)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = CType(callInfo.Args()(1), Object)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo.Args()(1), Object)")]
+        public override async Task ReportsNoDiagnostic_WhenConvertingTypeToAssignableTypeForIndirectCasts(string call, string argAccess)
+        {
+            var source = $@"Imports System
+Imports NSubstitute
+
+Namespace MyNamespace
+    Interface Foo
+        Function Bar(ByVal x As Integer, ByVal y As Bar) As Integer
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Bar) As Integer
+    End Interface
+
+    Public Class BarBase
+    End Class
+
+    Public Class Bar
+        Inherits BarBase
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            SubstituteExtensions.Returns(Of Integer)({call}, Function(callInfo)
+                                   {argAccess}
+                                   Return 1
+                           End Function)
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifyDiagnostic(source);
+        }
+
+        [Theory]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "callInfo.ArgAt(Of Bar)(1)", 23, 32)]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = CType(callInfo(1), Bar)", 23, 46)]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = TryCast(callInfo(1), Bar)", 23, 48)]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = DirectCast(callInfo(1), Bar)", 23, 51)]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = CType(callInfo.Args()(1), Bar)", 23, 46)]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = TryCast(callInfo.Args()(1), Bar)", 23, 48)]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = DirectCast(callInfo.Args()(1), Bar)", 23, 51)]
+        [InlineData("substitute.Foo(Arg.Any(Of Integer)(), Arg.Any(Of FooBar)())", "callInfo.ArgAt(Of Bar)(1)", 23, 32)]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "callInfo.ArgAt(Of Bar)(1)", 23, 32)]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = CType(callInfo(1), Bar)", 23, 46)]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = TryCast(callInfo(1), Bar)", 23, 48)]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = DirectCast(callInfo(1), Bar)", 23, 51)]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = CType(callInfo.Args()(1), Bar)", 23, 46)]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = TryCast(callInfo.Args()(1), Bar)", 23, 48)]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = DirectCast(callInfo.Args()(1), Bar)", 23, 51)]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of FooBar)())", "Dim x = callInfo.ArgAt(Of Bar)(1)", 23, 40)]
         public override async Task ReportsDiagnostic_WhenConvertingTypeToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn)
         {
             var source = $@"Imports System
@@ -130,10 +189,16 @@ Imports NSubstitute
 Namespace MyNamespace
     Interface Foo
         Function Bar(ByVal x As Integer, ByVal y As Double) As Integer
+        Function Foo(ByVal x As Integer, ByVal bar As FooBar) As Integer
         Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Double) As Integer
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal bar As FooBar) As Integer
     End Interface
 
     Public Class Bar
+    End Class
+
+    Public Class FooBar
+        Inherits Bar
     End Class
 
     Public Class FooTests
