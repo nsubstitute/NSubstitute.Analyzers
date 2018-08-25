@@ -6,6 +6,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
     {
         Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string call, string argAccess, int expectedLine, int expectedColumn);
 
+        Task ReportsNoDiagnostic_WhenAccessingArgumentOutOfBound_AndPositionIsNotLiteralExpression(string call, string argAccess);
+
         Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string call, string argAccess);
 
         Task ReportsNoDiagnostic_WhenConvertingTypeToAssignableTypeForIndirectCasts(string call, string argAccess);

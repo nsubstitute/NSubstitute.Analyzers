@@ -71,6 +71,51 @@ namespace MyNamespace
         }
 
         [Theory]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", @"var x = 2; callInfo.ArgAt<int>(x);")]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", @"var x = 2; var y = callInfo[x];")]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", @"var x = 2; var y = callInfo.Args()[x];")]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", @"var x = 2; var y = callInfo.ArgTypes()[x];")]
+        [InlineData("substitute.Barr", @"var x = 2; callInfo.ArgAt<int>(x);")]
+        [InlineData("substitute.Barr", @"var x = 2; var y = callInfo[x];")]
+        [InlineData("substitute.Barr", @"var x = 2; var y = callInfo.Args()[x];")]
+        [InlineData("substitute.Barr", @"var x = 2; var y = callInfo.ArgTypes()[x];")]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())", @"var x = 2; callInfo.ArgAt<int>(x);")]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())", @"var x = 2; var y = callInfo[x];")]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())", @"var x = 2; var y = callInfo.Args()[x];")]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())", @"var x = 2; var y = callInfo.ArgTypes()[x];")]
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentOutOfBound_AndPositionIsNotLiteralExpression(string call, string argAccess)
+        {
+            var source = $@"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public interface Foo
+    {{
+        int Bar(int x, int y);
+
+        int Barr {{ get; }}
+
+        int this[int x, int y] {{ get; }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            SubstituteExtensions.Returns({call}, callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+        }}
+    }}
+}}";
+            await VerifyDiagnostic(source);
+        }
+
+        [Theory]
         [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", "callInfo.ArgAt<int>(0);")]
         [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", "callInfo.ArgAt<int>(1);")]
         [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", "var x = callInfo[0];")]

@@ -65,6 +65,56 @@ End Namespace
         }
 
         [Theory]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", @"Dim x = 2
+                                                                                  callInfo.ArgAt(Of Integer)(x)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", @"Dim x = 2
+                                                                                 Dim y = callInfo(x)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", @"Dim x = 2
+                                                                                  Dim y = callInfo.Args()(x)")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", @"Dim x = 2
+                                                                                  Dim y = callInfo.ArgTypes()(x)")]
+        [InlineData("substitute.Barr", @"Dim x = 2
+                                         callInfo.ArgAt(Of Integer)(x)")]
+        [InlineData("substitute.Barr", @"Dim x = 2
+                                         Dim y = callInfo(x)")]
+        [InlineData("substitute.Barr", @"Dim x = 2
+                                         Dim y = callInfo.Args()(x)")]
+        [InlineData("substitute.Barr", @"Dim x = 2
+                                         Dim y = callInfo.ArgTypes()(x)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", @"Dim x = 2
+                                                                                      callInfo.ArgAt(Of Integer)(x)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", @"Dim x = 2
+                                                                                      Dim y = callInfo(x)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", @"Dim x = 2
+                                                                                      Dim y = callInfo.Args()(x)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", @"Dim x = 2
+                                                                                      Dim y = callInfo.ArgTypes()(x)")]
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentOutOfBound_AndPositionIsNotLiteralExpression(string call, string argAccess)
+        {
+            var source = $@"Imports System
+Imports NSubstitute
+
+Namespace MyNamespace
+    Interface Foo
+        Function Bar(ByVal x As Integer, ByVal y As Integer) As Integer
+        ReadOnly Property Barr As Integer
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Integer) As Integer
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            {call}.Returns(Function(callInfo)
+                                   {argAccess}
+                                   Return 1
+                           End Function)
+        End Sub
+    End Class
+End Namespace";
+            await VerifyDiagnostic(source);
+        }
+
+        [Theory]
         [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "callInfo.ArgAt(Of Integer)(0)")]
         [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "callInfo.ArgAt(Of Integer)(1)")]
         [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "Dim x = callInfo(0)")]
