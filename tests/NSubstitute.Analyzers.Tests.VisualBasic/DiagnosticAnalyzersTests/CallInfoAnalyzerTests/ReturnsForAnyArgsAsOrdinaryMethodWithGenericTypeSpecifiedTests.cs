@@ -9,6 +9,52 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallI
     public class ReturnsForAnyArgsAsOrdinaryMethodWithGenericTypeSpecifiedTests : CallInfoDiagnosticVerifier
     {
         [Theory]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo.ArgAt(Of Integer)(1)")]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "Dim x = callInfo(1)")]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo(1) = 1")]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "Dim x = callInfo.Args()(1)")]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo.Args()(1) = 1")]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo.ArgTypes()(1) = GetType(Integer)")]
+        [InlineData("substitute.Barr", "callInfo.ArgAt(Of Integer)(1)")]
+        [InlineData("substitute.Barr", "Dim x = callInfo(1)")]
+        [InlineData("substitute.Barr", "callInfo(1) = 1")]
+        [InlineData("substitute.Barr", "Dim x = callInfo.Args()(1)")]
+        [InlineData("substitute.Barr", "callInfo.Args()(1) = 1")]
+        [InlineData("substitute.Barr", "callInfo.ArgTypes()(1) = GetType(Integer)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "callInfo.ArgAt(Of Integer)(1)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "Dim x = callInfo(1)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "callInfo(1) = 1")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "Dim x = callInfo.Args()(1)")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "callInfo.Args()(1) = 1")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "callInfo.ArgTypes()(1) = GetType(Integer)")]
+        public override async Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string call, string argAccess)
+        {
+            var source = $@"Imports System
+Imports NSubstitute
+
+Namespace MyNamespace
+    Interface Foo
+        Function Bar(ByVal x As Integer) As Integer
+        ReadOnly Property Barr As Integer
+        Default  ReadOnly Property Item(ByVal x As Integer) As Integer
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim returnedValue = {call}
+            SubstituteExtensions.ReturnsForAnyArgs(returnedValue, Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function)
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifyDiagnostic(source);
+        }
+
+        [Theory]
         [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo.ArgAt(Of Integer)(1)", 15, 32)]
         [InlineData("substitute(Arg.Any(Of Integer)())", "Dim x = callInfo(1)", 15, 40)]
         [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo(1) = 1", 15, 32)]

@@ -4,6 +4,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 {
     public interface ICallInfoDiagnosticVerifier
     {
+        Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string call, string argAccess);
+
         Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string call, string argAccess, int expectedLine, int expectedColumn);
 
         Task ReportsNoDiagnostic_WhenAccessingArgumentOutOfBound_AndPositionIsNotLiteralExpression(string call, string argAccess);

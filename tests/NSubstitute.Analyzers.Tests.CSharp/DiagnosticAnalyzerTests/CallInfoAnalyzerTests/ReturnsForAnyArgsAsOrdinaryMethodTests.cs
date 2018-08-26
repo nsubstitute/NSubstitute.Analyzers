@@ -9,6 +9,59 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAna
     public class ReturnsForAnyArgsAsOrdinaryMethodTests : CallInfoDiagnosticVerifier
     {
         [Theory]
+        [InlineData("substitute[Arg.Any<int>()]", "callInfo.ArgAt<int>(1);")]
+        [InlineData("substitute[Arg.Any<int>()]", "var x = callInfo[1];")]
+        [InlineData("substitute[Arg.Any<int>()]", "callInfo[1] = 1;")]
+        [InlineData("substitute[Arg.Any<int>()]", "var x = callInfo.Args()[1];")]
+        [InlineData("substitute[Arg.Any<int>()]", "callInfo.Args()[1] = 1;")]
+        [InlineData("substitute[Arg.Any<int>()]", "callInfo.ArgTypes()[1] = typeof(int);")]
+        [InlineData("substitute.Barr", "callInfo.ArgAt<int>(1);")]
+        [InlineData("substitute.Barr", "var x = callInfo[1];")]
+        [InlineData("substitute.Barr", "callInfo[1] = 1;")]
+        [InlineData("substitute.Barr", "var x = callInfo.Args()[1];")]
+        [InlineData("substitute.Barr", "callInfo.Args()[1] = 1;")]
+        [InlineData("substitute.Barr", "callInfo.ArgTypes()[1] = typeof(int);")]
+        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo.ArgAt<int>(1);")]
+        [InlineData("substitute.Bar(Arg.Any<int>())", "var x = callInfo[1];")]
+        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo[1] = 1;")]
+        [InlineData("substitute.Bar(Arg.Any<int>())", "var x = callInfo.Args()[1];")]
+        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo.Args()[1] = 1;")]
+        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo.ArgTypes()[1] = typeof(int);")]
+        public override async Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string call, string argAccess)
+        {
+            var source = $@"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public interface Foo
+    {{
+        int Bar(int x);
+
+        int Barr {{ get; }}
+
+        int this[int x] {{ get; }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            var returnedValue = {call};
+            SubstituteExtensions.ReturnsForAnyArgs(returnedValue, callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+        }}
+    }}
+}}";
+
+            await VerifyDiagnostic(source);
+        }
+
+        [Theory]
         [InlineData("substitute[Arg.Any<int>()]", "callInfo.ArgAt<int>(1);", 22, 17)]
         [InlineData("substitute[Arg.Any<int>()]", "var x = callInfo[1];", 22, 25)]
         [InlineData("substitute[Arg.Any<int>()]", "callInfo[1] = 1;", 22, 17)]
