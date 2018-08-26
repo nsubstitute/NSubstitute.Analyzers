@@ -10,7 +10,7 @@ namespace NSubstitute.Analyzers.Shared
 
         public DiagnosticDescriptor UnusedReceivedForOrdinaryMethod { get; } = DiagnosticDescriptors<T>.UnusedReceivedForOrdinaryMethod;
 
-        public DiagnosticDescriptor SubstituteForPartsOfUsedForInterface { get; } = DiagnosticDescriptors<T>.SubstituteForPartsOfUsedForInterface;
+        public DiagnosticDescriptor PartialSubstituteForUnsupportedType { get; } = DiagnosticDescriptors<T>.PartialSubstituteForUnsupportedType;
 
         public DiagnosticDescriptor SubstituteForWithoutAccessibleConstructor { get; } = DiagnosticDescriptors<T>.SubstituteForWithoutAccessibleConstructor;
 

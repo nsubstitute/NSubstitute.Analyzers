@@ -278,6 +278,33 @@ namespace NSubstitute.Analyzers.Shared {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can only substitute for parts of classes, not interfaces or delegates..
+        /// </summary>
+        internal static string PartialSubstituteForUnsupportedTypeDescription {
+            get {
+                return ResourceManager.GetString("PartialSubstituteForUnsupportedTypeDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can only substitute for parts of classes, not interfaces or delegates. Use {0} instead of {1} here..
+        /// </summary>
+        internal static string PartialSubstituteForUnsupportedTypeMessageFormat {
+            get {
+                return ResourceManager.GetString("PartialSubstituteForUnsupportedTypeMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Substitute.ForPartsOf used for interface..
+        /// </summary>
+        internal static string PartialSubstituteForUnsupportedTypeTitle {
+            get {
+                return ResourceManager.GetString("PartialSubstituteForUnsupportedTypeTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Re-entrant substitute call..
         /// </summary>
         internal static string ReEntrantSubstituteCallDescription {
@@ -305,6 +332,15 @@ namespace NSubstitute.Analyzers.Shared {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for a delegate. Use {0} instead..
+        /// </summary>
+        internal static string SubstituteConstructorArgumentsForDelegateMessageFormat {
+            get {
+                return ResourceManager.GetString("SubstituteConstructorArgumentsForDelegateMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for a delegate..
         /// </summary>
         internal static string SubstituteConstructorArgumentsForDelegateTitle {
@@ -319,6 +355,15 @@ namespace NSubstitute.Analyzers.Shared {
         internal static string SubstituteConstructorArgumentsForInterfaceDescription {
             get {
                 return ResourceManager.GetString("SubstituteConstructorArgumentsForInterfaceDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for an interface. Use {0} instead..
+        /// </summary>
+        internal static string SubstituteConstructorArgumentsForInterfaceMessageFormat {
+            get {
+                return ResourceManager.GetString("SubstituteConstructorArgumentsForInterfaceMessageFormat", resourceCulture);
             }
         }
         
@@ -400,24 +445,6 @@ namespace NSubstitute.Analyzers.Shared {
         internal static string SubstituteForInternalMemberTitle {
             get {
                 return ResourceManager.GetString("SubstituteForInternalMemberTitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can only substitute for parts of classes, not interfaces or delegates..
-        /// </summary>
-        internal static string SubstituteForPartsOfUsedForInterfaceDescription {
-            get {
-                return ResourceManager.GetString("SubstituteForPartsOfUsedForInterfaceDescription", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Substitute.ForPartsOf used for interface..
-        /// </summary>
-        internal static string SubstituteForPartsOfUsedForInterfaceTitle {
-            get {
-                return ResourceManager.GetString("SubstituteForPartsOfUsedForInterfaceTitle", resourceCulture);
             }
         }
         

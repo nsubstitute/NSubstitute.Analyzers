@@ -98,38 +98,11 @@ namespace NSubstitute.Analyzers.VisualBasic {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for a delegate. Use Substitute.For(Of {0}) instead..
-        /// </summary>
-        internal static string SubstituteConstructorArgumentsForDelegateMessageFormat {
-            get {
-                return ResourceManager.GetString("SubstituteConstructorArgumentsForDelegateMessageFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can not provide constructor arguments when substituting for an interface. Use Substitute.For(Of {0}) instead..
-        /// </summary>
-        internal static string SubstituteConstructorArgumentsForInterfaceMessageFormat {
-            get {
-                return ResourceManager.GetString("SubstituteConstructorArgumentsForInterfaceMessageFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via &lt;Assembly: InternalsVisibleTo(&quot;DynamicProxyGenAssembly2&quot;)&gt;.
         /// </summary>
         internal static string SubstituteForInternalMemberMessageFormat {
             get {
                 return ResourceManager.GetString("SubstituteForInternalMemberMessageFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can only substitute for parts of classes, not interfaces or delegates. Use Substitute.For(Of {0}) instead of Substitute.ForPartsOf(Of {0}) here..
-        /// </summary>
-        internal static string SubstituteForPartsOfUsedForInterfaceMessageFormat {
-            get {
-                return ResourceManager.GetString("SubstituteForPartsOfUsedForInterfaceMessageFormat", resourceCulture);
             }
         }
     }
