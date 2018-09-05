@@ -270,4 +270,76 @@
     <value>Re-entrant substitute call.</value>
     <comment>The title of the diagnostic.</comment>
   </data>
+     <data name="CallInfoArgumentOutOfRangeDescription" xml:space="preserve">
+    <value>Unable to find argument.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="CallInfoArgumentOutOfRangeMessageFormat" xml:space="preserve">
+    <value>There is no argument at position {0}</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="CallInfoArgumentOutOfRangeTitle" xml:space="preserve">
+    <value>Unable to find matching argument.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+    <data name="CallInfoCouldNotConvertParameterAtPositionDescription" xml:space="preserve">
+    <value>Couldn't convert parameter.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="CallInfoCouldNotConvertParameterAtPositionMessageFormat" xml:space="preserve">
+    <value>Couldn't convert parameter at position {0} to type {1}.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="CallInfoCouldNotConvertParameterAtPositionTitle" xml:space="preserve">
+    <value>Couldn't convert parameter.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+    <data name="CallInfoCouldNotFindArgumentToThisCallDescription" xml:space="preserve">
+    <value>Can not find an argument to this call.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="CallInfoCouldNotFindArgumentToThisCallMessageFormat" xml:space="preserve">
+    <value>Can not find an argument of type {0} to this call.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="CallInfoCouldNotFindArgumentToThisCallTitle" xml:space="preserve">
+    <value>Can not find an argument to this call.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+    <data name="CallInfoMoreThanOneArgumentOfTypeDescription" xml:space="preserve">
+    <value>There is more than one argument of given type to this call.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="CallInfoMoreThanOneArgumentOfTypeMessageFormat" xml:space="preserve">
+    <value>There is more than one argument of type {0} to this call.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="CallInfoMoreThanOneArgumentOfTypeTitle" xml:space="preserve">
+    <value>There is more than one argument of given type to this call.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+    <data name="CallInfoArgumentSetWithIncompatibleValueDescription" xml:space="preserve">
+    <value>Could not set value.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="CallInfoArgumentSetWithIncompatibleValueMessageFormat" xml:space="preserve">
+    <value>Could not set value of type {0} to argument {1} ({2}) because the types are incompatible.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="CallInfoArgumentSetWithIncompatibleValueTitle" xml:space="preserve">
+    <value>Could not set value.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
+    <data name="CallInfoArgumentIsNotOutOrRefDescription" xml:space="preserve">
+    <value>Could not set argument.</value>
+    <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+  <data name="CallInfoArgumentIsNotOutOrRefMessageFormat" xml:space="preserve">
+    <value>Could not set argument {0} ({1}) as it is not an out or ref argument.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+  <data name="CallInfoArgumentIsNotOutOrRefTitle" xml:space="preserve">
+    <value>Could not set argument.</value>
+    <comment>The title of the diagnostic.</comment>
+  </data>
 </root>

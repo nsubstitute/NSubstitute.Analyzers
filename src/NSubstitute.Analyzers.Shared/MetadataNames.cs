@@ -4,14 +4,14 @@
     {
         public const string NSubstituteAssemblyName = "NSubstitute";
         public const string NSubstituteSubstituteExtensionsFullTypeName = "NSubstitute.SubstituteExtensions";
+        public const string NSubstituteExceptionExtensionsFullTypeName = "NSubstitute.ExceptionExtensions.ExceptionExtensions";
         public const string NSubstituteCoreFullTypeName = "NSubstitute.Core.CallInfo";
         public const string NSubstituteSubstituteFullTypeName = "NSubstitute.Substitute";
-        public const string NSubstituteExceptionExtensionsFullTypeName = "NSubstitute.ExceptionExtensions.ExceptionExtensions";
         public const string NSubstituteFactoryFullTypeName = "NSubstitute.Core.ISubstituteFactory";
         public const string NSubstituteReturnsMethod = "Returns";
         public const string NSubstituteReturnsForAnyArgsMethod = "ReturnsForAnyArgs";
-        public const string NSubstituteThrows = "Throws";
-        public const string NSubstituteThrowsForAnyArgs = "ThrowsForAnyArgs";
+        public const string NSubstituteThrowsMethod = "Throws";
+        public const string NSubstituteThrowsForAnyArgsMethod = "ThrowsForAnyArgs";
         public const string NSubstituteDoMethod = "Do";
         public const string NSubstituteReceivedMethod = "Received";
         public const string NSubstituteReceivedWithAnyArgsMethod = "ReceivedWithAnyArgs";
@@ -26,5 +26,9 @@
         public const string NSubstituteWhenMethod = "When";
         public const string NSubstituteWhenForAnyArgsMethod = "WhenForAnyArgs";
         public const string NSubstituteWhenCalledType = "WhenCalled";
+        public const string CallInfoArgAtMethod = "ArgAt";
+        public const string CallInfoArgMethod = "Arg";
+        public const string CallInfoArgsMethod = "Args";
+        public const string CallInfoArgTypesMethod = "ArgTypes";
     }
 }

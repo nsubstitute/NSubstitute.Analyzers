@@ -62,6 +62,168 @@ namespace NSubstitute.Analyzers.Shared {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not set argument..
+        /// </summary>
+        internal static string CallInfoArgumentIsNotOutOrRefDescription {
+            get {
+                return ResourceManager.GetString("CallInfoArgumentIsNotOutOrRefDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not set argument {0} ({1}) as it is not an out or ref argument..
+        /// </summary>
+        internal static string CallInfoArgumentIsNotOutOrRefMessageFormat {
+            get {
+                return ResourceManager.GetString("CallInfoArgumentIsNotOutOrRefMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not set argument..
+        /// </summary>
+        internal static string CallInfoArgumentIsNotOutOrRefTitle {
+            get {
+                return ResourceManager.GetString("CallInfoArgumentIsNotOutOrRefTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to find argument..
+        /// </summary>
+        internal static string CallInfoArgumentOutOfRangeDescription {
+            get {
+                return ResourceManager.GetString("CallInfoArgumentOutOfRangeDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There is no argument at position {0}.
+        /// </summary>
+        internal static string CallInfoArgumentOutOfRangeMessageFormat {
+            get {
+                return ResourceManager.GetString("CallInfoArgumentOutOfRangeMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to find matching argument..
+        /// </summary>
+        internal static string CallInfoArgumentOutOfRangeTitle {
+            get {
+                return ResourceManager.GetString("CallInfoArgumentOutOfRangeTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not set value..
+        /// </summary>
+        internal static string CallInfoArgumentSetWithIncompatibleValueDescription {
+            get {
+                return ResourceManager.GetString("CallInfoArgumentSetWithIncompatibleValueDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not set value of type {0} to argument {1} ({2}) because the types are incompatible..
+        /// </summary>
+        internal static string CallInfoArgumentSetWithIncompatibleValueMessageFormat {
+            get {
+                return ResourceManager.GetString("CallInfoArgumentSetWithIncompatibleValueMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not set value..
+        /// </summary>
+        internal static string CallInfoArgumentSetWithIncompatibleValueTitle {
+            get {
+                return ResourceManager.GetString("CallInfoArgumentSetWithIncompatibleValueTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Couldn&apos;t convert parameter..
+        /// </summary>
+        internal static string CallInfoCouldNotConvertParameterAtPositionDescription {
+            get {
+                return ResourceManager.GetString("CallInfoCouldNotConvertParameterAtPositionDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Couldn&apos;t convert parameter at position {0} to type {1}..
+        /// </summary>
+        internal static string CallInfoCouldNotConvertParameterAtPositionMessageFormat {
+            get {
+                return ResourceManager.GetString("CallInfoCouldNotConvertParameterAtPositionMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Couldn&apos;t convert parameter..
+        /// </summary>
+        internal static string CallInfoCouldNotConvertParameterAtPositionTitle {
+            get {
+                return ResourceManager.GetString("CallInfoCouldNotConvertParameterAtPositionTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can not find an argument to this call..
+        /// </summary>
+        internal static string CallInfoCouldNotFindArgumentToThisCallDescription {
+            get {
+                return ResourceManager.GetString("CallInfoCouldNotFindArgumentToThisCallDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can not find an argument of type {0} to this call..
+        /// </summary>
+        internal static string CallInfoCouldNotFindArgumentToThisCallMessageFormat {
+            get {
+                return ResourceManager.GetString("CallInfoCouldNotFindArgumentToThisCallMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can not find an argument to this call..
+        /// </summary>
+        internal static string CallInfoCouldNotFindArgumentToThisCallTitle {
+            get {
+                return ResourceManager.GetString("CallInfoCouldNotFindArgumentToThisCallTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There is more than one argument of given type to this call..
+        /// </summary>
+        internal static string CallInfoMoreThanOneArgumentOfTypeDescription {
+            get {
+                return ResourceManager.GetString("CallInfoMoreThanOneArgumentOfTypeDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There is more than one argument of type {0} to this call..
+        /// </summary>
+        internal static string CallInfoMoreThanOneArgumentOfTypeMessageFormat {
+            get {
+                return ResourceManager.GetString("CallInfoMoreThanOneArgumentOfTypeMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There is more than one argument of given type to this call..
+        /// </summary>
+        internal static string CallInfoMoreThanOneArgumentOfTypeTitle {
+            get {
+                return ResourceManager.GetString("CallInfoMoreThanOneArgumentOfTypeTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Non-virtual members can not be intercepted..
         /// </summary>
         internal static string NonVirtualReceivedSetupSpecificationDescription {
