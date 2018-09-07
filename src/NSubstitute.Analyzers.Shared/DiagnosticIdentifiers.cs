@@ -15,5 +15,11 @@
         public static readonly string NonVirtualReceivedSetupSpecification = "NS011";
         public static readonly string NonVirtualWhenSetupSpecification = "NS012";
         public static readonly string ReEntrantSubstituteCall = "NS013";
+        public static readonly string CallInfoArgumentOutOfRange = "NS014";
+        public static readonly string CallInfoCouldNotConvertParameterAtPosition = "NS015";
+        public static readonly string CallInfoCouldNotFindArgumentToThisCall = "NS016";
+        public static readonly string CallInfoMoreThanOneArgumentOfType = "NS017";
+        public static readonly string CallInfoArgumentSetWithIncompatibleValue = "NS018";
+        public static readonly string CallInfoArgumentIsNotOutOrRef = "NS019";
     }
 }

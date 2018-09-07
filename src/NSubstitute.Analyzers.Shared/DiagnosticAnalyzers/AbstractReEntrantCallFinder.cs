@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
@@ -18,12 +19,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         public ImmutableList<ISymbol> GetReEntrantCalls(SemanticModel semanticModel, SyntaxNode rootNode)
         {
             var typeInfo = semanticModel.GetTypeInfo(rootNode);
-            if (IsCalledViaDelegate(semanticModel, typeInfo))
-            {
-                return ImmutableList<ISymbol>.Empty;
-            }
-
-            return GetReEntrantSymbols(semanticModel, rootNode);
+            return typeInfo.IsCallInfoDelegate(semanticModel) ? ImmutableList<ISymbol>.Empty : GetReEntrantSymbols(semanticModel, rootNode);
         }
 
         protected abstract ImmutableList<ISymbol> GetReEntrantSymbols(SemanticModel semanticModel, SyntaxNode rootNode);
@@ -55,24 +51,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
                    (symbol.ContainingType?.ToString().Equals(containingType, StringComparison.OrdinalIgnoreCase) == true ||
                     (symbol.ContainingType?.ConstructedFrom.Name)?.Equals(containingType, StringComparison.OrdinalIgnoreCase) == true);
-        }
-
-        private static bool IsCalledViaDelegate(SemanticModel semanticModel, TypeInfo typeInfo)
-        {
-            var typeSymbol = typeInfo.Type ?? typeInfo.ConvertedType;
-            var isCalledViaDelegate = typeSymbol != null &&
-                                      typeSymbol.TypeKind == TypeKind.Delegate &&
-                                      typeSymbol is INamedTypeSymbol namedTypeSymbol &&
-                                      namedTypeSymbol.ConstructedFrom.Equals(semanticModel.Compilation.GetTypeByMetadataName("System.Func`2")) &&
-                                      IsCallInfoParameter(namedTypeSymbol.TypeArguments.First());
-
-            return isCalledViaDelegate;
-        }
-
-        private static bool IsCallInfoParameter(ITypeSymbol symbol)
-        {
-            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.ToString().Equals(MetadataNames.NSubstituteCoreFullTypeName, StringComparison.OrdinalIgnoreCase) == true;
         }
     }
 }

@@ -17,8 +17,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             {
                 [MetadataNames.NSubstituteReturnsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
                 [MetadataNames.NSubstituteReturnsForAnyArgsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-                [MetadataNames.NSubstituteThrows] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName,
-                [MetadataNames.NSubstituteThrowsForAnyArgs] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName
+                [MetadataNames.NSubstituteThrowsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName,
+                [MetadataNames.NSubstituteThrowsForAnyArgsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName
             }.ToImmutableDictionary();
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
