@@ -574,5 +574,63 @@ namespace MyNamespace
 }}";
             await VerifyDiagnostic(source);
         }
+
+        [Fact]
+        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturns_AcrossMultipleFiles()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public interface IFoo
+    {
+        int Bar();
+    }
+
+    public interface IBar
+    {
+        int Foo();
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = Substitute.For<IFoo>();
+            substitute.Bar().ReturnsForAnyArgs(FooBar.ReturnThis());
+        }
+    }
+}";
+
+            var secondSource = @"
+using NSubstitute;
+
+namespace MyNamespace
+{
+    public class FooBar
+    {
+        public static int ReturnThis()
+        {
+            var substitute = Substitute.For<IBar>();
+            substitute.Foo().ReturnsForAnyArgs(1);
+            return 1;
+        }
+    }
+}";
+
+            var firstArgumentDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
+                Severity = DiagnosticSeverity.Warning,
+                Message =
+                    "ReturnsForAnyArgs() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: ReturnsForAnyArgs(x => FooBar.ReturnThis()).",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(20, 48)
+                }
+            };
+
+            await VerifyDiagnostic(new[] { source, secondSource }, firstArgumentDiagnostic);
+        }
     }
 }

@@ -55,7 +55,12 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         public async Task VerifyDiagnostic(string source, params DiagnosticResult[] expected)
         {
-            await VerifyDiagnostic(new[] { source }, Language, GetDiagnosticAnalyzer(), expected, false);
+            await VerifyDiagnostic(new[] { source }, expected);
+        }
+
+        public async Task VerifyDiagnostic(string[] source, params DiagnosticResult[] expected)
+        {
+            await VerifyDiagnostic(source, Language, GetDiagnosticAnalyzer(), expected, false);
         }
 
         protected abstract DiagnosticAnalyzer GetDiagnosticAnalyzer();
