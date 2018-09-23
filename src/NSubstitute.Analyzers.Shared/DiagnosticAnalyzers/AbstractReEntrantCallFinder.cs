@@ -16,17 +16,18 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             [MetadataNames.NSubstituteDoMethod] = MetadataNames.NSubstituteWhenCalledType
         }.ToImmutableDictionary();
 
-        public ImmutableList<ISymbol> GetReEntrantCalls(SemanticModel semanticModel, SyntaxNode rootNode)
+        public ImmutableList<ISymbol> GetReEntrantCalls(Compilation compilation, SyntaxNode rootNode)
         {
+            var semanticModel = compilation.GetSemanticModel(rootNode.SyntaxTree);
             var typeInfo = semanticModel.GetTypeInfo(rootNode);
-            return typeInfo.IsCallInfoDelegate(semanticModel) ? ImmutableList<ISymbol>.Empty : GetReEntrantSymbols(semanticModel, rootNode);
+            return typeInfo.IsCallInfoDelegate(semanticModel) ? ImmutableList<ISymbol>.Empty : GetReEntrantSymbols(compilation, rootNode);
         }
 
-        protected abstract ImmutableList<ISymbol> GetReEntrantSymbols(SemanticModel semanticModel, SyntaxNode rootNode);
+        protected abstract ImmutableList<ISymbol> GetReEntrantSymbols(Compilation compilation, SyntaxNode rootNode);
 
-        protected IEnumerable<SyntaxNode> GetRelatedNodes(SemanticModel semanticModel, SyntaxNode syntaxNode)
+        protected IEnumerable<SyntaxNode> GetRelatedNodes(Compilation compilation, SyntaxNode syntaxNode)
         {
-            var symbol = semanticModel.GetSymbolInfo(syntaxNode);
+            var symbol = compilation.GetSemanticModel(syntaxNode.SyntaxTree).GetSymbolInfo(syntaxNode);
             if (symbol.Symbol != null && symbol.Symbol.Locations.Any())
             {
                 foreach (var symbolLocation in symbol.Symbol.Locations.Where(location => location.SourceTree != null))

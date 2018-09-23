@@ -19,5 +19,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
         Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsForAnyArgsCallExists(string rootCall, string reEntrantCall);
 
         Task ReportsNoDiagnostic_WhenReEntrantSubstituteNotUsed(string firstReturn, string secondReturn);
+
+        Task ReportsDiagnostic_WhenUsingReEntrantReturns_AcrossMultipleFiles();
     }
 }

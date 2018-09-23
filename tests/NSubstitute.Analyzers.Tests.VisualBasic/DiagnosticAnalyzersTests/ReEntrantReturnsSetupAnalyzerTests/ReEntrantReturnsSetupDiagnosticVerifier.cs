@@ -23,6 +23,8 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.ReEnt
 
         public abstract Task ReportsNoDiagnostic_WhenReEntrantSubstituteNotUsed(string firstReturn, string secondReturn);
 
+        public abstract Task ReportsDiagnostic_WhenUsingReEntrantReturns_AcrossMultipleFiles();
+
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
             return new ReEntrantSetupAnalyzer();
