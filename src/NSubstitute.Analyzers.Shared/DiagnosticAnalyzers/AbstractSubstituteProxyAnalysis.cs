@@ -11,21 +11,31 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
     {
         public ITypeSymbol GetActualProxyTypeSymbol(SubstituteContext<TInvocationExpressionSyntax> substituteContext)
         {
-            var proxies = GetProxySymbols(substituteContext).ToList();
+            return GetActualProxyTypeSymbol(substituteContext.SyntaxNodeAnalysisContext.SemanticModel, substituteContext.InvocationExpression, substituteContext.MethodSymbol);
+        }
+
+        public ImmutableArray<ITypeSymbol> GetProxySymbols(SubstituteContext<TInvocationExpressionSyntax> substituteContext)
+        {
+            return GetProxySymbols(substituteContext.SyntaxNodeAnalysisContext.SemanticModel, substituteContext.InvocationExpression, substituteContext.MethodSymbol);
+        }
+
+        public ITypeSymbol GetActualProxyTypeSymbol(SemanticModel semanticModel, TInvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol methodSymbol)
+        {
+            var proxies = GetProxySymbols(semanticModel, invocationExpressionSyntax, methodSymbol).ToList();
 
             var classSymbol = proxies.FirstOrDefault(symbol => symbol.TypeKind == TypeKind.Class);
 
             return classSymbol ?? proxies.FirstOrDefault();
         }
 
-        public ImmutableArray<ITypeSymbol> GetProxySymbols(SubstituteContext<TInvocationExpressionSyntax> substituteContext)
+        public ImmutableArray<ITypeSymbol> GetProxySymbols(SemanticModel semanticModel, TInvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol methodSymbol)
         {
-            if (substituteContext.MethodSymbol.IsGenericMethod)
+            if (methodSymbol.IsGenericMethod)
             {
-                return substituteContext.MethodSymbol.TypeArguments;
+                return methodSymbol.TypeArguments;
             }
 
-            var arrayParameters = GetArrayInitializerArguments(substituteContext.InvocationExpression)?.ToList();
+            var arrayParameters = GetArrayInitializerArguments(invocationExpressionSyntax)?.ToList();
 
             if (arrayParameters == null)
             {
@@ -34,7 +44,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var proxyTypes = GetTypeOfLikeExpressions(arrayParameters)
                 .Select(exp =>
-                    substituteContext.SyntaxNodeAnalysisContext.SemanticModel
+                    semanticModel
                         .GetTypeInfo(exp.DescendantNodes().First()))
                 .Where(model => model.Type != null)
                 .Select(model => model.Type)

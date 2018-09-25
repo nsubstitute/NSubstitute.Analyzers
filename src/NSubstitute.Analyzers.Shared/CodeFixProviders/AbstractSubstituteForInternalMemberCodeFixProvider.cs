@@ -1,0 +1,86 @@
+using System.Collections.Immutable;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.CodeFixes;
+using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
+
+namespace NSubstitute.Analyzers.Shared.CodeFixProviders
+{
+    internal abstract class AbstractSubstituteForInternalMemberCodeFixProvider<TInvocationExpressionSyntax, TExpressionSyntax, TCompilationUnitSyntax> : AbstractSuppressDiagnosticsCodeFixProvider
+        where TInvocationExpressionSyntax : SyntaxNode
+        where TExpressionSyntax : SyntaxNode
+        where TCompilationUnitSyntax : SyntaxNode
+    {
+        public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.SubstituteForInternalMember);
+
+        public override async Task RegisterCodeFixesAsync(CodeFixContext context)
+        {
+            var diagnostic = context.Diagnostics.FirstOrDefault(diag => diag.Descriptor.Id == DiagnosticIdentifiers.SubstituteForInternalMember);
+            if (diagnostic == null)
+            {
+                return;
+            }
+
+            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+
+            if (!(root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true) is TInvocationExpressionSyntax invocationExpression))
+            {
+                return;
+            }
+
+            var syntaxReference = await GetDeclaringSyntaxReference(context, invocationExpression);
+
+            if (syntaxReference == null)
+            {
+                return;
+            }
+
+            var syntaxNode = await syntaxReference.GetSyntaxAsync();
+            var findNode = syntaxNode.FindNode(syntaxReference.Span);
+            var document = context.Document.Project.Solution.GetDocument(findNode.SyntaxTree);
+            var compilationUnitSyntax = FindCompilationUnitSyntax(findNode);
+
+            if (compilationUnitSyntax == null)
+            {
+                return;
+            }
+
+            var codeAction = CodeAction.Create("my name", token => CreateChangedDocument(token, compilationUnitSyntax, document), nameof(AbstractSubstituteForInternalMemberCodeFixProvider<TInvocationExpressionSyntax, TExpressionSyntax, TCompilationUnitSyntax>));
+            context.RegisterCodeFix(codeAction, diagnostic);
+        }
+
+        protected abstract AbstractSubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> GetSubstituteProxyAnalysis();
+
+        protected abstract TCompilationUnitSyntax AppendInternalsVisibleToAttribute(TCompilationUnitSyntax compilationUnitSyntax);
+
+        private Task<Document> CreateChangedDocument(CancellationToken cancellationToken, TCompilationUnitSyntax compilationUnitSyntax, Document document)
+        {
+            var withLeadingTrivia = AppendInternalsVisibleToAttribute(compilationUnitSyntax);
+            return Task.FromResult(document.WithSyntaxRoot(withLeadingTrivia.SyntaxTree.GetRoot()));
+        }
+
+        private async Task<SyntaxReference> GetDeclaringSyntaxReference(CodeFixContext context, TInvocationExpressionSyntax invocationExpression)
+        {
+            var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
+            var methodSymbol = semanticModel.GetSymbolInfo(invocationExpression).Symbol as IMethodSymbol;
+            var proxyAnalysis = GetSubstituteProxyAnalysis();
+            var actualProxyTypeSymbol = proxyAnalysis.GetActualProxyTypeSymbol(semanticModel, invocationExpression, methodSymbol);
+            var syntaxReference = actualProxyTypeSymbol.DeclaringSyntaxReferences.FirstOrDefault();
+            return syntaxReference;
+        }
+
+        private TCompilationUnitSyntax FindCompilationUnitSyntax(SyntaxNode syntaxNode)
+        {
+            var parent = syntaxNode.Parent;
+            while (parent != null && !(parent is TCompilationUnitSyntax))
+            {
+                parent = parent.Parent;
+            }
+
+            return parent as TCompilationUnitSyntax;
+        }
+    }
+}
