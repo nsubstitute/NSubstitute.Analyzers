@@ -29,6 +29,7 @@ namespace MyNamespace
 }";
             var newSource = @"using NSubstitute;
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
+
 namespace MyNamespace
 {
     internal class Foo

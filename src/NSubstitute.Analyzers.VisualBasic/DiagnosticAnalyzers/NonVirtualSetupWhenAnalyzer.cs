@@ -50,16 +50,16 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
                     }
 
                     break;
-                 case UnaryExpressionSyntax unaryExpressionSyntax:
-                     foreach (var syntaxNode in GetExpressionsForAnalysys(syntaxNodeContext, unaryExpressionSyntax.Operand))
+                case UnaryExpressionSyntax unaryExpressionSyntax:
+                    foreach (var syntaxNode in GetExpressionsForAnalysys(syntaxNodeContext, unaryExpressionSyntax.Operand))
                      {
                          yield return syntaxNode;
                      }
 
-                     break;
-                 case IdentifierNameSyntax identifierNameSyntax:
-                     var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(identifierNameSyntax);
-                     if (symbol.Symbol != null && symbol.Symbol.Locations.Any())
+                    break;
+                case IdentifierNameSyntax identifierNameSyntax:
+                    var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(identifierNameSyntax);
+                    if (symbol.Symbol != null && symbol.Symbol.Locations.Any())
                      {
                          var location = symbol.Symbol.Locations.First();
                          var syntaxNode = location.SourceTree.GetRoot().FindNode(location.SourceSpan);
@@ -77,7 +77,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
                          }
                      }
 
-                     break;
+                    break;
             }
 
             if (body == null)

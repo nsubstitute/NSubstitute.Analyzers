@@ -39,9 +39,8 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             }
 
             var syntaxNode = await syntaxReference.GetSyntaxAsync();
-            var findNode = syntaxNode.FindNode(syntaxReference.Span);
-            var document = context.Document.Project.Solution.GetDocument(findNode.SyntaxTree);
-            var compilationUnitSyntax = FindCompilationUnitSyntax(findNode);
+            var document = context.Document.Project.Solution.GetDocument(syntaxNode.SyntaxTree);
+            var compilationUnitSyntax = FindCompilationUnitSyntax(syntaxNode);
 
             if (compilationUnitSyntax == null)
             {
@@ -56,10 +55,12 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 
         protected abstract TCompilationUnitSyntax AppendInternalsVisibleToAttribute(TCompilationUnitSyntax compilationUnitSyntax);
 
-        private Task<Document> CreateChangedDocument(CancellationToken cancellationToken, TCompilationUnitSyntax compilationUnitSyntax, Document document)
+        private async Task<Document> CreateChangedDocument(CancellationToken cancellationToken, TCompilationUnitSyntax compilationUnitSyntax, Document document)
         {
-            var withLeadingTrivia = AppendInternalsVisibleToAttribute(compilationUnitSyntax);
-            return Task.FromResult(document.WithSyntaxRoot(withLeadingTrivia.SyntaxTree.GetRoot()));
+            var updatedCompilationUnitSyntax = AppendInternalsVisibleToAttribute(compilationUnitSyntax);
+            var root = await document.GetSyntaxRootAsync(cancellationToken);
+            var replaceNode = root.ReplaceNode(compilationUnitSyntax, updatedCompilationUnitSyntax);
+            return document.WithSyntaxRoot(replaceNode);
         }
 
         private async Task<SyntaxReference> GetDeclaringSyntaxReference(CodeFixContext context, TInvocationExpressionSyntax invocationExpression)

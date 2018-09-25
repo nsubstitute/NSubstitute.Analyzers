@@ -15,17 +15,20 @@ namespace NSubstitute.Analyzers.CSharp.CodeFixProviders
             return new SubstituteProxyAnalysis();
         }
 
-        protected override ICompilationUnitSyntax Annotate(CompilationUnitSyntax node)
+        protected override CompilationUnitSyntax AppendInternalsVisibleToAttribute(CompilationUnitSyntax compilationUnitSyntax)
         {
-            var classDeclarationSyntax = node as ClassDeclarationSyntax;
-            var compilationUnitSyntax = classDeclarationSyntax.Parent.Parent as CompilationUnitSyntax;
-
             return compilationUnitSyntax.WithAttributeLists(
                 SingletonList(
                     AttributeList(
                             SingletonSeparatedList(
                                 Attribute(
-                                        IdentifierName("InternalsVisibleTo"))
+                                        QualifiedName(
+                                            QualifiedName(
+                                                QualifiedName(
+                                                    IdentifierName("System"),
+                                                    IdentifierName("Runtime")),
+                                                IdentifierName("CompilerServices")),
+                                            IdentifierName("InternalsVisibleTo")))
                                     .WithArgumentList(
                                         AttributeArgumentList(
                                             SingletonSeparatedList(
@@ -33,7 +36,7 @@ namespace NSubstitute.Analyzers.CSharp.CodeFixProviders
                                                     LiteralExpression(
                                                         SyntaxKind.StringLiteralExpression,
                                                         Literal("DynamicProxyGenAssembly2"))))))))
-                        .WithTrailingTrivia(CarriageReturn)
+                        .WithTrailingTrivia(CarriageReturnLineFeed)
                         .WithTarget(
                             AttributeTargetSpecifier(
                                 Token(SyntaxKind.AssemblyKeyword)))));
