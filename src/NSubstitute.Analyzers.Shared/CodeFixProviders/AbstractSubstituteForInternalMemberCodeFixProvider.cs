@@ -26,7 +26,8 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
-            if (!(root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true) is TInvocationExpressionSyntax invocationExpression))
+            var findNode = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
+            if (!(findNode is TInvocationExpressionSyntax invocationExpression))
             {
                 return;
             }
@@ -75,13 +76,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 
         private TCompilationUnitSyntax FindCompilationUnitSyntax(SyntaxNode syntaxNode)
         {
-            var parent = syntaxNode.Parent;
-            while (parent != null && !(parent is TCompilationUnitSyntax))
-            {
-                parent = parent.Parent;
-            }
-
-            return parent as TCompilationUnitSyntax;
+            return syntaxNode.Parent.Ancestors().OfType<TCompilationUnitSyntax>().LastOrDefault();
         }
     }
 }
