@@ -19,28 +19,25 @@ namespace NSubstitute.Analyzers.CSharp.CodeFixProviders
 
         protected override CompilationUnitSyntax AppendInternalsVisibleToAttribute(CompilationUnitSyntax compilationUnitSyntax)
         {
-            return compilationUnitSyntax.WithAttributeLists(
-                compilationUnitSyntax.AttributeLists.Add(
-                    AttributeList(
-                            SingletonSeparatedList(
-                                Attribute(
-                                        QualifiedName(
-                                            QualifiedName(
-                                                QualifiedName(
-                                                    IdentifierName("System"),
-                                                    IdentifierName("Runtime")),
-                                                IdentifierName("CompilerServices")),
-                                            IdentifierName("InternalsVisibleTo")))
-                                    .WithArgumentList(
-                                        AttributeArgumentList(
-                                            SingletonSeparatedList(
-                                                AttributeArgument(
-                                                    LiteralExpression(
-                                                        SyntaxKind.StringLiteralExpression,
-                                                        Literal("DynamicProxyGenAssembly2"))))))))
-                        .WithTarget(
-                            AttributeTargetSpecifier(
-                                Token(SyntaxKind.AssemblyKeyword)))));
+            return compilationUnitSyntax.AddAttributeLists(
+                AttributeList(
+                    AttributeTargetSpecifier(
+                        Token(SyntaxKind.AssemblyKeyword)),
+                    SingletonSeparatedList(
+                        Attribute(
+                            QualifiedName(
+                                QualifiedName(
+                                    QualifiedName(
+                                        IdentifierName("System"),
+                                        IdentifierName("Runtime")),
+                                    IdentifierName("CompilerServices")),
+                                IdentifierName("InternalsVisibleTo")),
+                            AttributeArgumentList(
+                                SingletonSeparatedList(
+                                    AttributeArgument(
+                                        LiteralExpression(
+                                            SyntaxKind.StringLiteralExpression,
+                                            Literal("DynamicProxyGenAssembly2")))))))));
         }
     }
 }

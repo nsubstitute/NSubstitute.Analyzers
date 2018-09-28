@@ -12,8 +12,7 @@ namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders
     [ExportCodeFixProvider(LanguageNames.VisualBasic)]
     internal class SubstituteForInternalMemberCodeFixProvider : AbstractSubstituteForInternalMemberCodeFixProvider<InvocationExpressionSyntax, ExpressionSyntax, CompilationUnitSyntax>
     {
-        protected override AbstractSubstituteProxyAnalysis<InvocationExpressionSyntax, ExpressionSyntax>
-            GetSubstituteProxyAnalysis()
+        protected override AbstractSubstituteProxyAnalysis<InvocationExpressionSyntax, ExpressionSyntax> GetSubstituteProxyAnalysis()
         {
             return new SubstituteProxyAnalysis();
         }
