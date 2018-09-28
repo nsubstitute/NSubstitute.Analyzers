@@ -153,7 +153,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = Substitute.ForPartsOf<Foo>();
+            var substitute = Substitute.ForPartsOf<Foo.Bar>();
         }
     }
 }";
@@ -175,7 +175,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = Substitute.ForPartsOf<Foo>();
+            var substitute = Substitute.ForPartsOf<Foo.Bar>();
         }
     }
 }";

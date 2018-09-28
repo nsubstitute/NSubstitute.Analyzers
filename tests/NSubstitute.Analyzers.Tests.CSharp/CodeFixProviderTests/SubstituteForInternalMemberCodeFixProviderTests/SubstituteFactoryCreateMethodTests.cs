@@ -153,7 +153,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = SubstitutionContext.Current.SubstituteFactory.Create(new[] {typeof(Foo)}, null);
+            var substitute = SubstitutionContext.Current.SubstituteFactory.Create(new[] {typeof(Foo.Bar)}, null);
         }
     }
 }";
@@ -175,7 +175,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = SubstitutionContext.Current.SubstituteFactory.Create(new[] {typeof(Foo)}, null);
+            var substitute = SubstitutionContext.Current.SubstituteFactory.Create(new[] {typeof(Foo.Bar)}, null);
         }
     }
 }";

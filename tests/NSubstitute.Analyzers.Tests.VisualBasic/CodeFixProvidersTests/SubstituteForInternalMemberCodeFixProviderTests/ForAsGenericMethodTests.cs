@@ -17,7 +17,7 @@ Namespace MyNamespace
 
         Public Class FooTests
             Public Sub Test()
-                Dim substitute = NSubstitute.Substitute.For(Of Foo)
+                Dim substitute = NSubstitute.Substitute.For(Of Foo)()
             End Sub
         End Class
     End Namespace
@@ -33,7 +33,7 @@ Namespace MyNamespace
 
         Public Class FooTests
             Public Sub Test()
-                Dim substitute = NSubstitute.Substitute.For(Of Foo)
+                Dim substitute = NSubstitute.Substitute.For(Of Foo)()
             End Sub
         End Class
     End Namespace
@@ -53,7 +53,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.For(Of Foo)
+            Dim substitute = NSubstitute.Substitute.For(Of Foo)()
         End Sub
     End Class
 End Namespace
@@ -67,7 +67,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.For(Of Foo)
+            Dim substitute = NSubstitute.Substitute.For(Of Foo)()
         End Sub
     End Class
 End Namespace
@@ -87,7 +87,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.For(Of Foo)
+            Dim substitute = NSubstitute.Substitute.For(Of Foo)()
         End Sub
     End Class
 End Namespace
@@ -102,7 +102,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.For(Of Foo)
+            Dim substitute = NSubstitute.Substitute.For(Of Foo)()
         End Sub
     End Class
 End Namespace
@@ -123,7 +123,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.For(Of Foo)
+            Dim substitute = NSubstitute.Substitute.For(Of Foo.Bar)()
         End Sub
     End Class
 End Namespace
@@ -139,7 +139,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.For(Of Foo.Bar)
+            Dim substitute = NSubstitute.Substitute.For(Of Foo.Bar)()
         End Sub
     End Class
 End Namespace
@@ -158,7 +158,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            NSubstitute.Substitute.For(Of Foo)
+            NSubstitute.Substitute.For(Of Foo)()
         End Sub
     End Class
 End Namespace

@@ -123,7 +123,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, Nothing)
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo.Bar)}, Nothing)
         End Sub
     End Class
 End Namespace
@@ -139,7 +139,7 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, Nothing)
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo.Bar)}, Nothing)
         End Sub
     End Class
 End Namespace

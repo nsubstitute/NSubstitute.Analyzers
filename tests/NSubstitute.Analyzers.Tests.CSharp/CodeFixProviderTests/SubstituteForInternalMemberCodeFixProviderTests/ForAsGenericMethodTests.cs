@@ -153,7 +153,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = Substitute.For<Foo>();
+            var substitute = Substitute.For<Foo.Bar>();
         }
     }
 }";
@@ -175,7 +175,7 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = Substitute.For<Foo>();
+            var substitute = Substitute.For<Foo.Bar>();
         }
     }
 }";
