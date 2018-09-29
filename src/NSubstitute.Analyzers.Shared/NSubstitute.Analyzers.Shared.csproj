@@ -13,7 +13,6 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="1.3.2" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="1.3.2" PrivateAssets="all" />
     <PackageReference Update="NetStandard.Library" Version="$(NetStandardImplicitPackageVersion)" PrivateAssets="all" />
-    <PackageReference Update="StyleCop.Analyzers" Version="1.1.0-beta009" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Resources.resx">
