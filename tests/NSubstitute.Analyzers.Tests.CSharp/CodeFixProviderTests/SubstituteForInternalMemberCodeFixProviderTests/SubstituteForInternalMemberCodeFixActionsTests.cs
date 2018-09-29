@@ -37,7 +37,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyCodeActions(source, "Append InternalsVisibleTo attribute");
+            await VerifyCodeActions(source, "Add InternalsVisibleTo attribute");
         }
 
         [Fact]

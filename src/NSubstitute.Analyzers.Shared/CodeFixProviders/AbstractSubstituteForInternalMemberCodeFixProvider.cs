@@ -48,7 +48,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
                 return;
             }
 
-            var codeAction = CodeAction.Create("Append InternalsVisibleTo attribute", token => CreateChangedDocument(token, compilationUnitSyntax, document), nameof(AbstractSubstituteForInternalMemberCodeFixProvider<TInvocationExpressionSyntax, TExpressionSyntax, TCompilationUnitSyntax>));
+            var codeAction = CodeAction.Create("Add InternalsVisibleTo attribute", token => CreateChangedDocument(token, compilationUnitSyntax, document), nameof(AbstractSubstituteForInternalMemberCodeFixProvider<TInvocationExpressionSyntax, TExpressionSyntax, TCompilationUnitSyntax>));
             context.RegisterCodeFix(codeAction, diagnostic);
         }
 

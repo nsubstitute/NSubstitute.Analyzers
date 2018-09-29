@@ -34,7 +34,7 @@ Namespace MyNamespace
     End Namespace
 End Namespace
 ";
-            await VerifyCodeActions(source, "Append InternalsVisibleTo attribute");
+            await VerifyCodeActions(source, "Add InternalsVisibleTo attribute");
         }
 
         [Fact]
