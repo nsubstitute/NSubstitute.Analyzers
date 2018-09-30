@@ -1,13 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
-
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <RootNamespace>NSubstitute.Analyzers.VisualBasic</RootNamespace>
     <AssemblyName>NSubstitute.Analyzers.VisualBasic.Vsix</AssemblyName>
   </PropertyGroup>
-
   <PropertyGroup>
     <GeneratePkgDefFile>false</GeneratePkgDefFile>
     <IncludeAssemblyInVSIXContainer>false</IncludeAssemblyInVSIXContainer>
@@ -17,35 +15,26 @@
     <CopyOutputSymbolsToOutputDirectory>false</CopyOutputSymbolsToOutputDirectory>
     <VSSDKTargetPlatformRegRootSuffix>Roslyn</VSSDKTargetPlatformRegRootSuffix>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(BuildingInsideVisualStudio)' != 'true'">
     <!-- This property disables extension deployment for command line builds; required for AppVeyor and the build script -->
     <DeployExtension>False</DeployExtension>
   </PropertyGroup>
-
   <ItemGroup>
-    <DotNetCliToolReference  Include="Microsoft.VSSDK.BuildTools" Version="15.1.192" />
+    <DotNetCliToolReference Include="Microsoft.VSSDK.BuildTools" Version="15.1.192" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\NSubstitute.Analyzers.VisualBasic\NSubstitute.Analyzers.VisualBasic.csproj" />
     <ProjectReference Include="..\NSubstitute.Analyzers.Shared\NSubstitute.Analyzers.Shared.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <None Include="source.extension.vsixmanifest" />
   </ItemGroup>
-
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
-
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="Exists('$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets')" />
-
   <ItemGroup>
     <!-- https://github.com/dotnet/sdk/issues/433 -->
     <ProjectReference Update="@(ProjectReference)" AdditionalProperties="TargetFramework=netstandard1.1" />
-
     <!-- https://github.com/Microsoft/extendvs/issues/57 -->
     <ProjectReference Update="@(ProjectReference)" Name="%(Filename)" />
   </ItemGroup>
-
 </Project>
