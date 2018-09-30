@@ -797,7 +797,7 @@ namespace MyNamespace
         {
              Settings = AnalyzersSettings.CreateWithSuppressions("T:MyNamespace.Foo", DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
-            var source = @"using NSubstitute;
+             var source = @"using NSubstitute;
 
 namespace MyNamespace
 {
@@ -838,7 +838,7 @@ namespace MyNamespace
     }
 }";
 
-            var expectedDiagnostic = new[]
+             var expectedDiagnostic = new[]
             {
                 new DiagnosticResult
                 {
@@ -872,7 +872,7 @@ namespace MyNamespace
                 }
             };
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireGenericType()
