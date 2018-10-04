@@ -2,24 +2,24 @@
 {
     internal class DiagnosticIdentifiers
     {
-        public static readonly string NonVirtualSetupSpecification = "NS001";
-        public static readonly string UnusedReceived = "NS002";
-        public static readonly string PartialSubstituteForUnsupportedType = "NS003";
-        public static readonly string SubstituteForWithoutAccessibleConstructor = "NS004";
-        public static readonly string SubstituteForConstructorParametersMismatch = "NS005";
-        public static readonly string SubstituteForInternalMember = "NS006";
-        public static readonly string SubstituteConstructorMismatch = "NS007";
-        public static readonly string SubstituteMultipleClasses = "NS008";
-        public static readonly string SubstituteConstructorArgumentsForInterface = "NS009";
-        public static readonly string SubstituteConstructorArgumentsForDelegate = "NS010";
-        public static readonly string NonVirtualReceivedSetupSpecification = "NS011";
-        public static readonly string NonVirtualWhenSetupSpecification = "NS012";
-        public static readonly string ReEntrantSubstituteCall = "NS013";
-        public static readonly string CallInfoArgumentOutOfRange = "NS014";
-        public static readonly string CallInfoCouldNotConvertParameterAtPosition = "NS015";
-        public static readonly string CallInfoCouldNotFindArgumentToThisCall = "NS016";
-        public static readonly string CallInfoMoreThanOneArgumentOfType = "NS017";
-        public static readonly string CallInfoArgumentSetWithIncompatibleValue = "NS018";
-        public static readonly string CallInfoArgumentIsNotOutOrRef = "NS019";
+        public const string NonVirtualSetupSpecification = "NS1001";
+        public const string UnusedReceived = "NS1002";
+        public const string PartialSubstituteForUnsupportedType = "NS1003";
+        public const string SubstituteForWithoutAccessibleConstructor = "NS1004";
+        public const string SubstituteForConstructorParametersMismatch = "NS1005";
+        public const string SubstituteForInternalMember = "NS1006";
+        public const string SubstituteConstructorMismatch = "NS1007";
+        public const string SubstituteMultipleClasses = "NS1008";
+        public const string SubstituteConstructorArgumentsForInterface = "NS1009";
+        public const string SubstituteConstructorArgumentsForDelegate = "NS1010";
+        public const string NonVirtualReceivedSetupSpecification = "NS1011";
+        public const string NonVirtualWhenSetupSpecification = "NS1012";
+        public const string ReEntrantSubstituteCall = "NS1013";
+        public const string CallInfoArgumentOutOfRange = "NS1014";
+        public const string CallInfoCouldNotConvertParameterAtPosition = "NS1015";
+        public const string CallInfoCouldNotFindArgumentToThisCall = "NS1016";
+        public const string CallInfoMoreThanOneArgumentOfType = "NS1017";
+        public const string CallInfoArgumentSetWithIncompatibleValue = "NS1018";
+        public const string CallInfoArgumentIsNotOutOrRef = "NS1019";
     }
 }
