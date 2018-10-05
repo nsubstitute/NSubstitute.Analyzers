@@ -40,9 +40,9 @@ End Namespace";
 
             await VerifyCodeActions(source, new[]
             {
-                "Suppress NS001 for indexer Item in nsubstitute.json",
-                "Suppress NS001 for class Foo in nsubstitute.json",
-                "Suppress NS001 for namespace MyNamespace in nsubstitute.json"
+                "Suppress NS1000 for indexer Item in nsubstitute.json",
+                "Suppress NS1000 for class Foo in nsubstitute.json",
+                "Suppress NS1000 for namespace MyNamespace in nsubstitute.json"
             });
         }
 
@@ -72,9 +72,9 @@ End Namespace";
 
             await VerifyCodeActions(source, new[]
             {
-                "Suppress NS001 for property Bar in nsubstitute.json",
-                "Suppress NS001 for class Foo in nsubstitute.json",
-                "Suppress NS001 for namespace MyNamespace in nsubstitute.json"
+                "Suppress NS1000 for property Bar in nsubstitute.json",
+                "Suppress NS1000 for class Foo in nsubstitute.json",
+                "Suppress NS1000 for namespace MyNamespace in nsubstitute.json"
             });
         }
 
@@ -103,9 +103,9 @@ End Namespace
 ";
             await VerifyCodeActions(source, new[]
             {
-                "Suppress NS001 for method Bar in nsubstitute.json",
-                "Suppress NS001 for class Foo in nsubstitute.json",
-                "Suppress NS001 for namespace MyNamespace in nsubstitute.json"
+                "Suppress NS1000 for method Bar in nsubstitute.json",
+                "Suppress NS1000 for class Foo in nsubstitute.json",
+                "Suppress NS1000 for namespace MyNamespace in nsubstitute.json"
             });
         }
 

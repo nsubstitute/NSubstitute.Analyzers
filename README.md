@@ -16,8 +16,8 @@ Analyzers to detect possible NSubstitute usage problems, such as attempts to set
 
 ## Diagnostics
 
-* Non-virtual member setup detected (`NonVirtualSetupSpecification`, `NS001`)
-* `Received` used without a following method call. (`UnusedReceived`, `NS002`)
+* Non-virtual member setup detected (`NonVirtualSetupSpecification`, `NS1000`)
+* `Received` used without a following method call. (`UnusedReceived`, `NS5000`)
 
 ## Support
 

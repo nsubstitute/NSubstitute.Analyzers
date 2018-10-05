@@ -1,7 +1,10 @@
+using System;
 using System.Linq;
 using System.Reflection;
 using FluentAssertions;
+using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Shared;
+using NSubstitute.Analyzers.Shared.Extensions;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticIdentifierTests
@@ -10,37 +13,41 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticIdentifierTests
     {
         private const string IdentifierPrefix = "NS";
 
-        private readonly FieldInfo[] _diagnosticIdentifiers = typeof(DiagnosticIdentifiers)
+        private static readonly FieldInfo[] DiagnosticIdentifiers = typeof(DiagnosticIdentifiers)
             .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
             .Where(fieldInfo => fieldInfo.IsLiteral && fieldInfo.IsInitOnly == false)
             .ToArray();
 
+        private static readonly PropertyInfo[] DiagnosticDescriptors = typeof(DiagnosticDescriptors<SharedResourceManager>)
+            .GetProperties(BindingFlags.Public | BindingFlags.Static)
+            .ToArray();
+
         [Fact]
-        public void DiagnosticIdentifiers_HasConstantValue()
+        public void DiagnosticIdentifiers_ShouldHaveConstantValue()
         {
-            _diagnosticIdentifiers.Should().BeEquivalentTo(typeof(DiagnosticIdentifiers).GetFields());
+            DiagnosticIdentifiers.Should().BeEquivalentTo(typeof(DiagnosticIdentifiers).GetFields());
         }
 
         [Fact]
         public void DiagnosticIdentifiers_StartsWithProperPrefix()
         {
-            var invalidDiagnosticNames = _diagnosticIdentifiers.Where(info => ((string)info.GetRawConstantValue()).StartsWith(IdentifierPrefix) == false);
+            var invalidDiagnosticNames = DiagnosticIdentifiers.Where(info => ((string)info.GetRawConstantValue()).StartsWith(IdentifierPrefix) == false);
 
             invalidDiagnosticNames.Should().BeEmpty($"because all diagnostics should start with {IdentifierPrefix} prefix");
         }
 
         [Fact]
-        public void DiagnosticIdentifiers_BelongToSpecificCategory()
+        public void DiagnosticIdentifiers_ShouldBelongToSpecificCategory()
         {
-            var invalidCategories = _diagnosticIdentifiers.Where(info => GetCategoryId(info) == 0);
+            var invalidCategories = DiagnosticIdentifiers.Where(info => GetCategoryId(info) == 0);
 
             invalidCategories.Should().BeEmpty("because all diagnostics should belong to specific category");
         }
 
         [Fact]
-        public void DiagnosticIdentifiersCategories_ShouldHaveConsecutiveNumbers()
+        public void DiagnosticIdentifiers_Categories_ShouldHaveConsecutiveNumbers()
         {
-            var groupedCategories = _diagnosticIdentifiers.Select(GetCategoryId)
+            var groupedCategories = DiagnosticIdentifiers.Select(GetCategoryId)
                 .GroupBy(category => category)
                 .Select(group => group.Key)
                 .OrderBy(category => category)
@@ -52,16 +59,27 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticIdentifierTests
         }
 
         [Fact]
-        public void DiagnosticIdentifiersWithinCategory_ShouldHaveConsecutiveNumbers()
+        public void DiagnosticIdentifiers_WithinCategory_ShouldHaveConsecutiveNumbers()
         {
-            var groupedIdentifiers = _diagnosticIdentifiers
+            var groupedIdentifiers = DiagnosticIdentifiers
                 .GroupBy(GetCategoryId)
                 .Select(group => group.Select(GetDiagnosticId).OrderBy(diagnostic => diagnostic).ToList())
                 .ToList();
 
-            var expectedGroupedIdentifiers = groupedIdentifiers.Select(group => Enumerable.Range(1, group.Count));
+            var expectedGroupedIdentifiers = groupedIdentifiers.Select(group => Enumerable.Range(0, group.Count));
 
             groupedIdentifiers.Should().BeEquivalentTo(expectedGroupedIdentifiers);
+        }
+
+        [Fact]
+        public void DiagnosticDescriptors_Categories_ShouldMatchDiagnosticIdentifiers()
+        {
+            var diagnosticDescriptors = DiagnosticDescriptors.Select(desc => (DiagnosticDescriptor)desc.GetValue(null)).ToList();
+            var descriptionEnumMap = ((DiagnosticCategory[])Enum.GetValues(typeof(DiagnosticCategory))).ToDictionary(value => value.GetDisplayName());
+
+            var invalidCategoriesDescriptor = diagnosticDescriptors.Where(desc => (int)descriptionEnumMap[desc.Category] != GetCategoryId(desc.Id));
+
+            invalidCategoriesDescriptor.Should().BeEmpty("because descriptor category should match identifier category");
         }
 
         private int GetCategoryId(FieldInfo fieldInfo)
