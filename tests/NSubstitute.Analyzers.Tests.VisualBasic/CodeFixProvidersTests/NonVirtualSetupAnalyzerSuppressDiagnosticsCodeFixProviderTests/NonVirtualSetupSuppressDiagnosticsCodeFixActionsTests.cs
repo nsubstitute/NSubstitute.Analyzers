@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Shared.Settings;
 using NSubstitute.Analyzers.Shared.TinyJson;
 using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
@@ -40,9 +41,9 @@ End Namespace";
 
             await VerifyCodeActions(source, new[]
             {
-                "Suppress NS001 for indexer Item in nsubstitute.json",
-                "Suppress NS001 for class Foo in nsubstitute.json",
-                "Suppress NS001 for namespace MyNamespace in nsubstitute.json"
+                $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for indexer Item in nsubstitute.json",
+                $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for class Foo in nsubstitute.json",
+                $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for namespace MyNamespace in nsubstitute.json"
             });
         }
 
@@ -72,9 +73,9 @@ End Namespace";
 
             await VerifyCodeActions(source, new[]
             {
-                "Suppress NS001 for property Bar in nsubstitute.json",
-                "Suppress NS001 for class Foo in nsubstitute.json",
-                "Suppress NS001 for namespace MyNamespace in nsubstitute.json"
+                $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for property Bar in nsubstitute.json",
+                $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for class Foo in nsubstitute.json",
+                $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for namespace MyNamespace in nsubstitute.json"
             });
         }
 
@@ -103,9 +104,9 @@ End Namespace
 ";
             await VerifyCodeActions(source, new[]
             {
-                "Suppress NS001 for method Bar in nsubstitute.json",
-                "Suppress NS001 for class Foo in nsubstitute.json",
-                "Suppress NS001 for namespace MyNamespace in nsubstitute.json"
+                $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for method Bar in nsubstitute.json",
+                $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for class Foo in nsubstitute.json",
+                $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for namespace MyNamespace in nsubstitute.json"
             });
         }
 
