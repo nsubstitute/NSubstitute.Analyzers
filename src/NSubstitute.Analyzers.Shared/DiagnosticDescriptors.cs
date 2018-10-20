@@ -12,6 +12,8 @@ namespace NSubstitute.Analyzers.Shared
                 $"{typeof(T).GetTypeInfo().Assembly.GetName().Name}.Resources",
                 typeof(T).GetTypeInfo().Assembly);
 
+        private static string helpLinkUriFormat = "https://github.com/nsubstitute/NSubstitute.Analyzers/blob/master/documentation/{0}.md";
+
         public static DiagnosticDescriptor NonVirtualSetupSpecification { get; } =
             CreateDiagnosticDescriptor(
                 name: nameof(NonVirtualSetupSpecification),
@@ -177,7 +179,7 @@ namespace NSubstitute.Analyzers.Shared
             var title = GetDiagnosticResourceString(name, nameof(DiagnosticDescriptor.Title));
             var messageFormat = GetDiagnosticResourceString(name, nameof(DiagnosticDescriptor.MessageFormat));
             var description = GetDiagnosticResourceString(name, nameof(DiagnosticDescriptor.Description));
-            return new DiagnosticDescriptor(id, title, messageFormat, category, defaultSeverity, isEnabledByDefault, description);
+            return new DiagnosticDescriptor(id, title, messageFormat, category, defaultSeverity, isEnabledByDefault, description, string.Format(helpLinkUriFormat, id));
         }
 
         private static LocalizableResourceString GetDiagnosticResourceString(string name, string propertyName)

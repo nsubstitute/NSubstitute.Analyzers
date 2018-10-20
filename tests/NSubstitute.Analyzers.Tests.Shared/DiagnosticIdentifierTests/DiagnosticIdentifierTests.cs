@@ -82,6 +82,17 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticIdentifierTests
             invalidCategoriesDescriptor.Should().BeEmpty("because descriptor category should match identifier category");
         }
 
+        [Fact]
+        public void DiagnosticDescriptors_HelpLinkUri_ShouldPointToProperDiagnosticDocumentation()
+        {
+            var diagnosticDescriptors = DiagnosticDescriptors.Select(desc => (DiagnosticDescriptor)desc.GetValue(null)).ToList();
+
+            var invalidHelpLinkDescriptors = diagnosticDescriptors
+                .Where(diagnostic => diagnostic.HelpLinkUri != $"https://github.com/nsubstitute/NSubstitute.Analyzers/blob/master/documentation/{diagnostic.Id}.md");
+
+            invalidHelpLinkDescriptors.Should().BeEmpty();
+        }
+
         private int GetCategoryId(FieldInfo fieldInfo)
         {
             return GetCategoryId((string)fieldInfo.GetRawConstantValue());
