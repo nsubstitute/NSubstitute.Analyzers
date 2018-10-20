@@ -1,119 +1,61 @@
-using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Reflection;
 using FluentAssertions;
-using FluentAssertions.Execution;
-using FluentAssertions.Primitives;
 using Markdig;
 using Markdig.Syntax;
+using Microsoft.CodeAnalysis;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.Shared.DocumentationTests
 {
     public class DocumentationTests
     {
-        [Fact]
-        public void DiagnosticDocumentation_ShouldHave_ProperHeadings()
+        public static IEnumerable<object[]> DiagnosticDescriptors { get; } = DiagnosticIdentifierTests.DiagnosticIdentifierTests.DiagnosticDescriptors.Select(diag => new object[] { diag }).ToList();
+
+        [Theory]
+        [MemberData(nameof(DiagnosticDescriptors))]
+        public void DiagnosticDocumentation_ShouldHave_ProperHeadings(DiagnosticDescriptor descriptor)
         {
-            var documentation = @"# NS1001
-
-<table>
-<tr>
-  <td>CheckId</td>
-  <td>NS1001</td>
-</tr>
-<tr>
-  <td>Category</td>
-  <td>Non virtual substitution</td>
-</tr>
-</table>
-
-## Cause
-
-NSubstitute used with non-virtual members of class.
-
-## Rule description
-
-A violation of this rule occurs when NSubstitute's features like:
-- `Received`
-- `ReceivedWithAnyArgs`
-- `DidNotReceive()`
-- `DidNotReceiveWithAnyArgs()`
-
-are used with non-virtual members of a class.
-
-## How to fix violations
-
-To fix a violation of this rule, make the member of your class virtual or substitute for interface.
-
-## How to suppress violations
-
-This warning can only be suppressed by disabling the warning in the **ruleset** file for the project.";
-            var markdownPipeline = new MarkdownPipelineBuilder()
-                .UseAdvancedExtensions()
-                .UsePreciseSourceLocation()
-                .Build();
-
-            var markdownDocument = Markdown.Parse(documentation, markdownPipeline)
-                .ToList();
+            var markdownDocument = GetParsedDocumentation(descriptor);
 
             var layout = GetLayoutByHeadings(markdownDocument);
 
             markdownDocument.First().Should().BeOfType<HeadingBlock>();
-            AssertHeadingsLayout(layout, "NS1001");
+            AssertHeadingsLayout(layout, descriptor.Id);
         }
 
-        [Fact]
-        public void DiagnosticDocumentation_ShouldHave_ProperContent()
+        [Theory]
+        [MemberData(nameof(DiagnosticDescriptors))]
+        public void DiagnosticDocumentation_ShouldHave_ProperContent(DiagnosticDescriptor descriptor)
         {
-            var documentation = @"# NS1001
+            var markdownDocument = GetParsedDocumentation(descriptor);
 
-<table>
-<tr>
-  <td>CheckId</td>
-  <td>NS1001</td>
-</tr>
-<tr>
-  <td>Category</td>
-  <td>Non virtual substitution</td>
-</tr>
-</table>
+            var layout = GetLayoutByHeadings(markdownDocument);
 
-## Cause
+            markdownDocument.First().Should().BeOfType<HeadingBlock>();
+            AssertContent(layout, descriptor.Id, descriptor.Category);
+        }
 
-NSubstitute used with non-virtual members of class.
-
-## Rule description
-
-A violation of this rule occurs when NSubstitute's features like:
-- `Received`
-- `ReceivedWithAnyArgs`
-- `DidNotReceive()`
-- `DidNotReceiveWithAnyArgs()`
-
-are used with non-virtual members of a class.
-
-## How to fix violations
-
-To fix a violation of this rule, make the member of your class virtual or substitute for interface.
-
-## How to suppress violations
-
-This warning can only be suppressed by disabling the warning in the **ruleset** file for the project.";
+        private static List<Block> GetParsedDocumentation(DiagnosticDescriptor descriptor)
+        {
+            var directoryName = GetDocumentationDirectoryPath();
+            var fileInfo = new FileInfo(Path.Combine(directoryName, $"{descriptor.Id}.md"));
 
             var markdownPipeline = new MarkdownPipelineBuilder()
                 .UseAdvancedExtensions()
                 .UsePreciseSourceLocation()
                 .Build();
 
-            var markdownDocument = Markdown.Parse(documentation, markdownPipeline)
+            var markdownDocument = Markdown.Parse(File.ReadAllText(fileInfo.FullName), markdownPipeline)
                 .ToList();
+            return markdownDocument;
+        }
 
-            var layout = GetLayoutByHeadings(markdownDocument);
-
-            markdownDocument.First().Should().BeOfType<HeadingBlock>();
-            AssertContent(layout, "NS1001", "Non virtual substitution");
+        private static string GetDocumentationDirectoryPath()
+        {
+            return Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "..\\..\\..\\..\\..\\documentation"));
         }
 
         private List<HeadingContainer> GetLayoutByHeadings(List<Block> blocks)
@@ -141,29 +83,6 @@ This warning can only be suppressed by disabling the warning in the **ruleset** 
             return blockedLayout;
         }
 
-        private void AssertContent(List<HeadingContainer> layout, string ruleId, string ruleCategory)
-        {
-            AssertTableContent(layout, ruleId, ruleCategory);
-        }
-
-        private void AssertTableContent(List<HeadingContainer> layout, string ruleId, string ruleCategory)
-        {
-            var children = layout[0].Children;
-            children.Should().HaveCount(1);
-            children.Single().Should().BeOfType<HtmlBlock>();
-            var formattableString = $@"<table>
-<tr>
-  <td>CheckId</td>
-  <td>{ruleId}</td>
-</tr>
-<tr>
-  <td>Category</td>
-  <td>{ruleCategory}</td>
-</tr>
-</table>".Replace("\r", string.Empty);
-            children.Single().As<HtmlBlock>().Lines.ToString().Should().Be(formattableString);
-        }
-
         private void AssertHeadingsLayout(List<HeadingContainer> layout, string ruleId)
         {
             layout.Should().HaveCount(5);
@@ -181,6 +100,35 @@ This warning can only be suppressed by disabling the warning in the **ruleset** 
             inline.Should().HaveCount(1);
             heading.Level.Should().Be(expectedLevel);
             inline[0].ToString().Should().Be(expectedText);
+        }
+
+        private void AssertContent(List<HeadingContainer> layout, string ruleId, string ruleCategory)
+        {
+            AssertTableContent(layout, ruleId, ruleCategory);
+            AssertHeaderContentNonEmpty(layout);
+        }
+
+        private void AssertHeaderContentNonEmpty(List<HeadingContainer> layout)
+        {
+            layout.Should().OnlyContain(container => container.Children != null && container.Children.Any());
+        }
+
+        private void AssertTableContent(List<HeadingContainer> layout, string ruleId, string ruleCategory)
+        {
+            var children = layout[0].Children;
+            children.Should().HaveCount(1);
+            children.Single().Should().BeOfType<HtmlBlock>();
+            var expectedInfo = $@"<table>
+<tr>
+  <td>CheckId</td>
+  <td>{ruleId}</td>
+</tr>
+<tr>
+  <td>Category</td>
+  <td>{ruleCategory}</td>
+</tr>
+</table>".Replace("\r", string.Empty);
+            children.Single().As<HtmlBlock>().Lines.ToString().Should().Be(expectedInfo);
         }
 
         private class HeadingContainer
