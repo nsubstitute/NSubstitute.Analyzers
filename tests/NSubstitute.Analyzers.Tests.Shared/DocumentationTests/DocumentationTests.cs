@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -5,6 +6,7 @@ using System.Reflection;
 using FluentAssertions;
 using Markdig;
 using Markdig.Syntax;
+using Markdig.Syntax.Inlines;
 using Microsoft.CodeAnalysis;
 using Xunit;
 
@@ -13,6 +15,34 @@ namespace NSubstitute.Analyzers.Tests.Shared.DocumentationTests
     public class DocumentationTests
     {
         public static IEnumerable<object[]> DiagnosticDescriptors { get; } = DiagnosticIdentifierTests.DiagnosticIdentifierTests.DiagnosticDescriptors.Select(diag => new object[] { diag }).ToList();
+
+        [Fact]
+        public void DocumentationSummary_ShouldList_Documentation_ForAllDiagnostics()
+        {
+            var directoryName = GetDocumentationDirectoryPath();
+            var fileInfo = new FileInfo(Path.Combine(directoryName, "Documentation.md"));
+
+            var documentation = GetParsedDocumentation(fileInfo);
+
+            var layout = GetLayoutByHeadings(documentation);
+
+            var containerInlines = layout[0].Children.OfType<ParagraphBlock>()
+                .SelectMany(paragraph => paragraph.Inline)
+                .OfType<ContainerInline>();
+
+            var linkLines = Traverse(containerInlines, inline => inline.OfType<ContainerInline>())
+                .OfType<LinkInline>()
+                .ToList();
+
+            var linkUrls = linkLines.Select(link => link.Url).ToList();
+            var literals = linkLines.SelectMany(link => link).OfType<LiteralInline>().Select(literal => literal.Content.ToString()).ToList();
+
+            var diagnosticIds = DiagnosticIdentifierTests.DiagnosticIdentifierTests.DiagnosticDescriptors.Select(descriptor => descriptor.Id).Distinct().ToList();
+
+            linkUrls.Should().BeEquivalentTo(diagnosticIds);
+            literals.Should().BeEquivalentTo(diagnosticIds);
+            linkUrls.Should().BeEquivalentTo(literals, settings => settings.WithStrictOrdering());
+        }
 
         [Theory]
         [MemberData(nameof(DiagnosticDescriptors))]
@@ -43,6 +73,11 @@ namespace NSubstitute.Analyzers.Tests.Shared.DocumentationTests
             var directoryName = GetDocumentationDirectoryPath();
             var fileInfo = new FileInfo(Path.Combine(directoryName, $"{descriptor.Id}.md"));
 
+            return GetParsedDocumentation(fileInfo);
+        }
+
+        private static List<Block> GetParsedDocumentation(FileInfo fileInfo)
+        {
             var markdownPipeline = new MarkdownPipelineBuilder()
                 .UseAdvancedExtensions()
                 .UsePreciseSourceLocation()
@@ -127,8 +162,24 @@ namespace NSubstitute.Analyzers.Tests.Shared.DocumentationTests
   <td>Category</td>
   <td>{ruleCategory}</td>
 </tr>
-</table>".Replace("\r", string.Empty);
+</table>".Replace("\r", string.Empty); // rendering issue of markdig
             children.Single().As<HtmlBlock>().Lines.ToString().Should().Be(expectedInfo);
+        }
+
+        private static IEnumerable<T> Traverse<T>(
+            IEnumerable<T> items,
+            Func<T, IEnumerable<T>> childSelector)
+        {
+            var stack = new Stack<T>(items);
+            while (stack.Any())
+            {
+                var next = stack.Pop();
+                yield return next;
+                foreach (var child in childSelector(next))
+                {
+                    stack.Push(child);
+                }
+            }
         }
 
         private class HeadingContainer

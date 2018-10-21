@@ -42,6 +42,7 @@ ProjectSection(SolutionItems) = preProject
 	documentation\NS4000.md = documentation\NS4000.md
 	documentation\NS5000.md = documentation\NS5000.md
 	documentation\Configuration.md = documentation\Configuration.md
+	documentation\Documentation.md = documentation\Documentation.md
 EndProjectSection
 EndProject
 Global
