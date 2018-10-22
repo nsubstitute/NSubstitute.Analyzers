@@ -16,34 +16,6 @@ namespace NSubstitute.Analyzers.Tests.Shared.DocumentationTests
     {
         public static IEnumerable<object[]> DiagnosticDescriptors { get; } = DiagnosticIdentifierTests.DiagnosticIdentifierTests.DiagnosticDescriptors.Select(diag => new object[] { diag }).ToList();
 
-        [Fact]
-        public void DocumentationSummary_ShouldList_Documentation_ForAllDiagnostics()
-        {
-            var directoryName = GetDocumentationDirectoryPath();
-            var fileInfo = new FileInfo(Path.Combine(directoryName, "Documentation.md"));
-
-            var documentation = GetParsedDocumentation(fileInfo);
-
-            var layout = GetLayoutByHeadings(documentation);
-
-            var containerInlines = layout[0].Children.OfType<ParagraphBlock>()
-                .SelectMany(paragraph => paragraph.Inline)
-                .OfType<ContainerInline>();
-
-            var linkLines = Traverse(containerInlines, inline => inline.OfType<ContainerInline>())
-                .OfType<LinkInline>()
-                .ToList();
-
-            var linkUrls = linkLines.Select(link => link.Url).ToList();
-            var literals = linkLines.SelectMany(link => link).OfType<LiteralInline>().Select(literal => literal.Content.ToString()).ToList();
-
-            var diagnosticIds = DiagnosticIdentifierTests.DiagnosticIdentifierTests.DiagnosticDescriptors.Select(descriptor => descriptor.Id).Distinct().ToList();
-
-            linkUrls.Should().BeEquivalentTo(diagnosticIds);
-            literals.Should().BeEquivalentTo(diagnosticIds);
-            linkUrls.Should().BeEquivalentTo(literals, settings => settings.WithStrictOrdering());
-        }
-
         [Theory]
         [MemberData(nameof(DiagnosticDescriptors))]
         public void DiagnosticDocumentation_ShouldHave_ProperHeadings(DiagnosticDescriptor descriptor)
@@ -70,7 +42,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DocumentationTests
 
         private static List<Block> GetParsedDocumentation(DiagnosticDescriptor descriptor)
         {
-            var directoryName = GetDocumentationDirectoryPath();
+            var directoryName = GetRulesDocumentationDirectoryPath();
             var fileInfo = new FileInfo(Path.Combine(directoryName, $"{descriptor.Id}.md"));
 
             return GetParsedDocumentation(fileInfo);
@@ -88,9 +60,9 @@ namespace NSubstitute.Analyzers.Tests.Shared.DocumentationTests
             return markdownDocument;
         }
 
-        private static string GetDocumentationDirectoryPath()
+        private static string GetRulesDocumentationDirectoryPath()
         {
-            return Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "..\\..\\..\\..\\..\\documentation"));
+            return Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "..\\..\\..\\..\\..\\documentation\\rules"));
         }
 
         private List<HeadingContainer> GetLayoutByHeadings(List<Block> blocks)
