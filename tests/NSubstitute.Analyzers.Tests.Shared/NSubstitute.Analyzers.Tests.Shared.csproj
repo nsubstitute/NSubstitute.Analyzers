@@ -6,6 +6,7 @@
     <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Markdig" Version="0.15.4" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="2.8.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="2.8.0" />
     <PackageReference Include="NSubstitute" Version="3.1.0" />
