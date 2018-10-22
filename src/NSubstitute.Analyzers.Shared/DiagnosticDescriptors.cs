@@ -12,7 +12,7 @@ namespace NSubstitute.Analyzers.Shared
                 $"{typeof(T).GetTypeInfo().Assembly.GetName().Name}.Resources",
                 typeof(T).GetTypeInfo().Assembly);
 
-        private static string helpLinkUriFormat = "https://github.com/nsubstitute/NSubstitute.Analyzers/blob/master/documentation/{0}.md";
+        private static string helpLinkUriFormat = "https://github.com/nsubstitute/NSubstitute.Analyzers/blob/master/documentation/rules/{0}.md";
 
         public static DiagnosticDescriptor NonVirtualSetupSpecification { get; } =
             CreateDiagnosticDescriptor(

@@ -88,7 +88,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticIdentifierTests
         public void DiagnosticDescriptors_HelpLinkUri_ShouldPointToProperDiagnosticDocumentation()
         {
             var invalidHelpLinkDescriptors = DiagnosticDescriptors
-                .Where(diagnostic => diagnostic.HelpLinkUri != $"https://github.com/nsubstitute/NSubstitute.Analyzers/blob/master/documentation/{diagnostic.Id}.md");
+                .Where(diagnostic => diagnostic.HelpLinkUri != $"https://github.com/nsubstitute/NSubstitute.Analyzers/blob/master/documentation/rules/{diagnostic.Id}.md");
 
             invalidHelpLinkDescriptors.Should().BeEmpty();
         }
