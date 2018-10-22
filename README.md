@@ -16,7 +16,7 @@ Analyzers to detect possible NSubstitute usage problems, such as attempts to set
 
 ## Documentation
 
-For documentation and reasoning on the rules themselves, see the [Documentation](https://github.com/nsubstitute/NSubstitute.Analyzers/blob/master/documentation/Documentation.md)
+For documentation and reasoning on the rules themselves, see the [Documentation](https://github.com/nsubstitute/NSubstitute.Analyzers/blob/master/documentation).
 
 ## Support
 
