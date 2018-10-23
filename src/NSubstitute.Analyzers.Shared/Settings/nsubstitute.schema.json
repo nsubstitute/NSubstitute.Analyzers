@@ -1,0 +1,51 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/nsubstitute/NSubstitute.Analyzers/master/src/NSubstitute.Analyzers.Shared/Settings/nsubstitute.schema.json",
+  "type": "object",
+  "title": "NSubstitute Analyzers Configuration",
+  "required": [
+    "Suppressions"
+  ],
+  "properties": {
+    "Suppressions": {
+      "$id": "#/properties/Suppressions",
+      "type": "array",
+      "title": "Suppressions configuration",
+      "items": {
+        "$id": "#/properties/Suppressions/items",
+        "type": "object",
+        "title": "Suppression configuration item",
+        "required": [
+          "Target",
+          "Rules"
+        ],
+        "properties": {
+          "Target": {
+            "$id": "#/properties/Suppressions/items/properties/Target",
+            "type": "string",
+            "title": "Target id. See examples on https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/processing-the-xml-file#examples",
+            "default": "",
+            "examples": [
+              "M:MyNamespace.Foo.Bar~System.Int32"
+            ]
+          },
+          "Rules": {
+            "$id": "#/properties/Suppressions/items/properties/Rules",
+            "type": "array",
+            "title": "Rules to be suppressed",
+            "items": {
+              "$id": "#/properties/Suppressions/items/properties/Rules/items",
+              "type": "string",
+              "title": "Rule id",
+              "default": "",
+              "examples": [
+                "NS1000"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

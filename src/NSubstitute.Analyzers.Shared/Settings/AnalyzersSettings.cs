@@ -4,11 +4,11 @@ namespace NSubstitute.Analyzers.Shared.Settings
 {
     internal class AnalyzersSettings
     {
-        public static string AnalyzerFileName { get; } = "nsubstitute.json";
-
         public static AnalyzersSettings Default => new AnalyzersSettings();
 
         public List<Suppression> Suppressions { get; set; }
+
+        internal static string AnalyzerFileName { get; } = "nsubstitute.json";
 
         public AnalyzersSettings()
         {
