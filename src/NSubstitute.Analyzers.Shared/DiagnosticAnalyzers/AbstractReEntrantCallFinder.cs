@@ -33,6 +33,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected IEnumerable<SyntaxNode> GetRelatedNodes(Compilation compilation, SyntaxNode syntaxNode)
         {
+            if (compilation.ContainsSyntaxTree(syntaxNode.SyntaxTree) == false)
+            {
+                yield break;
+            }
+
             var symbol = compilation.GetSemanticModel(syntaxNode.SyntaxTree).GetSymbolInfo(syntaxNode);
             if (symbol.Symbol != null && symbol.Symbol.Locations.Any())
             {
