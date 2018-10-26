@@ -377,6 +377,47 @@ namespace MyNamespace
         }
 
         [Theory]
+        [InlineData("var bar = Bar();")]
+        [InlineData(@"var fooBar = Bar();
+IBar bar;
+bar = fooBar;")]
+        public override async Task ReportsNoDiagnostic_WhenReturnsValueIsCreated_BeforeSetup(string localVariable)
+        {
+            var source = $@"using NSubstitute;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        IBar Bar();
+    }}
+
+    public interface IBar
+    {{
+        int Foo();
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            {localVariable}
+            var substitute = Substitute.For<IFoo>();
+            SubstituteExtensions.ReturnsForAnyArgs(substitute.Bar(), bar);
+        }}
+
+        public IBar Bar()
+        {{
+            var substitute = Substitute.For<IBar>();
+            substitute.Foo().Returns(1);
+            return substitute;
+        }}
+    }}
+}}";
+            await VerifyDiagnostic(source);
+        }
+
+        [Theory]
         [InlineData("MyMethod()", "substitute.Foo().Returns(1);")]
         [InlineData("MyProperty", "substitute.Foo().Returns(1);")]
         [InlineData("x => ReturnThis()", "substitute.Foo().Returns(1);")]

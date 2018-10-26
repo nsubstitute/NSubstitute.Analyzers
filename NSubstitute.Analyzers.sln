@@ -22,7 +22,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSubstitute.Analyzers.Visua
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "documentation", "documentation", "{047744D1-7786-40B6-B246-1A78D018AF26}"
 ProjectSection(SolutionItems) = preProject
-	documentation\NS0001.md = documentation\NS1000.md
 	documentation\Configuration.md = documentation\Configuration.md
 	documentation\README.md = documentation\README.md
 	documentation\rules\NS1000.md = documentation\rules\NS1000.md

@@ -338,6 +338,42 @@ End Namespace
         }
 
         [Theory]
+        [InlineData("Dim barr = Bar()")]
+        [InlineData(@"Dim fooBar = Bar()
+Dim barr As IBar
+barr = fooBar")]
+        public override async Task ReportsNoDiagnostic_WhenReturnsValueIsCreated_BeforeSetup(string localVariable)
+        {
+            var source = $@"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Interface IFoo
+        Function Bar() As IBar
+    End Interface
+
+    Public Interface IBar
+        Function Foo() As Integer
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            {localVariable}
+            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
+            SubstituteExtensions.ReturnsForAnyArgs(Of IBar)(substitute.Bar(), barr)
+        End Sub
+
+        Public Function Bar() As IBar
+            Dim substitute = NSubstitute.Substitute.[For] (Of IBar)()
+            substitute.Foo().Returns(1)
+            Return substitute
+        End Function
+    End Class
+End Namespace
+";
+            await VerifyDiagnostic(source);
+        }
+
+        [Theory]
         [InlineData("MyMethod()", "substitute.Foo().Returns(1)")]
         [InlineData("MyProperty", "substitute.Foo().Returns(1)")]
         [InlineData("Function(x) ReturnThis()", "substitute.Foo().Returns(1)")]

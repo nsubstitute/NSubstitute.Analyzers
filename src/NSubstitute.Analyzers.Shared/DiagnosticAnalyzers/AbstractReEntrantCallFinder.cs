@@ -19,8 +19,14 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         public ImmutableList<ISymbol> GetReEntrantCalls(Compilation compilation, SyntaxNode rootNode)
         {
             var semanticModel = compilation.GetSemanticModel(rootNode.SyntaxTree);
-            var typeInfo = semanticModel.GetTypeInfo(rootNode);
-            return typeInfo.IsCallInfoDelegate(semanticModel) ? ImmutableList<ISymbol>.Empty : GetReEntrantSymbols(compilation, rootNode);
+            var symbolInfo = semanticModel.GetSymbolInfo(rootNode);
+
+            if (IsLocalSymbol(symbolInfo.Symbol) || semanticModel.GetTypeInfo(rootNode).IsCallInfoDelegate(semanticModel))
+            {
+                return ImmutableList<ISymbol>.Empty;
+            }
+
+            return GetReEntrantSymbols(compilation, rootNode);
         }
 
         protected abstract ImmutableList<ISymbol> GetReEntrantSymbols(Compilation compilation, SyntaxNode rootNode);
@@ -52,6 +58,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
                    (symbol.ContainingType?.ToString().Equals(containingType, StringComparison.OrdinalIgnoreCase) == true ||
                     (symbol.ContainingType?.ConstructedFrom.Name)?.Equals(containingType, StringComparison.OrdinalIgnoreCase) == true);
+        }
+
+        private bool IsLocalSymbol(ISymbol symbol)
+        {
+            return symbol != null && symbol.Kind == SymbolKind.Local;
         }
     }
 }
