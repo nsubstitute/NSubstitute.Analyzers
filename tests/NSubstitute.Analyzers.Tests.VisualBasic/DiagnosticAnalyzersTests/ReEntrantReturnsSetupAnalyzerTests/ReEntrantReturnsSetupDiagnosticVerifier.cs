@@ -17,6 +17,8 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.ReEnt
 
         public abstract Task ReportsDiagnostic_ForSpecificNestedReEntrantCall();
 
+        public abstract Task ReportsNoDiagnostic_WhenReturnsValueIsCreated_BeforeSetup(string localVariable);
+
         public abstract Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsCallExists(string rootCall, string reEntrantCall);
 
         public abstract Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsForAnyArgsCallExists(string rootCall, string reEntrantCall);
