@@ -1,22 +1,23 @@
 #load "./parameters.cake"
 #load "./version.cake"
 #load "./paths.cake"
+#load "./releasenotes.cake"
 
 // Install tools.
-#tool "nuget:https://www.nuget.org/api/v2?package=gitreleasemanager&version=0.7.0"
 #tool "nuget:https://www.nuget.org/api/v2?package=GitVersion.CommandLine&version=3.6.5"
 #tool "nuget:https://www.nuget.org/api/v2?package=OpenCover&version=4.6.519"
 #tool "nuget:https://www.nuget.org/api/v2?package=ReportGenerator&version=3.1.2"
 #tool "nuget:https://www.nuget.org/api/v2?package=coveralls.io&version=1.4.2"
 #addin "nuget:https://www.nuget.org/api/v2?package=cake.coveralls&version=0.8.0"
 
+using System.Text.RegularExpressions;
+
 var parameters = BuildParameters.GetParameters(Context);
 var buildVersion = BuildVersion.Calculate(Context);
 var paths = BuildPaths.GetPaths(Context, parameters, buildVersion);
 var publishingError = false;
 var packages = BuildPackages.GetPackages(paths, buildVersion);
-var releaseNotes = ParseReleaseNotes(paths.Files.AllReleaseNotes);
-
+var releaseNotes = ReleaseNotes.ParseAllReleaseNotes(Context, paths);
 
 Setup(context =>
 {
@@ -24,7 +25,7 @@ Setup(context =>
 
     if(DirectoryExists(paths.Directories.Artifacts))
     {
-       CleanDirectories(paths.Directories.ToClean);
+        CleanDirectories(paths.Directories.ToClean);
     }
 
     if (!DirectoryExists(paths.Directories.Artifacts))
@@ -40,6 +41,12 @@ Setup(context =>
     if (FileExists(paths.Files.CurrentReleaseNotes))
     {
         DeleteFile(paths.Files.CurrentReleaseNotes);
+    }
+
+    string releaseNotesVersion = releaseNotes[0].SemVersion;
+    if (parameters.ShouldPublish && buildVersion.SemVersion.Equals(releaseNotesVersion, StringComparison.Ordinal) == false)
+    {
+        throw new InvalidOperationException($"Release notes version {releaseNotesVersion} doesnt match build version {buildVersion.SemVersion}");
     }
 });
 

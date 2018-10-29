@@ -20,6 +20,7 @@
     <Description>Provides diagnostic analyzers to warn about incorrect usage of NSubstitute in VB.NET.</Description>
     <PackageTags>$(PackageTags);visualbasic;vb;vb.net</PackageTags>
     <NoPackageAnalysis>true</NoPackageAnalysis>
+    <PackageReleaseNotes>https://github.com/nsubstitute/NSubstitute.Analyzers/blob/master/ReleaseNotes.md</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Update="NetStandard.Library" Version="$(NetStandardImplicitPackageVersion)" PrivateAssets="all" />
