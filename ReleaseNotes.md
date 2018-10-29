@@ -1,3 +1,9 @@
+### 1.0.1 (29 October 2018)
+
+ - [#50](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/50) - Enforce release notes update during package publish
+ - [#47](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/47) - Over-enthusiastic NS4000 error (Returns within Returns)
+ - [#46](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/46) - ArgumentException on ReEntrantSetupAnalyzer on first load
+
 ### 1.0.0 (23 October 2018)
 
  - [#42](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/42) - Add basic documentation
