@@ -4,6 +4,7 @@
     {
         public const string NSubstituteAssemblyName = "NSubstitute";
         public const string NSubstituteSubstituteExtensionsFullTypeName = "NSubstitute.SubstituteExtensions";
+        public const string NSubstituteReturnsExtensionsFullTypeName = "NSubstitute.ReturnsExtensions.ReturnsExtensions";
         public const string NSubstituteExceptionExtensionsFullTypeName = "NSubstitute.ExceptionExtensions.ExceptionExtensions";
         public const string NSubstituteCoreFullTypeName = "NSubstitute.Core.CallInfo";
         public const string NSubstituteSubstituteFullTypeName = "NSubstitute.Substitute";
@@ -12,6 +13,8 @@
         public const string NSubstituteReturnsForAnyArgsMethod = "ReturnsForAnyArgs";
         public const string NSubstituteThrowsMethod = "Throws";
         public const string NSubstituteThrowsForAnyArgsMethod = "ThrowsForAnyArgs";
+        public const string NSubstituteReturnsNullMethod = "ReturnsNull";
+        public const string NSubstituteReturnsNullForAnyArgsMethod = "ReturnsNullForAnyArgs";
         public const string NSubstituteDoMethod = "Do";
         public const string NSubstituteReceivedMethod = "Received";
         public const string NSubstituteReceivedWithAnyArgsMethod = "ReceivedWithAnyArgs";
