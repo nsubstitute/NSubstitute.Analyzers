@@ -1,3 +1,7 @@
+### 1.0.2 (07 November 2018)
+
+ - [#52](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/52) - Detect substitution for non-virtual members for ReturnsNull like methods
+
 ### 1.0.1 (29 October 2018)
 
  - [#50](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/50) - Enforce release notes update during package publish
@@ -38,3 +42,4 @@
 
 ### 0.1.0-beta1 (01 August 2018)
  - Initial release
+
