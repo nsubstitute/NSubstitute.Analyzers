@@ -31,18 +31,29 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
-        protected override SyntaxNode FindEnclosingExpression(InvocationExpressionSyntax invocationExpression, IMethodSymbol methodSymbol)
+        protected override SyntaxNode FindEnclosingExpression(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, InvocationExpressionSyntax invocationExpression)
         {
-            return GetEnclosingSyntaxNode(invocationExpression);
+            return GetEnclosingSyntaxNode(syntaxNodeAnalysisContext, invocationExpression);
         }
 
-        // TODO move to base class
         protected override bool IsFollowedBySetupInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax)
         {
-            // TODO handle non-extension invocation
-            var child = invocationExpressionSyntax.Parent.ChildNodes().Except(new[] { invocationExpressionSyntax }).FirstOrDefault();
+            var parentNote = invocationExpressionSyntax.Parent;
 
-            return child != null && IsSetupLikeMethod(syntaxNodeContext, syntaxNodeContext.SemanticModel.GetSymbolInfo(child).Symbol);
+            if (parentNote is MemberAccessExpressionSyntax)
+            {
+                var child = parentNote.ChildNodes().Except(new[] { invocationExpressionSyntax }).FirstOrDefault();
+
+                return child != null && IsSetupLikeMethod(syntaxNodeContext, syntaxNodeContext.SemanticModel.GetSymbolInfo(child).Symbol);
+            }
+
+            if (parentNote is ArgumentSyntax)
+            {
+                var operation = syntaxNodeContext.SemanticModel.GetOperation(parentNote);
+                return IsSetupLikeMethod(syntaxNodeContext, syntaxNodeContext.SemanticModel.GetSymbolInfo(operation.Parent.Syntax).Symbol);
+            }
+
+            return false;
         }
 
         protected override bool IsPrecededByReceivedInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax)
@@ -59,8 +70,16 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
             return false;
         }
 
-        private SyntaxNode GetEnclosingSyntaxNode(SyntaxNode receivedSyntaxNode)
+        protected override bool IsWithinWhenInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax)
         {
+            var argumentListSyntax = invocationExpressionSyntax.Ancestors().OfType<ArgumentListSyntax>().FirstOrDefault();
+            return argumentListSyntax?.Parent != null && IsWhenLikeMethod(syntaxNodeContext, syntaxNodeContext.SemanticModel.GetSymbolInfo(argumentListSyntax.Parent).Symbol);
+        }
+
+        private SyntaxNode GetEnclosingSyntaxNode(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, SyntaxNode receivedSyntaxNode)
+        {
+            // finding usage of Arg like method in element access expressions and method invocation
+            // deliberately skipping odd usages like var x = Arg.Any<int>() in order not to report false positives
             foreach (var possibleAncestorPath in PossibleAncestorPaths)
             {
                 using (var syntaxEnumerator = receivedSyntaxNode.Ancestors().GetEnumerator())

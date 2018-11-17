@@ -5,7 +5,7 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMatcherAnalyzerTests
 {
-    public class Received : CSharpDiagnosticVerifier
+    public class ReceivedAsOrdinaryMethodTests : CSharpDiagnosticVerifier
     {
         [Theory]
         [InlineData("Arg.Any<int>()")]
@@ -26,7 +26,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Received(1).Bar({arg});
+            SubstituteExtensions.Received(substitute, 1).Bar({arg});
         }}
     }}
 }}";
@@ -48,12 +48,12 @@ namespace MyNamespace
         public abstract int this[int x] {{ get; }}
     }}
 
-    public class FooTests
+     public class FooTests
     {{
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute.Received(1)[{arg}];
+            _ = SubstituteExtensions.Received(substitute, 1)[{arg}];
         }}
     }}
 }}";

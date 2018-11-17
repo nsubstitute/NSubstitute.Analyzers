@@ -8,7 +8,7 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMatcherAnalyzerTests
 {
-    public class ReturnsAsExtensionsMethodTests : CSharpDiagnosticVerifier
+    public class ReturnsAsOrdinaryMethodTests : CSharpDiagnosticVerifier
     {
         [Theory]
         [InlineData("Arg.Any<int>()")]
@@ -29,7 +29,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute.Bar({arg}).Returns(1);
+            SubstituteExtensions.Returns(substitute.Bar({arg}), 1);
         }}
     }}
 }}";
@@ -94,7 +94,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute[{arg}].Returns(1);
+            SubstituteExtensions.Returns(substitute[{arg}], 1);
         }}
     }}
 }}";

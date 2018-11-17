@@ -8,14 +8,15 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMatcherAnalyzerTests
 {
-    public class ReturnsAsExtensionsMethodTests : CSharpDiagnosticVerifier
+    public class WhenAsExtensionMethodTests : CSharpDiagnosticVerifier
     {
         [Theory]
         [InlineData("Arg.Any<int>()")]
         [InlineData("Arg.Is(1)")]
         public async Task ReportsNoDiagnostics_WhenUsedWithSetupMethod(string arg)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
 
 namespace MyNamespace
 {{
@@ -29,7 +30,9 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute.Bar({arg}).Returns(1);
+            substitute.When(delegate(Foo x) {{ x.Bar({arg}); }}).Do(x => throw new NullReferenceException());
+            substitute.When(x => x.Bar({arg})).Do(x => throw new NullReferenceException());
+            substitute.When(x => x.Bar({arg})).Do(x => {{ throw new NullReferenceException(); }});
         }}
     }}
 }}";
@@ -81,6 +84,7 @@ namespace MyNamespace
         public async Task ReportsNoDiagnostics_WhenUsedWitSetupMethod_Indexer(string arg)
         {
             var source = $@"using NSubstitute;
+using System;
 
 namespace MyNamespace
 {{
@@ -94,7 +98,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute[{arg}].Returns(1);
+            substitute.When(delegate(Foo x) {{ var y = x[{arg}]; }}).Do(x => throw new NullReferenceException());
+            substitute.When(x => {{ var y = x[{arg}]; }}).Do(x => throw new NullReferenceException());
         }}
     }}
 }}";
