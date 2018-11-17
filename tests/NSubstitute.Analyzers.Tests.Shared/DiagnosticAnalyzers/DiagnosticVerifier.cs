@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -36,6 +37,9 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         private static readonly MetadataReference ValueTaskReference =
             MetadataReference.CreateFromFile(typeof(ValueTask<>).Assembly.Location);
+
+        private static readonly MetadataReference LinqExpressionReference =
+            MetadataReference.CreateFromFile(typeof(Expression).Assembly.Location);
 
         public static string DefaultFilePathPrefix { get; } = "Test";
 
@@ -155,6 +159,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
                     .AddMetadataReference(projectId, ValueTaskReference)
                     .AddMetadataReference(projectId, systemRuntimeReference)
                     .AddMetadataReference(projectId, systemThreadingTasksReference)
+                    .AddMetadataReference(projectId, LinqExpressionReference)
                     .AddMetadataReferences(projectId, GetAdditionalMetadataReferences());
 
                 int count = 0;

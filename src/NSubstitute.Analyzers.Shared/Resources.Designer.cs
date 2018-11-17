@@ -62,6 +62,33 @@ namespace NSubstitute.Analyzers.Shared {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Arg matcher used outside of context.
+        /// </summary>
+        internal static string ArgumentMatcherUsedOutsideOfCallDescription {
+            get {
+                return ResourceManager.GetString("ArgumentMatcherUsedOutsideOfCallDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Arg matcher used outside of context.
+        /// </summary>
+        internal static string ArgumentMatcherUsedOutsideOfCallMessageFormat {
+            get {
+                return ResourceManager.GetString("ArgumentMatcherUsedOutsideOfCallMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not set argument..
+        /// </summary>
+        internal static string ArgumentMatcherUsedOutsideOfCallTitle {
+            get {
+                return ResourceManager.GetString("ArgumentMatcherUsedOutsideOfCallTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not set argument..
         /// </summary>
         internal static string CallInfoArgumentIsNotOutOrRefDescription {

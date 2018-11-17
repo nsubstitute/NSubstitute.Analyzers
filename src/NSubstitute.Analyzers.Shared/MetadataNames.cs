@@ -3,6 +3,7 @@
     internal class MetadataNames
     {
         public const string NSubstituteAssemblyName = "NSubstitute";
+        public const string NSubstituteArgFullTypeName = "NSubstitute.Arg";
         public const string NSubstituteSubstituteExtensionsFullTypeName = "NSubstitute.SubstituteExtensions";
         public const string NSubstituteReturnsExtensionsFullTypeName = "NSubstitute.ReturnsExtensions.ReturnsExtensions";
         public const string NSubstituteExceptionExtensionsFullTypeName = "NSubstitute.ExceptionExtensions.ExceptionExtensions";
@@ -33,5 +34,7 @@
         public const string CallInfoArgMethod = "Arg";
         public const string CallInfoArgsMethod = "Args";
         public const string CallInfoArgTypesMethod = "ArgTypes";
+        public const string ArgIsMethodName = "Is";
+        public const string ArgAnyMethodName = "Any";
     }
 }

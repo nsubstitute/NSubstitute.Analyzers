@@ -342,4 +342,17 @@
     <value>Could not set argument.</value>
     <comment>The title of the diagnostic.</comment>
   </data>
+
+    <data name="ArgumentMatcherUsedOutsideOfCallDescription" xml:space="preserve">
+    <value>Arg matcher used outside of context</value>
+        <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+    <data name="ArgumentMatcherUsedOutsideOfCallMessageFormat" xml:space="preserve">
+    <value>Arg matcher used outside of context</value>
+        <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+    <data name="ArgumentMatcherUsedOutsideOfCallTitle" xml:space="preserve">
+    <value>Could not set argument.</value>
+        <comment>The title of the diagnostic.</comment>
+  </data>
 </root>

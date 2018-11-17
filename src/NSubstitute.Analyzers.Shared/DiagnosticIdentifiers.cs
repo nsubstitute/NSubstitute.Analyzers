@@ -25,5 +25,7 @@
         public const string ReEntrantSubstituteCall = "NS4000";
 
         public const string UnusedReceived = "NS5000";
+
+        public const string ArgumentMatcherUsedOutsideOfCall = "NS5001";
     }
 }

@@ -43,5 +43,7 @@ namespace NSubstitute.Analyzers.Shared
         DiagnosticDescriptor CallInfoArgumentSetWithIncompatibleValue { get; }
 
         DiagnosticDescriptor CallInfoArgumentIsNotOutOrRef { get; }
+
+        DiagnosticDescriptor ArgumentMatcherUsedOutsideOfCall { get; }
     }
 }
