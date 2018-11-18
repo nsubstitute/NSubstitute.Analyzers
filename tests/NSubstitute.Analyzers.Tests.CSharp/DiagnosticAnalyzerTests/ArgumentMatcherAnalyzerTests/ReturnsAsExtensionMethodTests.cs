@@ -8,7 +8,7 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMatcherAnalyzerTests
 {
-    public class ReturnsAsExtensionsMethodTests : CSharpDiagnosticVerifier
+    public class ReturnsAsExtensionMethodTests : CSharpDiagnosticVerifier
     {
         [Theory]
         [InlineData("Arg.Any<int>()")]

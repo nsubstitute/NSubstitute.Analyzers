@@ -76,6 +76,12 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
             return argumentListSyntax?.Parent != null && IsWhenLikeMethod(syntaxNodeContext, syntaxNodeContext.SemanticModel.GetSymbolInfo(argumentListSyntax.Parent).Symbol);
         }
 
+        protected override bool IsWithinReceivedInOrderInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax)
+        {
+            var argumentListSyntax = invocationExpressionSyntax.Ancestors().OfType<ArgumentListSyntax>().FirstOrDefault();
+            return argumentListSyntax?.Parent != null && IsReceivedInOrderMethod(syntaxNodeContext, syntaxNodeContext.SemanticModel.GetSymbolInfo(argumentListSyntax.Parent).Symbol);
+        }
+
         private SyntaxNode GetEnclosingSyntaxNode(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, SyntaxNode receivedSyntaxNode)
         {
             // finding usage of Arg like method in element access expressions and method invocation

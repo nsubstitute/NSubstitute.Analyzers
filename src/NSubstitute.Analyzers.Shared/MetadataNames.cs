@@ -5,6 +5,7 @@
         public const string NSubstituteAssemblyName = "NSubstitute";
         public const string NSubstituteArgFullTypeName = "NSubstitute.Arg";
         public const string NSubstituteSubstituteExtensionsFullTypeName = "NSubstitute.SubstituteExtensions";
+        public const string NSubstituteReceivedFullTypeName = "NSubstitute.Received";
         public const string NSubstituteReturnsExtensionsFullTypeName = "NSubstitute.ReturnsExtensions.ReturnsExtensions";
         public const string NSubstituteExceptionExtensionsFullTypeName = "NSubstitute.ExceptionExtensions.ExceptionExtensions";
         public const string NSubstituteCoreFullTypeName = "NSubstitute.Core.CallInfo";
@@ -21,6 +22,7 @@
         public const string NSubstituteReceivedWithAnyArgsMethod = "ReceivedWithAnyArgs";
         public const string NSubstituteDidNotReceiveMethod = "DidNotReceive";
         public const string NSubstituteDidNotReceiveWithAnyArgsMethod = "DidNotReceiveWithAnyArgs";
+        public const string NSubstituteInOrderMethod = "InOrder";
         public const string NSubstituteForMethod = "For";
         public const string NSubstituteForPartsOfMethod = "ForPartsOf";
         public const string SubstituteFactoryCreate = "Create";

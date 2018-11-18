@@ -56,6 +56,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract bool IsWithinWhenInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax);
 
+        protected abstract bool IsWithinReceivedInOrderInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax);
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(DiagnosticDescriptorsProvider.ArgumentMatcherUsedOutsideOfCall);
 
         public override void Initialize(AnalysisContext context)
@@ -111,6 +113,22 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                    symbol.ContainingType?.ToString().Equals(containingType, StringComparison.OrdinalIgnoreCase) == true;
         }
 
+        protected bool IsReceivedInOrderMethod(SyntaxNodeAnalysisContext syntaxNodeContext, ISymbol symbol)
+        {
+            if (symbol == null)
+            {
+                return false;
+            }
+
+            if (symbol.Name != MetadataNames.NSubstituteInOrderMethod)
+            {
+                return false;
+            }
+
+            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
+                   symbol.ContainingType?.ToString().Equals(MetadataNames.NSubstituteReceivedFullTypeName, StringComparison.OrdinalIgnoreCase) == true;
+        }
+
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
             var invocationExpression = (TInvocationExpressionSyntax)syntaxNodeContext.Node;
@@ -138,7 +156,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             if (enclosingExpression != null &&
                 IsFollowedBySetupInvocation(syntaxNodeContext, enclosingExpression) == false &&
                 IsPrecededByReceivedInvocation(syntaxNodeContext, enclosingExpression) == false &&
-                IsWithinWhenInvocation(syntaxNodeContext, enclosingExpression) == false)
+                IsWithinWhenInvocation(syntaxNodeContext, enclosingExpression) == false &&
+                IsWithinReceivedInOrderInvocation(syntaxNodeContext, enclosingExpression) == false)
             {
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.ArgumentMatcherUsedOutsideOfCall,
