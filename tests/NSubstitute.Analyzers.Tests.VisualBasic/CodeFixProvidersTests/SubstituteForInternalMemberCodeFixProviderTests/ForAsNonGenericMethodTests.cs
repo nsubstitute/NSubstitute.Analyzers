@@ -165,5 +165,29 @@ End Namespace
 ";
             await VerifyFix(oldSource, oldSource);
         }
+
+        [Fact]
+        public override async Task DoesNot_AppendsInternalsVisibleTo_WhenInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
+        {
+            var oldSource = @"Imports NSubstitute.Core
+
+<Assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""OtherFirstAssembly"")>
+<Assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""DynamicProxyGenAssembly2"")>
+<Assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""OtherSecondAssembly"")>
+Namespace MyNamespace
+    Friend Class Foo
+        Friend Class Bar
+        End Class
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, Nothing)
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifyFix(oldSource, oldSource);
+        }
     }
 }

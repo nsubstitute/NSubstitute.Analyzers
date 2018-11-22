@@ -228,7 +228,9 @@ End Namespace
             var source = @"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
+<Assembly: InternalsVisibleTo(""OtherFirstAssembly"")>
 <Assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")>
+<Assembly: InternalsVisibleTo(""OtherSecondAssembly"")>
 Namespace MyNamespace
     Friend Class Foo
     End Class
