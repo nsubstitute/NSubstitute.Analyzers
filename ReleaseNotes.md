@@ -1,3 +1,7 @@
+### 1.0.3 (22 November 2018)
+
+ - [#54](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/54) - Rule NS2003 does not detect InternalsVisibleTo correctly
+
 ### 1.0.2 (07 November 2018)
 
  - [#52](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/52) - Detect substitution for non-virtual members for ReturnsNull like methods
