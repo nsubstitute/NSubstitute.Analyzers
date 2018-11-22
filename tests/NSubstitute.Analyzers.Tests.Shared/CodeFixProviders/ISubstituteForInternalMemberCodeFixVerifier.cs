@@ -13,5 +13,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
         Task AppendsInternalsVisibleTo_WhenUsedWithNestedInternalClass();
 
         Task DoesNot_AppendsInternalsVisibleTo_WhenUsedWithPublicClass();
+
+        Task DoesNot_AppendsInternalsVisibleTo_WhenInternalsVisibleToAppliedToDynamicProxyGenAssembly2();
     }
 }

@@ -502,7 +502,9 @@ namespace MyNamespace
         {
             var source = @"using NSubstitute;
 using System.Runtime.CompilerServices;
+[assembly: InternalsVisibleTo(""OtherFirstAssembly"")]
 [assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
+[assembly: InternalsVisibleTo(""OtherSecondAssembly"")]
 namespace MyNamespace
 {
     internal class Foo

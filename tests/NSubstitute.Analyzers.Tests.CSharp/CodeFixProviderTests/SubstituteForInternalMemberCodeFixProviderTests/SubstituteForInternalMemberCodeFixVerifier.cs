@@ -20,6 +20,8 @@ namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.SubstituteForI
 
         public abstract Task DoesNot_AppendsInternalsVisibleTo_WhenUsedWithPublicClass();
 
+        public abstract Task DoesNot_AppendsInternalsVisibleTo_WhenInternalsVisibleToAppliedToDynamicProxyGenAssembly2();
+
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
             return new SubstituteAnalyzer();
