@@ -31,7 +31,26 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source);
+            var secondSource = $@"using NSubstitute;
+
+namespace MyNamespace
+{{
+    public abstract class Foo3
+    {{
+        public abstract int Bar(int x);
+    }}
+
+    public class FooTests2
+    {{
+        public void Test3()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo3>();
+            substitute.Received(1).Bar({arg});
+        }}
+    }}
+}}";
+
+            await VerifyDiagnostic(new[] { source, secondSource });
         }
 
         [Theory]

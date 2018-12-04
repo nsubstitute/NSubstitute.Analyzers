@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq.Expressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
@@ -62,6 +61,24 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         public override void Initialize(AnalysisContext context)
         {
+            context.RegisterCompilationStartAction(compilationContext =>
+            {
+                /*
+                // Initialize state in the start action.
+                CompilationAnalyzer analyzer = new CompilationAnalyzer(unsecureMethodAttributeType, secureTypeInterfaceType);
+
+                // Register an intermediate non-end action that accesses and modifies the state.
+                compilationContext.RegisterSymbolAction(analyzer.AnalyzeSymbol, SymbolKind.NamedType, SymbolKind.Method);
+
+                // Register an end action to report diagnostics based on the final state.
+                compilationContext.RegisterCompilationEndAction(analyzer.CompilationEndAction);
+                */
+
+                compilationContext.RegisterSyntaxNodeAction(analysisContext => { }, InvocationExpressionKind);
+
+                compilationContext.RegisterCompilationEndAction(analysisContext => { });
+            });
+
             context.RegisterSyntaxNodeAction(AnalyzeInvocation, InvocationExpressionKind);
         }
 

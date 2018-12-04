@@ -33,6 +33,13 @@ namespace MyNamespace
             SubstituteExtensions.When(substitute, delegate(Foo x) {{ x.Bar({arg}); }}).Do(x => throw new NullReferenceException());
             SubstituteExtensions.When(substitute, x => x.Bar({arg})).Do(x => throw new NullReferenceException());
             SubstituteExtensions.When(substitute, x => x.Bar({arg})).Do(x => {{ throw new NullReferenceException(); }});
+            SubstituteExtensions.When(substitute, x => x.Bar({arg})).Do(x => {{ throw new NullReferenceException(); }});
+            SubstituteExtensions.When(substitute, SubstituteCall).Do(x => {{ throw new NullReferenceException(); }});
+        }}
+
+        private void SubstituteCall(Foo obj)
+        {{
+            obj.Bar(Arg.Any<int>());
         }}
     }}
 }}";
