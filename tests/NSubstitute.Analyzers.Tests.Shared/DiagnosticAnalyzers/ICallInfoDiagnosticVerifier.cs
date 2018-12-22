@@ -38,8 +38,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         Task ReportsDiagnostic_WhenAssigningValueToOutOfBoundsArgument();
 
-        Task ReportsDiagnostic_WhenAssigningWrongTypeToArgument();
+        Task ReportsDiagnostic_WhenAssigningWrongTypeToArgument(string left, string right, string expectedMessage);
 
-        Task ReportsNoDiagnostic_WhenAssigningProperTypeToArgument();
+        Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string left, string right);
     }
 }

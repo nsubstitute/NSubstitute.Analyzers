@@ -1,10 +1,13 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
+using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallInfoAnalyzerTests
 {
+    [SuppressMessage("ReSharper", "xUnit1013", Justification = "Reviewed")]
     public abstract class CallInfoDiagnosticVerifier : VisualBasicDiagnosticVerifier, ICallInfoDiagnosticVerifier
     {
         public abstract Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string call, string argAccess);
@@ -41,9 +44,11 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallI
 
         public abstract Task ReportsDiagnostic_WhenAssigningValueToOutOfBoundsArgument();
 
-        public abstract Task ReportsDiagnostic_WhenAssigningWrongTypeToArgument();
+        public abstract Task ReportsDiagnostic_WhenAssigningWrongTypeToArgument(string left, string right, string expectedMessage);
 
-        public abstract Task ReportsNoDiagnostic_WhenAssigningProperTypeToArgument();
+        [Theory]
+        [InlineData("Object", "String")]
+        public abstract Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string left, string right);
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {

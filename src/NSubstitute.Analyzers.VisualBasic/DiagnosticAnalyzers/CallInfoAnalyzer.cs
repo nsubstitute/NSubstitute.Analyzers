@@ -82,6 +82,12 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
             return compilation.ClassifyConversion(sourceSymbol, destinationSymbol).Exists;
         }
 
+        protected override bool IsAssignableTo(Compilation compilation, ITypeSymbol fromSymbol, ITypeSymbol toSymbol)
+        {
+            var conversion = compilation.ClassifyConversion(fromSymbol, toSymbol);
+            return conversion.IsWidening == false && conversion.IsNumeric == false;
+        }
+
         private static int? ExtractPositionFromInvocation(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, InvocationExpressionSyntax invocationExpressionSyntax)
         {
             var argAtPosition = syntaxNodeAnalysisContext.SemanticModel.GetConstantValue(invocationExpressionSyntax.ArgumentList.Arguments.First().GetExpression());

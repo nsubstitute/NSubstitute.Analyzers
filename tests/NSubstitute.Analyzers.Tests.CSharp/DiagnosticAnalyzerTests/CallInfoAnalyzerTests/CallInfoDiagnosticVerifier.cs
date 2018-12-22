@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
@@ -6,6 +7,7 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAnalyzerTests
 {
+    [SuppressMessage("ReSharper", "xUnit1013", Justification = "Reviewed")]
     public abstract class CallInfoDiagnosticVerifier : CSharpDiagnosticVerifier, ICallInfoDiagnosticVerifier
     {
         public abstract Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string call, string argAccess);
@@ -42,9 +44,21 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAna
 
         public abstract Task ReportsDiagnostic_WhenAssigningValueToOutOfBoundsArgument();
 
-        public abstract Task ReportsDiagnostic_WhenAssigningWrongTypeToArgument();
+        [Theory]
+        [InlineData("decimal", "1", "Could not set value of type int to argument 0 (decimal) because the types are incompatible.")]
+        [InlineData("string", "new object()", "Could not set value of type object to argument 0 (string) because the types are incompatible.")]
+        public abstract Task ReportsDiagnostic_WhenAssigningWrongTypeToArgument(string left, string right, string expectedMessage);
 
-        public abstract Task ReportsNoDiagnostic_WhenAssigningProperTypeToArgument();
+        [Theory]
+        [InlineData("object", @"""string""")]
+        [InlineData("int", "1")]
+        [InlineData("int?", "1")]
+        [InlineData("decimal", "1M")]
+        [InlineData("double", "1D")]
+        [InlineData("IEnumerable<object>", "new List<object>()")]
+        [InlineData("List<object>", "new object[] { new object() }")]
+        [InlineData("IDictionary<string, object>", "new Dictionary<string, object>()")]
+        public abstract Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string left, string right);
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {

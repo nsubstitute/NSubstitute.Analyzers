@@ -65,6 +65,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract bool CanCast(Compilation compilation, ITypeSymbol sourceSymbol, ITypeSymbol destinationSymbol);
 
+        protected abstract bool IsAssignableTo(Compilation compilation, ITypeSymbol fromSymbol, ITypeSymbol toSymbol);
+
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
             var invocationExpression = (TInvocationExpressionSyntax)syntaxNodeContext.Node;
@@ -245,7 +247,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 }
 
                 var typeInfo = syntaxNodeContext.SemanticModel.GetTypeInfo(assignmentExpressionSyntax);
-                if (typeInfo.Type != null && Equals(typeInfo.Type, substituteCallParameters[position.Value].Type) == false)
+                if (typeInfo.Type != null && IsAssignableTo(syntaxNodeContext.Compilation, typeInfo.Type, substituteCallParameters[position.Value].Type) == false)
                 {
                     var diagnostic = Diagnostic.Create(
                         DiagnosticDescriptorsProvider.CallInfoArgumentSetWithIncompatibleValue,

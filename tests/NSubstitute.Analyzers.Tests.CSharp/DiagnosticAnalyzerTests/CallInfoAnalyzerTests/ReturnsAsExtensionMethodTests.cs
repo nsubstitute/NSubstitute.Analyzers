@@ -764,38 +764,37 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [Fact]
-        public override async Task ReportsDiagnostic_WhenAssigningWrongTypeToArgument()
+        public override async Task ReportsDiagnostic_WhenAssigningWrongTypeToArgument(string left, string right, string expectedMessage)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public interface Foo
-    {
-        int Bar(out decimal x);
-    }
+    {{
+        int Bar(out {left} x);
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
-            decimal value = 0;
+        {{
+            {left} value = default({left});
             var substitute = NSubstitute.Substitute.For<Foo>();
             substitute.Bar(out value).Returns(callInfo =>
-            {
-                callInfo[0] = 1;
+            {{
+                callInfo[0] = {right};
                 return 1;
-            });
-        }
-    }
-}";
+            }});
+        }}
+    }}
+}}";
 
             var expectedDiagnostic = new DiagnosticResult
             {
                 Id = DiagnosticIdentifiers.CallInfoArgumentSetWithIncompatibleValue,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Could not set value of type int to argument 0 (decimal) because the types are incompatible.",
+                Message = expectedMessage,
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(18, 17)
@@ -805,32 +804,32 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [Fact]
-        public override async Task ReportsNoDiagnostic_WhenAssigningProperTypeToArgument()
+        public override async Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string left, string right)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
+using System.Collections.Generic;
 
 namespace MyNamespace
-{
+{{
     public interface Foo
-    {
-        int Bar(out decimal x);
-    }
+    {{
+        int Bar(out {left} x);
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
-            decimal value = 0;
+        {{
+            {left} value = default({left});
             var substitute = NSubstitute.Substitute.For<Foo>();
             substitute.Bar(out value).Returns(callInfo =>
-            {
-                callInfo[0] = 1M;
+            {{
+                callInfo[0] = {right};
                 return 1;
-            });
-        }
-    }
-}";
+            }});
+        }}
+    }}
+}}";
 
             await VerifyDiagnostic(source);
         }

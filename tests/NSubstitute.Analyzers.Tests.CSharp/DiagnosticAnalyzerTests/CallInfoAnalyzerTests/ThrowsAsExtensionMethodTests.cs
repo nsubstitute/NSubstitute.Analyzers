@@ -794,8 +794,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [Fact]
-        public override async Task ReportsDiagnostic_WhenAssigningWrongTypeToArgument()
+        public override async Task ReportsDiagnostic_WhenAssigningWrongTypeToArgument(string left, string right, string expectedMessage)
         {
             var source = @"using System;
 using NSubstitute;
@@ -837,35 +836,34 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [Fact]
-        public override async Task ReportsNoDiagnostic_WhenAssigningProperTypeToArgument()
+        public override async Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string left, string right)
         {
-            var source = @"using System;
+            var source = $@"using System;
 using NSubstitute;
+using System.Collections.Generic;
 using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
-{
+{{
     public interface Foo
-    {
-        int Bar(out decimal x);
-    }
+    {{
+        int Bar(out {left} x);
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
-            decimal value = 0;
+        {{
+            {left} value = default({left});
             var substitute = NSubstitute.Substitute.For<Foo>();
             substitute.Bar(out value).Throws(callInfo =>
-            {
-                callInfo[0] = 1M;
+            {{
+                callInfo[0] = {right};
                 return new Exception();
-            });
-        }
-    }
-}";
-
+            }});
+        }}
+    }}
+}}";
             await VerifyDiagnostic(source);
         }
     }

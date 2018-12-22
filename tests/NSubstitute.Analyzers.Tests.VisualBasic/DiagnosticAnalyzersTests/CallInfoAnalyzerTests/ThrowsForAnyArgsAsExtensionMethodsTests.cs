@@ -726,8 +726,7 @@ End Namespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [Fact]
-        public override async Task ReportsDiagnostic_WhenAssigningWrongTypeToArgument()
+        public override async Task ReportsDiagnostic_WhenAssigningWrongTypeToArgument(string left, string right, string expectedMessage)
         {
             var source = @"Imports System
 Imports NSubstitute
@@ -766,8 +765,7 @@ End Namespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [Fact]
-        public override async Task ReportsNoDiagnostic_WhenAssigningProperTypeToArgument()
+        public override async Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string left, string right)
         {
             var source = @"Imports System
 Imports NSubstitute
