@@ -44,7 +44,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallI
 
         public abstract Task ReportsDiagnostic_WhenAssigningValueToOutOfBoundsArgument();
 
-        public abstract Task ReportsDiagnostic_WhenAssigningWrongTypeToArgument(string left, string right, string expectedMessage);
+        public abstract Task ReportsDiagnostic_WhenAssigningType_NotAssignableTo_Argument(string left, string right, string expectedMessage);
 
         [Theory]
         [InlineData("Object", "String")]

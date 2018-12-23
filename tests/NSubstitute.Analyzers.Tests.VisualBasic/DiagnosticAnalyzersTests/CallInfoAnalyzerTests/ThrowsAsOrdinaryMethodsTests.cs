@@ -726,7 +726,7 @@ End Namespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task ReportsDiagnostic_WhenAssigningWrongTypeToArgument(string left, string right, string expectedMessage)
+        public override async Task ReportsDiagnostic_WhenAssigningType_NotAssignableTo_Argument(string left, string right, string expectedMessage)
         {
             var source = @"Imports System
 Imports NSubstitute

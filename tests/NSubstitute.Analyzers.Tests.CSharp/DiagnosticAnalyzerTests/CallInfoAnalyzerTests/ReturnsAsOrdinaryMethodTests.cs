@@ -764,40 +764,41 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task ReportsDiagnostic_WhenAssigningWrongTypeToArgument(string left, string right, string expectedMessage)
+        public override async Task ReportsDiagnostic_WhenAssigningType_NotAssignableTo_Argument(string left, string right, string expectedMessage)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
+using System.Collections.Generic;
 
 namespace MyNamespace
-{
+{{
     public interface Foo
-    {
-        int Bar(out decimal x);
-    }
+    {{
+        int Bar(out {left} x);
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
-            decimal value = 0;
+        {{
+            {left} value = default({left});
             var substitute = NSubstitute.Substitute.For<Foo>();
             SubstituteExtensions.Returns(substitute.Bar(out value), callInfo =>
-            {
-                callInfo[0] = 1;
+            {{
+                callInfo[0] = {right};
                 return 1;
-            });
-        }
-    }
-}";
+            }});
+        }}
+    }}
+}}";
 
             var expectedDiagnostic = new DiagnosticResult
             {
                 Id = DiagnosticIdentifiers.CallInfoArgumentSetWithIncompatibleValue,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Could not set value of type int to argument 0 (decimal) because the types are incompatible.",
+                Message = expectedMessage,
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(18, 17)
+                    new DiagnosticResultLocation(19, 17)
                 }
             };
 

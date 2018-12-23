@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Shared;
@@ -764,9 +765,10 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task ReportsDiagnostic_WhenAssigningWrongTypeToArgument(string left, string right, string expectedMessage)
+        public override async Task ReportsDiagnostic_WhenAssigningType_NotAssignableTo_Argument(string left, string right, string expectedMessage)
         {
             var source = $@"using NSubstitute;
+using System.Collections.Generic;
 
 namespace MyNamespace
 {{
@@ -797,7 +799,7 @@ namespace MyNamespace
                 Message = expectedMessage,
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(18, 17)
+                    new DiagnosticResultLocation(19, 17)
                 }
             };
 

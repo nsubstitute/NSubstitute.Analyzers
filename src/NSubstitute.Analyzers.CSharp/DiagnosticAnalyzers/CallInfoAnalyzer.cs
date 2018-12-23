@@ -90,7 +90,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
         protected override bool IsAssignableTo(Compilation compilation, ITypeSymbol fromSymbol, ITypeSymbol toSymbol)
         {
             var conversion = compilation.ClassifyConversion(fromSymbol, toSymbol);
-            return conversion.IsExplicit == false && conversion.IsNumeric == false;
+            return conversion.Exists && conversion.IsExplicit == false && conversion.IsNumeric == false;
         }
     }
 }
