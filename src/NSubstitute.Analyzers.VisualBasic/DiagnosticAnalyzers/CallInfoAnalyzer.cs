@@ -85,7 +85,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
         protected override bool IsAssignableTo(Compilation compilation, ITypeSymbol fromSymbol, ITypeSymbol toSymbol)
         {
             var conversion = compilation.ClassifyConversion(fromSymbol, toSymbol);
-            return conversion.Exists && conversion.IsWidening == false && conversion.IsNumeric == false;
+            return conversion.Exists && conversion.IsNarrowing == false && conversion.IsNumeric == false;
         }
 
         private static int? ExtractPositionFromInvocation(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, InvocationExpressionSyntax invocationExpressionSyntax)

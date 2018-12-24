@@ -742,20 +742,21 @@ End Namespace
 
         public override async Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string left, string right)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 Imports System.Runtime.InteropServices
+Imports System.Collections.Generic
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar(<Out> ByRef x As Decimal) As Integer
+        Function Bar(<Out> ByRef x As {left}) As Integer
     End Interface
 
     Public Class FooTests
         Public Sub Test()
-            Dim value As Decimal = 0
+            Dim value As {left} = Nothing
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             SubstituteExtensions.ReturnsForAnyArgs(Of Integer)(substitute.Bar(value), Function(callInfo)
-                                              callInfo(0) = 1D
+                                              callInfo(0) = {right}
                                               Return 1
                                           End Function)
         End Sub
