@@ -705,20 +705,21 @@ End Namespace
 
         public override async Task ReportsDiagnostic_WhenAssigningType_NotAssignableTo_Argument(string left, string right, string expectedMessage)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 Imports System.Runtime.InteropServices
+Imports System.Collections.Generic
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar(<Out> ByRef x As Decimal) As Integer
+        Function Bar(<Out> ByRef x As {left}) As Integer
     End Interface
 
     Public Class FooTests
         Public Sub Test()
-            Dim value As Decimal = 0
+            Dim value As {left} = Nothing
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.Bar(value).ReturnsForAnyArgs(Function(callInfo)
-                                              callInfo(0) = 1
+                                              callInfo(0) = {right}
                                               Return 1
                                           End Function)
         End Sub
@@ -730,10 +731,10 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.CallInfoArgumentSetWithIncompatibleValue,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Could not set value of type Integer to argument 0 (Decimal) because the types are incompatible.",
+                Message = expectedMessage,
                 Locations = new[]
                 {
-                    new DiagnosticResultLocation(14, 47)
+                    new DiagnosticResultLocation(15, 47)
                 }
             };
 
