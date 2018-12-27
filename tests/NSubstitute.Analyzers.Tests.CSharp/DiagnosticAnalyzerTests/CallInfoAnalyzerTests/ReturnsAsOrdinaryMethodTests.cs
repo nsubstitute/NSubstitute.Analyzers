@@ -280,9 +280,57 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        public override Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn)
+        public override async Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn, string message)
         {
-            throw new System.NotImplementedException();
+            var source = $@"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public interface Foo
+    {{
+        int Bar(int x, double y);
+
+        int Foo(int x, FooBar bar);
+
+        int this[int x, double y] {{ get; }}
+
+        int this[int x, FooBar bar] {{ get; }}
+    }}
+
+    public class Bar
+    {{
+    }}
+
+    public class FooBar : Bar
+    {{
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            SubstituteExtensions.Returns({call}, callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+        }}
+    }}
+}}";
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.CallInfoCouldNotConvertParameterAtPosition,
+                Severity = DiagnosticSeverity.Warning,
+                Message = message,
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(expectedLine, expectedColumn)
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string call, string argAccess)

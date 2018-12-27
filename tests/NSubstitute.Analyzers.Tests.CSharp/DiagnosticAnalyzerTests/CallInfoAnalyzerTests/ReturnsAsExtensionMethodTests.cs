@@ -281,7 +281,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn)
+        public override async Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn, string message)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -324,7 +324,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.CallInfoCouldNotConvertParameterAtPosition,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Couldn't convert parameter at position 1 to type MyNamespace.Bar.",
+                Message = message,
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(expectedLine, expectedColumn)

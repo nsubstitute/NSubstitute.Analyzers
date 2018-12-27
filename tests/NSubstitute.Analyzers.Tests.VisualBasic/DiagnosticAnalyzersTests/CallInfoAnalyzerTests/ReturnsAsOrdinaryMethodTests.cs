@@ -366,7 +366,8 @@ End Namespace
             await VerifyDiagnostic(source);
         }
 
-        public override Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn)
+        public override Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string call, string argAccess,
+            int expectedLine, int expectedColumn, string message)
         {
             throw new System.NotImplementedException();
         }
