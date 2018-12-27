@@ -152,7 +152,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenConvertingTypeToAssignableTypeForIndirectCasts(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenManuallyCasting_ToSupportedType(string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -192,7 +192,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenConvertingTypeToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn)
+        public override async Task ReportsDiagnostic_WhenManuallyCasting_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -245,7 +245,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenConvertingTypeToSupportedType(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenCasting_WithArgAt_ToSupportedType(string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -255,14 +255,19 @@ namespace MyNamespace
 {{
     public interface Foo
     {{
-        int Bar(Bar x);
+        int Bar(int x, Bar y);
 
-        int this[Bar x] {{ get; }}
+        int this[int x, Bar y] {{ get; }}
     }}
 
-    public class Bar
+    public class BarBase
     {{
     }}
+
+    public class Bar : BarBase
+    {{
+    }}
+
 
     public class FooTests
     {{
@@ -278,6 +283,11 @@ namespace MyNamespace
     }}
 }}";
             await VerifyDiagnostic(source);
+        }
+
+        public override Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn)
+        {
+            throw new System.NotImplementedException();
         }
 
         public override async Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string call, string argAccess)

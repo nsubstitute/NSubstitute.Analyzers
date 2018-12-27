@@ -145,7 +145,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(argAtInvocation);
                     if (symbolInfo.Symbol != null &&
                         symbolInfo.Symbol is IMethodSymbol argAtMethodSymbol &&
-                        Equals(substituteCallParameters[position.Value].Type, argAtMethodSymbol.TypeArguments.First()) == false)
+                        IsAssignableTo(syntaxNodeContext.Compilation, substituteCallParameters[position.Value].Type, argAtMethodSymbol.TypeArguments.First()) == false)
                     {
                         var diagnostic = Diagnostic.Create(
                             DiagnosticDescriptorsProvider.CallInfoCouldNotConvertParameterAtPosition,
@@ -167,7 +167,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 if (symbolInfo.Symbol != null && symbolInfo.Symbol is IMethodSymbol argMethodSymbol)
                 {
                     var typeSymbol = argMethodSymbol.TypeArguments.First();
-                    var parameterCount = substituteCallParameters.Count(param => Equals(param.Type, typeSymbol));
+                    var parameterCount = substituteCallParameters.Count(param => IsAssignableTo(syntaxNodeContext.Compilation, param.Type, typeSymbol));
                     if (parameterCount == 0)
                     {
                         var diagnostic = Diagnostic.Create(

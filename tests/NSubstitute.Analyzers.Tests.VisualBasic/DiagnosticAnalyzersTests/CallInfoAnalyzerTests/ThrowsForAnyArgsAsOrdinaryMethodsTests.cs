@@ -232,7 +232,7 @@ End Namespace
         [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = TryCast(callInfo.Args()(1), Object)")]
         [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = CType(callInfo.Args()(1), Object)")]
         [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo.Args()(1), Object)")]
-        public override async Task ReportsNoDiagnostic_WhenConvertingTypeToAssignableTypeForIndirectCasts(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenManuallyCasting_ToSupportedType(string call, string argAccess)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -282,7 +282,7 @@ End Namespace";
         [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = TryCast(callInfo.Args()(1), Bar)", 24, 48)]
         [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Double)())", "Dim x = DirectCast(callInfo.Args()(1), Bar)", 24, 51)]
         [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of FooBar)())", "Dim x = callInfo.ArgAt(Of Bar)(1)", 24, 40)]
-        public override async Task ReportsDiagnostic_WhenConvertingTypeToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn)
+        public override async Task ReportsDiagnostic_WhenManuallyCasting_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -343,7 +343,7 @@ End Namespace
         [InlineData("substitute(Arg.Any(Of Bar)())", "Dim x = TryCast(callInfo.Args()(0), Bar)")]
         [InlineData("substitute(Arg.Any(Of Bar)())", "Dim x = CType(callInfo.Args()(0), Bar)")]
         [InlineData("substitute(Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo.Args()(0), Bar)")]
-        public override async Task ReportsNoDiagnostic_WhenConvertingTypeToSupportedType(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenCasting_WithArgAt_ToSupportedType(string call, string argAccess)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -371,6 +371,11 @@ End Namespace
 ";
 
             await VerifyDiagnostic(source);
+        }
+
+        public override Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn)
+        {
+            throw new System.NotImplementedException();
         }
 
         [Theory]

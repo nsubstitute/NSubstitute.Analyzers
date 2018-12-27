@@ -150,7 +150,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenConvertingTypeToAssignableTypeForIndirectCasts(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenManuallyCasting_ToSupportedType(string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -189,7 +189,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenConvertingTypeToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn)
+        public override async Task ReportsDiagnostic_WhenManuallyCasting_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -242,7 +242,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenConvertingTypeToSupportedType(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenCasting_WithArgAt_ToSupportedType(string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -251,12 +251,16 @@ namespace MyNamespace
 {{
     public interface Foo
     {{
-        int Bar(Bar x);
+        int Bar(int x, Bar y);
 
-        int this[Bar x] {{ get; }}
+        int this[int x, Bar y] {{ get; }}
     }}
 
-    public class Bar
+    public class BarBase
+    {{
+    }}
+
+    public class Bar : BarBase
     {{
     }}
 
@@ -273,7 +277,61 @@ namespace MyNamespace
         }}
     }}
 }}";
+
             await VerifyDiagnostic(source);
+        }
+
+        public override async Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn)
+        {
+            var source = $@"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public interface Foo
+    {{
+        int Bar(int x, double y);
+
+        int Foo(int x, FooBar bar);
+
+        int this[int x, double y] {{ get; }}
+
+        int this[int x, FooBar bar] {{ get; }}
+    }}
+
+    public class Bar
+    {{
+    }}
+
+    public class FooBar : Bar
+    {{
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            {call}.Returns(callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+        }}
+    }}
+}}";
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.CallInfoCouldNotConvertParameterAtPosition,
+                Severity = DiagnosticSeverity.Warning,
+                Message = "Couldn't convert parameter at position 1 to type MyNamespace.Bar.",
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(expectedLine, expectedColumn)
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string callInfo, string argAccess)

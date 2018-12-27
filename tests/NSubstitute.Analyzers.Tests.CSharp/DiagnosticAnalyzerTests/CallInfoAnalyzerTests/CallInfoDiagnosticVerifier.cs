@@ -103,35 +103,42 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAna
         [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = callInfo[1] as object;")]
         [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = callInfo.Args()[1] as BarBase;")]
         [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = callInfo.Args()[1] as object;")]
-        public abstract Task ReportsNoDiagnostic_WhenConvertingTypeToAssignableTypeForIndirectCasts(string call, string argAccess);
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = (int)callInfo.Args()[0];")]
+        public abstract Task ReportsNoDiagnostic_WhenManuallyCasting_ToSupportedType(string call, string argAccess);
 
         [Theory]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "callInfo.ArgAt<Bar>(1);", 32, 17)]
-        [InlineData("substitute.Foo(Arg.Any<int>(), Arg.Any<FooBar>())", "callInfo.ArgAt<Bar>(1);", 32, 17)]
         [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "var x = (Bar)callInfo[1];", 32, 30)]
         [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "var x = callInfo[1] as Bar;", 32, 25)]
         [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "var x = (Bar)callInfo.Args()[1];", 32, 30)]
         [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "var x = callInfo.Args()[1] as Bar;", 32, 25)]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "callInfo.ArgAt<Bar>(1);", 32, 17)]
         [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "var x = (Bar)callInfo[1];", 32, 30)]
         [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "var x = callInfo[1] as Bar;", 32, 25)]
         [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "var x = (Bar)callInfo.Args()[1];", 32, 30)]
         [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "var x = callInfo.Args()[1] as Bar;", 32, 25)]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<FooBar>()]", "callInfo.ArgAt<Bar>(1);", 32, 17)]
-        public abstract Task ReportsDiagnostic_WhenConvertingTypeToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn);
+        public abstract Task ReportsDiagnostic_WhenManuallyCasting_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn);
 
         [Theory]
-        [InlineData("substitute.Bar(Arg.Any<Bar>())", "callInfo.ArgAt<Bar>(0);")]
-        [InlineData("substitute.Bar(Arg.Any<Bar>())", "var x = (Bar)callInfo[0];")]
-        [InlineData("substitute.Bar(Arg.Any<Bar>())", "var x = callInfo[0] as Bar;")]
-        [InlineData("substitute.Bar(Arg.Any<Bar>())", "var x = (Bar)callInfo.Args()[0];")]
-        [InlineData("substitute.Bar(Arg.Any<Bar>())", "var x = callInfo.Args()[0] as Bar;")]
-        [InlineData("substitute[Arg.Any<Bar>()]", "callInfo.ArgAt<Bar>(0);")]
-        [InlineData("substitute[Arg.Any<Bar>()]", "var x = (Bar)callInfo[0];")]
-        [InlineData("substitute[Arg.Any<Bar>()]", "var x = callInfo[0] as Bar;")]
-        [InlineData("substitute[Arg.Any<Bar>()]", "var x = (Bar)callInfo.Args()[0];")]
-        [InlineData("substitute[Arg.Any<Bar>()]", "var x = callInfo.Args()[0] as Bar;")]
-        public abstract Task ReportsNoDiagnostic_WhenConvertingTypeToSupportedType(string call, string argAccess);
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "callInfo.ArgAt<Bar>(1);")]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "callInfo.ArgAt<BarBase>(1);")]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "callInfo.ArgAt<object>(1);")]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "callInfo.ArgAt<int>(0);")]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "callInfo.ArgAt<Bar>(1);")]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "callInfo.ArgAt<BarBase>(1);")]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "callInfo.ArgAt<object>(1);")]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "callInfo.ArgAt<int>(0);")]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "callInfo.ArgAt<object>(0);")]
+        public abstract Task ReportsNoDiagnostic_WhenCasting_WithArgAt_ToSupportedType(string call, string argAccess);
+
+        [Theory]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "callInfo.ArgAt<Bar>(1);", 32, 17)]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "callInfo.ArgAt<int>(1);", 32, 17)]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "callInfo.ArgAt<double>(0);", 32, 17)]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "callInfo.ArgAt<decimal>(0);", 32, 17)]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "callInfo.ArgAt<Bar>(1);", 32, 17)]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "callInfo.ArgAt<int>(1);", 32, 17)]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "callInfo.ArgAt<double>(0);", 32, 17)]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "callInfo.ArgAt<decimal>(0);", 32, 17)]
+        public abstract Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn);
 
         [Theory]
         [InlineData("substitute.Bar(Arg.Any<Bar>())", "var x = callInfo.ArgTypes() as object;")]
