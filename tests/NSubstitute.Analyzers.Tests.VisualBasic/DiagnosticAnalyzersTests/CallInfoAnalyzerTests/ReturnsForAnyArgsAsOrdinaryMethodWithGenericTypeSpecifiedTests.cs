@@ -207,11 +207,15 @@ Imports NSubstitute
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar(ByVal x As Bar) As Integer
-        Default ReadOnly Property Item(ByVal x As Bar) As Integer
+        Function Bar(ByVal x As Integer, ByVal y As Bar) As Integer
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Bar) As Integer
     End Interface
 
+    Public Class BarBase
+    End Class
+
     Public Class Bar
+        Inherits BarBase
     End Class
 
     Public Class FooTests
@@ -229,9 +233,49 @@ End Namespace
             await VerifyDiagnostic(source);
         }
 
-        public override Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn, string message)
+        public override async Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn, string message)
         {
-            throw new System.NotImplementedException();
+            var source = $@"Imports System
+Imports NSubstitute
+
+Namespace MyNamespace
+    Interface Foo
+        Function Bar(ByVal x As Integer, ByVal y As Double) As Integer
+        Function Foo(ByVal x As Integer, ByVal bar As FooBar) As Integer
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Double) As Integer
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal bar As FooBar) As Integer
+    End Interface
+
+    Public Class Bar
+    End Class
+
+    Public Class FooBar
+        Inherits Bar
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            SubstituteExtensions.ReturnsForAnyArgs(Of Integer)({call}, Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function)
+        End Sub
+    End Class
+End Namespace
+";
+            var expectedDiagnostic = new DiagnosticResult
+            {
+                Id = DiagnosticIdentifiers.CallInfoCouldNotConvertParameterAtPosition,
+                Severity = DiagnosticSeverity.Warning,
+                Message = message,
+                Locations = new[]
+                {
+                    new DiagnosticResultLocation(expectedLine, expectedColumn)
+                }
+            };
+
+            await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
         public override async Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string call, string argAccess)
