@@ -412,7 +412,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string call)
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string call, string argAccess, string message)
         {
             var source = $@"using System;
 using System;
@@ -437,7 +437,7 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
             {call}.ThrowsForAnyArgs(callInfo =>
             {{
-                callInfo.Arg<double>();
+                {argAccess}
                 return new Exception();
             }});
         }}
@@ -447,7 +447,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.CallInfoCouldNotFindArgumentToThisCall,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Can not find an argument of type double to this call.",
+                Message = message,
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(24, 17)
@@ -457,7 +457,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call)
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call, string argAccess)
         {
             var source = $@"using System;
 using System;
@@ -466,21 +466,33 @@ using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
-    public interface Foo
+    public interface IFoo
     {{
         int Bar(int x);
 
+        int Bar(Foo x);
+
         int this[int x] {{ get; }}
+
+        int this[Foo x] {{ get; }}
+    }}
+
+    public class FooBase
+    {{
+    }}
+
+    public class Foo : FooBase
+    {{
     }}
 
     public class FooTests
     {{
         public void Test()
         {{
-            var substitute = NSubstitute.Substitute.For<Foo>();
+            var substitute = NSubstitute.Substitute.For<IFoo>();
             {call}.ThrowsForAnyArgs(callInfo =>
             {{
-                callInfo.Arg<int>();
+                {argAccess}
                 return new Exception();
             }});
         }}
@@ -490,7 +502,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call)
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call, string argAccess, string message)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -512,7 +524,7 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
             {call}.ThrowsForAnyArgs(callInfo =>
             {{
-                callInfo.Arg<int>();
+                {argAccess}
                 return new Exception();
             }});
         }}
@@ -522,7 +534,7 @@ namespace MyNamespace
             {
                 Id = DiagnosticIdentifiers.CallInfoMoreThanOneArgumentOfType,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "There is more than one argument of type int to this call.",
+                Message = message,
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(21, 17)

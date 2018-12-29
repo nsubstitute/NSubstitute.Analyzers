@@ -195,20 +195,22 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallI
         public abstract Task ReportsNoDiagnostic_WhenAssigningValueToNotRefNorOutArgumentViaIndirectCall(string call, string argAccess);
 
         [Theory]
-        [InlineData("substitute.Bar(Arg.Any(Of Integer)())")]
-        [InlineData("substitute.Barr")]
-        [InlineData("substitute(Arg.Any(Of Integer)())")]
-        public abstract Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string call);
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "", "")]
+        [InlineData("substitute.Barr", "", "")]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "", "")]
+        public abstract Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string call, string argAccess, string message);
 
         [Theory]
         [InlineData("substitute.Bar(Arg.Any(Of Integer)())")]
         [InlineData("substitute(Arg.Any(Of Integer)())")]
-        public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call);
+        public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call,
+            string argAccess);
 
         [Theory]
         [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())")]
         [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())")]
-        public abstract Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call);
+        public abstract Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call,
+            string argAccess, string message);
 
         [Theory]
         [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())")]

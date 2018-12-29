@@ -341,7 +341,7 @@ End Namespace
             await VerifyDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string call)
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string call, string argAccess, string message)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -380,7 +380,8 @@ End Namespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call)
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call,
+            string argAccess)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -407,7 +408,8 @@ End Namespace
             await VerifyDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call)
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call,
+            string argAccess, string message)
         {
             var source = $@"Imports System
 Imports NSubstitute

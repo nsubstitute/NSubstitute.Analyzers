@@ -24,11 +24,11 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         Task ReportsNoDiagnostic_WhenAssigningValueToNotRefNorOutArgumentViaIndirectCall(string call, string argAccess);
 
-        Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string call);
+        Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string call, string argAccess, string message);
 
-        Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call);
+        Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call, string argAccess);
 
-        Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call);
+        Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call, string argAccess, string message);
 
         Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(string call);
 

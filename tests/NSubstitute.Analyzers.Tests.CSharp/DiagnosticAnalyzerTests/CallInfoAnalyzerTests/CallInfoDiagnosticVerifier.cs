@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
@@ -7,7 +6,6 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAnalyzerTests
 {
-    [SuppressMessage("ReSharper", "xUnit1013", Justification = "Reviewed")]
     public abstract class CallInfoDiagnosticVerifier : CSharpDiagnosticVerifier, ICallInfoDiagnosticVerifier
     {
         [Theory]
@@ -163,20 +161,30 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAna
         public abstract Task ReportsNoDiagnostic_WhenAssigningValueToNotRefNorOutArgumentViaIndirectCall(string call, string argAccess);
 
         [Theory]
-        [InlineData("substitute.Bar(Arg.Any<int>())")]
-        [InlineData("substitute.Barr")]
-        [InlineData("substitute[Arg.Any<int>()]")]
-        public abstract Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string call);
+        [InlineData("substitute.Barr", "callInfo.Arg<double>();", "Can not find an argument of type double to this call.")]
+        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo.Arg<double>();", "Can not find an argument of type double to this call.")]
+        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo.Arg<long>();", "Can not find an argument of type long to this call.")]
+        [InlineData("substitute[Arg.Any<int>()]", "callInfo.Arg<double>();", "Can not find an argument of type double to this call.")]
+        [InlineData("substitute[Arg.Any<int>()]", "callInfo.Arg<long>();", "Can not find an argument of type long to this call.")]
+        public abstract Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string call, string argAccess, string message);
 
         [Theory]
-        [InlineData("substitute.Bar(Arg.Any<int>())")]
-        [InlineData("substitute[Arg.Any<int>()]")]
-        public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call);
+        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo.Arg<int>();")]
+        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo.Arg<object>();")]
+        [InlineData("substitute.Bar(Arg.Any<Foo>())", "callInfo.Arg<FooBase>();")]
+        [InlineData("substitute.Bar(Arg.Any<Foo>())", "callInfo.Arg<object>();")]
+        [InlineData("substitute[Arg.Any<int>()]", "callInfo.Arg<int>();")]
+        [InlineData("substitute[Arg.Any<int>()]", "callInfo.Arg<object>();")]
+        [InlineData("substitute[Arg.Any<Foo>()]", "callInfo.Arg<FooBase>();")]
+        [InlineData("substitute[Arg.Any<Foo>()]", "callInfo.Arg<object>();")]
+        public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call, string argAccess);
 
         [Theory]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]")]
-        public abstract Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call);
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())", "callInfo.Arg<int>();", "There is more than one argument of type int to this call.")]
+        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())", "callInfo.Arg<object>();", "There is more than one argument of type object to this call.")]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", "callInfo.Arg<int>();", "There is more than one argument of type int to this call.")]
+        [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", "callInfo.Arg<object>();", "There is more than one argument of type object to this call.")]
+        public abstract Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call, string argAccess, string message);
 
         [Theory]
         [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())")]
