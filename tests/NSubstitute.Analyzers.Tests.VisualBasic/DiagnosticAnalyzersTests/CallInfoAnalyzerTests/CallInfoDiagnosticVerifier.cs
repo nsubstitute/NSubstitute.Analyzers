@@ -195,22 +195,30 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallI
         public abstract Task ReportsNoDiagnostic_WhenAssigningValueToNotRefNorOutArgumentViaIndirectCall(string call, string argAccess);
 
         [Theory]
-        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "", "")]
-        [InlineData("substitute.Barr", "", "")]
-        [InlineData("substitute(Arg.Any(Of Integer)())", "", "")]
+        [InlineData("substitute.Barr", "callInfo.Arg(Of Double)()", "Can not find an argument of type Double to this call.")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "callInfo.Arg(Of Double)()", "Can not find an argument of type Double to this call.")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "callInfo.Arg(Of Long)()", "Can not find an argument of type Long to this call.")]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo.Arg(Of Double)()", "Can not find an argument of type Double to this call.")]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo.Arg(Of Long)()", "Can not find an argument of type Long to this call.")]
         public abstract Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string call, string argAccess, string message);
 
         [Theory]
-        [InlineData("substitute.Bar(Arg.Any(Of Integer)())")]
-        [InlineData("substitute(Arg.Any(Of Integer)())")]
-        public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call,
-            string argAccess);
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "callInfo.Arg(Of Integer)()")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "callInfo.Arg(Of Object)()")]
+        [InlineData("substitute.Bar(Arg.Any(Of Foo)())", "callInfo.Arg(Of FooBase)()")]
+        [InlineData("substitute.Bar(Arg.Any(Of Foo)())", "callInfo.Arg(Of Object)()")]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo.Arg(Of Integer)()")]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo.Arg(Of Object)()")]
+        [InlineData("substitute(Arg.Any(Of Foo)())", "callInfo.Arg(Of FooBase)()")]
+        [InlineData("substitute(Arg.Any(Of Foo)())", "callInfo.Arg(Of Object)()")]
+        public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call, string argAccess);
 
         [Theory]
-        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())")]
-        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())")]
-        public abstract Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call,
-            string argAccess, string message);
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "callInfo.Arg(Of Integer)()", "There is more than one argument of type Integer to this call.")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "callInfo.Arg(Of Object)()", "There is more than one argument of type Object to this call.")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "callInfo.Arg(Of Integer)()", "There is more than one argument of type Integer to this call.")]
+        [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "callInfo.Arg(Of Object)()", "There is more than one argument of type Object to this call.")]
+        public abstract Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call, string argAccess, string message);
 
         [Theory]
         [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Double)())")]

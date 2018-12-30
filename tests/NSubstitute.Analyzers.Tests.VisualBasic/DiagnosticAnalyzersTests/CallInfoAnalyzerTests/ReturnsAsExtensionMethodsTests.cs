@@ -350,7 +350,7 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {call}.Returns(Function(callInfo)
-                               callInfo.Arg(Of Double)()
+                               {argAccess}
                                Return 1
                            End Function)
         End Sub
@@ -361,7 +361,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.CallInfoCouldNotFindArgumentToThisCall,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "Can not find an argument of type Double to this call.",
+                Message = message,
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(16, 32)
@@ -371,23 +371,31 @@ End Namespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call,
-            string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call, string argAccess)
         {
             var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
-    Interface Foo
+    Interface IFoo
         Function Bar(ByVal x As Integer) As Integer
+        Function Bar(ByVal x As Foo) As Integer
         Default ReadOnly Property Item(ByVal x As Integer) As Integer
+        Default ReadOnly Property Item(ByVal x As Foo) As Integer
     End Interface
+
+    Public Class FooBase
+    End Class
+
+    Public Class Foo
+        Inherits FooBase
+    End Class
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             {call}.Returns(Function(callInfo)
-                               callInfo.Arg(Of Integer)()
+                               {argAccess}
                                Return 1
                            End Function)
         End Sub
@@ -398,8 +406,7 @@ End Namespace
             await VerifyDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call,
-            string argAccess, string message)
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call, string argAccess, string message)
         {
             var source = $@"Imports NSubstitute
 
@@ -413,7 +420,7 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {call}.Returns(Function(callInfo)
-                               callInfo.Arg(Of Integer)()
+                               {argAccess}
                                Return 1
                            End Function)
         End Sub
@@ -424,7 +431,7 @@ End Namespace
             {
                 Id = DiagnosticIdentifiers.CallInfoMoreThanOneArgumentOfType,
                 Severity = DiagnosticSeverity.Warning,
-                Message = "There is more than one argument of type Integer to this call.",
+                Message = message,
                 Locations = new[]
                 {
                     new DiagnosticResultLocation(13, 32)
