@@ -8,12 +8,6 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ReEntrantRe
 {
     public class ReturnsAsExtensionMethodTests : ReEntrantReturnsSetupDiagnosticVerifier
     {
-        [Theory]
-        [InlineData("substitute.Foo().Returns(1);")]
-        [InlineData("OtherReturn(); substitute.Foo().Returns(1);")]
-        [InlineData("substitute.Foo().Returns<int>(1);")]
-        [InlineData("SubstituteExtensions.Returns(substitute.Foo(), 1);")]
-        [InlineData("SubstituteExtensions.Returns<int>(substitute.Foo(), 1);")]
         public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsViaMethodCall(string reEntrantCall)
         {
             var source = $@"using NSubstitute;
@@ -80,12 +74,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source, firstArgumentDiagnostic, secondArgumentDiagnostic);
         }
 
-        [Theory]
-        [InlineData("substitute.Foo().ReturnsForAnyArgs(1);")]
-        [InlineData("OtherReturn(); substitute.Foo().ReturnsForAnyArgs(1);")]
-        [InlineData("substitute.Foo().ReturnsForAnyArgs<int>(1);")]
-        [InlineData("SubstituteExtensions.ReturnsForAnyArgs(substitute.Foo(), 1);")]
-        [InlineData("SubstituteExtensions.ReturnsForAnyArgs<int>(substitute.Foo(), 1);")]
         public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsForAnyArgsViaMethodCall(string reEntrantCall)
         {
             var source = $@"using NSubstitute;
@@ -152,9 +140,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source, firstArgumentDiagnostic, secondArgumentDiagnostic);
         }
 
-        [Theory]
-        [InlineData("substitute.When(x => x.Foo()).Do(callInfo => { });")]
-        [InlineData("OtherReturn(); substitute.When(x => x.Foo()).Do(callInfo => { });")]
         public override async Task ReportsDiagnostic_WhenUsingReEntrantWhenDo(string reEntrantCall)
         {
             var source = $@"using NSubstitute;
@@ -221,7 +206,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source, firstArgumentDiagnostic, secondArgumentDiagnostic);
         }
 
-        [Fact]
         public override async Task ReportsDiagnostic_ForNestedReEntrantCall()
         {
             var source = @"using NSubstitute;
@@ -311,7 +295,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source, firstArgumentDiagnostic, secondArgumentDiagnostic, nestedArgumentDiagnostic);
         }
 
-        [Fact]
         public override async Task ReportsDiagnostic_ForSpecificNestedReEntrantCall()
         {
             var source = @"using NSubstitute;
@@ -377,11 +360,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source, firstArgumentDiagnostic);
         }
 
-        [Theory]
-        [InlineData("var bar = Bar();")]
-        [InlineData(@"var fooBar = Bar();
-IBar bar;
-bar = fooBar;")]
         public override async Task ReportsNoDiagnostic_WhenReturnsValueIsCreated_BeforeSetup(string localVariable)
         {
             var source = $@"using NSubstitute;
@@ -418,23 +396,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("MyMethod()", "substitute.Foo().Returns(1);")]
-        [InlineData("MyProperty", "substitute.Foo().Returns(1);")]
-        [InlineData("x => ReturnThis()", "substitute.Foo().Returns(1);")]
-        [InlineData("x => { return ReturnThis(); }", "substitute.Foo().Returns(1);")]
-        [InlineData("MyMethod()", "substitute.Foo().Returns<int>(1);")]
-        [InlineData("MyProperty", "substitute.Foo().Returns<int>(1);")]
-        [InlineData("x => ReturnThis()", "substitute.Foo().Returns<int>(1);")]
-        [InlineData("x => { return ReturnThis(); }", "substitute.Foo().Returns<int>(1);")]
-        [InlineData("MyMethod()", "SubstituteExtensions.Returns(substitute.Foo(), 1);")]
-        [InlineData("MyProperty", "SubstituteExtensions.Returns(substitute.Foo(), 1);")]
-        [InlineData("x => ReturnThis()", "SubstituteExtensions.Returns(substitute.Foo(), 1);")]
-        [InlineData("x => { return ReturnThis(); }", "SubstituteExtensions.Returns(substitute.Foo(), 1);")]
-        [InlineData("MyMethod()", "SubstituteExtensions.Returns<int>(substitute.Foo(), 1);")]
-        [InlineData("MyProperty", "SubstituteExtensions.Returns<int>(substitute.Foo(), 1);")]
-        [InlineData("x => ReturnThis()", "SubstituteExtensions.Returns<int>(substitute.Foo(), 1);")]
-        [InlineData("x => { return ReturnThis(); }", "SubstituteExtensions.Returns<int>(substitute.Foo(), 1);")]
         public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsCallExists(string rootCall, string reEntrantCall)
         {
             var source = $@"using NSubstitute;
@@ -492,23 +453,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("MyMethod()", "substitute.Foo().ReturnsForAnyArgs(1);")]
-        [InlineData("MyProperty", "substitute.Foo().ReturnsForAnyArgs(1);")]
-        [InlineData("x => ReturnThis()", "substitute.Foo().ReturnsForAnyArgs(1);")]
-        [InlineData("x => { return ReturnThis(); }", "substitute.Foo().ReturnsForAnyArgs(1);")]
-        [InlineData("MyMethod()", "substitute.Foo().ReturnsForAnyArgs<int>(1);")]
-        [InlineData("MyProperty", "substitute.Foo().ReturnsForAnyArgs<int>(1);")]
-        [InlineData("x => ReturnThis()", "substitute.Foo().ReturnsForAnyArgs<int>(1);")]
-        [InlineData("x => { return ReturnThis(); }", "substitute.Foo().ReturnsForAnyArgs<int>(1);")]
-        [InlineData("MyMethod()", "SubstituteExtensions.ReturnsForAnyArgs(substitute.Foo(), 1);")]
-        [InlineData("MyProperty", "SubstituteExtensions.ReturnsForAnyArgs(substitute.Foo(), 1);")]
-        [InlineData("x => ReturnThis()", "SubstituteExtensions.ReturnsForAnyArgs(substitute.Foo(), 1);")]
-        [InlineData("x => { return ReturnThis(); }", "SubstituteExtensions.ReturnsForAnyArgs(substitute.Foo(), 1);")]
-        [InlineData("MyMethod()", "SubstituteExtensions.ReturnsForAnyArgs<int>(substitute.Foo(), 1);")]
-        [InlineData("MyProperty", "SubstituteExtensions.ReturnsForAnyArgs<int>(substitute.Foo(), 1);")]
-        [InlineData("x => ReturnThis()", "SubstituteExtensions.ReturnsForAnyArgs<int>(substitute.Foo(), 1);")]
-        [InlineData("x => { return ReturnThis(); }", "SubstituteExtensions.ReturnsForAnyArgs<int>(substitute.Foo(), 1);")]
         public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsForAnyArgsCallExists(string rootCall, string reEntrantCall)
         {
             var source = $@"using NSubstitute;
@@ -566,11 +510,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("ReturnThis()", "OtherReturn()")]
-        [InlineData("ReturnThis", "OtherReturn")]
-        [InlineData("1", "2")]
-        [InlineData("x => 1", "x => 2")]
         public override async Task ReportsNoDiagnostic_WhenReEntrantSubstituteNotUsed(string firstReturn, string secondReturn)
         {
             var source = $@"using NSubstitute;
@@ -616,7 +555,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        [Fact]
         public override async Task ReportsDiagnostic_WhenUsingReEntrantReturns_AcrossMultipleFiles()
         {
             var source = @"using NSubstitute;

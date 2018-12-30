@@ -8,10 +8,6 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualS
 {
     public class WhenAsOrdinaryMethodWithGenericTypeSpecifiedTests : NonVirtualSetupWhenDiagnosticVerifier
     {
-        [Theory]
-        [InlineData("sub => sub.Bar()", 19, 63)]
-        [InlineData("delegate(Foo sub) { sub.Bar(); }", 19, 76)]
-        [InlineData("sub => { sub.Bar(); }", 19, 65)]
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string whenAction, int expectedLine, int expectedColumn)
         {
             var source = $@"using NSubstitute;
@@ -50,10 +46,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [Theory]
-        [InlineData("sub => sub.Bar()")]
-        [InlineData("delegate(Foo sub) { sub.Bar(); }")]
-        [InlineData("sub => { sub.Bar(); }")]
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string whenAction)
         {
             var source = $@"using NSubstitute;
@@ -81,10 +73,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("sub => sub.Bar()")]
-        [InlineData("delegate(Foo2 sub) { sub.Bar(); }")]
-        [InlineData("sub => { sub.Bar(); }")]
         public override async Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string whenAction)
         {
             var source = $@"using NSubstitute;
@@ -117,10 +105,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("sub => sub()")]
-        [InlineData("delegate(Func<int> sub) { sub(); }")]
-        [InlineData("sub => { sub(); }")]
         public override async Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string whenAction)
         {
             var source = $@"using NSubstitute;
@@ -141,10 +125,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("sub => sub.Bar()", 24, 64)]
-        [InlineData("delegate(Foo2 sub) { sub.Bar(); }", 24,  78)]
-        [InlineData("sub => { sub.Bar(); }", 24,  66)]
         public override async Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string whenAction, int expectedLine, int expectedColumn)
         {
             var source = $@"using NSubstitute;
@@ -189,10 +169,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [Theory]
-        [InlineData("sub => sub.Bar()")]
-        [InlineData("delegate(Foo sub) { sub.Bar(); }")]
-        [InlineData("sub => { sub.Bar(); }")]
         public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string whenAction)
         {
             var source = $@"using NSubstitute;
@@ -218,10 +194,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("sub => sub.Bar()")]
-        [InlineData("delegate(IFoo sub) { sub.Bar(); }")]
-        [InlineData("sub => { sub.Bar(); }")]
         public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod(string whenAction)
         {
             var source = $@"using NSubstitute;
@@ -246,10 +218,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("delegate(IFoo sub) { var x = sub.Bar; }")]
-        [InlineData("sub => { int x; x = sub.Bar; }")]
-        [InlineData("sub => { var x = sub.Bar; }")]
         public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string whenAction)
         {
             var source = $@"using NSubstitute;
@@ -274,10 +242,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("sub => sub.Bar<int>()")]
-        [InlineData("delegate(IFoo<int> sub) { sub.Bar<int>(); }")]
-        [InlineData("sub => { sub.Bar<int>(); }")]
         public override async Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod(string whenAction)
         {
             var source = $@"using NSubstitute;
@@ -302,10 +266,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("sub => { var x = sub.Bar; }")]
-        [InlineData("sub => { int x; x = sub.Bar; }")]
-        [InlineData("delegate(Foo sub) { var x = sub.Bar; }")]
         public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string whenAction)
         {
             var source = $@"using NSubstitute;
@@ -331,9 +291,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("delegate(IFoo sub) { var x = sub[1]; }")]
-        [InlineData("sub => { var x = sub[1]; }")]
         public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer(string whenAction)
         {
             var source = $@"using NSubstitute;
@@ -358,10 +315,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("sub => sub.Bar()")]
-        [InlineData("delegate(Foo sub) { sub.Bar(); }")]
-        [InlineData("sub => { sub.Bar(); }")]
         public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string whenAction)
         {
             var source = $@"
@@ -396,10 +349,6 @@ namespace NSubstitute
             await VerifyDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("sub => { var x = sub.Bar; }", 16, 73)]
-        [InlineData("sub => { int x; x = sub.Bar; }", 16, 76)]
-        [InlineData("delegate(Foo sub) { var x = sub.Bar; }", 16, 84)]
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string whenAction, int expectedLine, int expectedColumn)
         {
             var source = $@"using NSubstitute;
@@ -435,10 +384,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [Theory]
-        [InlineData("sub => { var x = sub.Bar; }")]
-        [InlineData("sub => { int x; x = sub.Bar; }")]
-        [InlineData("delegate(Foo sub) { var x = sub.Bar; }")]
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string whenAction)
         {
             var source = $@"using NSubstitute;
@@ -464,9 +409,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("sub => { var x = sub[1]; }", 16, 73)]
-        [InlineData("delegate(Foo sub) { var x = sub[1]; }", 16, 84)]
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string whenAction, int expectedLine, int expectedColumn)
         {
             var source = $@"using NSubstitute;
@@ -502,7 +444,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [Fact]
+
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InLocalFunction()
         {
             var source = @"using NSubstitute;
@@ -548,7 +490,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [Fact]
+
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InExpressionBodiedLocalFunction()
         {
             var source = @"using NSubstitute;
@@ -591,7 +533,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [Fact]
+
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularFunction()
         {
             var source = @"using NSubstitute;
@@ -637,7 +579,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [Fact]
+
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularExpressionBodiedFunction()
         {
             var source = @"using NSubstitute;
@@ -680,7 +622,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        [Fact]
+
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InLocalFunction()
         {
             var source = @"using NSubstitute;
@@ -716,7 +658,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        [Fact]
+
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InExpressionBodiedLocalFunction()
         {
             var source = @"using NSubstitute;
@@ -748,7 +690,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        [Fact]
+
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularFunction()
         {
             var source = @"using NSubstitute;
@@ -783,7 +725,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-        [Fact]
+
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularExpressionBodiedFunction()
         {
             var source = @"using NSubstitute;
