@@ -444,7 +444,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InLocalFunction()
         {
             var source = @"using NSubstitute;
@@ -490,7 +489,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InExpressionBodiedLocalFunction()
         {
             var source = @"using NSubstitute;
@@ -532,7 +530,6 @@ namespace MyNamespace
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
-
 
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularFunction()
         {
@@ -579,7 +576,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularExpressionBodiedFunction()
         {
             var source = @"using NSubstitute;
@@ -622,7 +618,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InLocalFunction()
         {
             var source = @"using NSubstitute;
@@ -658,7 +653,6 @@ namespace MyNamespace
             await VerifyDiagnostic(source);
         }
 
-
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InExpressionBodiedLocalFunction()
         {
             var source = @"using NSubstitute;
@@ -689,7 +683,6 @@ namespace MyNamespace
 }";
             await VerifyDiagnostic(source);
         }
-
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularFunction()
         {
@@ -724,7 +717,6 @@ namespace MyNamespace
 }";
             await VerifyDiagnostic(source);
         }
-
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularExpressionBodiedFunction()
         {

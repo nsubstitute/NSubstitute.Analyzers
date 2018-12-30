@@ -96,20 +96,28 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualS
         [InlineData("delegate(Foo sub) { var x = sub[1]; }", 16, 57)]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string whenAction, int expectedLine, int expectedColumn);
 
+        [Fact]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InLocalFunction();
 
+        [Fact]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InExpressionBodiedLocalFunction();
 
+        [Fact]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularFunction();
 
+        [Fact]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularExpressionBodiedFunction();
 
+        [Fact]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InLocalFunction();
 
+        [Fact]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InExpressionBodiedLocalFunction();
 
+        [Fact]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularFunction();
 
+        [Fact]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularExpressionBodiedFunction();
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
