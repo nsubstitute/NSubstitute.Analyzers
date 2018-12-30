@@ -7,7 +7,6 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallInfoAnalyzerTests
 {
-    [SuppressMessage("ReSharper", "xUnit1013", Justification = "Reviewed")]
     public abstract class CallInfoDiagnosticVerifier : VisualBasicDiagnosticVerifier, ICallInfoDiagnosticVerifier
     {
         [Theory]
