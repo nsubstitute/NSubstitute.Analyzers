@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using NSubstitute.Analyzers.CSharp;
 using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using Xunit;
@@ -430,18 +431,8 @@ namespace MyNamespace
         }}
     }}
 }}";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualWhenSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(expectedLine, expectedColumn)
-                }
-            };
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, DiagnosticDescriptors<DiagnosticDescriptorsProvider>.NonVirtualWhenSetupSpecification, "blah");
         }
 
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InLocalFunction()

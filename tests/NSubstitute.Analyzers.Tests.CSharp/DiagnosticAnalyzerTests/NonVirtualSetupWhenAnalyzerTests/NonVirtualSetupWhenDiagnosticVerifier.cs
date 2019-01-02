@@ -92,8 +92,8 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualS
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string whenAction);
 
         [Theory]
-        [InlineData("sub => { var x = sub[1]; }", 16, 46)]
-        [InlineData("delegate(Foo sub) { var x = sub[1]; }", 16, 57)]
+        [InlineData("sub => { var x = [|sub[1]|]; }", 16, 46)]
+        [InlineData("delegate(Foo sub) { var x = [|sub[1]|]; }", 16, 57)]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string whenAction, int expectedLine, int expectedColumn);
 
         [Fact]
