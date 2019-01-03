@@ -1,3 +1,8 @@
+### 1.0.4 (03 January 2019)
+
+ - [#57](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/57) - Incorrect NS3004 for derived types
+ - [#56](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/56) - Analyzer 'NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers.ReEntrantSetupAnalyzer' threw an exception of type 'System.ArgumentException' with message 'SyntaxTree is not part of the compilation'
+
 ### 1.0.3 (22 November 2018)
 
  - [#54](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/54) - Rule NS2003 does not detect InternalsVisibleTo correctly
