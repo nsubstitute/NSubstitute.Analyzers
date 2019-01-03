@@ -12,21 +12,23 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string call, string argAccess);
 
-        Task ReportsNoDiagnostic_WhenConvertingTypeToAssignableTypeForIndirectCasts(string call, string argAccess);
+        Task ReportsNoDiagnostic_WhenManuallyCasting_ToSupportedType(string call, string argAccess);
 
-        Task ReportsDiagnostic_WhenConvertingTypeToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn);
+        Task ReportsDiagnostic_WhenManuallyCasting_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn);
 
-        Task ReportsNoDiagnostic_WhenConvertingTypeToSupportedType(string call, string argAccess);
+        Task ReportsNoDiagnostic_WhenCasting_WithArgAt_ToSupportedType(string call, string argAccess);
+
+        Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn, string message);
 
         Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string call, string argAccess);
 
         Task ReportsNoDiagnostic_WhenAssigningValueToNotRefNorOutArgumentViaIndirectCall(string call, string argAccess);
 
-        Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string call);
+        Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string call, string argAccess, string message);
 
-        Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call);
+        Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call, string argAccess);
 
-        Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call);
+        Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call, string argAccess, string message);
 
         Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(string call);
 
@@ -38,8 +40,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         Task ReportsDiagnostic_WhenAssigningValueToOutOfBoundsArgument();
 
-        Task ReportsDiagnostic_WhenAssigningWrongTypeToArgument();
+        Task ReportsDiagnostic_WhenAssigningType_NotAssignableTo_Argument(string left, string right, string expectedMessage);
 
-        Task ReportsNoDiagnostic_WhenAssigningProperTypeToArgument();
+        Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string left, string right);
     }
 }
