@@ -65,6 +65,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract bool CanCast(Compilation compilation, ITypeSymbol sourceSymbol, ITypeSymbol destinationSymbol);
 
+        protected abstract bool IsAssignableTo(Compilation compilation, ITypeSymbol fromSymbol, ITypeSymbol toSymbol);
+
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
             var invocationExpression = (TInvocationExpressionSyntax)syntaxNodeContext.Node;
@@ -143,7 +145,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(argAtInvocation);
                     if (symbolInfo.Symbol != null &&
                         symbolInfo.Symbol is IMethodSymbol argAtMethodSymbol &&
-                        Equals(substituteCallParameters[position.Value].Type, argAtMethodSymbol.TypeArguments.First()) == false)
+                        IsAssignableTo(syntaxNodeContext.Compilation, substituteCallParameters[position.Value].Type, argAtMethodSymbol.TypeArguments.First()) == false)
                     {
                         var diagnostic = Diagnostic.Create(
                             DiagnosticDescriptorsProvider.CallInfoCouldNotConvertParameterAtPosition,
@@ -165,7 +167,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 if (symbolInfo.Symbol != null && symbolInfo.Symbol is IMethodSymbol argMethodSymbol)
                 {
                     var typeSymbol = argMethodSymbol.TypeArguments.First();
-                    var parameterCount = substituteCallParameters.Count(param => Equals(param.Type, typeSymbol));
+                    var parameterCount = substituteCallParameters.Count(param => IsAssignableTo(syntaxNodeContext.Compilation, param.Type, typeSymbol));
                     if (parameterCount == 0)
                     {
                         var diagnostic = Diagnostic.Create(
@@ -245,7 +247,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 }
 
                 var typeInfo = syntaxNodeContext.SemanticModel.GetTypeInfo(assignmentExpressionSyntax);
-                if (typeInfo.Type != null && Equals(typeInfo.Type, substituteCallParameters[position.Value].Type) == false)
+                if (typeInfo.Type != null && IsAssignableTo(syntaxNodeContext.Compilation, typeInfo.Type, substituteCallParameters[position.Value].Type) == false)
                 {
                     var diagnostic = Diagnostic.Create(
                         DiagnosticDescriptorsProvider.CallInfoArgumentSetWithIncompatibleValue,

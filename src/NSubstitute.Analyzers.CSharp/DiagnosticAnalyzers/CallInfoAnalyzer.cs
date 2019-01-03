@@ -86,5 +86,11 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
         {
             return compilation.ClassifyConversion(sourceSymbol, destinationSymbol).Exists;
         }
+
+        protected override bool IsAssignableTo(Compilation compilation, ITypeSymbol fromSymbol, ITypeSymbol toSymbol)
+        {
+            var conversion = compilation.ClassifyConversion(fromSymbol, toSymbol);
+            return conversion.Exists && conversion.IsExplicit == false && conversion.IsNumeric == false;
+        }
     }
 }
