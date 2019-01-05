@@ -237,7 +237,7 @@ Diagnostics:
                 VerifyLocation(actual.Location, expected.Location);
                 var additionalLocations = actual.AdditionalLocations.ToArray();
 
-                if (additionalLocations.Length != expected.AdditionalLocations.Count - 1)
+                if (additionalLocations.Length != expected.AdditionalLocations.Count)
                 {
                     var message =
                         $@"Expected {expected.AdditionalLocations.Count} additional locations but got {additionalLocations.Length} for Diagnostic:
@@ -562,7 +562,8 @@ Diagnostic:
 
         private protected Diagnostic CreateDiagnostic(DiagnosticDescriptor descriptor, TextSpan span, LinePositionSpan lineSpan)
         {
-            Location location = Location.Create(DefaultFilePathPrefix, span, lineSpan);
+            // TODO
+            Location location = Location.Create($"{DefaultFilePathPrefix}0.cs", span, lineSpan);
 
             return Diagnostic.Create(descriptor, location);
         }

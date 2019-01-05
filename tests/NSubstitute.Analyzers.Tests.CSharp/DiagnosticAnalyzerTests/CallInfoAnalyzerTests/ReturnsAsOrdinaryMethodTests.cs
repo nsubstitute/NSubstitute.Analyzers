@@ -3,14 +3,16 @@ using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.CSharp;
 using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using NSubstitute.Analyzers.Tests.Shared.Extensions;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAnalyzerTests
 {
+    [CombinatoryData("SubstituteExtensions.Returns", "SubstituteExtensions.Returns<int>", "SubstituteExtensions.ReturnsForAnyArgs", "SubstituteExtensions.ReturnsForAnyArgs<int>")]
     public class ReturnsAsOrdinaryMethodTests : CallInfoDiagnosticVerifier
     {
-        public override async Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string call, string argAccess)
+        public override async Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -32,7 +34,7 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             var returnedValue = {call};
-            SubstituteExtensions.Returns(returnedValue, callInfo =>
+            {method}(returnedValue, callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -44,7 +46,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string call, string argAccess, int expectedLine, int expectedColumn)
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -65,7 +67,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.Returns({call}, callInfo =>
+            {method}({call}, callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -74,14 +76,11 @@ namespace MyNamespace
     }}
 }}";
             var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentOutOfRange;
-            expectedDiagnostic.OverrideMessage("There is no argument at position 1");
 
-
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic.OverrideMessage("There is no argument at position 1"));
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentOutOfBound_AndPositionIsNotLiteralExpression(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentOutOfBound_AndPositionIsNotLiteralExpression(string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -102,7 +101,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.Returns({call}, callInfo =>
+            {method}({call}, callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -113,7 +112,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -134,7 +133,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.Returns({call}, callInfo =>
+            {method}({call}, callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -145,7 +144,8 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenManuallyCasting_ToSupportedType(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenManuallyCasting_ToSupportedType(string method, string call,
+            string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -172,7 +172,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.Returns({call}, callInfo =>
+            {method}({call}, callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -184,7 +184,8 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenManuallyCasting_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn)
+        public override async Task ReportsDiagnostic_WhenManuallyCasting_ToUnsupportedType(string method, string call,
+            string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -215,7 +216,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.Returns({call}, callInfo =>
+            {method}({call}, callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -224,12 +225,12 @@ namespace MyNamespace
     }}
 }}";
             var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoCouldNotConvertParameterAtPosition;
-            expectedDiagnostic.OverrideMessage("Couldn't convert parameter at position 1 to type MyNamespace.Bar.");
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic.OverrideMessage("Couldn't convert parameter at position 1 to type MyNamespace.Bar."));
         }
 
-        public override async Task ReportsNoDiagnostic_WhenCasting_WithArgAt_ToSupportedType(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenCasting_WithArgAt_ToSupportedType(string method, string call,
+            string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -256,7 +257,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.Returns({call}, callInfo =>
+            {method}({call}, callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -268,7 +269,8 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn, string message)
+        public override async Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string method, string call,
+            string argAccess, string message)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -299,7 +301,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.Returns({call}, callInfo =>
+            {method}({call}, callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -307,13 +309,13 @@ namespace MyNamespace
         }}
     }}
 }}";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage(message);
+            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoCouldNotConvertParameterAtPosition;
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic.OverrideMessage(message));
         }
 
-        public override async Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string method, string call,
+            string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -336,7 +338,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.Returns({call}, callInfo =>
+            {method}({call}, callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -347,7 +349,8 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAssigningValueToNotRefNorOutArgumentViaIndirectCall(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenAssigningValueToNotRefNorOutArgumentViaIndirectCall(
+            string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -370,7 +373,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.Returns({call}, callInfo =>
+            {method}({call}, callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -381,7 +384,8 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string call, string argAccess, string message)
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string method,
+            string call, string argAccess, string message)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -402,7 +406,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.Returns({call}, callInfo =>
+            {method}({call}, callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -411,12 +415,12 @@ namespace MyNamespace
     }}
 }}";
             var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoCouldNotFindArgumentToThisCall;
-            expectedDiagnostic.OverrideMessage(message);
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic.OverrideMessage(message));
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string method,
+            string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -447,7 +451,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<IFoo>();
-            SubstituteExtensions.Returns({call}, callInfo =>
+            {method}({call}, callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -459,7 +463,8 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call, string argAccess, string message)
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string method,
+            string call, string argAccess, string message)
         {
             var source = $@"using NSubstitute;
 
@@ -477,7 +482,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.Returns({call}, callInfo =>
+            {method}({call}, callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -486,12 +491,12 @@ namespace MyNamespace
     }}
 }}";
             var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoMoreThanOneArgumentOfType;
-            expectedDiagnostic.OverrideMessage(message);
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic.OverrideMessage(message));
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(string call)
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(
+            string method, string call)
         {
             var source = $@"using NSubstitute;
 
@@ -509,7 +514,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.Returns({call}, callInfo =>
+            {method}({call}, callInfo =>
             {{
                 callInfo.Arg<int>();
                 return 1;
@@ -521,7 +526,8 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string call)
+        public override async Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string method,
+            string call)
         {
             var source = $@"using NSubstitute;
 
@@ -539,108 +545,107 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.Returns({call}, callInfo =>
+            {method}({call}, callInfo =>
             {{
-                callInfo[1] = 1;
+                [|callInfo[1]|] = 1;
                 return 1;
             }});
         }}
     }}
 }}";
             var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentIsNotOutOrRef;
-            expectedDiagnostic.OverrideMessage("Could not set argument 1 (double) as it is not an out or ref argument.");
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic.OverrideMessage("Could not set argument 1 (double) as it is not an out or ref argument."));
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAssigningValueToRefArgument()
+        public override async Task ReportsNoDiagnostic_WhenAssigningValueToRefArgument(string method)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public interface Foo
-    {
+    {{
         int Bar(ref int x);
-    }
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
+        {{
             int value = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.Returns(substitute.Bar(ref value), callInfo =>
-            {
+            {method}(substitute.Bar(ref value), callInfo =>
+            {{
                 callInfo[0] = 1;
                 return 1;
-            });
-        }
-    }
-}";
+            }});
+        }}
+    }}
+}}";
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAssigningValueToOutArgument()
+        public override async Task ReportsNoDiagnostic_WhenAssigningValueToOutArgument(string method)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public interface Foo
-    {
+    {{
         int Bar(out int x);
-    }
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
+        {{
             int value = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.Returns(substitute.Bar(out value), callInfo =>
-            {
+            {method}(substitute.Bar(out value), callInfo =>
+            {{
                 callInfo[0] = 1;
                 return 1;
-            });
-        }
-    }
-}";
+            }});
+        }}
+    }}
+}}";
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenAssigningValueToOutOfBoundsArgument()
+        public override async Task ReportsDiagnostic_WhenAssigningValueToOutOfBoundsArgument(string method)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public interface Foo
-    {
+    {{
         int Bar(out int x);
-    }
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
+        {{
             int value = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.Returns(substitute.Bar(out value), callInfo =>
-            {
-                callInfo[1] = 1;
+            {method}(substitute.Bar(out value), callInfo =>
+            {{
+                [|callInfo[1]|] = 1;
                 return 1;
-            });
-        }
-    }
-}";
+            }});
+        }}
+    }}
+}}";
             var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentOutOfRange;
-            expectedDiagnostic.OverrideMessage("There is no argument at position 1");
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic.OverrideMessage("There is no argument at position 1"));
         }
 
-        public override async Task ReportsDiagnostic_WhenAssigningType_NotAssignableTo_Argument(string left, string right, string message)
+        public override async Task ReportsDiagnostic_WhenAssigningType_NotAssignableTo_Argument(string method,
+            string left, string right, string message)
         {
             var source = $@"using NSubstitute;
 using System.Collections.Generic;
@@ -658,9 +663,9 @@ namespace MyNamespace
         {{
             {left} value = default({left});
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.Returns(substitute.Bar(out value), callInfo =>
+            {method}(substitute.Bar(out value), callInfo =>
             {{
-                callInfo[0] = {right};
+                [|callInfo[0]|] = {right};
                 return 1;
             }});
         }}
@@ -668,12 +673,12 @@ namespace MyNamespace
 }}";
 
             var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage(message);
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic.OverrideMessage(message));
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string left, string right)
+        public override async Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string method,
+            string left, string right)
         {
             var source = $@"using NSubstitute;
 using System.Collections.Generic;
@@ -691,7 +696,7 @@ namespace MyNamespace
         {{
             {left} value = default({left});
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.Returns(substitute.Bar(out value), callInfo =>
+            {method}(substitute.Bar(out value), callInfo =>
             {{
                 callInfo[0] = {right};
                 return 1;

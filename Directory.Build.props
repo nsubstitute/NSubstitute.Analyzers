@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+        <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
         <CodeAnalysisRuleSet>../../Analyzers.ruleset</CodeAnalysisRuleSet>
     </PropertyGroup>
     <ItemGroup>
