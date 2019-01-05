@@ -1,7 +1,9 @@
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using NSubstitute.Analyzers.CSharp;
 using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Tests.Shared.Extensions;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ReEntrantReturnsSetupAnalyzerTests
@@ -47,29 +49,11 @@ namespace MyNamespace
     }}
 }}";
 
-            var firstArgumentDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(x => ReturnThis()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(20, 38)
-                }
-            };
+            var firstArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
+            expectedDiagnostic.OverrideMessage(expectedMessage);
 
-            var secondArgumentDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(x => OtherReturn()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(20, 52)
-                }
-            };
+            var secondArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
+            expectedDiagnostic.OverrideMessage(expectedMessage);
 
             await VerifyDiagnostic(source, firstArgumentDiagnostic, secondArgumentDiagnostic);
         }
@@ -113,29 +97,11 @@ namespace MyNamespace
     }}
 }}";
 
-            var firstArgumentDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(x => ReturnThis()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(20, 38)
-                }
-            };
+            var firstArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
+            expectedDiagnostic.OverrideMessage(expectedMessage);
 
-            var secondArgumentDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(x => OtherReturn()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(20, 52)
-                }
-            };
+            var secondArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
+            expectedDiagnostic.OverrideMessage(expectedMessage);
 
             await VerifyDiagnostic(source, firstArgumentDiagnostic, secondArgumentDiagnostic);
         }
@@ -179,29 +145,11 @@ namespace MyNamespace
     }}
 }}";
 
-            var firstArgumentDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(x => ReturnThis()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(20, 38)
-                }
-            };
+            var firstArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
+            expectedDiagnostic.OverrideMessage(expectedMessage);
 
-            var secondArgumentDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(x => OtherReturn()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(20, 52)
-                }
-            };
+            var secondArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
+            expectedDiagnostic.OverrideMessage(expectedMessage);
 
             await VerifyDiagnostic(source, firstArgumentDiagnostic, secondArgumentDiagnostic);
         }
@@ -256,41 +204,14 @@ namespace MyNamespace
     }
 }";
 
-            var firstArgumentDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(x => ReturnThis()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(20, 38)
-                }
-            };
+            var firstArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
+            expectedDiagnostic.OverrideMessage(expectedMessage);
 
-            var secondArgumentDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(x => OtherReturn()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(20, 52)
-                }
-            };
+            var secondArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
+            expectedDiagnostic.OverrideMessage(expectedMessage);
 
-            var nestedArgumentDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(x => NestedReturnThis()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(31, 38)
-                }
-            };
+            var nestedArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
+            expectedDiagnostic.OverrideMessage(expectedMessage);
 
             await VerifyDiagnostic(source, firstArgumentDiagnostic, secondArgumentDiagnostic, nestedArgumentDiagnostic);
         }
@@ -345,17 +266,8 @@ namespace MyNamespace
     }
 }";
 
-            var firstArgumentDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(x => NestedReturnThis()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(31, 38)
-                }
-            };
+            var firstArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
+            expectedDiagnostic.OverrideMessage(expectedMessage);
 
             await VerifyDiagnostic(source, firstArgumentDiagnostic);
         }
@@ -393,7 +305,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsCallExists(string rootCall, string reEntrantCall)
@@ -450,7 +362,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsForAnyArgsCallExists(string rootCall, string reEntrantCall)
@@ -507,7 +419,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostic_WhenReEntrantSubstituteNotUsed(string firstReturn, string secondReturn)
@@ -552,7 +464,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsDiagnostic_WhenUsingReEntrantReturns_AcrossMultipleFiles()
@@ -597,19 +509,10 @@ namespace MyNamespace
     }
 }";
 
-            var firstArgumentDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(x => FooBar.ReturnThis()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(20, 38)
-                }
-            };
+            var firstArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
+            firstArgumentDiagnostic.OverrideMessage("Returns() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(x => FooBar.ReturnThis()).");
 
-            await VerifyDiagnostic(new[] { source, secondSource }, firstArgumentDiagnostic);
+            await VerifyDiagnostics(new[] { source, secondSource }, firstArgumentDiagnostic);
         }
     }
 }

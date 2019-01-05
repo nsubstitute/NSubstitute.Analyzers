@@ -1,8 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using NSubstitute.Analyzers.CSharp;
 using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Tests.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Tests.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.UnusedReceivedAnalyzerTests
 {
@@ -27,16 +29,8 @@ namespace MyNamespace
         }
     }
 }";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.UnusedReceived,
-                Severity = DiagnosticSeverity.Warning,
-                Message = @"Unused received check. To fix, make sure there is a call after ""DidNotReceiveWithAnyArgs"". Correct: ""SubstituteExtensions.DidNotReceiveWithAnyArgs(sub).SomeCall();"". Incorrect: ""SubstituteExtensions.DidNotReceiveWithAnyArgs(sub);""",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(14, 13)
-                }
-            };
+            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.UnusedReceived;
+            expectedDiagnostic.OverrideMessage(@"Unused received check. To fix, make sure there is a call after ""DidNotReceiveWithAnyArgs"". Correct: ""SubstituteExtensions.DidNotReceiveWithAnyArgs(sub).SomeCall();"". Incorrect: ""SubstituteExtensions.DidNotReceiveWithAnyArgs(sub);""");
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
@@ -66,7 +60,7 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportNoDiagnostics_WhenUsedWithPropertyMemberAccess()
@@ -91,7 +85,7 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportNoDiagnostics_WhenUsedWithIndexerMemberAccess()
@@ -116,7 +110,7 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportNoDiagnostics_WhenUsedWithInvokingDelegate()
@@ -135,7 +129,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod()
@@ -161,7 +155,7 @@ namespace NSubstitute
         }
     }
 }";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
     }
 }

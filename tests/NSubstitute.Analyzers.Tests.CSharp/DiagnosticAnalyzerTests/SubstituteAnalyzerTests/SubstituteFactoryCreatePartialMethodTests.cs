@@ -28,16 +28,8 @@ namespace MyNamespace
         }
     }
 }";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.PartialSubstituteForUnsupportedType,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(new Type[] { typeof(IFoo)}, null) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(IFoo)}, null) here.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(14, 30)
-                }
-            };
+            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
+            expectedDiagnostic.OverrideMessage(expectedMessage);
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
@@ -62,16 +54,8 @@ namespace MyNamespace
         }
     }
 }";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.PartialSubstituteForUnsupportedType,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(new Type[] { typeof(Func<int>)}, null) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Func<int>)}, null) here.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(14, 30)
-                }
-            };
+            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
+            expectedDiagnostic.OverrideMessage(expectedMessage);
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
@@ -99,16 +83,8 @@ namespace MyNamespace
         }
     }
 }";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteForWithoutAccessibleConstructor,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(17, 30)
-                }
-            };
+            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
+            expectedDiagnostic.OverrideMessage(expectedMessage);
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
@@ -136,16 +112,8 @@ namespace MyNamespace
         }
     }
 }";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "The number of arguments passed to NSubstitute.Core.ISubstituteFactory.CreatePartial do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(17, 30)
-                }
-            };
+            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
+            expectedDiagnostic.OverrideMessage(expectedMessage);
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
@@ -173,16 +141,8 @@ namespace MyNamespace
         }
     }
 }";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "The number of arguments passed to NSubstitute.Core.ISubstituteFactory.CreatePartial do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(17, 30)
-                }
-            };
+            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
+            expectedDiagnostic.OverrideMessage(expectedMessage);
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
@@ -211,16 +171,8 @@ namespace MyNamespace
         }
     }
 }";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "The number of arguments passed to NSubstitute.Core.ISubstituteFactory.CreatePartial do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(18, 30)
-                }
-            };
+            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
+            expectedDiagnostic.OverrideMessage(expectedMessage);
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
@@ -245,16 +197,8 @@ namespace MyNamespace
         }
     }
 }";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteForInternalMember,
-                Severity = DiagnosticSeverity.Warning,
-                Message = @"Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via [assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(14, 30)
-                }
-            };
+            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
+            expectedDiagnostic.OverrideMessage(expectedMessage);
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
@@ -282,7 +226,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         [Fact]
@@ -308,16 +252,8 @@ namespace MyNamespace
         }
     }
 }";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteForInternalMember,
-                Severity = DiagnosticSeverity.Warning,
-                Message = @"Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via [assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(17, 30)
-                }
-            };
+            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
+            expectedDiagnostic.OverrideMessage(expectedMessage);
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
@@ -351,16 +287,8 @@ namespace MyNamespace
         }}
     }}
 }}";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteConstructorMismatch,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Arguments passed to NSubstitute.Core.ISubstituteFactory.CreatePartial do not match the constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required arguments and argument types.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(18, 30)
-                }
-            };
+            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
+            expectedDiagnostic.OverrideMessage(expectedMessage);
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
@@ -399,7 +327,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReturnsNoDiagnostic_WhenUsedWithGenericArgument()
@@ -419,7 +347,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
     }
 }

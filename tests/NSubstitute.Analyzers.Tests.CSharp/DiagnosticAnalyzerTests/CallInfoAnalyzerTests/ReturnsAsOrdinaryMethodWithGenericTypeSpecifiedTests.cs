@@ -1,7 +1,9 @@
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using NSubstitute.Analyzers.CSharp;
 using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Tests.Shared.Extensions;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAnalyzerTests
@@ -39,7 +41,7 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string call, string argAccess, int expectedLine, int expectedColumn)
@@ -71,16 +73,8 @@ namespace MyNamespace
         }}
     }}
 }}";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoArgumentOutOfRange,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "There is no argument at position 1",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(expectedLine, expectedColumn)
-                }
-            };
+            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentOutOfRange;
+            expectedDiagnostic.OverrideMessage("There is no argument at position 1");
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
@@ -114,7 +108,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string call, string argAccess)
@@ -146,7 +140,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostic_WhenManuallyCasting_ToSupportedType(string call, string argAccess)
@@ -185,7 +179,7 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsDiagnostic_WhenManuallyCasting_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn)
@@ -227,16 +221,8 @@ namespace MyNamespace
         }}
     }}
 }}";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoCouldNotConvertParameterAtPosition,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Couldn't convert parameter at position 1 to type MyNamespace.Bar.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(expectedLine, expectedColumn)
-                }
-            };
+            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoCouldNotConvertParameterAtPosition;
+            expectedDiagnostic.OverrideMessage("Couldn't convert parameter at position 1 to type MyNamespace.Bar.");
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
@@ -277,7 +263,7 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn, string message)
@@ -319,16 +305,8 @@ namespace MyNamespace
         }}
     }}
 }}";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoCouldNotConvertParameterAtPosition,
-                Severity = DiagnosticSeverity.Warning,
-                Message = message,
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(expectedLine, expectedColumn)
-                }
-            };
+            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoCouldNotConvertParameterAtPosition;
+            expectedDiagnostic.OverrideMessage(message);
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
@@ -364,7 +342,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostic_WhenAssigningValueToNotRefNorOutArgumentViaIndirectCall(string call, string argAccess)
@@ -398,7 +376,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string call, string argAccess, string message)
@@ -430,16 +408,8 @@ namespace MyNamespace
         }}
     }}
 }}";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoCouldNotFindArgumentToThisCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message = message,
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(22, 17)
-                }
-            };
+            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoCouldNotFindArgumentToThisCall;
+            expectedDiagnostic.OverrideMessage(message);
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
@@ -484,7 +454,7 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call, string argAccess, string message)
@@ -513,16 +483,8 @@ namespace MyNamespace
         }}
     }}
 }}";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoMoreThanOneArgumentOfType,
-                Severity = DiagnosticSeverity.Warning,
-                Message = message,
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(19, 17)
-                }
-            };
+            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoMoreThanOneArgumentOfType;
+            expectedDiagnostic.OverrideMessage(message);
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
@@ -554,7 +516,7 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string call)
@@ -583,16 +545,8 @@ namespace MyNamespace
         }}
     }}
 }}";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoArgumentIsNotOutOrRef,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Could not set argument 1 (double) as it is not an out or ref argument.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(19, 17)
-                }
-            };
+            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentIsNotOutOrRef;
+            expectedDiagnostic.OverrideMessage("Could not set argument 1 (double) as it is not an out or ref argument.");
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
@@ -622,7 +576,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostic_WhenAssigningValueToOutArgument()
@@ -650,7 +604,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsDiagnostic_WhenAssigningValueToOutOfBoundsArgument()
@@ -678,21 +632,13 @@ namespace MyNamespace
         }
     }
 }";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoArgumentOutOfRange,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "There is no argument at position 1",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(18, 17)
-                }
-            };
+            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentOutOfRange;
+            expectedDiagnostic.OverrideMessage("There is no argument at position 1");
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task ReportsDiagnostic_WhenAssigningType_NotAssignableTo_Argument(string left, string right, string expectedMessage)
+        public override async Task ReportsDiagnostic_WhenAssigningType_NotAssignableTo_Argument(string left, string right, string message)
         {
             var source = $@"using NSubstitute;
 using System.Collections.Generic;
@@ -719,16 +665,8 @@ namespace MyNamespace
     }}
 }}";
 
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoArgumentSetWithIncompatibleValue,
-                Severity = DiagnosticSeverity.Warning,
-                Message = expectedMessage,
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(19, 17)
-                }
-            };
+            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
+            expectedDiagnostic.OverrideMessage(message);
 
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
@@ -759,7 +697,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
     }
 }

@@ -65,7 +65,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForNonSealedMethod()
@@ -98,7 +98,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForDelegate()
@@ -117,7 +117,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForSealedMethod()
@@ -186,7 +186,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceMethod()
@@ -210,7 +210,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceProperty()
@@ -234,7 +234,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForGenericInterfaceMethod()
@@ -256,7 +256,7 @@ Namespace MyNamespace
         End Sub
     End Class
 End Namespace";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractProperty()
@@ -279,7 +279,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceIndexer()
@@ -301,7 +301,7 @@ Namespace MyNamespace
         End Sub
     End Class
 End Namespace";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualProperty()
@@ -327,7 +327,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualProperty()
@@ -396,7 +396,7 @@ Namespace MyNamespace
         End Sub
     End Class
 End Namespace";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualIndexer()
@@ -465,7 +465,7 @@ Namespace NSubstitute
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
     }
 }

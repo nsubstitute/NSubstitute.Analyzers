@@ -58,40 +58,41 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
                 CultureInfo.GetCultureInfoByIetfLanguageTag("en-US");
         }
 
-        public async Task VerifyDiagnostic(string source, DiagnosticDescriptor diagnosticDescriptor, string diagnosticMessage)
+        public async Task VerifyDiagnostic(string source, DiagnosticDescriptor diagnosticDescriptor)
         {
-            await VerifyDiagnostic(new[] { source }, diagnosticDescriptor, diagnosticMessage);
+            await VerifyDiagnostics(new[] { source }, diagnosticDescriptor);
         }
 
-        public async Task VerifyDiagnostic(string[] sources, DiagnosticDescriptor diagnosticDescriptor, string diagnosticMessage)
+        public async Task VerifyDiagnostics(string[] sources, DiagnosticDescriptor diagnosticDescriptor)
         {
-            /*
-
-            var expected = textParserResult.SelectMany(result => result.Spans.Select(span => new DiagnosticResult
-            {
-                Id = diagnosticId,
-                Severity = DiagnosticSeverity.Warning,
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(span.Start.LineIndex + 1, span.Start.ColumnIndex + 1),
-                },
-                Message = diagnosticMessage
-            })).ToArray();
-            */
-
             var textParserResult = sources.Select(source => TextParser.GetSpans(source)).ToList();
             var diagnostics = textParserResult.SelectMany(result => result.Spans.Select(span => CreateDiagnostic(diagnosticDescriptor, span.Span, span.LineSpan))).ToArray();
-            await VerifyDiagnostic(textParserResult.Select(result => result.Text).ToArray(), Language, GetDiagnosticAnalyzer(), diagnostics, false);
+            await VerifyDiagnostics(textParserResult.Select(result => result.Text).ToArray(), diagnostics);
         }
 
-        public async Task VerifyDiagnostic(string source, params DiagnosticResult[] expected)
+        public async Task VerifyDiagnostic(string source, Diagnostic[] diagnostics)
         {
-            await VerifyDiagnostic(new[] { source }, expected);
+            await VerifyDiagnostics(new[] { source }, diagnostics);
         }
 
-        public async Task VerifyDiagnostic(string[] sources, params DiagnosticResult[] expected)
+        public async Task VerifyDiagnostics(string[] sources, Diagnostic[] diagnostics)
         {
-            await VerifyDiagnostic(sources, Language, GetDiagnosticAnalyzer(), expected, false);
+            if (diagnostics == null || diagnostics.Length == 0)
+            {
+                throw new ArgumentException("Diagnostics should not be empty", nameof(diagnostics));
+            }
+
+            await VerifyDiagnostics(sources, Language, GetDiagnosticAnalyzer(), diagnostics, false);
+        }
+
+        public async Task VerifyNoDiagnostic(string source)
+        {
+            await VerifyNoDiagnostics(new[] { source });
+        }
+
+        public async Task VerifyNoDiagnostics(string[] sources)
+        {
+            await VerifyDiagnostics(sources, Language, GetDiagnosticAnalyzer(), Array.Empty<Diagnostic>(), false);
         }
 
         protected abstract DiagnosticAnalyzer GetDiagnosticAnalyzer();
@@ -207,6 +208,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
                 return solution.GetProject(projectId);
             }
         }
+
+        protected
 
         private static void VerifyDiagnosticResults(IEnumerable<Diagnostic> actualResults, DiagnosticAnalyzer analyzer, params Diagnostic[] expectedResults)
         {
@@ -500,7 +503,7 @@ Diagnostic:
             VerifyDiagnosticResults(diagnostics, analyzer, expected);
         }
 
-        private async Task VerifyDiagnostic(string[] sources, string language, DiagnosticAnalyzer analyzer, Diagnostic[] expected, bool allowCompilationErrors)
+        private async Task VerifyDiagnostics(string[] sources, string language, DiagnosticAnalyzer analyzer, Diagnostic[] expected, bool allowCompilationErrors)
         {
             var diagnostics = await GetSortedDiagnostics(sources, language, analyzer, allowCompilationErrors);
             VerifyDiagnosticResults(diagnostics, analyzer, expected);
