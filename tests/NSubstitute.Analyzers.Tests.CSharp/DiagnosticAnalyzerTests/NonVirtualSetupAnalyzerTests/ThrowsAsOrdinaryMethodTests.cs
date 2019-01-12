@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.CSharp;
 using NSubstitute.Analyzers.Shared;
@@ -797,41 +798,19 @@ namespace MyNamespace
     }
 }";
 
-             var expectedDiagnostic = new[]
-            {
-                new DiagnosticResult
-                {
-                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                    Severity = DiagnosticSeverity.Warning,
-                    Message = "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
-                    Locations = new[]
-                    {
-                        new DiagnosticResultLocation(37, 40)
-                    }
-                },
-                new DiagnosticResult
-                {
-                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                    Severity = DiagnosticSeverity.Warning,
-                    Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
-                    Locations = new[]
-                    {
-                        new DiagnosticResultLocation(38, 40)
-                    }
-                },
-                new DiagnosticResult
-                {
-                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                    Severity = DiagnosticSeverity.Warning,
-                    Message = "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
-                    Locations = new[]
-                    {
-                        new DiagnosticResultLocation(39, 40)
-                    }
-                }
-            };
+             var textParserResult = TextParser.GetSpans(source);
+             var diagnosticDescriptor = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.NonVirtualSetupSpecification;
 
-             await VerifyDiagnostic(source, expectedDiagnostic);
+             var diagnosticMessages = new[]
+             {
+                 "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                 "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                 "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted."
+             };
+
+             var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(diagnosticDescriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
+
+             await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
         public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireGenericType()
@@ -881,41 +860,19 @@ namespace MyNamespace
     }
 }";
 
-            var expectedDiagnostic = new[]
+            var textParserResult = TextParser.GetSpans(source);
+            var diagnosticDescriptor = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.NonVirtualSetupSpecification;
+
+            var diagnosticMessages = new[]
             {
-                new DiagnosticResult
-                {
-                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                    Severity = DiagnosticSeverity.Warning,
-                    Message = "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
-                    Locations = new[]
-                    {
-                        new DiagnosticResultLocation(37, 40)
-                    }
-                },
-                new DiagnosticResult
-                {
-                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                    Severity = DiagnosticSeverity.Warning,
-                    Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
-                    Locations = new[]
-                    {
-                        new DiagnosticResultLocation(38, 40)
-                    }
-                },
-                new DiagnosticResult
-                {
-                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                    Severity = DiagnosticSeverity.Warning,
-                    Message = "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
-                    Locations = new[]
-                    {
-                        new DiagnosticResultLocation(39, 40)
-                    }
-                }
+                "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted."
             };
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(diagnosticDescriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
+
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
         public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireNamespace()
@@ -969,41 +926,19 @@ namespace MyNamespace
     }
 }";
 
-            var expectedDiagnostic = new[]
+            var textParserResult = TextParser.GetSpans(source);
+            var diagnosticDescriptor = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.NonVirtualSetupSpecification;
+
+            var diagnosticMessages = new[]
             {
-                new DiagnosticResult
-                {
-                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                    Severity = DiagnosticSeverity.Warning,
-                    Message = "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
-                    Locations = new[]
-                    {
-                        new DiagnosticResultLocation(41, 40)
-                    }
-                },
-                new DiagnosticResult
-                {
-                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                    Severity = DiagnosticSeverity.Warning,
-                    Message = "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
-                    Locations = new[]
-                    {
-                        new DiagnosticResultLocation(42, 40)
-                    }
-                },
-                new DiagnosticResult
-                {
-                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                    Severity = DiagnosticSeverity.Warning,
-                    Message = "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
-                    Locations = new[]
-                    {
-                        new DiagnosticResultLocation(43, 40)
-                    }
-                }
+                "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+                "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted."
             };
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(diagnosticDescriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
+
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
         public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingExtensionMethod()
@@ -1047,21 +982,9 @@ namespace MyNamespace
         int Foo(object @obj);
     }
 }";
-            var expectedDiagnostic = new[]
-            {
-                new DiagnosticResult
-                {
-                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                    Severity = DiagnosticSeverity.Warning,
-                    Message = "Member GetFooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
-                    Locations = new[]
-                    {
-                        new DiagnosticResultLocation(14, 40)
-                    }
-                }
-            };
+            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.NonVirtualSetupSpecification;
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, expectedDiagnostic.OverrideMessage("Member GetFooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted."));
         }
     }
 }

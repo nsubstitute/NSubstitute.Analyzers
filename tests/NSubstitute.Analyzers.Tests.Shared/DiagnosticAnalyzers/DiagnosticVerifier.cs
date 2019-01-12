@@ -560,7 +560,7 @@ Diagnostic:
             return MetadataReference.CreateFromFile(Assembly.Load(assemblies.First(n => n.Name == name)).Location);
         }
 
-        private protected Diagnostic CreateDiagnostic(DiagnosticDescriptor descriptor, TextSpan span, LinePositionSpan lineSpan)
+        protected Diagnostic CreateDiagnostic(DiagnosticDescriptor descriptor, TextSpan span, LinePositionSpan lineSpan)
         {
             // TODO
             Location location = Location.Create($"{DefaultFilePathPrefix}0.cs", span, lineSpan);

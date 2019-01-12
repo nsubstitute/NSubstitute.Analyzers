@@ -1,9 +1,11 @@
 ﻿using System.Threading.Tasks;
+using Markdig.Syntax.Inlines;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Shared.Settings;
 using NSubstitute.Analyzers.Shared.TinyJson;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualSetupAnalyzerTests
@@ -12,7 +14,8 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualS
     {
         internal AnalyzersSettings Settings { get; set; }
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod();
 
         [Theory]
@@ -23,85 +26,112 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualS
         [InlineData(@"""1""", "string")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForLiteral(string literal, string type);
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsDiagnostics_WhenSettingValueForStaticMethod();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnostics_WhenDataFlowAnalysisIsRequired();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForDelegate();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualIndexer();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualProperty();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericProperty();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericMethod();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualIndexer();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericIndexer();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireType();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireGenericType();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireNamespace();
 
-        [Fact]
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingExtensionMethod();
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
