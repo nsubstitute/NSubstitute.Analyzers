@@ -10,7 +10,8 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualS
 {
     public class WhenAsExtensionMethodTests : NonVirtualSetupWhenDiagnosticVerifier
     {
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string whenAction, int expectedLine, int expectedColumn)
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method,
+            string whenAction, int expectedColumn)
         {
             var source = $@"using NSubstitute;
 
@@ -40,7 +41,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string method, string whenAction)
         {
             var source = $@"using NSubstitute;
 
@@ -67,7 +68,8 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string method,
+            string whenAction)
         {
             var source = $@"using NSubstitute;
 
@@ -99,7 +101,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string method, string whenAction)
         {
             var source = $@"using NSubstitute;
 using System;
@@ -119,7 +121,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string whenAction, int expectedLine, int expectedColumn)
+        public override async Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string method, string whenAction)
         {
             var source = $@"using NSubstitute;
 
@@ -155,7 +157,8 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string method,
+            string whenAction)
         {
             var source = $@"using NSubstitute;
 
@@ -180,7 +183,8 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod(string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod(string method,
+            string whenAction)
         {
             var source = $@"using NSubstitute;
 
@@ -204,7 +208,8 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string method,
+            string whenAction)
         {
             var source = $@"using NSubstitute;
 
@@ -228,7 +233,8 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod(string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod(string method,
+            string whenAction)
         {
             var source = $@"using NSubstitute;
 
@@ -252,7 +258,8 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string method,
+            string whenAction)
         {
             var source = $@"using NSubstitute;
 
@@ -277,7 +284,8 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer(string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer(string method,
+            string whenAction)
         {
             var source = $@"using NSubstitute;
 
@@ -301,7 +309,8 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method,
+            string whenAction)
         {
             var source = $@"
 
@@ -335,7 +344,8 @@ namespace NSubstitute
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string whenAction, int expectedLine, int expectedColumn)
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string method,
+            string whenAction, int expectedColumn)
         {
             var source = $@"using NSubstitute;
 
@@ -362,7 +372,8 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string method,
+            string whenAction)
         {
             var source = $@"using NSubstitute;
 
@@ -387,7 +398,8 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string whenAction, int expectedLine, int expectedColumn)
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string method,
+            string whenAction, int expectedColumn)
         {
             var source = $@"using NSubstitute;
 
@@ -414,7 +426,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InLocalFunction()
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InLocalFunction(string method)
         {
             var source = @"using NSubstitute;
 
@@ -451,7 +463,8 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InExpressionBodiedLocalFunction()
+        public override async Task
+            ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InExpressionBodiedLocalFunction(string method)
         {
             var source = @"using NSubstitute;
 
@@ -485,7 +498,8 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularFunction()
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularFunction(
+            string method)
         {
             var source = @"using NSubstitute;
 
@@ -522,7 +536,8 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularExpressionBodiedFunction()
+        public override async Task
+            ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularExpressionBodiedFunction(string method)
         {
             var source = @"using NSubstitute;
 
@@ -556,7 +571,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, expectedDiagnostic);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InLocalFunction()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InLocalFunction(string method)
         {
             var source = @"using NSubstitute;
 
@@ -591,7 +606,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InExpressionBodiedLocalFunction()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InExpressionBodiedLocalFunction(string method)
         {
             var source = @"using NSubstitute;
 
@@ -622,7 +637,8 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularFunction()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularFunction(
+            string method)
         {
             var source = @"using NSubstitute;
 
@@ -656,7 +672,8 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularExpressionBodiedFunction()
+        public override async Task
+            ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularExpressionBodiedFunction(string method)
         {
             var source = @"using NSubstitute;
 

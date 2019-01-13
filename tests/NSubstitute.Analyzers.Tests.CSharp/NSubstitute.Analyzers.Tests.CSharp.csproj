@@ -16,19 +16,16 @@
     <ProjectReference Include="..\NSubstitute.Analyzers.Tests.Shared\NSubstitute.Analyzers.Tests.Shared.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="DiagnosticAnalyzerTests\NonVirtualSetupWhenAnalyzerTests\**" />
     <Compile Remove="DiagnosticAnalyzerTests\ReEntrantReturnsSetupAnalyzerTests\**" />
     <Compile Remove="DiagnosticAnalyzerTests\SubstituteAnalyzerTests\**" />
     <Compile Remove="DiagnosticAnalyzerTests\UnusedReceivedAnalyzerTests\**" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Remove="DiagnosticAnalyzerTests\NonVirtualSetupWhenAnalyzerTests\**" />
     <EmbeddedResource Remove="DiagnosticAnalyzerTests\ReEntrantReturnsSetupAnalyzerTests\**" />
     <EmbeddedResource Remove="DiagnosticAnalyzerTests\SubstituteAnalyzerTests\**" />
     <EmbeddedResource Remove="DiagnosticAnalyzerTests\UnusedReceivedAnalyzerTests\**" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="DiagnosticAnalyzerTests\NonVirtualSetupWhenAnalyzerTests\**" />
     <None Remove="DiagnosticAnalyzerTests\ReEntrantReturnsSetupAnalyzerTests\**" />
     <None Remove="DiagnosticAnalyzerTests\SubstituteAnalyzerTests\**" />
     <None Remove="DiagnosticAnalyzerTests\UnusedReceivedAnalyzerTests\**" />
