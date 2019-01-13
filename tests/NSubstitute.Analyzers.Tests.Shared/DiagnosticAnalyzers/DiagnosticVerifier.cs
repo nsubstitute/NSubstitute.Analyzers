@@ -14,6 +14,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Shared.Settings;
+using NSubstitute.Analyzers.Tests.Shared.Extensions;
 using NSubstitute.Analyzers.Tests.Shared.Text;
 using Xunit;
 
@@ -58,13 +59,17 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
                 CultureInfo.GetCultureInfoByIetfLanguageTag("en-US");
         }
 
-        public async Task VerifyDiagnostic(string source, DiagnosticDescriptor diagnosticDescriptor)
+        public async Task VerifyDiagnostic(string source, DiagnosticDescriptor diagnosticDescriptor, string overridenDiagnosticMessage = null)
         {
             await VerifyDiagnostics(new[] { source }, diagnosticDescriptor);
         }
 
-        public async Task VerifyDiagnostics(string[] sources, DiagnosticDescriptor diagnosticDescriptor)
+        public async Task VerifyDiagnostics(string[] sources, DiagnosticDescriptor diagnosticDescriptor, string overridenDiagnosticMessage = null)
         {
+            diagnosticDescriptor = overridenDiagnosticMessage == null
+                ? diagnosticDescriptor
+                : diagnosticDescriptor.OverrideMessage(overridenDiagnosticMessage);
+
             var textParserResult = sources.Select(source => TextParser.GetSpans(source)).ToList();
             var diagnostics = textParserResult.SelectMany(result => result.Spans.Select(span => CreateDiagnostic(diagnosticDescriptor, span.Span, span.LineSpan))).ToArray();
             await VerifyDiagnostics(textParserResult.Select(result => result.Text).ToArray(), diagnostics);

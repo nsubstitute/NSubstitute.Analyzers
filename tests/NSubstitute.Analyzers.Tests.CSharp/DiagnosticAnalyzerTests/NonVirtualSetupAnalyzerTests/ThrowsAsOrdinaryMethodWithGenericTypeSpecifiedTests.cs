@@ -1,17 +1,24 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using NSubstitute.Analyzers.CSharp;
+using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Shared.Settings;
+using NSubstitute.Analyzers.Tests.Shared;
+using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using NSubstitute.Analyzers.Tests.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualSetupAnalyzerTests
 {
-    [CombinatoryData("Returns", "Returns<int>", "ReturnsForAnyArgs", "ReturnsForAnyArgs<int>")]
-    public class ReturnsAsExtensionMethodTests : NonVirtualSetupDiagnosticVerifier
+    [CombinatoryData("ExceptionExtensions.Throws<Exception>", "ExceptionExtensions.ThrowsForAnyArgs<Exception>")]
+    public class ThrowsAsOrdinaryMethodWithGenericTypeSpecifiedTests : NonVirtualSetupDiagnosticVerifier
     {
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -28,18 +35,19 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            [|substitute.Bar()|].{method}(1);
+            {method}([|substitute.Bar()|]);
         }}
     }}
 }}";
+
             await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
         }
 
-        [CombinatoryData("Returns", "Returns<>", "ReturnsForAnyArgs", "ReturnsForAnyArgs<>")]
         public override async Task ReportsDiagnostics_WhenSettingValueForLiteral(string method, string literal, string type)
         {
-            method = method.Replace("<>", $"<{type}>");
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -47,7 +55,7 @@ namespace MyNamespace
     {{
         public void Test()
         {{
-            [|{literal}|].{method}({literal});
+            {method}([|{literal}|]);
         }}
     }}
 }}";
@@ -57,7 +65,9 @@ namespace MyNamespace
 
         public override async Task ReportsDiagnostics_WhenSettingValueForStaticMethod(string method)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -73,7 +83,7 @@ namespace MyNamespace
     {{
         public void Test()
         {{
-            [|Foo.Bar()|].{method}(1);
+            {method}([|Foo.Bar()|]);
         }}
     }}
 }}";
@@ -83,7 +93,9 @@ namespace MyNamespace
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string method)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -100,7 +112,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar().{method}(1);
+            {method}(substitute.Bar());
         }}
     }}
 }}";
@@ -109,7 +121,9 @@ namespace MyNamespace
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string method)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -131,7 +145,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo2>();
-            substitute.Bar().{method}(1);
+            {method}(substitute.Bar());
         }}
     }}
 }}";
@@ -140,7 +154,9 @@ namespace MyNamespace
 
         public override async Task ReportsNoDiagnostics_WhenDataFlowAnalysisIsRequired(string method)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -158,7 +174,7 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             var returnValue = substitute.Bar();
-            returnValue.{method}(1);
+            {method}(returnValue);
         }}
     }}
 }}";
@@ -167,7 +183,9 @@ namespace MyNamespace
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string method)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using System;
 
 namespace MyNamespace
@@ -177,7 +195,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = Substitute.For<Func<int>>();
-            substitute().{method}(1);
+            {method}(substitute());
         }}
     }}
 }}";
@@ -186,7 +204,9 @@ namespace MyNamespace
 
         public override async Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string method)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -208,7 +228,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo2>();
-            [|substitute.Bar()|].{method}(1);
+            {method}([|substitute.Bar()|]);
         }}
     }}
 }}";
@@ -218,7 +238,9 @@ namespace MyNamespace
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string method)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -232,7 +254,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar().{method}(1);
+            {method}(substitute.Bar());
         }}
     }}
 }}";
@@ -242,7 +264,9 @@ namespace MyNamespace
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod(string method)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -256,7 +280,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<IFoo>();
-            substitute.Bar().{method}(1);
+            {method}(substitute.Bar());
         }}
     }}
 }}";
@@ -265,7 +289,9 @@ namespace MyNamespace
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string method)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -279,7 +305,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<IFoo>();
-            substitute.Bar.{method}(1);
+            {method}(substitute.Bar);
         }}
     }}
 }}";
@@ -288,11 +314,13 @@ namespace MyNamespace
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod(string method)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
-   public interface IFoo<T>
+    public interface IFoo<T>
     {{
         int Bar<T>();
     }}
@@ -302,7 +330,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<IFoo<int>>();
-            substitute.Bar<int>().{method}(1);
+            {method}(substitute.Bar<int>());
         }}
     }}
 }}";
@@ -311,7 +339,9 @@ namespace MyNamespace
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string method)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -325,7 +355,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar.{method}(1);
+            {method}(substitute.Bar);
         }}
     }}
 }}";
@@ -335,7 +365,9 @@ namespace MyNamespace
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer(string method)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -349,7 +381,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<IFoo>();
-            substitute[1].{method}(1);
+            {method}(substitute[1]);
         }}
     }}
 }}";
@@ -358,7 +390,9 @@ namespace MyNamespace
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string method)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -372,7 +406,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar.{method}(1);
+            {method}(substitute.Bar);
         }}
     }}
 }}";
@@ -382,7 +416,9 @@ namespace MyNamespace
 
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string method)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -396,7 +432,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            [|substitute.Bar|].{method}(1);
+            {method}([|substitute.Bar|]);
         }}
     }}
 }}";
@@ -406,7 +442,9 @@ namespace MyNamespace
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualIndexer(string method)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -420,7 +458,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute[1].{method}(1);
+            {method}(substitute[1]);
         }}
     }}
 }}";
@@ -429,7 +467,9 @@ namespace MyNamespace
 
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string method)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -443,7 +483,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            [|substitute[1]|].{method}(1);
+            {method}([|substitute[1]|]);
         }}
     }}
 }}";
@@ -454,7 +494,7 @@ namespace MyNamespace
         public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method)
         {
             var source = $@"
-
+using System;
 namespace NSubstitute
 {{
     public class Foo
@@ -465,14 +505,14 @@ namespace NSubstitute
         }}
     }}
 
-    public static class SubstituteExtensions
+    public static class ExceptionExtensions
     {{
-        public static T Returns<T>(this T returnValue, T returnThis)
+        public static T Throws<T>(this object value) where T: Exception
         {{
             return default(T);
         }}
 
-        public static T ReturnsForAnyArgs<T>(this T returnValue, T returnThis)
+        public static T ThrowsForAnyArgs<T>(this object value) where T: Exception
         {{
             return default(T);
         }}
@@ -483,18 +523,21 @@ namespace NSubstitute
         public void Test()
         {{
             Foo substitute = null;
-            substitute.Bar().{method}(1);
+            {method}(substitute.Bar());
         }}
     }}
 }}";
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualProperty(string method)
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualProperty(
+            string method)
         {
             Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo.Bar", Descriptor.Id);
 
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -510,8 +553,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar.{method}(1);
-            [|substitute.FooBar|].{method}(1);
+            {method}(substitute.Bar);
+            {method}([|substitute.FooBar|]);
         }}
     }}
 }}";
@@ -524,7 +567,9 @@ namespace MyNamespace
         {
             Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo`1.Bar", Descriptor.Id);
 
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -540,8 +585,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo<int>>();
-            substitute.Bar.{method}(1);
-            [|substitute.FooBar|].{method}(1);
+            {method}(substitute.Bar);
+            {method}([|substitute.FooBar|]);
         }}
     }}
 }}";
@@ -549,11 +594,14 @@ namespace MyNamespace
             await VerifyDiagnostic(source, Descriptor, "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
         }
 
-        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod(string method)
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod(
+            string method)
         {
             Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar(System.Int32,System.Int32)", Descriptor.Id);
 
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -575,8 +623,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar(1, 2).{method}(1);
-            [|substitute.Bar(1)|].{method}(1);
+            {method}(substitute.Bar(1, 2));
+            {method}([|substitute.Bar(1)|]);
         }}
     }}
 }}";
@@ -589,7 +637,9 @@ namespace MyNamespace
         {
             Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar``1(``0,``0)", Descriptor.Id);
 
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -611,8 +661,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar<int>(1, 2).{method}(1);
-            [|substitute.Bar(1)|].{method}(1);
+            {method}(substitute.Bar<int>(1, 2));
+            {method}([|substitute.Bar(1)|]);
         }}
     }}
 }}";
@@ -620,11 +670,14 @@ namespace MyNamespace
             await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
         }
 
-        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualIndexer(string method)
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualIndexer(
+            string method)
         {
             Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo.Item(System.Int32,System.Int32)", Descriptor.Id);
 
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -639,8 +692,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute[1, 2].{method}(1);
-            [|substitute[1]|].{method}(1);
+            {method}(substitute[1,2]);
+            {method}([|substitute[1]|]);
         }}
     }}
 }}";
@@ -653,7 +706,9 @@ namespace MyNamespace
         {
             Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo`1.Item(`0,`0)", Descriptor.Id);
 
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -668,8 +723,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo<int>>();
-            substitute[1, 2].{method}(1);
-            [|substitute[1]|].{method}(1);
+            {method}(substitute[1, 2]);
+            {method}([|substitute[1]|]);
         }}
     }}
 }}";
@@ -677,11 +732,14 @@ namespace MyNamespace
             await VerifyDiagnostic(source, Descriptor, "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
         }
 
-        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireType(string method)
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireType(
+            string method)
         {
             Settings = AnalyzersSettings.CreateWithSuppressions("T:MyNamespace.Foo", Descriptor.Id);
 
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -710,14 +768,14 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute[1].{method}(1);
-            substitute.Bar.{method}(1);
-            substitute.FooBar().{method}(1);
+            {method}(substitute[1]);
+            {method}(substitute.Bar);
+            {method}(substitute.FooBar());
 
             var substituteFooBarBar = NSubstitute.Substitute.For<FooBarBar>();
-            [|substituteFooBarBar[1]|].{method}(1);
-            [|substituteFooBarBar.Bar|].{method}(1);
-            [|substituteFooBarBar.FooBar()|].{method}(1);
+            {method}([|substituteFooBarBar[1]|]);
+            {method}([|substituteFooBarBar.Bar|]);
+            {method}([|substituteFooBarBar.FooBar()|]);
         }}
     }}
 }}";
@@ -736,11 +794,14 @@ namespace MyNamespace
             await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
-        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireGenericType(string method)
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireGenericType(
+            string method)
         {
             Settings = AnalyzersSettings.CreateWithSuppressions("T:MyNamespace.Foo`1", Descriptor.Id);
 
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -769,14 +830,14 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo<int>>();
-            substitute[1].{method}(1);
-            substitute.Bar.{method}(1);
-            substitute.FooBar().{method}(1);
+            {method}(substitute[1]);
+            {method}(substitute.Bar);
+            {method}(substitute.FooBar());
 
             var substituteFooBarBar = NSubstitute.Substitute.For<FooBarBar<int>>();
-            [|substituteFooBarBar[1]|].{method}(1);
-            [|substituteFooBarBar.Bar|].{method}(1);
-            [|substituteFooBarBar.FooBar()|].{method}(1);
+            {method}([|substituteFooBarBar[1]|]);
+            {method}([|substituteFooBarBar.Bar|]);
+            {method}([|substituteFooBarBar.FooBar()|]);
         }}
     }}
 }}";
@@ -800,7 +861,9 @@ namespace MyNamespace
         {
             Settings = AnalyzersSettings.CreateWithSuppressions("N:MyNamespace", Descriptor.Id);
 
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyOtherNamespace
 {{
@@ -833,14 +896,14 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute[1].{method}(1);
-            substitute.Bar.{method}(1);
-            substitute.FooBar().{method}(1);
+            {method}(substitute[1]);
+            {method}(substitute.Bar);
+            {method}(substitute.FooBar());
 
             var substituteFooBarBar = NSubstitute.Substitute.For<FooBarBar>();
-            [|substituteFooBarBar[1]|].{method}(1);
-            [|substituteFooBarBar.Bar|].{method}(1);
-            [|substituteFooBarBar.FooBar()|].{method}(1);
+            {method}([|substituteFooBarBar[1]|]);
+            {method}([|substituteFooBarBar.Bar|]);
+            {method}([|substituteFooBarBar.FooBar()|]);
         }}
     }}
 }}";
@@ -854,7 +917,8 @@ namespace MyNamespace
                 "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted."
             };
 
-            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
+            var diagnostics = textParserResult.Spans.Select((span, idx) =>
+                CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
 
             await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
@@ -863,7 +927,9 @@ namespace MyNamespace
         {
             Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.MyExtensions.GetBar(System.Object)~System.Int32", Descriptor.Id);
 
-            var source = $@"using NSubstitute;
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -873,8 +939,8 @@ namespace MyNamespace
         {{
             MyExtensions.Bar = Substitute.For<IBar>();
             var substitute = Substitute.For<object>();
-            substitute.GetBar().{method}(1);
-            [|substitute.GetFooBar()|].{method}(1);
+            {method}(substitute.GetBar());
+            {method}([|substitute.GetFooBar()|]);
         }}
     }}
 
@@ -899,7 +965,7 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source, Descriptor, "Member GetFooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
+            await VerifyDiagnostic(source, Descriptor, "Member GetFooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted."));
         }
     }
 }

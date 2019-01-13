@@ -1,7 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Markdig.Syntax.Inlines;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.CSharp;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Shared.Settings;
 using NSubstitute.Analyzers.Shared.TinyJson;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
@@ -13,6 +16,8 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualS
     public abstract class NonVirtualSetupDiagnosticVerifier : CSharpDiagnosticVerifier, INonVirtualSetupDiagnosticVerifier
     {
         internal AnalyzersSettings Settings { get; set; }
+
+        protected DiagnosticDescriptor Descriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.NonVirtualSetupSpecification;
 
         [CombinatoryTheory]
         [InlineData]
