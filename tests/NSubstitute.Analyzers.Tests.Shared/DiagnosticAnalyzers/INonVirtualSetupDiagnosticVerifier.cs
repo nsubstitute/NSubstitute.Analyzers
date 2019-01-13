@@ -4,15 +4,15 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 {
     public interface INonVirtualSetupDiagnosticVerifier
     {
-        Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod();
+        Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method);
 
-        Task ReportsDiagnostics_WhenSettingValueForLiteral(string literal, string type);
+        Task ReportsDiagnostics_WhenSettingValueForLiteral(string method, string literal, string type);
 
-        Task ReportsDiagnostics_WhenSettingValueForStaticMethod();
+        Task ReportsDiagnostics_WhenSettingValueForStaticMethod(string method);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod();
+        Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string method);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod();
+        Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string method);
 
         /// <summary>
         /// As for today cases where setup is done indirectly e.g
@@ -24,53 +24,52 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
         /// are not correctly analyzed as they require data flow analysys,
         /// this test makes sure that such cases are ignored and does not produces a false warnings
         /// </summary>
-        /// <returns>Task</returns>
-        Task ReportsNoDiagnostics_WhenDataFlowAnalysisIsRequired();
+        Task ReportsNoDiagnostics_WhenDataFlowAnalysisIsRequired(string method);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForDelegate();
+        Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string method);
 
-        Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod();
+        Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string method);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod();
+        Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod(string method);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty();
+        Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string method);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod();
+        Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod(string method);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod();
+        Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string method);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer();
+        Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer(string method);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty();
+        Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string method);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty();
+        Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string method);
 
-        Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty();
+        Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string method);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForVirtualIndexer();
+        Task ReportsNoDiagnostics_WhenSettingValueForVirtualIndexer(string method);
 
-        Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer();
+        Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string method);
 
-        Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod();
+        Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method);
 
-        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualProperty();
+        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualProperty(string method);
 
-        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericProperty();
+        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericProperty(string method);
 
-        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod();
+        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod(string method);
 
-        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericMethod();
+        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericMethod(string method);
 
-        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualIndexer();
+        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualIndexer(string method);
 
-        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericIndexer();
+        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericIndexer(string method);
 
-        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireType();
+        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireType(string method);
 
-        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireGenericType();
+        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireGenericType(string method);
 
-        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireNamespace();
+        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireNamespace(string method);
 
-        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingExtensionMethod();
+        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingExtensionMethod(string method);
     }
 }
