@@ -1,60 +1,82 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.CSharp;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualSetupReceivedAnalyzerTests
 {
     public abstract class NonVirtualSetupReceivedDiagnosticVerifier : CSharpDiagnosticVerifier, INonVirtualSetupReceivedDiagnosticVerifier
     {
-        [Fact]
-        public abstract Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualMethod();
+        protected DiagnosticDescriptor Descriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.NonVirtualReceivedSetupSpecification;
 
-        [Fact]
-        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualMethod();
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualMethod(string method);
 
-        [Fact]
-        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForNonSealedMethod();
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualMethod(string method);
 
-        [Fact]
-        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForDelegate();
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForNonSealedMethod(string method);
 
-        [Fact]
-        public abstract Task ReportsDiagnostics_WhenCheckingReceivedCallsForSealedMethod();
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForDelegate(string method);
 
-        [Fact]
-        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractMethod();
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsDiagnostics_WhenCheckingReceivedCallsForSealedMethod(string method);
 
-        [Fact]
-        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceMethod();
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractMethod(string method);
 
-        [Fact]
-        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceProperty();
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceMethod(string method);
 
-        [Fact]
-        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForGenericInterfaceMethod();
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceProperty(string method);
 
-        [Fact]
-        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractProperty();
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForGenericInterfaceMethod(string method);
 
-        [Fact]
-        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceIndexer();
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractProperty(string method);
 
-        [Fact]
-        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualProperty();
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceIndexer(string method);
 
-        [Fact]
-        public abstract Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualProperty();
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualProperty(string method);
 
-        [Fact]
-        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualIndexer();
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualProperty(string method);
 
-        [Fact]
-        public abstract Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualIndexer();
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualIndexer(string method);
 
-        [Fact]
-        public abstract Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod();
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualIndexer(string method);
+
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method);
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {

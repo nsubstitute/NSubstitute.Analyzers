@@ -61,7 +61,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         public async Task VerifyDiagnostic(string source, DiagnosticDescriptor diagnosticDescriptor, string overridenDiagnosticMessage = null)
         {
-            await VerifyDiagnostics(new[] { source }, diagnosticDescriptor);
+            await VerifyDiagnostics(new[] { source }, diagnosticDescriptor, overridenDiagnosticMessage);
         }
 
         public async Task VerifyDiagnostics(string[] sources, DiagnosticDescriptor diagnosticDescriptor, string overridenDiagnosticMessage = null)
