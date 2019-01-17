@@ -1,17 +1,12 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using NSubstitute.Analyzers.CSharp;
-using NSubstitute.Analyzers.Shared;
-using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
-using NSubstitute.Analyzers.Tests.Shared.Extensions;
-using Xunit;
+using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualSetupWhenAnalyzerTests
 {
+    [CombinatoryData("SubstituteExtensions.When", "SubstituteExtensions.When<Foo>", "SubstituteExtensions.WhenForAnyArgs", "SubstituteExtensions.WhenForAnyArgs<Foo>")]
     public class WhenAsOrdinaryMethodTests : NonVirtualSetupWhenDiagnosticVerifier
     {
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method,
-            string whenAction, int expectedColumn)
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method, string whenAction)
         {
             var source = $@"using NSubstitute;
 
@@ -31,18 +26,15 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.When(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute, {whenAction}).Do(callInfo => i++);
         }}
     }}
 }}";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage("Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string method,
-            string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string method, string whenAction)
         {
             var source = $@"using NSubstitute;
 
@@ -62,15 +54,14 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.When(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute, {whenAction}).Do(callInfo => i++);
         }}
     }}
 }}";
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string method,
-            string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string method, string whenAction)
         {
             var source = $@"using NSubstitute;
 
@@ -95,13 +86,14 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo2>();
-            SubstituteExtensions.When(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute, {whenAction}).Do(callInfo => i++);
         }}
     }}
 }}";
             await VerifyNoDiagnostic(source);
         }
 
+        [CombinatoryData("SubstituteExtensions.When", "SubstituteExtensions.When<Func<int>>", "SubstituteExtensions.WhenForAnyArgs", "SubstituteExtensions.WhenForAnyArgs<Func<int>>")]
         public override async Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string method, string whenAction)
         {
             var source = $@"using NSubstitute;
@@ -115,21 +107,20 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = Substitute.For<Func<int>>();
-            SubstituteExtensions.When(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute, {whenAction}).Do(callInfo => i++);
         }}
     }}
 }}";
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string method,
-            string whenAction, int expectedColumn)
+        public override async Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string method, string whenAction)
         {
             var source = $@"using NSubstitute;
 
 namespace MyNamespace
 {{
-    public class Foo
+    public class FooBar
     {{
         public virtual int Bar()
         {{
@@ -137,7 +128,7 @@ namespace MyNamespace
         }}
     }}
 
-    public class Foo2 : Foo
+    public class Foo : FooBar
     {{
         public sealed override int Bar() => 1;
     }}
@@ -147,20 +138,17 @@ namespace MyNamespace
         public void Test()
         {{
             int i = 1;
-            var substitute = NSubstitute.Substitute.For<Foo2>();
-            SubstituteExtensions.When(substitute, {whenAction}).Do(callInfo => i++);
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            {method}(substitute, {whenAction}).Do(callInfo => i++);
 
         }}
     }}
 }}";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage("Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string method,
-            string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string method, string whenAction)
         {
             var source = $@"using NSubstitute;
 
@@ -177,7 +165,7 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.When(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute, {whenAction}).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -185,14 +173,13 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod(string method,
-            string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod(string method, string whenAction)
         {
             var source = $@"using NSubstitute;
 
 namespace MyNamespace
 {{
-    public interface IFoo
+    public interface Foo
     {{
         int Bar();
     }}
@@ -202,22 +189,21 @@ namespace MyNamespace
         public void Test()
         {{
             int i = 1;
-            var substitute = NSubstitute.Substitute.For<IFoo>();
-            SubstituteExtensions.When(substitute, {whenAction}).Do(callInfo => i++);
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            {method}(substitute, {whenAction}).Do(callInfo => i++);
         }}
     }}
 }}";
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string method,
-            string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string method, string whenAction)
         {
             var source = $@"using NSubstitute;
 
 namespace MyNamespace
 {{
-    public interface IFoo
+    public interface Foo
     {{
         int Bar {{ get; }}
     }}
@@ -227,22 +213,22 @@ namespace MyNamespace
         public void Test()
         {{
             int i = 1;
-            var substitute = NSubstitute.Substitute.For<IFoo>();
-            SubstituteExtensions.When(substitute, {whenAction}).Do(callInfo => i++);
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            {method}(substitute, {whenAction}).Do(callInfo => i++);
         }}
     }}
 }}";
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod(string method,
-            string whenAction)
+        [CombinatoryData("SubstituteExtensions.When", "SubstituteExtensions.When<Foo<int>>", "SubstituteExtensions.WhenForAnyArgs", "SubstituteExtensions.WhenForAnyArgs<Foo<int>>")]
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod(string method, string whenAction)
         {
             var source = $@"using NSubstitute;
 
 namespace MyNamespace
 {{
-   public interface IFoo<T>
+   public interface Foo<T>
     {{
         int Bar<T>();
     }}
@@ -252,16 +238,15 @@ namespace MyNamespace
         public void Test()
         {{
             int i = 1;
-            var substitute = NSubstitute.Substitute.For<IFoo<int>>();
-            SubstituteExtensions.When(substitute, {whenAction}).Do(callInfo => i++);
+            var substitute = NSubstitute.Substitute.For<Foo<int>>();
+            {method}(substitute, {whenAction}).Do(callInfo => i++);
         }}
     }}
 }}";
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string method,
-            string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string method, string whenAction)
         {
             var source = $@"using NSubstitute;
 
@@ -278,7 +263,7 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.When(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute, {whenAction}).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -286,14 +271,13 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer(string method,
-            string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer(string method, string whenAction)
         {
             var source = $@"using NSubstitute;
 
 namespace MyNamespace
 {{
-    public interface IFoo
+    public interface Foo
     {{
         int this[int i] {{ get; }}
     }}
@@ -303,16 +287,15 @@ namespace MyNamespace
         public void Test()
         {{
             int i = 1;
-            var substitute = NSubstitute.Substitute.For<IFoo>();
-            SubstituteExtensions.When(substitute, {whenAction}).Do(callInfo => i++);
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            {method}(substitute, {whenAction}).Do(callInfo => i++);
         }}
     }}
 }}";
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method,
-            string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method, string whenAction)
         {
             var source = $@"
 
@@ -332,6 +315,11 @@ namespace NSubstitute
         {{
             return default(T);
         }}
+
+        public static T WhenForAnyArgs<T>(this T substitute, System.Action<T> substituteCall, int x)
+        {{
+            return default(T);
+        }}
     }}
 
     public class FooTests
@@ -339,15 +327,14 @@ namespace NSubstitute
         public void Test()
         {{
             Foo substitute = null;
-            SubstituteExtensions.When(substitute, {whenAction}, 1);
+            {method}(substitute, {whenAction}, 1);
         }}
     }}
 }}";
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string method,
-            string whenAction, int expectedColumn)
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string method, string whenAction)
         {
             var source = $@"using NSubstitute;
 
@@ -364,18 +351,15 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.When(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute, {whenAction}).Do(callInfo => i++);
         }}
     }}
 }}";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage("Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string method,
-            string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string method, string whenAction)
         {
             var source = $@"using NSubstitute;
 
@@ -392,7 +376,7 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.When(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute, {whenAction}).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -400,8 +384,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string method,
-            string whenAction, int expectedColumn)
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string method, string whenAction)
         {
             var source = $@"using NSubstitute;
 
@@ -418,291 +401,273 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.When(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute, {whenAction}).Do(callInfo => i++);
         }}
     }}
 }}";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage("Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
         }
 
         public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InLocalFunction(string method)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public class Foo
-    {
+    {{
         public int Bar()
-        {
+        {{
             return 2;
-        }
-    }
+        }}
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
+        {{
             int i = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
 
             void SubstituteCall(Foo sub)
-            {
-                sub.Bar();
-            }
+            {{
+                [|sub.Bar|]();
+            }}
 
-            SubstituteExtensions.When(substitute, SubstituteCall).Do(callInfo => i++);
+            {method}(substitute, SubstituteCall).Do(callInfo => i++);
             substitute.Bar();
-        }
-    }
-}";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage("Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+        }}
+    }}
+}}";
+            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
         }
 
-        public override async Task
-            ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InExpressionBodiedLocalFunction(string method)
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InExpressionBodiedLocalFunction(string method)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public class Foo
-    {
+    {{
         public int Bar()
-        {
+        {{
             return 2;
-        }
-    }
+        }}
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
+        {{
             int i = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
 
-            void SubstituteCall(Foo sub) => sub.Bar();
+            void SubstituteCall(Foo sub) => [|sub.Bar|]();
 
-            SubstituteExtensions.When(substitute, SubstituteCall).Do(callInfo => i++);
+            {method}(substitute, SubstituteCall).Do(callInfo => i++);
             substitute.Bar();
-        }
-    }
-}";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage("Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
+        }}
+    }}
+}}";
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
         }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularFunction(
-            string method)
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularFunction(string method)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public class Foo
-    {
+    {{
         public int Bar()
-        {
+        {{
             return 2;
-        }
-    }
+        }}
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
+        {{
             int i = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
 
-            SubstituteExtensions.When(substitute, SubstituteCall).Do(callInfo => i++);
+            {method}(substitute, SubstituteCall).Do(callInfo => i++);
             substitute.Bar();
-        }
+        }}
 
         private void SubstituteCall(Foo sub)
-        {
-            var objBarr = sub.Bar();
-        }
-    }
-}";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage("Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+        {{
+            var objBarr = [|sub.Bar|]();
+        }}
+    }}
+}}";
+            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
         }
 
-        public override async Task
-            ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularExpressionBodiedFunction(string method)
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularExpressionBodiedFunction(string method)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public class Foo
-    {
+    {{
         public int Bar()
-        {
+        {{
             return 2;
-        }
-    }
+        }}
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
+        {{
             int i = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
 
-            SubstituteExtensions.When(substitute, SubstituteCall).Do(callInfo => i++);
+            {method}(substitute, SubstituteCall).Do(callInfo => i++);
             substitute.Bar();
-        }
+        }}
 
-        private void SubstituteCall(Foo sub) => sub.Bar();
-    }
-}";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage("Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+        private void SubstituteCall(Foo sub) => [|sub.Bar|]();
+    }}
+}}";
+            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InLocalFunction(string method)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public class Foo
-    {
+    {{
         public virtual int Bar()
-        {
+        {{
             return 2;
-        }
-    }
+        }}
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
+        {{
             int i = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
 
             void SubstituteCall(Foo sub)
-            {
+            {{
                 sub.Bar();
-            }
+            }}
 
-            SubstituteExtensions.When(substitute, SubstituteCall).Do(callInfo => i++);
+            {method}(substitute, SubstituteCall).Do(callInfo => i++);
             substitute.Bar();
-        }
-    }
-}";
+        }}
+    }}
+}}";
 
             await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InExpressionBodiedLocalFunction(string method)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public class Foo
-    {
+    {{
         public virtual int Bar()
-        {
+        {{
             return 2;
-        }
-    }
+        }}
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
+        {{
             int i = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
 
             void SubstituteCall(Foo sub) => sub.Bar();
 
-            SubstituteExtensions.When(substitute, SubstituteCall).Do(callInfo => i++);
+            {method}(substitute, SubstituteCall).Do(callInfo => i++);
             substitute.Bar();
-        }
-    }
-}";
+        }}
+    }}
+}}";
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularFunction(
-            string method)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularFunction(string method)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public class Foo
-    {
+    {{
         public virtual int Bar()
-        {
+        {{
             return 2;
-        }
-    }
+        }}
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
+        {{
             int i = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
 
-            SubstituteExtensions.When(substitute, SubstituteCall).Do(callInfo => i++);
+            {method}(substitute, SubstituteCall).Do(callInfo => i++);
             substitute.Bar();
-        }
+        }}
 
         private void SubstituteCall(Foo sub)
-        {
+        {{
             var objBarr = sub.Bar();
-        }
-    }
-}";
+        }}
+    }}
+}}";
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task
-            ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularExpressionBodiedFunction(string method)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularExpressionBodiedFunction(string method)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public class Foo
-    {
+    {{
         public virtual int Bar()
-        {
+        {{
             return 2;
-        }
-    }
+        }}
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
+        {{
             int i = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
 
-            SubstituteExtensions.When(substitute, SubstituteCall).Do(callInfo => i++);
+            {method}(substitute, SubstituteCall).Do(callInfo => i++);
             substitute.Bar();
-        }
+        }}
 
         private void SubstituteCall(Foo sub) => sub.Bar();
-    }
-}";
+    }}
+}}";
             await VerifyNoDiagnostic(source);
         }
     }
