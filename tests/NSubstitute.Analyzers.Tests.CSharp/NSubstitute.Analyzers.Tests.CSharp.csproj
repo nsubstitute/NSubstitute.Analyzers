@@ -18,16 +18,14 @@
   <ItemGroup>
     <Compile Remove="DiagnosticAnalyzerTests\ReEntrantReturnsSetupAnalyzerTests\**" />
     <Compile Remove="DiagnosticAnalyzerTests\SubstituteAnalyzerTests\**" />
-    <Compile Remove="DiagnosticAnalyzerTests\UnusedReceivedAnalyzerTests\**" />
+    <Compile Remove="DiagnosticAnalyzerTests\SubstituteAnalyzerTests\**" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Remove="DiagnosticAnalyzerTests\ReEntrantReturnsSetupAnalyzerTests\**" />
     <EmbeddedResource Remove="DiagnosticAnalyzerTests\SubstituteAnalyzerTests\**" />
-    <EmbeddedResource Remove="DiagnosticAnalyzerTests\UnusedReceivedAnalyzerTests\**" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="DiagnosticAnalyzerTests\ReEntrantReturnsSetupAnalyzerTests\**" />
     <None Remove="DiagnosticAnalyzerTests\SubstituteAnalyzerTests\**" />
-    <None Remove="DiagnosticAnalyzerTests\UnusedReceivedAnalyzerTests\**" />
   </ItemGroup>
 </Project>
