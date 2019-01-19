@@ -1,15 +1,17 @@
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using NSubstitute.Analyzers.Shared;
-using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
-using Xunit;
+using NSubstitute.Analyzers.Tests.Shared.Extensibility;
+using NSubstitute.Analyzers.Tests.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ReEntrantReturnsSetupAnalyzerTests
 {
+    [CombinatoryData("SubstituteExtensions.Returns", "SubstituteExtensions.Returns<int>", "SubstituteExtensions.ReturnsForAnyArgs", "SubstituteExtensions.ReturnsForAnyArgs<int>")]
     public class ReturnsAsOrdinaryMethodTests : ReEntrantReturnsSetupDiagnosticVerifier
     {
-        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsViaMethodCall(string reEntrantCall)
+        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsViaMethodCall(string method, string reEntrantCall)
         {
+            var plainMethodName = method.Replace("SubstituteExtensions.", string.Empty).Replace("<int>", string.Empty);
+
             var source = $@"using NSubstitute;
 
 namespace MyNamespace
@@ -29,7 +31,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = Substitute.For<IFoo>();
-            SubstituteExtensions.Returns(substitute.Bar(), ReturnThis(), OtherReturn());
+            {method}(substitute.Bar(), [|ReturnThis()|], [|OtherReturn()|]);
         }}
 
 
@@ -47,17 +49,22 @@ namespace MyNamespace
     }}
 }}";
 
-            var firstArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
+            var textParserResult = TextParser.GetSpans(source);
 
-            var secondArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
+            var diagnosticMessages = new[]
+            {
+                $"{plainMethodName}() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => ReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => OtherReturn())."
+            };
 
-            await VerifyDiagnostic(source, firstArgumentDiagnostic, secondArgumentDiagnostic);
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
+
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
-        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsForAnyArgsViaMethodCall(string reEntrantCall)
+        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsForAnyArgsViaMethodCall(string method, string reEntrantCall)
         {
+            var plainMethodName = method.Replace("SubstituteExtensions.", string.Empty).Replace("<int>", string.Empty);
             var source = $@"using NSubstitute;
 
 namespace MyNamespace
@@ -77,7 +84,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = Substitute.For<IFoo>();
-            SubstituteExtensions.Returns(substitute.Bar(), ReturnThis(), OtherReturn());
+            {method}(substitute.Bar(), [|ReturnThis()|], [|OtherReturn()|]);
         }}
 
 
@@ -95,17 +102,22 @@ namespace MyNamespace
     }}
 }}";
 
-            var firstArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
+            var textParserResult = TextParser.GetSpans(source);
 
-            var secondArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
+            var diagnosticMessages = new[]
+            {
+                $"{plainMethodName}() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => ReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => OtherReturn())."
+            };
 
-            await VerifyDiagnostic(source, firstArgumentDiagnostic, secondArgumentDiagnostic);
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
+
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
-        public override async Task ReportsDiagnostic_WhenUsingReEntrantWhenDo(string reEntrantCall)
+        public override async Task ReportsDiagnostic_WhenUsingReEntrantWhenDo(string method, string reEntrantCall)
         {
+            var plainMethodName = method.Replace("SubstituteExtensions.", string.Empty).Replace("<int>", string.Empty);
             var source = $@"using NSubstitute;
 
 namespace MyNamespace
@@ -125,7 +137,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = Substitute.For<IFoo>();
-            SubstituteExtensions.Returns(substitute.Bar(), ReturnThis(), OtherReturn());
+            {method}(substitute.Bar(), [|ReturnThis()|], [|OtherReturn()|]);
         }}
 
 
@@ -142,134 +154,142 @@ namespace MyNamespace
         }}
     }}
 }}";
-            var firstArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
+            var textParserResult = TextParser.GetSpans(source);
 
-            var secondArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
+            var diagnosticMessages = new[]
+            {
+                $"{plainMethodName}() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => ReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => OtherReturn())."
+            };
 
-            await VerifyDiagnostic(source, firstArgumentDiagnostic, secondArgumentDiagnostic);
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
+
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
-        public override async Task ReportsDiagnostic_ForNestedReEntrantCall()
+        public override async Task ReportsDiagnostic_ForNestedReEntrantCall(string method)
         {
-            var source = @"using NSubstitute;
+            var plainMethodName = method.Replace("SubstituteExtensions.", string.Empty).Replace("<int>", string.Empty);
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public interface IFoo
-    {
+    {{
         int Bar();
-    }
+    }}
 
     public interface IBar
-    {
+    {{
         int Foo();
-    }
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
+        {{
             var substitute = Substitute.For<IFoo>();
-            SubstituteExtensions.Returns(substitute.Bar(), ReturnThis(), OtherReturn());
-        }
+            {method}(substitute.Bar(), [|ReturnThis()|], [|OtherReturn()|]);
+        }}
 
         private int ReturnThis()
-        {
+        {{
             return OtherReturn();
-        }
+        }}
 
         private int OtherReturn()
-        {
+        {{
             var substitute = Substitute.For<IBar>();
-            SubstituteExtensions.Returns(substitute.Foo(), NestedReturnThis());
+            {method}(substitute.Foo(), [|NestedReturnThis()|]);
             return 1;
-        }
+        }}
 
         private int NestedReturnThis()
-        {
+        {{
             return OtherNestedReturnThis();
-        }
+        }}
 
         private int OtherNestedReturnThis()
-        {
+        {{
             var sub = Substitute.For<IBar>();
-            SubstituteExtensions.Returns(sub.Foo(), 1);
+            {method}(sub.Foo(), 1);
             return 1;
+        }}
+    }}
+}}";
+
+            var textParserResult = TextParser.GetSpans(source);
+
+            var diagnosticMessages = new[]
+            {
+                $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => ReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => OtherReturn()).",
+                $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => NestedReturnThis())."
+            };
+
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
+
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
-    }
-}";
 
-            var firstArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
-
-            var secondArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
-
-            var nestedArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
-
-            await VerifyDiagnostic(source, firstArgumentDiagnostic, secondArgumentDiagnostic, nestedArgumentDiagnostic);
-        }
-
-        public override async Task ReportsDiagnostic_ForSpecificNestedReEntrantCall()
+        public override async Task ReportsDiagnostic_ForSpecificNestedReEntrantCall(string method)
         {
-            var source = @"using NSubstitute;
+            var plainMethodName = method.Replace("SubstituteExtensions.", string.Empty).Replace("<int>", string.Empty);
+
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public interface IFoo
-    {
+    {{
         int Bar();
-    }
+    }}
 
     public interface IBar
-    {
+    {{
         int Foo();
-    }
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
+        {{
             var substitute = Substitute.For<IFoo>();
-            SubstituteExtensions.Returns(substitute.Bar(), x => ReturnThis());
-        }
+            {method}(substitute.Bar(), x => ReturnThis());
+        }}
 
         private int ReturnThis()
-        {
+        {{
             return OtherReturn();
-        }
+        }}
 
         private int OtherReturn()
-        {
+        {{
             var substitute = Substitute.For<IBar>();
-            SubstituteExtensions.Returns(substitute.Foo(), NestedReturnThis());
+            {method}(substitute.Foo(), [|NestedReturnThis()|]);
             return 1;
-        }
+        }}
 
         private int NestedReturnThis()
-        {
+        {{
             return OtherNestedReturnThis();
-        }
+        }}
 
         private int OtherNestedReturnThis()
-        {
+        {{
             var sub = Substitute.For<IBar>();
-            SubstituteExtensions.Returns(sub.Foo(), 1);
+            {method}(sub.Foo(), 1);
             return 1;
-        }
-    }
-}";
+        }}
+    }}
+}}";
 
-            var firstArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
+            await VerifyDiagnostic(source, Descriptor, $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => NestedReturnThis()).");
 
-            await VerifyDiagnostic(source, firstArgumentDiagnostic);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenReturnsValueIsCreated_BeforeSetup(string localVariable)
+        [CombinatoryData("SubstituteExtensions.Returns", "SubstituteExtensions.Returns<IBar>", "SubstituteExtensions.ReturnsForAnyArgs", "SubstituteExtensions.ReturnsForAnyArgs<IBar>")]
+        public override async Task ReportsNoDiagnostic_WhenReturnsValueIsCreated_BeforeSetup(string method, string localVariable)
         {
             var source = $@"using NSubstitute;
 
@@ -291,7 +311,7 @@ namespace MyNamespace
         {{
             {localVariable}
             var substitute = Substitute.For<IFoo>();
-            SubstituteExtensions.Returns(substitute.Bar(), bar);
+            {method}(substitute.Bar(), bar);
         }}
 
         public IBar Bar()
@@ -305,7 +325,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsCallExists(string rootCall, string reEntrantCall)
+        public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsCallExists(string method, string rootCall, string reEntrantCall)
         {
             var source = $@"using NSubstitute;
 using NSubstitute.Core;
@@ -328,7 +348,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = Substitute.For<IFoo>();
-            SubstituteExtensions.Returns(substitute.Bar(), {rootCall});
+            {method}(substitute.Bar(), {rootCall});
         }}
 
         private int ReturnThis()
@@ -362,7 +382,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsForAnyArgsCallExists(string rootCall, string reEntrantCall)
+        public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsForAnyArgsCallExists(string method, string rootCall, string reEntrantCall)
         {
             var source = $@"using NSubstitute;
 using NSubstitute.Core;
@@ -385,7 +405,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = Substitute.For<IFoo>();
-            SubstituteExtensions.Returns(substitute.Bar(), {rootCall});
+            {method}(substitute.Bar(), {rootCall});
         }}
 
         private int ReturnThis()
@@ -419,7 +439,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenReEntrantSubstituteNotUsed(string firstReturn, string secondReturn)
+        public override async Task ReportsNoDiagnostic_WhenReEntrantSubstituteNotUsed(string method, string firstReturn, string secondReturn)
         {
             var source = $@"using NSubstitute;
 using NSubstitute.Core;
@@ -436,7 +456,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = Substitute.For<IFoo>();
-            SubstituteExtensions.Returns(substitute.Bar(), {firstReturn}, {secondReturn});
+            {method}(substitute.Bar(), {firstReturn}, {secondReturn});
         }}
 
 
@@ -464,52 +484,51 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturns_AcrossMultipleFiles()
+        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturns_AcrossMultipleFiles(string method)
         {
-            var source = @"using NSubstitute;
+            var plainMethodName = method.Replace("SubstituteExtensions.", string.Empty).Replace("<int>", string.Empty);
+
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public interface IFoo
-    {
+    {{
         int Bar();
-    }
+    }}
 
     public interface IBar
-    {
+    {{
         int Foo();
-    }
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
+        {{
             var substitute = Substitute.For<IFoo>();
-            SubstituteExtensions.Returns(substitute.Bar(), FooBar.ReturnThis());
-        }
-    }
-}";
+            {method}(substitute.Bar(), [|FooBar.ReturnThis()|]);
+        }}
+    }}
+}}";
 
-            var secondSource = @"
+            var secondSource = $@"
 using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public class FooBar
-    {
+    {{
         public static int ReturnThis()
-        {
+        {{
             var substitute = Substitute.For<IBar>();
-            substitute.Foo().Returns(1);
+            {method}(substitute.Foo(), 1);
             return 1;
-        }
-    }
-}";
+        }}
+    }}
+}}";
 
-            var firstArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
-
-            await VerifyDiagnostic(new[] { source, secondSource }, firstArgumentDiagnostic);
+            await VerifyDiagnostics(new[] { source, secondSource }, Descriptor, $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => FooBar.ReturnThis()).");
         }
     }
 }

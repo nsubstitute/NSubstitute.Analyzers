@@ -1,17 +1,70 @@
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using NSubstitute.Analyzers.CSharp;
-using NSubstitute.Analyzers.Shared;
-using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using NSubstitute.Analyzers.Tests.Shared.Extensions;
-using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ReEntrantReturnsSetupAnalyzerTests
 {
+    [CombinatoryData("Returns", "Returns<int>", "ReturnsForAnyArgs", "ReturnsForAnyArgs<int>")]
     public class ReturnsAsExtensionMethodTests : ReEntrantReturnsSetupDiagnosticVerifier
     {
-        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsViaMethodCall(string reEntrantCall)
+        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsViaMethodCall(string method, string reEntrantCall)
         {
+            var plainMethodName = method.Replace("<int>", string.Empty);
+            var source = $@"using NSubstitute;
+
+namespace MyNamespace
+{{
+    public interface Foo
+    {{
+        int Bar();
+    }}
+
+    public interface IBar
+    {{
+        int Foo();
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = Substitute.For<Foo>();
+            substitute.Bar().{method}([|ReturnThis()|], [|OtherReturn()|]);
+        }}
+
+
+        private int ReturnThis()
+        {{
+            return OtherReturn();
+        }}
+
+        private int OtherReturn()
+        {{
+            var substitute = Substitute.For<IBar>();
+            {reEntrantCall}
+            return 1;
+        }}
+    }}
+}}";
+
+            var textParserResult = TextParser.GetSpans(source);
+
+            var diagnosticMessages = new[]
+            {
+                $"{plainMethodName}() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => ReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => OtherReturn())."
+            };
+
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
+
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
+
+        }
+
+        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsForAnyArgsViaMethodCall(string method, string reEntrantCall)
+        {
+            var plainMethodName = method.Replace("<int>", string.Empty);
             var source = $@"using NSubstitute;
 
 namespace MyNamespace
@@ -31,7 +84,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = Substitute.For<IFoo>();
-            substitute.Bar().Returns(ReturnThis(), OtherReturn());
+            substitute.Bar().{method}([|ReturnThis()|], [|OtherReturn()|]);
         }}
 
 
@@ -49,17 +102,23 @@ namespace MyNamespace
     }}
 }}";
 
-            var firstArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
+            var textParserResult = TextParser.GetSpans(source);
 
-            var secondArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
+            var diagnosticMessages = new[]
+            {
+                $"{plainMethodName}() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => ReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => OtherReturn())."
+            };
 
-            await VerifyDiagnostic(source, firstArgumentDiagnostic, secondArgumentDiagnostic);
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
+
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
-        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsForAnyArgsViaMethodCall(string reEntrantCall)
+        public override async Task ReportsDiagnostic_WhenUsingReEntrantWhenDo(string method, string reEntrantCall)
         {
+            var plainMethodName = method.Replace("<int>", string.Empty);
+
             var source = $@"using NSubstitute;
 
 namespace MyNamespace
@@ -79,7 +138,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = Substitute.For<IFoo>();
-            substitute.Bar().Returns(ReturnThis(), OtherReturn());
+            substitute.Bar().{method}([|ReturnThis()|], [|OtherReturn()|]);
         }}
 
 
@@ -97,17 +156,23 @@ namespace MyNamespace
     }}
 }}";
 
-            var firstArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
+            var textParserResult = TextParser.GetSpans(source);
 
-            var secondArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
+            var diagnosticMessages = new[]
+            {
+                $"{plainMethodName}() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => ReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => OtherReturn())."
+            };
 
-            await VerifyDiagnostic(source, firstArgumentDiagnostic, secondArgumentDiagnostic);
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
+
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
-        public override async Task ReportsDiagnostic_WhenUsingReEntrantWhenDo(string reEntrantCall)
+        public override async Task ReportsDiagnostic_ForNestedReEntrantCall(string method)
         {
+            var plainMethodName = method.Replace("<int>", string.Empty);
+
             var source = $@"using NSubstitute;
 
 namespace MyNamespace
@@ -127,9 +192,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = Substitute.For<IFoo>();
-            substitute.Bar().Returns(ReturnThis(), OtherReturn());
+            substitute.Bar().{method}([|ReturnThis()|], [|OtherReturn()|]);
         }}
-
 
         private int ReturnThis()
         {{
@@ -139,140 +203,95 @@ namespace MyNamespace
         private int OtherReturn()
         {{
             var substitute = Substitute.For<IBar>();
-            {reEntrantCall}
+            substitute.Foo().{method}([|NestedReturnThis()|]);
             return 1;
         }}
-    }}
-}}";
-
-            var firstArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
-
-            var secondArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
-
-            await VerifyDiagnostic(source, firstArgumentDiagnostic, secondArgumentDiagnostic);
-        }
-
-        public override async Task ReportsDiagnostic_ForNestedReEntrantCall()
-        {
-            var source = @"using NSubstitute;
-
-namespace MyNamespace
-{
-    public interface IFoo
-    {
-        int Bar();
-    }
-
-    public interface IBar
-    {
-        int Foo();
-    }
-
-    public class FooTests
-    {
-        public void Test()
-        {
-            var substitute = Substitute.For<IFoo>();
-            substitute.Bar().Returns(ReturnThis(), OtherReturn());
-        }
-
-        private int ReturnThis()
-        {
-            return OtherReturn();
-        }
-
-        private int OtherReturn()
-        {
-            var substitute = Substitute.For<IBar>();
-            substitute.Foo().Returns(NestedReturnThis());
-            return 1;
-        }
 
         private int NestedReturnThis()
-        {
+        {{
             return OtherNestedReturnThis();
-        }
+        }}
 
         private int OtherNestedReturnThis()
-        {
+        {{
             var sub = Substitute.For<IBar>();
-            sub.Foo().Returns(1);
+            sub.Foo().{method}(1);
             return 1;
+        }}
+    }}
+}}";
+
+            var textParserResult = TextParser.GetSpans(source);
+
+            var diagnosticMessages = new[]
+            {
+                $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => ReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => OtherReturn()).",
+                $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => NestedReturnThis())."
+            };
+
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
+
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
-    }
-}";
 
-            var firstArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
-
-            var secondArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
-
-            var nestedArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
-
-            await VerifyDiagnostic(source, firstArgumentDiagnostic, secondArgumentDiagnostic, nestedArgumentDiagnostic);
-        }
-
-        public override async Task ReportsDiagnostic_ForSpecificNestedReEntrantCall()
+        public override async Task ReportsDiagnostic_ForSpecificNestedReEntrantCall(string method)
         {
-            var source = @"using NSubstitute;
+            var plainMethodName = method.Replace("<int>", string.Empty);
+
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public interface IFoo
-    {
+    {{
         int Bar();
-    }
+    }}
 
     public interface IBar
-    {
+    {{
         int Foo();
-    }
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
+        {{
             var substitute = Substitute.For<IFoo>();
-            substitute.Bar().Returns(x => ReturnThis());
-        }
+            substitute.Bar().{method}(x => ReturnThis());
+        }}
 
         private int ReturnThis()
-        {
+        {{
             return OtherReturn();
-        }
+        }}
 
         private int OtherReturn()
-        {
+        {{
             var substitute = Substitute.For<IBar>();
-            substitute.Foo().Returns(NestedReturnThis());
+            substitute.Foo().{method}([|NestedReturnThis()|]);
             return 1;
-        }
+        }}
 
         private int NestedReturnThis()
-        {
+        {{
             return OtherNestedReturnThis();
-        }
+        }}
 
         private int OtherNestedReturnThis()
-        {
+        {{
             var sub = Substitute.For<IBar>();
-            sub.Foo().Returns(1);
+            sub.Foo().{method}(1);
             return 1;
-        }
-    }
-}";
+        }}
+    }}
+}}";
 
-            var firstArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
-            expectedDiagnostic.OverrideMessage(expectedMessage);
-
-            await VerifyDiagnostic(source, firstArgumentDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => NestedReturnThis()).");
         }
 
-        public override async Task ReportsNoDiagnostic_WhenReturnsValueIsCreated_BeforeSetup(string localVariable)
+        [CombinatoryData("Returns", "Returns<IBar>", "ReturnsForAnyArgs", "ReturnsForAnyArgs<IBar>")]
+        public override async Task ReportsNoDiagnostic_WhenReturnsValueIsCreated_BeforeSetup(string method, string localVariable)
         {
             var source = $@"using NSubstitute;
 
@@ -294,7 +313,7 @@ namespace MyNamespace
         {{
             {localVariable}
             var substitute = Substitute.For<IFoo>();
-            substitute.Bar().Returns(bar);
+            substitute.Bar().{method}(bar);
         }}
 
         public IBar Bar()
@@ -308,7 +327,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsCallExists(string rootCall, string reEntrantCall)
+        public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsCallExists(string method, string rootCall, string reEntrantCall)
         {
             var source = $@"using NSubstitute;
 using NSubstitute.Core;
@@ -331,7 +350,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = Substitute.For<IFoo>();
-            substitute.Bar().Returns({rootCall});
+            substitute.Bar().{method}({rootCall});
         }}
 
         private int ReturnThis()
@@ -365,7 +384,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsForAnyArgsCallExists(string rootCall, string reEntrantCall)
+        public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsForAnyArgsCallExists(string method, string rootCall, string reEntrantCall)
         {
             var source = $@"using NSubstitute;
 using NSubstitute.Core;
@@ -388,7 +407,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = Substitute.For<IFoo>();
-            substitute.Bar().Returns({rootCall});
+            substitute.Bar().{method}({rootCall});
         }}
 
         private int ReturnThis()
@@ -422,7 +441,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenReEntrantSubstituteNotUsed(string firstReturn, string secondReturn)
+        public override async Task ReportsNoDiagnostic_WhenReEntrantSubstituteNotUsed(string method, string firstReturn, string secondReturn)
         {
             var source = $@"using NSubstitute;
 using NSubstitute.Core;
@@ -439,7 +458,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = Substitute.For<IFoo>();
-            substitute.Bar().Returns({firstReturn}, {secondReturn});
+            substitute.Bar().{method}({firstReturn}, {secondReturn});
         }}
 
 
@@ -467,52 +486,51 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturns_AcrossMultipleFiles()
+        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturns_AcrossMultipleFiles(string method)
         {
-            var source = @"using NSubstitute;
+            var plainMethodName = method.Replace("<int>", string.Empty);
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public interface IFoo
-    {
+    {{
         int Bar();
-    }
+    }}
 
     public interface IBar
-    {
+    {{
         int Foo();
-    }
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
+        {{
             var substitute = Substitute.For<IFoo>();
-            substitute.Bar().Returns(FooBar.ReturnThis());
-        }
-    }
-}";
+            substitute.Bar().{method}([|FooBar.ReturnThis()|]);
+        }}
+    }}
+}}";
 
-            var secondSource = @"
+            var secondSource = $@"
 using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public class FooBar
-    {
+    {{
         public static int ReturnThis()
-        {
+        {{
             var substitute = Substitute.For<IBar>();
-            substitute.Foo().Returns(1);
+            substitute.Foo().{method}(1);
             return 1;
-        }
-    }
-}";
+        }}
+    }}
+}}";
 
-            var firstArgumentDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
-            firstArgumentDiagnostic.OverrideMessage("Returns() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(x => FooBar.ReturnThis()).");
 
-            await VerifyDiagnostics(new[] { source, secondSource }, firstArgumentDiagnostic);
+            await VerifyDiagnostics(new[] { source, secondSource }, Descriptor, $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => FooBar.ReturnThis()).");
         }
     }
 }
