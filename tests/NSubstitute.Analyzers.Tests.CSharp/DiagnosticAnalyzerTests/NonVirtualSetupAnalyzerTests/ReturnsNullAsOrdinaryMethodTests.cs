@@ -865,8 +865,6 @@ namespace MyNamespace
 }}";
 
             var textParserResult = TextParser.GetSpans(source);
-            var diagnosticDescriptor =
-                DiagnosticDescriptors<DiagnosticDescriptorsProvider>.NonVirtualSetupSpecification;
 
             var diagnosticMessages = new[]
             {
@@ -875,7 +873,7 @@ namespace MyNamespace
                 "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted."
             };
 
-            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(diagnosticDescriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
 
             await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }

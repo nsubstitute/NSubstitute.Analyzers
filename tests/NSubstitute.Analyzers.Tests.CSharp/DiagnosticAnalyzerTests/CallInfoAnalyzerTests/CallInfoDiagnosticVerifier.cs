@@ -1,7 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.CSharp;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using Xunit;
@@ -10,6 +13,18 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAna
 {
     public abstract class CallInfoDiagnosticVerifier : CSharpDiagnosticVerifier, ICallInfoDiagnosticVerifier
     {
+        protected DiagnosticDescriptor CallInfoArgumentOutOfRangeDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentOutOfRange;
+
+        protected DiagnosticDescriptor CallInfoCouldNotConvertParameterAtPositionDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoCouldNotConvertParameterAtPosition;
+
+        protected DiagnosticDescriptor CallInfoCouldNotFindArgumentToThisCallDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoCouldNotFindArgumentToThisCall;
+
+        protected DiagnosticDescriptor CallInfoMoreThanOneArgumentOfTypeDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoMoreThanOneArgumentOfType;
+
+        protected DiagnosticDescriptor CallInfoArgumentIsNotOutOrRefDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentIsNotOutOrRef;
+
+        protected DiagnosticDescriptor CallInfoArgumentSetWithIncompatibleValueDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
+
         [CombinatoryTheory]
         [InlineData("substitute[Arg.Any<int>()]", "callInfo.ArgAt<int>(1);")]
         [InlineData("substitute[Arg.Any<int>()]", "var x = callInfo[1];")]

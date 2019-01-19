@@ -13,7 +13,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.UnusedRecei
 {
     public abstract class UnusedReceivedDiagnosticVerifier : CSharpDiagnosticVerifier, IUnusedReceivedDiagnosticVerifier
     {
-        protected DiagnosticDescriptor Descriptor = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.UnusedReceived;
+        protected DiagnosticDescriptor Descriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.UnusedReceived;
 
         [CombinatoryTheory]
         [InlineData]

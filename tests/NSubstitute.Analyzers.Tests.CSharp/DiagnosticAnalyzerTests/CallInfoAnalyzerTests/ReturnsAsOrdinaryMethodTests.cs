@@ -75,9 +75,8 @@ namespace MyNamespace
         }}
     }}
 }}";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentOutOfRange;
 
-            await VerifyDiagnostic(source, expectedDiagnostic.OverrideMessage("There is no argument at position 1"));
+            await VerifyDiagnostic(source, CallInfoArgumentOutOfRangeDescriptor, "There is no argument at position 1");
         }
 
         public override async Task ReportsNoDiagnostic_WhenAccessingArgumentOutOfBound_AndPositionIsNotLiteralExpression(string method, string call, string argAccess)
@@ -224,9 +223,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoCouldNotConvertParameterAtPosition;
-
-            await VerifyDiagnostic(source, expectedDiagnostic.OverrideMessage("Couldn't convert parameter at position 1 to type MyNamespace.Bar."));
+            await VerifyDiagnostic(source, CallInfoCouldNotConvertParameterAtPositionDescriptor, "Couldn't convert parameter at position 1 to type MyNamespace.Bar.");
         }
 
         public override async Task ReportsNoDiagnostic_WhenCasting_WithArgAt_ToSupportedType(string method, string call,
@@ -309,9 +306,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoCouldNotConvertParameterAtPosition;
-
-            await VerifyDiagnostic(source, expectedDiagnostic.OverrideMessage(message));
+            await VerifyDiagnostic(source, CallInfoCouldNotConvertParameterAtPositionDescriptor, message);
         }
 
         public override async Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string method, string call,
@@ -414,9 +409,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoCouldNotFindArgumentToThisCall;
-
-            await VerifyDiagnostic(source, expectedDiagnostic.OverrideMessage(message));
+            await VerifyDiagnostic(source, CallInfoCouldNotFindArgumentToThisCallDescriptor, message);
         }
 
         public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string method,
@@ -490,9 +483,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoMoreThanOneArgumentOfType;
-
-            await VerifyDiagnostic(source, expectedDiagnostic.OverrideMessage(message));
+            await VerifyDiagnostic(source, CallInfoMoreThanOneArgumentOfTypeDescriptor, message);
         }
 
         public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(
@@ -553,9 +544,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentIsNotOutOrRef;
-
-            await VerifyDiagnostic(source, expectedDiagnostic.OverrideMessage("Could not set argument 1 (double) as it is not an out or ref argument."));
+            await VerifyDiagnostic(source, CallInfoArgumentIsNotOutOrRefDescriptor, "Could not set argument 1 (double) as it is not an out or ref argument.");
         }
 
         public override async Task ReportsNoDiagnostic_WhenAssigningValueToRefArgument(string method)
@@ -639,9 +628,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentOutOfRange;
-
-            await VerifyDiagnostic(source, expectedDiagnostic.OverrideMessage("There is no argument at position 1"));
+            await VerifyDiagnostic(source, CallInfoArgumentOutOfRangeDescriptor, "There is no argument at position 1");
         }
 
         public override async Task ReportsDiagnostic_WhenAssigningType_NotAssignableTo_Argument(string method,
@@ -672,9 +659,7 @@ namespace MyNamespace
     }}
 }}";
 
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
-
-            await VerifyDiagnostic(source, expectedDiagnostic.OverrideMessage(message));
+            await VerifyDiagnostic(source, CallInfoArgumentSetWithIncompatibleValueDescriptor, message);
         }
 
         public override async Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string method,
