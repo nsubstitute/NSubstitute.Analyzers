@@ -72,14 +72,11 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For(new [] { typeof(IFoo) }, new object[] { 1 });
+            var substitute = [|NSubstitute.Substitute.For(new [] { typeof(IFoo) }, new object[] { 1 })|];
         }
     }
 }";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteConstructorArgumentsForInterface;
-            expectedDiagnostic.OverrideMessage("Can not provide constructor arguments when substituting for an interface. Use NSubstitute.Substitute.For(new [] { typeof(IFoo) },null) instead.");
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteConstructorArgumentsForInterfaceDescriptor, "Can not provide constructor arguments when substituting for an interface. Use NSubstitute.Substitute.For(new [] { typeof(IFoo) },null) instead.");
         }
 
         [Fact]
@@ -115,14 +112,11 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For(new [] { typeof(Func<int>) }, new object[] { 1 });
+            var substitute = [|NSubstitute.Substitute.For(new [] { typeof(Func<int>) }, new object[] { 1 })|];
         }
     }
 }";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteConstructorArgumentsForDelegate;
-            expectedDiagnostic.OverrideMessage("Can not provide constructor arguments when substituting for a delegate. Use NSubstitute.Substitute.For(new [] { typeof(Func<int>) },null) instead.");
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteConstructorArgumentsForDelegateDescriptor, "Can not provide constructor arguments when substituting for a delegate. Use NSubstitute.Substitute.For(new [] { typeof(Func<int>) },null) instead.");
         }
 
         [Theory]
@@ -174,14 +168,11 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo), typeof(Bar) }, null);
+            var substitute = [|NSubstitute.Substitute.For(new [] { typeof(Foo), typeof(Bar) }, null)|];
         }
     }
 }";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteMultipleClasses;
-            expectedDiagnostic.OverrideMessage("Can not substitute for multiple classes. To substitute for multiple types only one type can be a concrete class; other types can only be interfaces.");
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteMultipleClassesDescriptor, "Can not substitute for multiple classes. To substitute for multiple types only one type can be a concrete class; other types can only be interfaces.");
         }
 
         [Fact]
@@ -280,14 +271,12 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For(new [] { typeof(IFoo), typeof(Bar) }, new object[] { 1 });
+            var substitute = [|NSubstitute.Substitute.For(new [] { typeof(IFoo), typeof(Bar) }, new object[] { 1 })|];
         }
     }
 }";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteForConstructorParametersMismatch;
-            expectedDiagnostic.OverrideMessage("The number of arguments passed to NSubstitute.Substitute.For do not match the number of constructor arguments for MyNamespace.Bar. Check the constructors for MyNamespace.Bar and make sure you have passed the required number of arguments.");
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.For do not match the number of constructor arguments for MyNamespace.Bar. Check the constructors for MyNamespace.Bar and make sure you have passed the required number of arguments.");
         }
 
         [Fact]
@@ -308,14 +297,11 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo) }, null);
+            var substitute = [|NSubstitute.Substitute.For(new [] { typeof(Foo) }, null)|];
         }
     }
 }";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteForWithoutAccessibleConstructor;
-            expectedDiagnostic.OverrideMessage("Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
         }
 
         [Fact]
@@ -336,14 +322,11 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo) }, new object[] { 1, 2, 3 });
+            var substitute = [|NSubstitute.Substitute.For(new [] { typeof(Foo) }, new object[] { 1, 2, 3 })|];
         }
     }
 }";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteForConstructorParametersMismatch;
-            expectedDiagnostic.OverrideMessage("The number of arguments passed to NSubstitute.Substitute.For do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.For do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
         }
 
         [Fact]
@@ -364,14 +347,11 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo) }, new object[] { 1 });
+            var substitute = [|NSubstitute.Substitute.For(new [] { typeof(Foo) }, new object[] { 1 })|];
         }
     }
 }";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteForConstructorParametersMismatch;
-            expectedDiagnostic.OverrideMessage("The number of arguments passed to NSubstitute.Substitute.For do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.For do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
         }
 
         [Fact]
@@ -392,14 +372,11 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo) }, new object[] { 1 });
+            var substitute = [|NSubstitute.Substitute.For(new [] { typeof(Foo) }, new object[] { 1 })|];
         }
     }
 }";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteForConstructorParametersMismatch;
-            expectedDiagnostic.OverrideMessage("The number of arguments passed to NSubstitute.Substitute.For do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.For do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
         }
 
         [Fact]
@@ -416,13 +393,11 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo) }, null);
+            var substitute = [|NSubstitute.Substitute.For(new [] { typeof(Foo) }, null)|];
         }
     }
 }";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteForInternalMember;
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteForInternalMemberDescriptor);
         }
 
         [Fact]
@@ -466,14 +441,12 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo) }, null);
+            var substitute = [|NSubstitute.Substitute.For(new [] { typeof(Foo) }, null)|];
         }
     }
 }";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteForInternalMember;
-            expectedDiagnostic.OverrideMessage(@"Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via [assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]");
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteForInternalMemberDescriptor);
         }
 
         [Theory]
@@ -499,14 +472,11 @@ namespace MyNamespace
     {{
         public void Test()
         {{
-            var substitute = NSubstitute.Substitute.For(new [] {{ typeof(Foo) }}, new object[] {{{invocationValues}}});
+            var substitute = [|NSubstitute.Substitute.For(new [] {{ typeof(Foo) }}, new object[] {{{invocationValues}}})|];
         }}
     }}
 }}";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteConstructorMismatch;
-            expectedDiagnostic.OverrideMessage("Arguments passed to NSubstitute.Substitute.For do not match the constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required arguments and argument types.");
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteConstructorMismatchDescriptor, "Arguments passed to NSubstitute.Substitute.For do not match the constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required arguments and argument types.");
         }
 
         [Theory]
@@ -518,7 +488,7 @@ namespace MyNamespace
         [InlineData("IEnumerable<int> x", "new object [] { new List<int>().AsReadOnly() }")]
         [InlineData("IEnumerable<char> x", @"new object [] { ""value"" }")]
         [InlineData("", @"new object[] { }")]
-        [InlineData("", "new object[] { 1, 2 }.ToArray()")] // actual values known at runtime only so constructor analysys skipped
+        [InlineData("", "new object[] { 1, 2 }.ToArray()")] // actual values known at runtime only so constructor analysis skipped
         public override async Task ReturnsNoDiagnostic_WhenConstructorArgumentsDoNotRequireImplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"using NSubstitute;

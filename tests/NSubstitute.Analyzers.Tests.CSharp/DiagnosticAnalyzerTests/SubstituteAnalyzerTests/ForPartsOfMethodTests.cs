@@ -26,14 +26,11 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.ForPartsOf<IFoo>();
+            var substitute = [|NSubstitute.Substitute.ForPartsOf<IFoo>()|];
         }
     }
 }";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.PartialSubstituteForUnsupportedType;
-            expectedDiagnostic.OverrideMessage("Can only substitute for parts of classes, not interfaces or delegates. Use NSubstitute.Substitute.For<IFoo>() instead of NSubstitute.Substitute.ForPartsOf<IFoo>() here.");
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, PartialSubstituteForUnsupportedTypeDescriptor, "Can only substitute for parts of classes, not interfaces or delegates. Use NSubstitute.Substitute.For<IFoo>() instead of NSubstitute.Substitute.ForPartsOf<IFoo>() here.");
         }
 
         [Fact]
@@ -51,14 +48,11 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.ForPartsOf<Func<int>>();
+            var substitute = [|NSubstitute.Substitute.ForPartsOf<Func<int>>()|];
         }
     }
 }";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.PartialSubstituteForUnsupportedType;
-            expectedDiagnostic.OverrideMessage("Can only substitute for parts of classes, not interfaces or delegates. Use NSubstitute.Substitute.For<Func<int>>() instead of NSubstitute.Substitute.ForPartsOf<Func<int>>() here.");
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, PartialSubstituteForUnsupportedTypeDescriptor, "Can only substitute for parts of classes, not interfaces or delegates. Use NSubstitute.Substitute.For<Func<int>>() instead of NSubstitute.Substitute.ForPartsOf<Func<int>>() here.");
         }
 
         [Fact]
@@ -79,14 +73,11 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.ForPartsOf<Foo>();
+            var substitute = [|NSubstitute.Substitute.ForPartsOf<Foo>()|];
         }
     }
 }";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteForWithoutAccessibleConstructor;
-            expectedDiagnostic.OverrideMessage("Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
         }
 
         [Fact]
@@ -107,14 +98,11 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.ForPartsOf<Foo>(1, 2, 3);
+            var substitute = [|NSubstitute.Substitute.ForPartsOf<Foo>(1, 2, 3)|];
         }
     }
 }";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteForConstructorParametersMismatch;
-            expectedDiagnostic.OverrideMessage("The number of arguments passed to NSubstitute.Substitute.ForPartsOf<MyNamespace.Foo> do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.ForPartsOf<MyNamespace.Foo> do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
         }
 
         [Fact]
@@ -135,14 +123,11 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.ForPartsOf<Foo>(1);
+            var substitute = [|NSubstitute.Substitute.ForPartsOf<Foo>(1)|];
         }
     }
 }";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteForConstructorParametersMismatch;
-            expectedDiagnostic.OverrideMessage("The number of arguments passed to NSubstitute.Substitute.ForPartsOf<MyNamespace.Foo> do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.ForPartsOf<MyNamespace.Foo> do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
         }
 
         [Fact]
@@ -163,14 +148,11 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.ForPartsOf<Foo>(1);
+            var substitute = [|NSubstitute.Substitute.ForPartsOf<Foo>(1)|];
         }
     }
 }";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteForConstructorParametersMismatch;
-            expectedDiagnostic.OverrideMessage("The number of arguments passed to NSubstitute.Substitute.ForPartsOf<MyNamespace.Foo> do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.ForPartsOf<MyNamespace.Foo> do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
         }
 
         [Fact]
@@ -187,14 +169,11 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.ForPartsOf<Foo>();
+            var substitute = [|NSubstitute.Substitute.ForPartsOf<Foo>()|];
         }
     }
 }";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteForInternalMember;
-            expectedDiagnostic.OverrideMessage(@"Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via [assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]");
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteForInternalMemberDescriptor);
         }
 
         [Fact]
@@ -238,14 +217,11 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.ForPartsOf<Foo>();
+            var substitute = [|NSubstitute.Substitute.ForPartsOf<Foo>()|];
         }
     }
 }";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteForInternalMember;
-            expectedDiagnostic.OverrideMessage(@"Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via [assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]");
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteForInternalMemberDescriptor);
         }
 
         [Theory]
@@ -271,14 +247,11 @@ namespace MyNamespace
     {{
         public void Test()
         {{
-            var substitute = NSubstitute.Substitute.ForPartsOf<Foo>({invocationValues});
+            var substitute = [|NSubstitute.Substitute.ForPartsOf<Foo>({invocationValues})|];
         }}
     }}
 }}";
-            var expectedDiagnostic = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteConstructorMismatch;
-            expectedDiagnostic.OverrideMessage("Arguments passed to NSubstitute.Substitute.ForPartsOf<MyNamespace.Foo> do not match the constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required arguments and argument types.");
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteConstructorMismatchDescriptor, "Arguments passed to NSubstitute.Substitute.ForPartsOf<MyNamespace.Foo> do not match the constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required arguments and argument types.");
         }
 
         [Theory]
