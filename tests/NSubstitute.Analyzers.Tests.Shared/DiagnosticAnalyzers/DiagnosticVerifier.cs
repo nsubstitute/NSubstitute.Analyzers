@@ -567,8 +567,8 @@ Diagnostic:
 
         protected Diagnostic CreateDiagnostic(DiagnosticDescriptor descriptor, TextSpan span, LinePositionSpan lineSpan)
         {
-            // TODO
-            Location location = Location.Create($"{DefaultFilePathPrefix}0.cs", span, lineSpan);
+            var extension = Language == LanguageNames.CSharp ? "cs" : "vb";
+            Location location = Location.Create($"{DefaultFilePathPrefix}0.{extension}", span, lineSpan);
 
             return Diagnostic.Create(descriptor, location);
         }

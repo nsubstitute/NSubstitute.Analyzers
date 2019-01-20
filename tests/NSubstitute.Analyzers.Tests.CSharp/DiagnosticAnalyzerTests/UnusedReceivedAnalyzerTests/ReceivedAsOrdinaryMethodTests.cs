@@ -16,7 +16,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.UnusedRecei
     {
         public override async Task ReportDiagnostics_WhenUsedWithoutMemberCall(string method)
         {
-            var plainMethodName =  method.Replace("<Foo>", string.Empty);
+            var plainMethodName = method.Replace("<Foo>", string.Empty);
             var planMethodNameWithoutNamespace = plainMethodName.Replace("SubstituteExtensions.", string.Empty);
 
             var source = $@"using NSubstitute;
