@@ -47,8 +47,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string method, string call,
-            string argAccess)
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;

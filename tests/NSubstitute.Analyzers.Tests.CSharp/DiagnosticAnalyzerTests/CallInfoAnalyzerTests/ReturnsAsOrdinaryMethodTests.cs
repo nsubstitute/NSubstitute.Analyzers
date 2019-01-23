@@ -143,8 +143,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenManuallyCasting_ToSupportedType(string method, string call,
-            string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenManuallyCasting_ToSupportedType(string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -183,8 +182,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenManuallyCasting_ToUnsupportedType(string method, string call,
-            string argAccess)
+        public override async Task ReportsDiagnostic_WhenManuallyCasting_ToUnsupportedType(string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -226,8 +224,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, CallInfoCouldNotConvertParameterAtPositionDescriptor, "Couldn't convert parameter at position 1 to type MyNamespace.Bar.");
         }
 
-        public override async Task ReportsNoDiagnostic_WhenCasting_WithArgAt_ToSupportedType(string method, string call,
-            string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenCasting_WithArgAt_ToSupportedType(string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
