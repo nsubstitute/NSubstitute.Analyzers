@@ -59,7 +59,6 @@ namespace MyNamespace
             var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
 
             await VerifyDiagnostic(textParserResult.Text, diagnostics);
-
         }
 
         public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsForAnyArgsViaMethodCall(string method, string reEntrantCall)

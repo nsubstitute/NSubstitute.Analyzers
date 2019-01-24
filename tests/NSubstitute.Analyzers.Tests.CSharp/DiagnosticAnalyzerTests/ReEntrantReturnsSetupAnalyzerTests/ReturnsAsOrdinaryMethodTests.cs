@@ -285,7 +285,6 @@ namespace MyNamespace
 }}";
 
             await VerifyDiagnostic(source, Descriptor, $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => NestedReturnThis()).");
-
         }
 
         [CombinatoryData("SubstituteExtensions.Returns", "SubstituteExtensions.Returns<IBar>", "SubstituteExtensions.ReturnsForAnyArgs", "SubstituteExtensions.ReturnsForAnyArgs<IBar>")]

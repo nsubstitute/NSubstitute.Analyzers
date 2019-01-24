@@ -1,15 +1,16 @@
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using NSubstitute.Analyzers.Shared;
-using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
-using Xunit;
+using NSubstitute.Analyzers.Tests.Shared.Extensibility;
+using NSubstitute.Analyzers.Tests.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.ReEntrantReturnsSetupAnalyzerTests
 {
+    [CombinatoryData("SubstituteExtensions.Returns", "{method}(Of Integer)", "SubstituteExtensions.ReturnsForAnyArgs", "SubstituteExtensions.ReturnsForAnyArgs(Of Integer)")]
     public class ReturnsAsOrdinaryMethodTests : ReEntrantReturnsSetupDiagnosticVerifier
     {
-        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsViaMethodCall(string reEntrantCall)
+        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsViaMethodCall(string method, string reEntrantCall)
         {
+            var plainMethodName = method.Replace("SubstituteExtensions.", string.Empty).Replace("(Of Integer)", string.Empty);
             var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
@@ -24,7 +25,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.Returns(substitute.Bar(), ReturnThis(), OtherReturn())
+            {method}(substitute.Bar(), ReturnThis(), OtherReturn())
         End Sub
 
         Private Function ReturnThis() As Integer
@@ -40,35 +41,23 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            var firstArgumentDiagnostic = new DiagnosticResult
+            var textParserResult = TextParser.GetSpans(source);
+
+            var diagnosticMessages = new[]
             {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(Function(x) ReturnThis()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(15, 60)
-                }
+                $"{plainMethodName}() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => ReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => OtherReturn())."
             };
 
-            var secondArgumentDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(Function(x) OtherReturn()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(15, 74)
-                }
-            };
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
 
-            await VerifyDiagnostic(source, firstArgumentDiagnostic, secondArgumentDiagnostic);
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
-        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsForAnyArgsViaMethodCall(string reEntrantCall)
+        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsForAnyArgsViaMethodCall(string method, string reEntrantCall)
         {
+            var plainMethodName = method.Replace("SubstituteExtensions.", string.Empty).Replace("(Of Integer)", string.Empty);
+
             var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
@@ -83,7 +72,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.Returns(substitute.Bar(), ReturnThis(), OtherReturn())
+            {method}(substitute.Bar(), ReturnThis(), OtherReturn())
         End Sub
 
         Private Function ReturnThis() As Integer
@@ -99,35 +88,22 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            var firstArgumentDiagnostic = new DiagnosticResult
+            var textParserResult = TextParser.GetSpans(source);
+
+            var diagnosticMessages = new[]
             {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(Function(x) ReturnThis()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(15, 60)
-                }
+                $"{plainMethodName}() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => ReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => OtherReturn())."
             };
 
-            var secondArgumentDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(Function(x) OtherReturn()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(15, 74)
-                }
-            };
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
 
-            await VerifyDiagnostic(source, firstArgumentDiagnostic, secondArgumentDiagnostic);
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
-        public override async Task ReportsDiagnostic_WhenUsingReEntrantWhenDo(string reEntrantCall)
+        public override async Task ReportsDiagnostic_WhenUsingReEntrantWhenDo(string method, string reEntrantCall)
         {
+            var plainMethodName = method.Replace("SubstituteExtensions.", string.Empty).Replace("(Of Integer)", string.Empty);
             var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
@@ -142,7 +118,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.Returns(substitute.Bar(), ReturnThis(), OtherReturn())
+            {method}(substitute.Bar(), ReturnThis(), OtherReturn())
         End Sub
 
         Private Function ReturnThis() As Integer
@@ -157,35 +133,22 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            var firstArgumentDiagnostic = new DiagnosticResult
+            var textParserResult = TextParser.GetSpans(source);
+
+            var diagnosticMessages = new[]
             {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(Function(x) ReturnThis()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(15, 60)
-                }
+                $"{plainMethodName}() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => ReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => OtherReturn())."
             };
 
-            var secondArgumentDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(Function(x) OtherReturn()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(15, 74)
-                }
-            };
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
 
-            await VerifyDiagnostic(source, firstArgumentDiagnostic, secondArgumentDiagnostic);
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
-        public override async Task ReportsDiagnostic_ForNestedReEntrantCall()
+        public override async Task ReportsDiagnostic_ForNestedReEntrantCall(string method)
         {
+            var plainMethodName = method.Replace("SubstituteExtensions.", string.Empty).Replace("(Of Integer)", string.Empty);
             var source = @"Imports NSubstitute
 
 Namespace MyNamespace
@@ -200,7 +163,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.Returns(substitute.Bar(), ReturnThis(), OtherReturn())
+            {method}(substitute.Bar(), ReturnThis(), OtherReturn())
         End Sub
 
         Private Function ReturnThis() As Integer
@@ -209,7 +172,7 @@ Namespace MyNamespace
 
         Private Function OtherReturn() As Integer
             Dim substitute = NSubstitute.Substitute.[For](Of IBar)()
-            SubstituteExtensions.Returns(substitute.Foo(), NestedReturnThis())
+            {method}(substitute.Foo(), NestedReturnThis())
             Return 1
         End Function
 
@@ -219,54 +182,30 @@ Namespace MyNamespace
 
         Private Function OtherNestedReturnThis() As Integer
             Dim [sub] = Substitute.[For](Of IBar)()
-            SubstituteExtensions.Returns([sub].Foo(), 1)
+            {method}([sub].Foo(), 1)
             Return 1
         End Function
     End Class
 End Namespace
 ";
 
-            var firstArgumentDiagnostic = new DiagnosticResult
+            var textParserResult = TextParser.GetSpans(source);
+
+            var diagnosticMessages = new[]
             {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(Function(x) ReturnThis()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(15, 60)
-                }
+                $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => ReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => OtherReturn()).",
+                $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => NestedReturnThis())."
             };
 
-            var secondArgumentDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(Function(x) OtherReturn()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(15, 74)
-                }
-            };
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
 
-            var nestedArgumentDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(Function(x) NestedReturnThis()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(24, 60)
-                }
-            };
-
-            await VerifyDiagnostic(source, firstArgumentDiagnostic, secondArgumentDiagnostic, nestedArgumentDiagnostic);
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
-        public override async Task ReportsDiagnostic_ForSpecificNestedReEntrantCall()
+        public override async Task ReportsDiagnostic_ForSpecificNestedReEntrantCall(string method)
         {
+            var plainMethodName = method.Replace("SubstituteExtensions.", string.Empty).Replace("(Of Integer)", string.Empty);
             var source = @"Imports NSubstitute
 
 Namespace MyNamespace
@@ -281,7 +220,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.Returns(substitute.Bar(), Function(x) ReturnThis())
+            {method}(substitute.Bar(), Function(x) ReturnThis())
         End Sub
 
         Private Function ReturnThis() As Integer
@@ -290,7 +229,7 @@ Namespace MyNamespace
 
         Private Function OtherReturn() As Integer
             Dim substitute = NSubstitute.Substitute.[For](Of IBar)()
-            SubstituteExtensions.Returns(substitute.Foo(), NestedReturnThis())
+            {method}(substitute.Foo(), NestedReturnThis())
             Return 1
         End Function
 
@@ -300,29 +239,17 @@ Namespace MyNamespace
 
         Private Function OtherNestedReturnThis() As Integer
             Dim [sub] = Substitute.[For](Of IBar)()
-            SubstituteExtensions.Returns([sub].Foo(), 1)
+            {method}([sub].Foo(), 1)
             Return 1
         End Function
     End Class
 End Namespace
 ";
 
-            var firstArgumentDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(Function(x) NestedReturnThis()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(24, 60)
-                }
-            };
-
-            await VerifyDiagnostic(source, firstArgumentDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => NestedReturnThis()).");
         }
 
-        public override async Task ReportsNoDiagnostic_WhenReturnsValueIsCreated_BeforeSetup(string localVariable)
+        public override async Task ReportsNoDiagnostic_WhenReturnsValueIsCreated_BeforeSetup(string method, string localVariable)
         {
             var source = $@"Imports NSubstitute
 
@@ -339,7 +266,7 @@ Namespace MyNamespace
         Public Sub Test()
             {localVariable}
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.Returns(substitute.Bar(), barr)
+            {method}(substitute.Bar(), barr)
         End Sub
 
         Public Function Bar() As IBar
@@ -353,7 +280,7 @@ End Namespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsCallExists(string rootCall, string reEntrantCall)
+        public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsCallExists(string method, string rootCall, string reEntrantCall)
         {
             var source = $@"Imports NSubstitute
 Imports NSubstitute.Core
@@ -371,7 +298,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-                SubstituteExtensions.Returns(substitute.Bar(), {rootCall})
+                {method}(substitute.Bar(), {rootCall})
         End Sub
 
         Private Function ReturnThis() As Integer
@@ -403,7 +330,7 @@ End Namespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsForAnyArgsCallExists(string rootCall, string reEntrantCall)
+        public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsForAnyArgsCallExists(string method, string rootCall, string reEntrantCall)
         {
             var source = $@"Imports NSubstitute
 Imports NSubstitute.Core
@@ -421,7 +348,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-                SubstituteExtensions.Returns(substitute.Bar(), {rootCall})
+                {method}(substitute.Bar(), {rootCall})
         End Sub
 
         Private Function ReturnThis() As Integer
@@ -453,7 +380,7 @@ End Namespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenReEntrantSubstituteNotUsed(string firstReturn, string secondReturn)
+        public override async Task ReportsNoDiagnostic_WhenReEntrantSubstituteNotUsed(string method, string firstReturn, string secondReturn)
         {
             var source = $@"Imports NSubstitute
 Imports NSubstitute.Core
@@ -466,7 +393,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.Returns(substitute.Bar(), {firstReturn}, {secondReturn})
+            {method}(substitute.Bar(), {firstReturn}, {secondReturn})
         End Sub
 
         Private Function ReturnThis() As Integer
@@ -490,8 +417,9 @@ End Namespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturns_AcrossMultipleFiles()
+        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturns_AcrossMultipleFiles(string method)
         {
+            var plainMethodName = method.Replace("SubstituteExtensions.", string.Empty).Replace("(Of Integer)", string.Empty);
             var source = @"Imports NSubstitute
 
 Namespace MyNamespace
@@ -506,7 +434,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.Returns(substitute.Bar(), FooBar.ReturnThis())
+            {method}(substitute.Bar(), FooBar.ReturnThis())
         End Sub
     End Class
 End Namespace
@@ -527,19 +455,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            var firstArgumentDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.ReEntrantSubstituteCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Returns() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: Returns(Function(x) FooBar.ReturnThis()).",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(15, 60)
-                }
-            };
-
-            await VerifyDiagnostic(new[] { source, secondSource }, firstArgumentDiagnostic);
+            await VerifyDiagnostics(new[] { source, secondSource }, Descriptor, $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => FooBar.ReturnThis()).");
         }
     }
 }
