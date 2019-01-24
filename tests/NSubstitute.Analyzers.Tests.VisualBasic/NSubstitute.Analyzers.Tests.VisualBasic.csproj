@@ -18,19 +18,16 @@
   <ItemGroup>
     <Compile Remove="DiagnosticAnalyzersTests\NonVirtualSetupAnalyzerTests\**" />
     <Compile Remove="DiagnosticAnalyzersTests\NonVirtualSetupReceivedAnalyzerTests\**" />
-    <Compile Remove="DiagnosticAnalyzersTests\NonVirtualSetupWhenAnalyzerTests\**" />
     <Compile Remove="DiagnosticAnalyzersTests\SubstituteAnalyzerTests\**" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Remove="DiagnosticAnalyzersTests\NonVirtualSetupAnalyzerTests\**" />
     <EmbeddedResource Remove="DiagnosticAnalyzersTests\NonVirtualSetupReceivedAnalyzerTests\**" />
-    <EmbeddedResource Remove="DiagnosticAnalyzersTests\NonVirtualSetupWhenAnalyzerTests\**" />
     <EmbeddedResource Remove="DiagnosticAnalyzersTests\SubstituteAnalyzerTests\**" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="DiagnosticAnalyzersTests\NonVirtualSetupAnalyzerTests\**" />
     <None Remove="DiagnosticAnalyzersTests\NonVirtualSetupReceivedAnalyzerTests\**" />
-    <None Remove="DiagnosticAnalyzersTests\NonVirtualSetupWhenAnalyzerTests\**" />
     <None Remove="DiagnosticAnalyzersTests\SubstituteAnalyzerTests\**" />
   </ItemGroup>
 </Project>
