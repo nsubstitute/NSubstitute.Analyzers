@@ -24,7 +24,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.SubstituteA
         protected DiagnosticDescriptor SubstituteForInternalMemberDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteForInternalMember;
 
         protected DiagnosticDescriptor SubstituteConstructorMismatchDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteConstructorMismatch;
-        
+
         protected DiagnosticDescriptor PartialSubstituteForUnsupportedTypeDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.PartialSubstituteForUnsupportedType;
 
 #pragma warning disable xUnit1013 // Public method should be marked as test

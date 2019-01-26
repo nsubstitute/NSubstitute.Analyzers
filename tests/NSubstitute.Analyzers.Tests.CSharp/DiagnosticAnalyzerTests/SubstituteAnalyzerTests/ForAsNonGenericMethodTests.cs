@@ -172,7 +172,7 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostic(source, SubstituteMultipleClassesDescriptor, "Can not substitute for multiple classes. To substitute for multiple types only one type can be a concrete class; other types can only be interfaces.");
+            await VerifyDiagnostic(source, SubstituteMultipleClassesDescriptor);
         }
 
         [Fact]
@@ -445,7 +445,6 @@ namespace MyNamespace
         }
     }
 }";
-
             await VerifyDiagnostic(source, SubstituteForInternalMemberDescriptor);
         }
 

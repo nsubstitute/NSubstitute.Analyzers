@@ -1,6 +1,9 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.VisualBasic;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 using Xunit;
 
@@ -8,6 +11,22 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Subst
 {
     public abstract class SubstituteDiagnosticVerifier : VisualBasicDiagnosticVerifier, ISubstituteAnalyzerVerifier
     {
+        protected DiagnosticDescriptor SubstituteConstructorArgumentsForInterfaceDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteConstructorArgumentsForInterface;
+
+        protected DiagnosticDescriptor SubstituteConstructorArgumentsForDelegateDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteConstructorArgumentsForDelegate;
+
+        protected DiagnosticDescriptor SubstituteMultipleClassesDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteMultipleClasses;
+
+        protected DiagnosticDescriptor SubstituteForConstructorParametersMismatchDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteForConstructorParametersMismatch;
+
+        protected DiagnosticDescriptor SubstituteForWithoutAccessibleConstructorDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteForWithoutAccessibleConstructor;
+
+        protected DiagnosticDescriptor SubstituteForInternalMemberDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteForInternalMember;
+
+        protected DiagnosticDescriptor SubstituteConstructorMismatchDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteConstructorMismatch;
+
+        protected DiagnosticDescriptor PartialSubstituteForUnsupportedTypeDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.PartialSubstituteForUnsupportedType;
+    
 #pragma warning disable xUnit1013 // Public method should be marked as test
         [Fact]
         public abstract Task ReturnsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor();
