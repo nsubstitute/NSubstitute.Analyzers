@@ -1,6 +1,6 @@
 ﻿# Configuring NSubstitute Analyzers
 
-NSubstitute Analyzers is configured using two separate mechanisms: code analysis rule set files, and `nsubstitute.json`.
+NSubstitute Analyzers normally does not require additional configuration. It is sufficient to reference the package in your test project. If you would like to customise how the NSubstitute Analyzers rules are applied to your project you can use one of the following configuration mechanisms:
 
 1. Code analysis rule set files
 
@@ -10,6 +10,8 @@ NSubstitute Analyzers is configured using two separate mechanisms: code analysis
 2. `nsubstitute.json`
 
    * Configure suppressions of certain rules for selected members in order to allow NSubstitute API misuse
+
+## Code analysis rule set files
 
 Code analysis rule sets are the standard way to configure most diagnostic analyzers within Visual Studio. Information about creating and customizing these files can be found in the [Using Rule Sets to Group Code Analysis Rules](https://docs.microsoft.com/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules) documentation on docs.microsoft.com.
 
