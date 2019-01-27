@@ -3,7 +3,7 @@ using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallInfoAnalyzerTests
 {
-    [CombinatoryData("Returns", "ReturnsForAnyArgs")]
+    [CombinatoryData("AndDoes")]
     public class AndDoesMethodTests : CallInfoDiagnosticVerifier
     {
         public override async Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string method, string call, string argAccess)

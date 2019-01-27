@@ -270,7 +270,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             var allArguments = GetArgumentExpressions(syntax);
             var argumentsForAnalysis = methodSymbol.MethodKind == MethodKind.ReducedExtension
                 ? allArguments
-                : methodSymbol.IsStatic ? allArguments.Skip(1) : allArguments;
+                : methodSymbol.IsExtensionMethod ? allArguments.Skip(1) : allArguments;
 
             if (MethodNames.TryGetValue(methodSymbol.Name, out var typeName) == false)
             {

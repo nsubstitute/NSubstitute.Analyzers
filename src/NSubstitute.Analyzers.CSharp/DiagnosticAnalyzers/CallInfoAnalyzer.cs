@@ -28,7 +28,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 
         protected override SyntaxNode GetSubstituteCall(IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax)
         {
-            if (methodSymbol.IsStatic)
+            if (methodSymbol.IsExtensionMethod)
             {
                 switch (methodSymbol.MethodKind)
                 {
