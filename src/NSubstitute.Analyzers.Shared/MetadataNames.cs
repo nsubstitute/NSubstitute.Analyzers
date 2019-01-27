@@ -6,13 +6,15 @@
         public const string NSubstituteSubstituteExtensionsFullTypeName = "NSubstitute.SubstituteExtensions";
         public const string NSubstituteReturnsExtensionsFullTypeName = "NSubstitute.ReturnsExtensions.ReturnsExtensions";
         public const string NSubstituteExceptionExtensionsFullTypeName = "NSubstitute.ExceptionExtensions.ExceptionExtensions";
-        public const string NSubstituteCoreFullTypeName = "NSubstitute.Core.CallInfo";
+        public const string NSubstituteCallInfoFullTypeName = "NSubstitute.Core.CallInfo";
+        public const string NSubstituteConfiguredCallFullTypeName = "NSubstitute.Core.ConfiguredCall";
         public const string NSubstituteSubstituteFullTypeName = "NSubstitute.Substitute";
         public const string NSubstituteFactoryFullTypeName = "NSubstitute.Core.ISubstituteFactory";
         public const string NSubstituteReturnsMethod = "Returns";
         public const string NSubstituteReturnsForAnyArgsMethod = "ReturnsForAnyArgs";
         public const string NSubstituteThrowsMethod = "Throws";
         public const string NSubstituteThrowsForAnyArgsMethod = "ThrowsForAnyArgs";
+        public const string NSubstituteAndDoesMethod = "AndDoes";
         public const string NSubstituteReturnsNullMethod = "ReturnsNull";
         public const string NSubstituteReturnsNullForAnyArgsMethod = "ReturnsNullForAnyArgs";
         public const string NSubstituteDoMethod = "Do";

@@ -29,7 +29,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             [MetadataNames.NSubstituteReturnsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
             [MetadataNames.NSubstituteReturnsForAnyArgsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
             [MetadataNames.NSubstituteThrowsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName,
-            [MetadataNames.NSubstituteThrowsForAnyArgsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName
+            [MetadataNames.NSubstituteThrowsForAnyArgsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName,
+            [MetadataNames.NSubstituteAndDoesMethod] = MetadataNames.NSubstituteConfiguredCallFullTypeName
         }.ToImmutableDictionary();
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
@@ -265,10 +266,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private bool SupportsCallInfo(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax syntax, IMethodSymbol methodSymbol)
         {
+            // TODO Simplify
             var allArguments = GetArgumentExpressions(syntax);
             var argumentsForAnalysis = methodSymbol.MethodKind == MethodKind.ReducedExtension
                 ? allArguments
-                : allArguments.Skip(1);
+                : methodSymbol.IsStatic ? allArguments.Skip(1) : allArguments;
 
             if (MethodNames.TryGetValue(methodSymbol.Name, out var typeName) == false)
             {

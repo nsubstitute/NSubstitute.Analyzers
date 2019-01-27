@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.VisualBasic;
@@ -11,6 +14,11 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
     [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
     internal class CallInfoAnalyzer : AbstractCallInfoAnalyzer<SyntaxKind, InvocationExpressionSyntax, ExpressionSyntax, InvocationExpressionSyntax>
     {
+        private static ImmutableArray<Type> callHierarchy = ImmutableArray.Create(
+            typeof(MemberAccessExpressionSyntax),
+            typeof(InvocationExpressionSyntax),
+            typeof(MemberAccessExpressionSyntax));
+
         public CallInfoAnalyzer()
             : base(new DiagnosticDescriptorsProvider())
         {
@@ -20,15 +28,38 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
         protected override SyntaxNode GetSubstituteCall(IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax)
         {
-            switch (methodSymbol.MethodKind)
+            if (methodSymbol.IsStatic)
             {
-                case MethodKind.ReducedExtension:
-                    return invocationExpressionSyntax.Expression.DescendantNodes().First();
-                case MethodKind.Ordinary:
-                    return invocationExpressionSyntax.ArgumentList.Arguments.First().GetExpression();
-                default:
-                    return null;
+                switch (methodSymbol.MethodKind)
+                {
+                    case MethodKind.ReducedExtension:
+                        return invocationExpressionSyntax.Expression.DescendantNodes().First();
+                    case MethodKind.Ordinary:
+                        return invocationExpressionSyntax.ArgumentList.Arguments.First().GetExpression();
+                    default:
+                        return null;
+                }
             }
+
+            // TODO fix
+            using (var descendantNodesEnumerator = invocationExpressionSyntax.DescendantNodes().GetEnumerator())
+            {
+                var hierarchyEnumerator = callHierarchy.GetEnumerator();
+                while (hierarchyEnumerator.MoveNext() && descendantNodesEnumerator.MoveNext())
+                {
+                    if (descendantNodesEnumerator.Current.GetType().GetTypeInfo().IsAssignableFrom(hierarchyEnumerator.Current.GetTypeInfo()) == false)
+                    {
+                        return null;
+                    }
+                }
+
+                if (hierarchyEnumerator.MoveNext() == false && descendantNodesEnumerator.MoveNext())
+                {
+                    return descendantNodesEnumerator.Current;
+                }
+            }
+
+            return null;
         }
 
         protected override IEnumerable<ExpressionSyntax> GetArgumentExpressions(InvocationExpressionSyntax invocationExpressionSyntax)
