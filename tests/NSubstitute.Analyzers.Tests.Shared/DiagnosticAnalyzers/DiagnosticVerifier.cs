@@ -149,7 +149,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
                     }
                     else
                     {
-                        for (int i = 0; i < documents.Length; i++)
+                        for (var i = 0; i < documents.Length; i++)
                         {
                             var document = documents[i];
                             var tree = await document.GetSyntaxTreeAsync();
@@ -169,8 +169,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         protected Project CreateProject(string[] sources, string language)
         {
-            string fileNamePrefix = DefaultFilePathPrefix;
-            string fileExt = language == LanguageNames.CSharp ? CSharpDefaultFileExt : VisualBasicDefaultExt;
+            var fileNamePrefix = DefaultFilePathPrefix;
+            var fileExt = language == LanguageNames.CSharp ? CSharpDefaultFileExt : VisualBasicDefaultExt;
             var referencedAssemblies = typeof(Substitute).Assembly.GetReferencedAssemblies();
             var systemRuntimeReference = GetAssemblyReference(referencedAssemblies, "System.Runtime");
             var systemThreadingTasksReference = GetAssemblyReference(referencedAssemblies, "System.Threading.Tasks");
@@ -194,7 +194,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
                     .AddMetadataReference(projectId, systemThreadingTasksReference)
                     .AddMetadataReferences(projectId, GetAdditionalMetadataReferences());
 
-                int count = 0;
+                var count = 0;
                 foreach (var source in sources)
                 {
                     var newFileName = fileNamePrefix + count + "." + fileExt;
@@ -214,16 +214,22 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
             }
         }
 
-        protected
+        protected Diagnostic CreateDiagnostic(DiagnosticDescriptor descriptor, TextSpan span, LinePositionSpan lineSpan)
+        {
+            var extension = Language == LanguageNames.CSharp ? "cs" : "vb";
+            var location = Location.Create($"{DefaultFilePathPrefix}0.{extension}", span, lineSpan);
+
+            return Diagnostic.Create(descriptor, location);
+        }
 
         private static void VerifyDiagnosticResults(IEnumerable<Diagnostic> actualResults, DiagnosticAnalyzer analyzer, params Diagnostic[] expectedResults)
         {
-            int expectedCount = expectedResults.Count();
-            int actualCount = actualResults.Count();
+            var expectedCount = expectedResults.Count();
+            var actualCount = actualResults.Count();
 
             if (expectedCount != actualCount)
             {
-                string diagnosticsOutput = actualResults.Any() ? FormatDiagnostics(analyzer, actualResults.ToArray()) : "    NONE.";
+                var diagnosticsOutput = actualResults.Any() ? FormatDiagnostics(analyzer, actualResults.ToArray()) : "    NONE.";
 
                 var message =
                     $@"Mismatch between number of diagnostics returned, expected ""{expectedCount}"" actual ""{actualCount}""
@@ -234,7 +240,7 @@ Diagnostics:
                 Execute.Assertion.FailWith(message);
             }
 
-            for (int i = 0; i < expectedResults.Length; i++)
+            for (var i = 0; i < expectedResults.Length; i++)
             {
                 var actual = actualResults.ElementAt(i);
                 var expected = expectedResults[i];
@@ -251,7 +257,7 @@ Diagnostics:
                     Execute.Assertion.FailWith(message);
                 }
 
-                for (int j = 0; j < additionalLocations.Length; ++j)
+                for (var j = 0; j < additionalLocations.Length; ++j)
                 {
                     VerifyLocation(additionalLocations[j], expected.AdditionalLocations[j + 1]);
                 }
@@ -293,12 +299,12 @@ Diagnostic:
 
         private static void VerifyDiagnosticResults(IEnumerable<Diagnostic> actualResults, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expectedResults)
         {
-            int expectedCount = expectedResults.Count();
-            int actualCount = actualResults.Count();
+            var expectedCount = expectedResults.Count();
+            var actualCount = actualResults.Count();
 
             if (expectedCount != actualCount)
             {
-                string diagnosticsOutput = actualResults.Any() ? FormatDiagnostics(analyzer, actualResults.ToArray()) : "    NONE.";
+                var diagnosticsOutput = actualResults.Any() ? FormatDiagnostics(analyzer, actualResults.ToArray()) : "    NONE.";
 
                 var message =
                     $@"Mismatch between number of diagnostics returned, expected ""{expectedCount}"" actual ""{actualCount}""
@@ -309,7 +315,7 @@ Diagnostics:
                 Execute.Assertion.FailWith(message);
             }
 
-            for (int i = 0; i < expectedResults.Length; i++)
+            for (var i = 0; i < expectedResults.Length; i++)
             {
                 var actual = actualResults.ElementAt(i);
                 var expected = expectedResults[i];
@@ -340,7 +346,7 @@ Actual:
                         Execute.Assertion.FailWith(message);
                     }
 
-                    for (int j = 0; j < additionalLocations.Length; ++j)
+                    for (var j = 0; j < additionalLocations.Length; ++j)
                     {
                         VerifyDiagnosticLocation(analyzer, actual, additionalLocations[j], expected.Locations[j + 1]);
                     }
@@ -405,14 +411,14 @@ Diagnostic:
             LinePosition expected,
             string startOrEnd)
         {
-            int actualLine = actual.Line;
-            int expectedLine = expected.Line;
+            var actualLine = actual.Line;
+            var expectedLine = expected.Line;
 
             if (actualLine != expectedLine)
                 Assert.True(false, $"Diagnostic expected to {startOrEnd} on line {expectedLine}, actual: {actualLine}");
 
-            int actualCharacter = actual.Character;
-            int expectedCharacter = expected.Character;
+            var actualCharacter = actual.Character;
+            var expectedCharacter = expected.Character;
 
             if (actualCharacter != expectedCharacter)
                 Assert.True(false, $"Diagnostic expected to {startOrEnd} at column {expectedCharacter}, actual: {actualCharacter}");
@@ -459,7 +465,7 @@ Diagnostic:
         private static string FormatDiagnostics(DiagnosticAnalyzer analyzer, params Diagnostic[] diagnostics)
         {
             var builder = new StringBuilder();
-            for (int i = 0; i < diagnostics.Length; ++i)
+            for (var i = 0; i < diagnostics.Length; ++i)
             {
                 builder.AppendLine("// " + diagnostics[i]);
 
@@ -481,7 +487,7 @@ Diagnostic:
                                 .BeTrue(
                                     $"Test base does not currently handle diagnostics in metadata locations. Diagnostic in metadata: {diagnostics[i]}\r\n");
 
-                            string resultMethodName = diagnostics[i].Location.SourceTree.FilePath.EndsWith(".cs", StringComparison.OrdinalIgnoreCase) ? "GetCSharpResultAt" : "GetBasicResultAt";
+                            var resultMethodName = diagnostics[i].Location.SourceTree.FilePath.EndsWith(".cs", StringComparison.OrdinalIgnoreCase) ? "GetCSharpResultAt" : "GetBasicResultAt";
                             var linePosition = diagnostics[i].Location.GetLineSpan().StartLinePosition;
 
                             builder.Append(
@@ -563,14 +569,6 @@ Diagnostic:
         private MetadataReference GetAssemblyReference(IEnumerable<AssemblyName> assemblies, string name)
         {
             return MetadataReference.CreateFromFile(Assembly.Load(assemblies.First(n => n.Name == name)).Location);
-        }
-
-        protected Diagnostic CreateDiagnostic(DiagnosticDescriptor descriptor, TextSpan span, LinePositionSpan lineSpan)
-        {
-            var extension = Language == LanguageNames.CSharp ? "cs" : "vb";
-            Location location = Location.Create($"{DefaultFilePathPrefix}0.{extension}", span, lineSpan);
-
-            return Diagnostic.Create(descriptor, location);
         }
     }
 }

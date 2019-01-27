@@ -78,7 +78,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
             var compilerDiagnostics = await GetCompilerDiagnostics(document);
             var attempts = analyzerDiagnostics.Length;
 
-            for (int i = 0; i < attempts; ++i)
+            for (var i = 0; i < attempts; ++i)
             {
                 var actions = new List<CodeAction>();
                 var context = new CodeFixContext(document, analyzerDiagnostics[0], (a, d) => actions.Add(a), CancellationToken.None);
@@ -109,7 +109,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
 
                     var diagnosticsString = string.Join("\r\n", newCompilerDiagnostics.Select(d => d.ToString()));
                     var newDocumentString = (await document.GetSyntaxRootAsync()).ToFullString();
-                    string message =
+                    var message =
                         $"Fix introduced new compiler diagnostics:\r\n{diagnosticsString}\r\n\r\nNew document:\r\n{newDocumentString}\r\n";
 
                     message.Should().BeEmpty();
@@ -120,7 +120,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
                 {
                     var diagnosticsString = string.Join("\r\n", analyzerDiagnostics.Select(d => d.ToString()));
                     var newDocumentString = (await document.GetSyntaxRootAsync()).ToFullString();
-                    string message =
+                    var message =
                         $"Fix didn't fix compiler diagnostics:\r\n{diagnosticsString}\r\n\r\nNew document:\r\n{newDocumentString}\r\n";
 
                     message.Should().BeEmpty();
@@ -145,8 +145,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
             var oldArray = diagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();
             var newArray = newDiagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();
 
-            int oldIndex = 0;
-            int newIndex = 0;
+            var oldIndex = 0;
+            var newIndex = 0;
 
             while (newIndex < newArray.Length)
             {

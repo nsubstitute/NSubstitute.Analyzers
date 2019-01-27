@@ -37,8 +37,7 @@ End Namespace
             await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForLiteral(string method, string literal,
-            string type)
+        public override async Task ReportsDiagnostics_WhenSettingValueForLiteral(string method, string literal, string type)
         {
             var source = $@"Imports System
 Imports NSubstitute

@@ -34,7 +34,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
 
             var actions = new List<CodeAction>();
 
-            for (int i = 0; i < attempts; ++i)
+            for (var i = 0; i < attempts; ++i)
             {
                 var context = new CodeFixContext(document, analyzerDiagnostics[0], (a, d) => actions.Add(a), CancellationToken.None);
                 await codeFixProvider.RegisterCodeFixesAsync(context);

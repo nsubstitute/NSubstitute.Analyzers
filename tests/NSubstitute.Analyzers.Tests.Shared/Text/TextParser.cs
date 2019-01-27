@@ -25,21 +25,21 @@ namespace NSubstitute.Analyzers.Tests.Shared.Text
 
             public override TextParserResult GetSpans(string s, bool reverse = false)
             {
-                StringBuilder sb = new StringBuilder(s.Length - TokensLength);
+                var sb = new StringBuilder(s.Length - TokensLength);
 
-                bool startPending = false;
+                var startPending = false;
                 LinePositionInfo start = default;
                 Stack<LinePositionInfo> stack = null;
                 List<LinePositionSpanInfo> spans = null;
 
-                int lastPos = 0;
+                var lastPos = 0;
 
-                int line = 0;
-                int column = 0;
+                var line = 0;
+                var column = 0;
 
-                int length = s.Length;
+                var length = s.Length;
 
-                int i = 0;
+                var i = 0;
                 while (i < length)
                 {
                     switch (s[i])
@@ -67,7 +67,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.Text
 
                         case '[':
                             {
-                                char nextChar = PeekNextChar();
+                                var nextChar = PeekNextChar();
                                 if (nextChar == '|')
                                 {
                                     sb.Append(s, lastPos, i - lastPos);
@@ -183,36 +183,36 @@ namespace NSubstitute.Analyzers.Tests.Shared.Text
 
             public override (TextSpan span, string text) ReplaceEmptySpan(string s, string replacement)
             {
-                int index = s.IndexOf(OpenCloseTokens, StringComparison.Ordinal);
+                var index = s.IndexOf(OpenCloseTokens, StringComparison.Ordinal);
 
                 if (index == -1)
                     throw new ArgumentException("Empty span not found.", nameof(s));
 
                 var span = new TextSpan(index, replacement.Length);
 
-                string result = Replace(s, index, replacement);
+                var result = Replace(s, index, replacement);
 
                 return (span, result);
             }
 
             public override (TextSpan span, string text1, string text2) ReplaceEmptySpan(string s, string replacement1, string replacement2)
             {
-                int index = s.IndexOf(OpenCloseTokens, StringComparison.Ordinal);
+                var index = s.IndexOf(OpenCloseTokens, StringComparison.Ordinal);
 
                 if (index == -1)
                     throw new ArgumentException("Empty span not found.", nameof(s));
 
                 var span = new TextSpan(index, replacement1.Length);
 
-                string result1 = Replace(s, index, replacement1);
-                string result2 = Replace(s, index, replacement2);
+                var result1 = Replace(s, index, replacement1);
+                var result2 = Replace(s, index, replacement2);
 
                 return (span, result1, result2);
             }
 
             private static string Replace(string s, int index, string replacement)
             {
-                StringBuilder sb = new StringBuilder(s.Length - TokensLength + replacement.Length)
+                var sb = new StringBuilder(s.Length - TokensLength + replacement.Length)
                     .Append(s, 0, index)
                     .Append(replacement)
                     .Append(s, index + TokensLength, s.Length - index - TokensLength);

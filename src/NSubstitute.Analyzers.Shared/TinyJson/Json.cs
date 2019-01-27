@@ -13,7 +13,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
         {
             if (string.IsNullOrEmpty(json))
                 return default(T);
-            object jsonObj = JsonParser.ParseValue(json);
+            var jsonObj = JsonParser.ParseValue(json);
             if (jsonObj == null)
                 return default(T);
             return JsonMapper.DecodeJsonObject<T>(jsonObj);
@@ -21,7 +21,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
 
         public static string Encode(object value, bool pretty = false)
         {
-            JsonBuilder builder = new JsonBuilder(pretty);
+            var builder = new JsonBuilder(pretty);
             JsonMapper.EncodeValue(value, builder);
             return builder.ToString();
         }
@@ -54,7 +54,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
                 case TypeCode.Single:
                     return true;
                 case TypeCode.Object:
-                    Type underlyingType = Nullable.GetUnderlyingType(type);
+                    var underlyingType = Nullable.GetUnderlyingType(type);
                     return underlyingType != null && underlyingType.IsNumeric(value);
                 default:
                     return false;
@@ -75,7 +75,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
                 case TypeCode.Single:
                     return true;
                 case TypeCode.Object:
-                    Type underlyingType = Nullable.GetUnderlyingType(type);
+                    var underlyingType = Nullable.GetUnderlyingType(type);
                     return underlyingType != null && underlyingType.IsFloatingPoint(value);
                 default:
                     return false;

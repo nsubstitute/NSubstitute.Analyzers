@@ -565,8 +565,7 @@ namespace MyNamespace
         public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericProperty(
             string method)
         {
-            Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo`1.Bar",
-                Descriptor.Id);
+            Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo`1.Bar", Descriptor.Id);
 
             var source = $@"using System;
 using NSubstitute;
@@ -598,8 +597,7 @@ namespace MyNamespace
         public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod(
             string method)
         {
-            Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar(System.Int32,System.Int32)",
-                Descriptor.Id);
+            Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar(System.Int32,System.Int32)", Descriptor.Id);
 
             var source = $@"using System;
 using NSubstitute;
@@ -637,8 +635,7 @@ namespace MyNamespace
         public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericMethod(
             string method)
         {
-            Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar``1(``0,``0)",
-                Descriptor.Id);
+            Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar``1(``0,``0)", Descriptor.Id);
 
             var source = $@"using System;
 using NSubstitute;
@@ -676,8 +673,7 @@ namespace MyNamespace
         public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualIndexer(
             string method)
         {
-            Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo.Item(System.Int32,System.Int32)",
-                Descriptor.Id);
+            Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo.Item(System.Int32,System.Int32)", Descriptor.Id);
 
             var source = $@"using System;
 using NSubstitute;
@@ -863,8 +859,7 @@ namespace MyNamespace
         public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireNamespace(
             string method)
         {
-            Settings = AnalyzersSettings.CreateWithSuppressions("N:MyNamespace",
-                Descriptor.Id);
+            Settings = AnalyzersSettings.CreateWithSuppressions("N:MyNamespace", Descriptor.Id);
 
             var source = $@"using System;
 using NSubstitute;

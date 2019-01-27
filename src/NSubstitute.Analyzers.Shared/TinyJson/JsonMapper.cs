@@ -61,7 +61,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
 
             foreach (var entry in decoders)
             {
-                Type baseType = entry.Key;
+                var baseType = entry.Key;
                 if (baseType.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
                 {
                     return entry.Value;
@@ -80,7 +80,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
 
             foreach (var entry in Encoders)
             {
-                Type baseType = entry.Key;
+                var baseType = entry.Key;
                 if (baseType.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
                 {
                     return entry.Value;
@@ -92,7 +92,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
 
         public static T DecodeJsonObject<T>(object jsonObj)
         {
-            Decoder decoder = GetDecoder(typeof(T));
+            var decoder = GetDecoder(typeof(T));
             return (T)decoder(typeof(T), jsonObj);
         }
 
@@ -104,7 +104,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
             }
             else
             {
-                Encoder encoder = GetEncoder(value.GetType());
+                var encoder = GetEncoder(value.GetType());
                 if (encoder != null)
                 {
                     encoder(value, builder);
@@ -132,17 +132,17 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
 
         public static bool DecodeValue(object target, string name, object value)
         {
-            Type type = target.GetType();
+            var type = target.GetType();
             while (type != null)
             {
-                foreach (FieldInfo field in type.GetTypeInfo().DeclaredFields)
+                foreach (var field in type.GetTypeInfo().DeclaredFields)
                 {
                     if (name == UnwrapName(field.Name))
                     {
                         if (value != null)
                         {
-                            Type targetType = field.FieldType;
-                            object decodedValue = DecodeValue(value, targetType);
+                            var targetType = field.FieldType;
+                            var decodedValue = DecodeValue(value, targetType);
 
                             if (decodedValue != null && targetType.GetTypeInfo()
                                     .IsAssignableFrom(decodedValue.GetType().GetTypeInfo()))
@@ -173,7 +173,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
         {
             if (value != null)
             {
-                Type safeType = Nullable.GetUnderlyingType(type) ?? type;
+                var safeType = Nullable.GetUnderlyingType(type) ?? type;
                 if (!type.GetTypeInfo().IsEnum)
                 {
                     return Convert.ChangeType(value, safeType);
@@ -207,7 +207,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
             // use a registered decoder
             if (value != null && !targetType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
             {
-                Decoder decoder = GetDecoder(targetType);
+                var decoder = GetDecoder(targetType);
                 value = decoder(targetType, value);
             }
 
@@ -229,11 +229,11 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
             {
                 // Debug.WriteLine("using generic encoder");
                 builder.AppendBeginObject();
-                Type type = obj.GetType();
-                bool first = true;
+                var type = obj.GetType();
+                var first = true;
                 while (type != null)
                 {
-                    foreach (FieldInfo field in type.GetTypeInfo().DeclaredFields)
+                    foreach (var field in type.GetTypeInfo().DeclaredFields)
                     {
                         if (first)
                             first = false;
@@ -253,8 +253,8 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
             {
                 // Debug.WriteLine("using IDictionary encoder");
                 builder.AppendBeginObject();
-                bool first = true;
-                IDictionary dict = (IDictionary)obj;
+                var first = true;
+                var dict = (IDictionary)obj;
                 foreach (var key in dict.Keys)
                 {
                     if (first)
@@ -272,7 +272,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
             {
                 // Debug.WriteLine("using IEnumerable encoder");
                 builder.AppendBeginArray();
-                bool first = true;
+                var first = true;
                 foreach (var item in (IEnumerable)obj)
                 {
                     if (first)
@@ -288,8 +288,8 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
             // register zulu date support
             RegisterEncoder<DateTime>((obj, builder) =>
             {
-                DateTime date = (DateTime)obj;
-                string zulu = date.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
+                var date = (DateTime)obj;
+                var zulu = date.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
                 builder.AppendString(zulu);
             });
         }
@@ -299,13 +299,13 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
             // register generic decoder
             RegisterDecoder<object>((type, jsonObj) =>
             {
-                object instance = Activator.CreateInstance(type);
+                var instance = Activator.CreateInstance(type);
 
                 if (jsonObj is IDictionary)
                 {
                     foreach (DictionaryEntry item in (IDictionary)jsonObj)
                     {
-                        string name = (string)item.Key;
+                        var name = (string)item.Key;
                         if (!DecodeValue(instance, name, item.Value))
                         {
                             Debug.WriteLine("couldn't decode field \"" + name + "\" of " + type);
@@ -328,16 +328,16 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
                 {
                     if (jsonObj is IList)
                     {
-                        IList jsonList = (IList)jsonObj;
+                        var jsonList = (IList)jsonObj;
                         if (type.IsArray)
                         {
                             // Arrays
-                            Type elementType = type.GetElementType();
-                            bool nullable = elementType.IsNullable();
+                            var elementType = type.GetElementType();
+                            var nullable = elementType.IsNullable();
                             var array = Array.CreateInstance(elementType, jsonList.Count);
-                            for (int i = 0; i < jsonList.Count; i++)
+                            for (var i = 0; i < jsonList.Count; i++)
                             {
-                                object value = DecodeValue(jsonList[i], elementType);
+                                var value = DecodeValue(jsonList[i], elementType);
                                 if (value != null || nullable)
                                     array.SetValue(value, i);
                             }
@@ -347,12 +347,12 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
                         else if (type.GetTypeInfo().GenericTypeArguments.Length == 1)
                         {
                             // Generic List
-                            Type genericType = type.GetTypeInfo().GenericTypeArguments[0];
+                            var genericType = type.GetTypeInfo().GenericTypeArguments[0];
                             if (type.HasGenericInterface(typeof(IList<>)))
                             {
                                 // IList
                                 IList instance = null;
-                                bool nullable = genericType.IsNullable();
+                                var nullable = genericType.IsNullable();
                                 if (type != typeof(IList) &&
                                     typeof(IList).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
                                 {
@@ -360,13 +360,13 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
                                 }
                                 else
                                 {
-                                    Type genericListType = typeof(List<>).MakeGenericType(genericType);
+                                    var genericListType = typeof(List<>).MakeGenericType(genericType);
                                     instance = Activator.CreateInstance(genericListType) as IList;
                                 }
 
                                 foreach (var item in jsonList)
                                 {
-                                    object value = DecodeValue(item, genericType);
+                                    var value = DecodeValue(item, genericType);
                                     if (value != null || nullable)
                                         instance.Add(value);
                                 }
@@ -381,13 +381,13 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
                                     : typeof(List<>);
                                 var constructedListType = listType.MakeGenericType(genericType);
                                 var instance = Activator.CreateInstance(constructedListType);
-                                bool nullable = genericType.IsNullable();
-                                MethodInfo addMethodInfo = type.GetTypeInfo().GetDeclaredMethod("Add");
+                                var nullable = genericType.IsNullable();
+                                var addMethodInfo = type.GetTypeInfo().GetDeclaredMethod("Add");
                                 if (addMethodInfo != null)
                                 {
                                     foreach (var item in jsonList)
                                     {
-                                        object value = DecodeValue(item, genericType);
+                                        var value = DecodeValue(item, genericType);
                                         if (value != null || nullable)
                                             addMethodInfo.Invoke(instance, new object[] { value });
                                     }
@@ -403,13 +403,13 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
                     if (jsonObj is Dictionary<string, object>)
                     {
                         // Dictionary
-                        Dictionary<string, object> jsonDict = (Dictionary<string, object>)jsonObj;
+                        var jsonDict = (Dictionary<string, object>)jsonObj;
                         if (type.GetTypeInfo().GenericTypeArguments.Length == 2)
                         {
                             IDictionary instance = null;
-                            Type keyType = type.GetTypeInfo().GenericTypeArguments[0];
-                            Type genericType = type.GetTypeInfo().GenericTypeArguments[1];
-                            bool nullable = genericType.IsNullable();
+                            var keyType = type.GetTypeInfo().GenericTypeArguments[0];
+                            var genericType = type.GetTypeInfo().GenericTypeArguments[1];
+                            var nullable = genericType.IsNullable();
                             if (type != typeof(IDictionary) &&
                                 typeof(IDictionary).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
                             {
@@ -417,14 +417,14 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
                             }
                             else
                             {
-                                Type genericDictType = typeof(Dictionary<,>).MakeGenericType(keyType, genericType);
+                                var genericDictType = typeof(Dictionary<,>).MakeGenericType(keyType, genericType);
                                 instance = Activator.CreateInstance(genericDictType) as IDictionary;
                             }
 
-                            foreach (KeyValuePair<string, object> item in jsonDict)
+                            foreach (var item in jsonDict)
                             {
                                 Debug.WriteLine(item.Key + " = " + JsonMapper.DecodeValue(item.Value, genericType));
-                                object value = DecodeValue(item.Value, genericType);
+                                var value = DecodeValue(item.Value, genericType);
                                 object key = item.Key;
                                 if (keyType == typeof(int))
                                     key = int.Parse(item.Key);
@@ -444,8 +444,8 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
                     {
                         // Dictionary
                         // convert int to string key
-                        Dictionary<string, object> jsonDict = new Dictionary<string, object>();
-                        foreach (KeyValuePair<int, object> keyValuePair in (Dictionary<int, object>)jsonObj)
+                        var jsonDict = new Dictionary<string, object>();
+                        foreach (var keyValuePair in (Dictionary<int, object>)jsonObj)
                         {
                             jsonDict.Add(keyValuePair.Key.ToString(), keyValuePair.Value);
                         }
@@ -453,9 +453,9 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
                         if (type.GetTypeInfo().GenericTypeArguments.Length == 2)
                         {
                             IDictionary instance = null;
-                            Type keyType = type.GetTypeInfo().GenericTypeArguments[0];
-                            Type genericType = type.GetTypeInfo().GenericTypeArguments[1];
-                            bool nullable = genericType.IsNullable();
+                            var keyType = type.GetTypeInfo().GenericTypeArguments[0];
+                            var genericType = type.GetTypeInfo().GenericTypeArguments[1];
+                            var nullable = genericType.IsNullable();
                             if (type != typeof(IDictionary) &&
                                 typeof(IDictionary).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
                             {
@@ -463,14 +463,14 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
                             }
                             else
                             {
-                                Type genericDictType = typeof(Dictionary<,>).MakeGenericType(keyType, genericType);
+                                var genericDictType = typeof(Dictionary<,>).MakeGenericType(keyType, genericType);
                                 instance = Activator.CreateInstance(genericDictType) as IDictionary;
                             }
 
-                            foreach (KeyValuePair<string, object> item in jsonDict)
+                            foreach (var item in jsonDict)
                             {
                                 Debug.WriteLine(item.Key + " = " + DecodeValue(item.Value, genericType));
-                                object value = DecodeValue(item.Value, genericType);
+                                var value = DecodeValue(item.Value, genericType);
                                 if (value != null || nullable)
                                     instance.Add(Convert.ToInt32(item.Key), value);
                             }

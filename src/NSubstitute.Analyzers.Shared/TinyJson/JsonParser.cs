@@ -56,14 +56,14 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
 
         private bool PeekWordbreak()
         {
-            char c = PeekChar();
+            var c = PeekChar();
             return c == ' ' || c == ',' || c == ':' || c == '\"' || c == '{' || c == '}' || c == '[' || c == ']' ||
                    c == '\t' || c == '\n' || c == '\r';
         }
 
         private bool PeekWhitespace()
         {
-            char c = PeekChar();
+            var c = PeekChar();
             return c == ' ' || c == '\t' || c == '\n' || c == '\r';
         }
 
@@ -143,7 +143,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
         {
             if (PeekToken() == Token.BoolOrNull)
             {
-                string boolValue = ReadWord();
+                var boolValue = ReadWord();
                 if (boolValue == "true")
                     return true;
                 if (boolValue == "false")
@@ -164,7 +164,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
         {
             if (PeekToken() == Token.Number)
             {
-                string number = ReadWord();
+                var number = ReadWord();
                 if (number.Contains("."))
                 {
                     // Debug.WriteLine("parse floating point: " + number);
@@ -262,7 +262,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
             {
                 _json.Read(); // ditch opening brace
 
-                Dictionary<string, object> table = new Dictionary<string, object>();
+                var table = new Dictionary<string, object>();
                 while (true)
                 {
                     switch (PeekToken())
@@ -276,7 +276,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
                             _json.Read();
                             return table;
                         default:
-                            string name = ParseString();
+                            var name = ParseString();
                             if (string.IsNullOrEmpty(name))
                                 return null;
 
@@ -302,7 +302,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
             {
                 _json.Read(); // ditch opening brace
 
-                List<object> array = new List<object>();
+                var array = new List<object>();
                 while (true)
                 {
                     switch (PeekToken())

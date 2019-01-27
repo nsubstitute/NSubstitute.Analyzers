@@ -263,8 +263,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string method, string call,
-            string argAccess, string message)
+        public override async Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string method, string call, string argAccess, string message)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -306,8 +305,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, CallInfoCouldNotConvertParameterAtPositionDescriptor, message);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string method, string call,
-            string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -376,8 +374,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string method,
-            string call, string argAccess, string message)
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string method, string call, string argAccess, string message)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -409,8 +406,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, CallInfoCouldNotFindArgumentToThisCallDescriptor, message);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string method,
-            string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -453,8 +449,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string method,
-            string call, string argAccess, string message)
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string method, string call, string argAccess, string message)
         {
             var source = $@"using NSubstitute;
 
@@ -514,8 +509,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string method,
-            string call)
+        public override async Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string method, string call)
         {
             var source = $@"using NSubstitute;
 
@@ -628,8 +622,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, CallInfoArgumentOutOfRangeDescriptor, "There is no argument at position 1");
         }
 
-        public override async Task ReportsDiagnostic_WhenAssigningType_NotAssignableTo_Argument(string method,
-            string left, string right, string message)
+        public override async Task ReportsDiagnostic_WhenAssigningType_NotAssignableTo_Argument(string method, string left, string right, string message)
         {
             var source = $@"using NSubstitute;
 using System.Collections.Generic;
@@ -659,8 +652,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, CallInfoArgumentSetWithIncompatibleValueDescriptor, message);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string method,
-            string left, string right)
+        public override async Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string method, string left, string right)
         {
             var source = $@"using NSubstitute;
 using System.Collections.Generic;

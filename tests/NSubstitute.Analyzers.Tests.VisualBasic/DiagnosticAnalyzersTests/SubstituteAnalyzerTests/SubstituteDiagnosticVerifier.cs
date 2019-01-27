@@ -26,7 +26,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Subst
         protected DiagnosticDescriptor SubstituteConstructorMismatchDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SubstituteConstructorMismatch;
 
         protected DiagnosticDescriptor PartialSubstituteForUnsupportedTypeDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.PartialSubstituteForUnsupportedType;
-    
+
 #pragma warning disable xUnit1013 // Public method should be marked as test
         [Fact]
         public abstract Task ReturnsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor();

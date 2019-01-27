@@ -109,7 +109,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
         {
             if (number != null)
             {
-                string numberString = number.ToString();
+                var numberString = number.ToString();
                 if (number.GetType().IsFloatingPoint(number))
                 {
                     numberString = numberString.Replace(',', '.');
@@ -158,7 +158,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
                             _builder.Append("\\t");
                             break;
                         default:
-                            int codepoint = Convert.ToInt32(c);
+                            var codepoint = Convert.ToInt32(c);
                             if (_pretty || (codepoint >= 32 && codepoint <= 126))
                             {
                                 _builder.Append(c);
@@ -185,7 +185,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
             if (enumerable != null)
             {
                 AppendBeginArray();
-                bool first = true;
+                var first = true;
                 foreach (var item in enumerable)
                 {
                     if (first)
@@ -213,7 +213,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
             if (dict != null)
             {
                 AppendBeginObject();
-                bool first = true;
+                var first = true;
                 foreach (DictionaryEntry entry in dict)
                 {
                     if (first)
@@ -318,7 +318,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
         private void AppendPrettyLineBreak()
         {
             _builder.Append("\n");
-            for (int i = 0; i < _level; i++)
+            for (var i = 0; i < _level; i++)
             {
                 _builder.Append("\t");
             }
