@@ -60,7 +60,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.Fixtures
 
         private static IEnumerable<string> GetResourceEntryNames()
         {
-            return typeof(NSubstitute.Analyzers.Shared.DiagnosticIdentifiers)
+            return typeof(DiagnosticIdentifiers)
                 .GetFields(BindingFlags.Public | BindingFlags.Static)
                 .SelectMany(fieldInfo => ResourceEntryNameSuffixes, (fieldInfo, diagnosticName) => $"{fieldInfo.Name}{diagnosticName}");
         }

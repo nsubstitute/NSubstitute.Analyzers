@@ -15,7 +15,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
     {
         protected async Task VerifyCodeActions(string source, params string[] expectedCodeActionTitles)
         {
-            var codeActions = await ApplyFixProvider(Language, GetDiagnosticAnalyzer(), GetCodeFixProvider(), source);
+            var codeActions = await ApplyFixProvider(GetDiagnosticAnalyzer(), GetCodeFixProvider(), source);
 
             codeActions.Should().NotBeNull();
             codeActions.Select(action => action.Title).Should().BeEquivalentTo(expectedCodeActionTitles ?? Array.Empty<string>());
@@ -26,9 +26,9 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
             return Json.Encode(new object());
         }
 
-        private async Task<List<CodeAction>> ApplyFixProvider(string language, DiagnosticAnalyzer analyzer, CodeFixProvider codeFixProvider, string source)
+        private async Task<List<CodeAction>> ApplyFixProvider(DiagnosticAnalyzer analyzer, CodeFixProvider codeFixProvider, string source)
         {
-            var document = CreateDocument(source, language);
+            var document = CreateDocument(source);
             var analyzerDiagnostics = await GetSortedDiagnosticsFromDocuments(analyzer, new[] { document }, false);
             var attempts = analyzerDiagnostics.Length;
 

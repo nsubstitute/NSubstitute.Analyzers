@@ -9,7 +9,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.Extensibility
 
         public CombinatoryData(params object[] data)
         {
-            this.Data = data;
+            Data = data;
         }
     }
 }

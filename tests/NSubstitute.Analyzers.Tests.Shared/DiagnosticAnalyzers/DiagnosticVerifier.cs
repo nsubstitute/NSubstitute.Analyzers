@@ -35,15 +35,13 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         public static string DefaultFilePathPrefix { get; } = "Test";
 
-        public static string CSharpDefaultFileExt { get; } = "cs";
-
-        public static string VisualBasicDefaultExt { get; } = "vb";
-
         public static string TestProjectName { get; } = "TestProject";
 
         public static TextParser TextParser { get; } = TextParser.Default;
 
         protected abstract string Language { get; }
+
+        protected abstract string FileExtension { get; }
 
         protected DiagnosticVerifier()
         {
@@ -79,7 +77,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
                 throw new ArgumentException("Diagnostics should not be empty", nameof(diagnostics));
             }
 
-            await VerifyDiagnostics(sources, Language, GetDiagnosticAnalyzer(), diagnostics, false);
+            await VerifyDiagnostics(sources, GetDiagnosticAnalyzer(), diagnostics, false);
         }
 
         protected async Task VerifyNoDiagnostic(string source)
@@ -89,7 +87,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         protected async Task VerifyNoDiagnostics(string[] sources)
         {
-            await VerifyDiagnostics(sources, Language, GetDiagnosticAnalyzer(), Array.Empty<Diagnostic>(), false);
+            await VerifyDiagnostics(sources, GetDiagnosticAnalyzer(), Array.Empty<Diagnostic>(), false);
         }
 
         protected abstract DiagnosticAnalyzer GetDiagnosticAnalyzer();
@@ -158,10 +156,9 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
             return results;
         }
 
-        protected Project CreateProject(string[] sources, string language)
+        protected Project CreateProject(string[] sources)
         {
             var fileNamePrefix = DefaultFilePathPrefix;
-            var fileExt = language == LanguageNames.CSharp ? CSharpDefaultFileExt : VisualBasicDefaultExt;
             var referencedAssemblies = typeof(Substitute).Assembly.GetReferencedAssemblies();
             var systemRuntimeReference = GetAssemblyReference(referencedAssemblies, "System.Runtime");
             var systemThreadingTasksReference = GetAssemblyReference(referencedAssemblies, "System.Threading.Tasks");
@@ -174,7 +171,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
                 var solution = adhocWorkspace
                     .CurrentSolution
-                    .AddProject(projectId, TestProjectName, TestProjectName, language)
+                    .AddProject(projectId, TestProjectName, TestProjectName, Language)
                     .WithProjectCompilationOptions(projectId, compilationOptions)
                     .AddMetadataReference(projectId, CorlibReference)
                     .AddMetadataReference(projectId, SystemCoreReference)
@@ -188,7 +185,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
                 var count = 0;
                 foreach (var source in sources)
                 {
-                    var newFileName = fileNamePrefix + count + "." + fileExt;
+                    var newFileName = fileNamePrefix + count + "." + FileExtension;
                     var documentId = DocumentId.CreateNewId(projectId, debugName: newFileName);
                     solution = solution.AddDocument(documentId, newFileName, SourceText.From(source));
                     count++;
@@ -207,15 +204,14 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         protected Diagnostic CreateDiagnostic(DiagnosticDescriptor descriptor, TextSpan span, LinePositionSpan lineSpan)
         {
-            var extension = Language == LanguageNames.CSharp ? "cs" : "vb";
-            var location = Location.Create($"{DefaultFilePathPrefix}0.{extension}", span, lineSpan);
+            var location = Location.Create($"{DefaultFilePathPrefix}0.{FileExtension}", span, lineSpan);
 
             return Diagnostic.Create(descriptor, location);
         }
 
         private static void VerifyDiagnosticResults(Diagnostic[] actualResults, DiagnosticAnalyzer analyzer, params Diagnostic[] expectedResults)
         {
-            expectedResults.Should().HaveSameCount(actualResults, "because diagnostic count should match. Diagnostics:", actualResults.Any() ? FormatDiagnostics(analyzer, actualResults.ToArray()) : "NONE.");
+            expectedResults.Should().HaveSameCount(actualResults, "because diagnostic count should match. Diagnostics:", FormatDiagnostics(actualResults));
             for (var i = 0; i < expectedResults.Length; i++)
             {
                 var actual = actualResults.ElementAt(i);
@@ -264,66 +260,22 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
             actual.Character.Should().Be(expected.Character, $"because diagnostic should ${startOrEnd} at expected column");
         }
 
-        private static string FormatDiagnostics(DiagnosticAnalyzer analyzer, params Diagnostic[] diagnostics)
+        private static string FormatDiagnostics(params Diagnostic[] diagnostics)
         {
-            var builder = new StringBuilder();
-            for (var i = 0; i < diagnostics.Length; ++i)
-            {
-                builder.AppendLine("// " + diagnostics[i]);
+            var formattedName = diagnostics.Length == 0 ? "no diagnostic" : string.Join(Environment.NewLine, diagnostics.Select(d => d.ToString()));
 
-                var analyzerType = analyzer.GetType();
-                var rules = analyzer.SupportedDiagnostics;
-
-                foreach (var rule in rules)
-                {
-                    if (rule != null && rule.Id == diagnostics[i].Id)
-                    {
-                        var location = diagnostics[i].Location;
-                        if (location == Location.None)
-                        {
-                            builder.Append($"GetGlobalResult({analyzerType.Name}.{rule.Id})");
-                        }
-                        else
-                        {
-                            location.IsInSource.Should()
-                                .BeTrue(
-                                    $"Test base does not currently handle diagnostics in metadata locations. Diagnostic in metadata: {diagnostics[i]}\r\n");
-
-                            var resultMethodName = diagnostics[i].Location.SourceTree.FilePath.EndsWith(".cs", StringComparison.OrdinalIgnoreCase) ? "GetCSharpResultAt" : "GetBasicResultAt";
-                            var linePosition = diagnostics[i].Location.GetLineSpan().StartLinePosition;
-
-                            builder.Append(
-                                    $"{resultMethodName}({linePosition.Line + 1}, {linePosition.Character + 1}, {analyzerType.Name}.{rule.Id})");
-                        }
-
-                        if (i != diagnostics.Length - 1)
-                        {
-                            builder.Append(',');
-                        }
-
-                        builder.AppendLine();
-                        break;
-                    }
-                }
-            }
-
-            return builder.ToString();
+            return $"{Environment.NewLine}Diagnostics:{Environment.NewLine}{formattedName}";
         }
 
-        private async Task VerifyDiagnostics(string[] sources, string language, DiagnosticAnalyzer analyzer, Diagnostic[] expected, bool allowCompilationErrors)
+        private async Task VerifyDiagnostics(string[] sources, DiagnosticAnalyzer analyzer, Diagnostic[] expected, bool allowCompilationErrors)
         {
-            var diagnostics = await GetSortedDiagnostics(sources, language, analyzer, allowCompilationErrors);
+            var diagnostics = await GetSortedDiagnostics(sources, analyzer, allowCompilationErrors);
             VerifyDiagnosticResults(diagnostics, analyzer, expected);
         }
 
-        private Document[] GetDocuments(string[] sources, string language)
+        private Document[] GetDocuments(string[] sources)
         {
-            if (language != LanguageNames.CSharp && language != LanguageNames.VisualBasic)
-            {
-                throw new ArgumentException("Unsupported Language");
-            }
-
-            var project = CreateProject(sources, language);
+            var project = CreateProject(sources);
             var documents = project.Documents.ToArray();
 
             if (sources.Length != documents.Length)
@@ -352,9 +304,9 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
             }
         }
 
-        private async Task<Diagnostic[]> GetSortedDiagnostics(string[] sources, string language, DiagnosticAnalyzer analyzer, bool allowCompilationErrors)
+        private async Task<Diagnostic[]> GetSortedDiagnostics(string[] sources, DiagnosticAnalyzer analyzer, bool allowCompilationErrors)
         {
-            return await GetSortedDiagnosticsFromDocuments(analyzer, GetDocuments(sources, language), allowCompilationErrors);
+            return await GetSortedDiagnosticsFromDocuments(analyzer, GetDocuments(sources), allowCompilationErrors);
         }
 
         private Diagnostic[] SortDiagnostics(IEnumerable<Diagnostic> diagnostics)

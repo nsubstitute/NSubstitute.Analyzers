@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using FluentAssertions.Execution;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -11,7 +10,6 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
-using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
 {
@@ -30,7 +28,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
         /// <param name="allowNewCompilerDiagnostics">A bool controlling whether or not the test will fail if the CodeFix introduces other warnings after being applied</param>
         protected async Task VerifyFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
         {
-            await this.VerifyFix(Language, this.GetDiagnosticAnalyzer(), this.GetCodeFixProvider(), oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
+            await VerifyFix(GetDiagnosticAnalyzer(), GetCodeFixProvider(), oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
         }
 
         /// <summary>
@@ -39,9 +37,9 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
         /// <returns>The CodeFixProvider to be used for code</returns>
         protected abstract CodeFixProvider GetCodeFixProvider();
 
-        protected Document CreateDocument(string source, string language)
+        protected Document CreateDocument(string source)
         {
-            return CreateProject(new[] { source }, language).Documents.First();
+            return CreateProject(new[] { source }).Documents.First();
         }
 
         /// <summary>
@@ -64,16 +62,15 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
         /// Then gets the string after the codefix is applied and compares it with the expected result.
         /// Note: If any codefix causes new diagnostics to show up, the test fails unless allowNewCompilerDiagnostics is set to true.
         /// </summary>
-        /// <param name="language">The language the source code is in</param>
         /// <param name="analyzer">The analyzer to be applied to the source code</param>
         /// <param name="codeFixProvider">The codefix to be applied to the code wherever the relevant Diagnostic is found</param>
         /// <param name="oldSource">A class in the form of a string before the CodeFix was applied to it</param>
         /// <param name="newSource">A class in the form of a string after the CodeFix was applied to it</param>
         /// <param name="codeFixIndex">Index determining which codefix to apply if there are multiple</param>
         /// <param name="allowNewCompilerDiagnostics">A bool controlling whether or not the test will fail if the CodeFix introduces other warnings after being applied</param>
-        private async Task VerifyFix(string language, DiagnosticAnalyzer analyzer, CodeFixProvider codeFixProvider, string oldSource, string newSource, int? codeFixIndex, bool allowNewCompilerDiagnostics)
+        private async Task VerifyFix(DiagnosticAnalyzer analyzer, CodeFixProvider codeFixProvider, string oldSource, string newSource, int? codeFixIndex, bool allowNewCompilerDiagnostics)
         {
-            var document = CreateDocument(oldSource, language);
+            var document = CreateDocument(oldSource);
             var analyzerDiagnostics = await GetSortedDiagnosticsFromDocuments(analyzer, new[] { document }, false);
             var compilerDiagnostics = await GetCompilerDiagnostics(document);
             var attempts = analyzerDiagnostics.Length;
@@ -174,10 +171,10 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
         }
 
         /// <summary>
-        /// Given a document, turn it into a string based on the syntax root
+        /// Given a document, turn it into a string based on the syntax root.
         /// </summary>
-        /// <param name="document">The Document to be converted to a string</param>
-        /// <returns>A string containing the syntax of the Document after formatting</returns>
+        /// <param name="document">The Document to be converted to a string.</param>
+        /// <returns>A string containing the syntax of the Document after formatting.</returns>
         private static async Task<string> GetStringFromDocument(Document document)
         {
             var simplifiedDoc = await Simplifier.ReduceAsync(document, Simplifier.Annotation);

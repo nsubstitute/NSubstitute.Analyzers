@@ -8,6 +8,8 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests
     {
         protected override string Language { get; } = LanguageNames.CSharp;
 
+        protected override string FileExtension { get; } = "cs";
+
         protected override CompilationOptions GetCompilationOptions()
         {
             return new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
