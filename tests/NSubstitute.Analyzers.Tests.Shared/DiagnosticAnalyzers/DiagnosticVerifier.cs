@@ -8,15 +8,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using FluentAssertions.Execution;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
-using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Shared.Settings;
 using NSubstitute.Analyzers.Tests.Shared.Extensions;
 using NSubstitute.Analyzers.Tests.Shared.Text;
-using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 {
@@ -26,20 +23,15 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
     /// </summary>
     public abstract class DiagnosticVerifier
     {
-        private static readonly MetadataReference CorlibReference =
-            MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
+        private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
 
-        private static readonly MetadataReference SystemCoreReference =
-            MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location);
+        private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location);
 
-        private static readonly MetadataReference CodeAnalysisReference =
-            MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
+        private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
 
-        private static readonly MetadataReference NSubstituteReference =
-            MetadataReference.CreateFromFile(typeof(Substitute).Assembly.Location);
+        private static readonly MetadataReference NSubstituteReference = MetadataReference.CreateFromFile(typeof(Substitute).Assembly.Location);
 
-        private static readonly MetadataReference ValueTaskReference =
-            MetadataReference.CreateFromFile(typeof(ValueTask<>).Assembly.Location);
+        private static readonly MetadataReference ValueTaskReference = MetadataReference.CreateFromFile(typeof(ValueTask<>).Assembly.Location);
 
         public static string DefaultFilePathPrefix { get; } = "Test";
 
@@ -59,12 +51,12 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
                 CultureInfo.GetCultureInfoByIetfLanguageTag("en-US");
         }
 
-        public async Task VerifyDiagnostic(string source, DiagnosticDescriptor diagnosticDescriptor, string overridenDiagnosticMessage = null)
+        protected async Task VerifyDiagnostic(string source, DiagnosticDescriptor diagnosticDescriptor, string overridenDiagnosticMessage = null)
         {
             await VerifyDiagnostics(new[] { source }, diagnosticDescriptor, overridenDiagnosticMessage);
         }
 
-        public async Task VerifyDiagnostics(string[] sources, DiagnosticDescriptor diagnosticDescriptor, string overridenDiagnosticMessage = null)
+        protected async Task VerifyDiagnostics(string[] sources, DiagnosticDescriptor diagnosticDescriptor, string overridenDiagnosticMessage = null)
         {
             diagnosticDescriptor = overridenDiagnosticMessage == null
                 ? diagnosticDescriptor
@@ -75,12 +67,12 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
             await VerifyDiagnostics(textParserResult.Select(result => result.Text).ToArray(), diagnostics);
         }
 
-        public async Task VerifyDiagnostic(string source, Diagnostic[] diagnostics)
+        protected async Task VerifyDiagnostic(string source, Diagnostic[] diagnostics)
         {
             await VerifyDiagnostics(new[] { source }, diagnostics);
         }
 
-        public async Task VerifyDiagnostics(string[] sources, Diagnostic[] diagnostics)
+        protected async Task VerifyDiagnostics(string[] sources, Diagnostic[] diagnostics)
         {
             if (diagnostics == null || diagnostics.Length == 0)
             {
@@ -90,12 +82,12 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
             await VerifyDiagnostics(sources, Language, GetDiagnosticAnalyzer(), diagnostics, false);
         }
 
-        public async Task VerifyNoDiagnostic(string source)
+        protected async Task VerifyNoDiagnostic(string source)
         {
             await VerifyNoDiagnostics(new[] { source });
         }
 
-        public async Task VerifyNoDiagnostics(string[] sources)
+        protected async Task VerifyNoDiagnostics(string[] sources)
         {
             await VerifyDiagnostics(sources, Language, GetDiagnosticAnalyzer(), Array.Empty<Diagnostic>(), false);
         }
@@ -149,9 +141,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
                     }
                     else
                     {
-                        for (var i = 0; i < documents.Length; i++)
+                        foreach (var document in documents)
                         {
-                            var document = documents[i];
                             var tree = await document.GetSyntaxTreeAsync();
                             if (tree == diag.Location.SourceTree)
                             {
@@ -175,7 +166,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
             var systemRuntimeReference = GetAssemblyReference(referencedAssemblies, "System.Runtime");
             var systemThreadingTasksReference = GetAssemblyReference(referencedAssemblies, "System.Threading.Tasks");
 
-            var projectId = ProjectId.CreateNewId(debugName: TestProjectName);
+            var projectId = ProjectId.CreateNewId(TestProjectName);
 
             using (var adhocWorkspace = new AdhocWorkspace())
             {
@@ -222,24 +213,9 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
             return Diagnostic.Create(descriptor, location);
         }
 
-        private static void VerifyDiagnosticResults(IEnumerable<Diagnostic> actualResults, DiagnosticAnalyzer analyzer, params Diagnostic[] expectedResults)
+        private static void VerifyDiagnosticResults(Diagnostic[] actualResults, DiagnosticAnalyzer analyzer, params Diagnostic[] expectedResults)
         {
-            var expectedCount = expectedResults.Count();
-            var actualCount = actualResults.Count();
-
-            if (expectedCount != actualCount)
-            {
-                var diagnosticsOutput = actualResults.Any() ? FormatDiagnostics(analyzer, actualResults.ToArray()) : "    NONE.";
-
-                var message =
-                    $@"Mismatch between number of diagnostics returned, expected ""{expectedCount}"" actual ""{actualCount}""
-
-Diagnostics:
-{diagnosticsOutput}
-";
-                Execute.Assertion.FailWith(message);
-            }
-
+            expectedResults.Should().HaveSameCount(actualResults, "because diagnostic count should match. Diagnostics:", actualResults.Any() ? FormatDiagnostics(analyzer, actualResults.ToArray()) : "NONE.");
             for (var i = 0; i < expectedResults.Length; i++)
             {
                 var actual = actualResults.ElementAt(i);
@@ -248,142 +224,16 @@ Diagnostics:
                 VerifyLocation(actual.Location, expected.Location);
                 var additionalLocations = actual.AdditionalLocations.ToArray();
 
-                if (additionalLocations.Length != expected.AdditionalLocations.Count)
-                {
-                    var message =
-                        $@"Expected {expected.AdditionalLocations.Count} additional locations but got {additionalLocations.Length} for Diagnostic:
-    {FormatDiagnostics(analyzer, actual)}
-";
-                    Execute.Assertion.FailWith(message);
-                }
+                additionalLocations.Should().HaveSameCount(expected.AdditionalLocations);
 
                 for (var j = 0; j < additionalLocations.Length; ++j)
                 {
                     VerifyLocation(additionalLocations[j], expected.AdditionalLocations[j + 1]);
                 }
 
-                if (actual.Id != expected.Id)
-                {
-                    var message =
-                        $@"Expected diagnostic id to be ""{expected.Id}"" was ""{actual.Id}""
-
-Diagnostic:
-    {FormatDiagnostics(analyzer, actual)}
-";
-                    Execute.Assertion.FailWith(message);
-                }
-
-                if (actual.Severity != expected.Severity)
-                {
-                    var message =
-                        $@"Expected diagnostic severity to be ""{expected.Severity}"" was ""{actual.Severity}""
-
-Diagnostic:
-    {FormatDiagnostics(analyzer, actual)}
-";
-                    Execute.Assertion.FailWith(message);
-                }
-
-                if (actual.GetMessage() != expected.GetMessage())
-                {
-                    var message =
-                        $@"Expected diagnostic message to be ""{expected.GetMessage()}"" was ""{actual.GetMessage()}""
-
-Diagnostic:
-    {FormatDiagnostics(analyzer, actual)}
-";
-                    Execute.Assertion.FailWith(message);
-                }
-            }
-        }
-
-        private static void VerifyDiagnosticResults(IEnumerable<Diagnostic> actualResults, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expectedResults)
-        {
-            var expectedCount = expectedResults.Count();
-            var actualCount = actualResults.Count();
-
-            if (expectedCount != actualCount)
-            {
-                var diagnosticsOutput = actualResults.Any() ? FormatDiagnostics(analyzer, actualResults.ToArray()) : "    NONE.";
-
-                var message =
-                    $@"Mismatch between number of diagnostics returned, expected ""{expectedCount}"" actual ""{actualCount}""
-
-Diagnostics:
-{diagnosticsOutput}
-";
-                Execute.Assertion.FailWith(message);
-            }
-
-            for (var i = 0; i < expectedResults.Length; i++)
-            {
-                var actual = actualResults.ElementAt(i);
-                var expected = expectedResults[i];
-
-                if (expected.Line == -1 && expected.Column == -1)
-                {
-                    if (actual.Location != Location.None)
-                    {
-                        var message =
-                            $@"Expected:
-A project diagnostic with No location
-Actual:
-{FormatDiagnostics(analyzer, actual)}";
-                        Execute.Assertion.FailWith(message);
-                    }
-                }
-                else
-                {
-                    VerifyDiagnosticLocation(analyzer, actual, actual.Location, expected.Locations.First());
-                    var additionalLocations = actual.AdditionalLocations.ToArray();
-
-                    if (additionalLocations.Length != expected.Locations.Length - 1)
-                    {
-                        var message =
-                            $@"Expected {expected.Locations.Length - 1} additional locations but got {additionalLocations.Length} for Diagnostic:
-    {FormatDiagnostics(analyzer, actual)}
-";
-                        Execute.Assertion.FailWith(message);
-                    }
-
-                    for (var j = 0; j < additionalLocations.Length; ++j)
-                    {
-                        VerifyDiagnosticLocation(analyzer, actual, additionalLocations[j], expected.Locations[j + 1]);
-                    }
-                }
-
-                if (actual.Id != expected.Id)
-                {
-                    var message =
-                        $@"Expected diagnostic id to be ""{expected.Id}"" was ""{actual.Id}""
-
-Diagnostic:
-    {FormatDiagnostics(analyzer, actual)}
-";
-                    Execute.Assertion.FailWith(message);
-                }
-
-                if (actual.Severity != expected.Severity)
-                {
-                    var message =
-                            $@"Expected diagnostic severity to be ""{expected.Severity}"" was ""{actual.Severity}""
-
-Diagnostic:
-    {FormatDiagnostics(analyzer, actual)}
-";
-                    Execute.Assertion.FailWith(message);
-                }
-
-                if (actual.GetMessage() != expected.Message)
-                {
-                    var message =
-                            $@"Expected diagnostic message to be ""{expected.Message}"" was ""{actual.GetMessage()}""
-
-Diagnostic:
-    {FormatDiagnostics(analyzer, actual)}
-";
-                    Execute.Assertion.FailWith(message);
-                }
+                actual.Id.Should().Be(expected.Id);
+                actual.Severity.Should().Be(expected.Severity);
+                actual.GetMessage().Should().Be(expected.GetMessage());
             }
         }
 
@@ -398,9 +248,7 @@ Diagnostic:
             FileLinePositionSpan actual,
             FileLinePositionSpan expected)
         {
-            if (actual.Path != expected.Path)
-                Assert.True(false, $"Diagnostic expected to be in file \"{expected.Path}\", actual: \"{actual.Path}\"");
-
+            actual.Path.Should().Be(expected.Path);
             VerifyLinePosition(actual.StartLinePosition, expected.StartLinePosition, "start");
 
             VerifyLinePosition(actual.EndLinePosition, expected.EndLinePosition, "end");
@@ -411,55 +259,9 @@ Diagnostic:
             LinePosition expected,
             string startOrEnd)
         {
-            var actualLine = actual.Line;
-            var expectedLine = expected.Line;
+            actual.Should().Be(expected, $"because diagnostic should ${startOrEnd} on expected line");
 
-            if (actualLine != expectedLine)
-                Assert.True(false, $"Diagnostic expected to {startOrEnd} on line {expectedLine}, actual: {actualLine}");
-
-            var actualCharacter = actual.Character;
-            var expectedCharacter = expected.Character;
-
-            if (actualCharacter != expectedCharacter)
-                Assert.True(false, $"Diagnostic expected to {startOrEnd} at column {expectedCharacter}, actual: {actualCharacter}");
-        }
-
-        private static void VerifyDiagnosticLocation(DiagnosticAnalyzer analyzer, Diagnostic diagnostic, Location actual, DiagnosticResultLocation expected)
-        {
-            var actualSpan = actual.GetLineSpan();
-
-            string message;
-            var actualLinePosition = actualSpan.StartLinePosition;
-
-            // Only check line position if there is an actual line in the real diagnostic
-            if (actualLinePosition.Line > 0)
-            {
-                if (actualLinePosition.Line + 1 != expected.Line)
-                {
-                    message =
-                            $@"Expected diagnostic to be on line ""{expected.Line}"" was actually on line ""{actualLinePosition.Line + 1}""
-
-Diagnostic:
-    {FormatDiagnostics(analyzer, diagnostic)}
-";
-                    Execute.Assertion.FailWith(message);
-                }
-            }
-
-            // Only check column position if there is an actual column position in the real diagnostic
-            if (actualLinePosition.Character > 0)
-            {
-                if (actualLinePosition.Character + 1 != expected.Column)
-                {
-                    message =
-                            $@"Expected diagnostic to start at column ""{expected.Column}"" was actually at column ""{actualLinePosition.Character + 1}""
-
-Diagnostic:
-    {FormatDiagnostics(analyzer, diagnostic)}
-";
-                    Execute.Assertion.FailWith(message);
-                }
-            }
+            actual.Character.Should().Be(expected.Character, $"because diagnostic should ${startOrEnd} at expected column");
         }
 
         private static string FormatDiagnostics(DiagnosticAnalyzer analyzer, params Diagnostic[] diagnostics)
@@ -506,12 +308,6 @@ Diagnostic:
             }
 
             return builder.ToString();
-        }
-
-        private async Task VerifyDiagnostic(string[] sources, string language, DiagnosticAnalyzer analyzer, DiagnosticResult[] expected, bool allowCompilationErrors)
-        {
-            var diagnostics = await GetSortedDiagnostics(sources, language, analyzer, allowCompilationErrors);
-            VerifyDiagnosticResults(diagnostics, analyzer, expected);
         }
 
         private async Task VerifyDiagnostics(string[] sources, string language, DiagnosticAnalyzer analyzer, Diagnostic[] expected, bool allowCompilationErrors)
