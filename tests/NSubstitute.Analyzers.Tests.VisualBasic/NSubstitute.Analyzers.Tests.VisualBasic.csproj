@@ -15,13 +15,4 @@
     <ProjectReference Include="..\..\src\NSubstitute.Analyzers.VisualBasic\NSubstitute.Analyzers.VisualBasic.csproj" />
     <ProjectReference Include="..\NSubstitute.Analyzers.Tests.Shared\NSubstitute.Analyzers.Tests.Shared.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="DiagnosticAnalyzersTests\NonVirtualSetupReceivedAnalyzerTests\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Remove="DiagnosticAnalyzersTests\NonVirtualSetupReceivedAnalyzerTests\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="DiagnosticAnalyzersTests\NonVirtualSetupReceivedAnalyzerTests\**" />
-  </ItemGroup>
 </Project>

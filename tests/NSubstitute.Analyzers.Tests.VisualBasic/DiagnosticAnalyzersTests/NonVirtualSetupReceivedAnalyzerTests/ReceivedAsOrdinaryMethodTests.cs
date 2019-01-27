@@ -2,14 +2,24 @@
 using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonVirtualSetupReceivedAnalyzerTests
 {
+    [CombinatoryData(
+        "SubstituteExtensions.Received",
+        "SubstituteExtensions.Received(Of Foo)",
+        "SubstituteExtensions.ReceivedWithAnyArgs",
+        "SubstituteExtensions.ReceivedWithAnyArgs(Of Foo)",
+        "SubstituteExtensions.DidNotReceive",
+        "SubstituteExtensions.DidNotReceive(Of Foo)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Foo)")]
     public class ReceivedAsOrdinaryMethodTests : NonVirtualSetupReceivedDiagnosticVerifier
     {
-        public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualMethod()
+        public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualMethod(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -24,28 +34,17 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.Received(substitute).Bar()
+            [|{method}(substitute)|].Bar()
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualReceivedSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(16, 13)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualMethod()
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualMethod(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -60,7 +59,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.Received(substitute).Bar()
+            {method}(substitute).Bar()
         End Sub
     End Class
 End Namespace
@@ -68,9 +67,9 @@ End Namespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForNonSealedMethod()
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForNonSealedMethod(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -93,7 +92,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo2)()
-            SubstituteExtensions.Received(substitute).Bar()
+            {method}(substitute).Bar()
         End Sub
     End Class
 End Namespace
@@ -101,18 +100,30 @@ End Namespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForDelegate()
+        [CombinatoryData(
+            "SubstituteExtensions.Received",
+            "SubstituteExtensions.Received(Of Func(Of Foo))",
+            "SubstituteExtensions.ReceivedWithAnyArgs",
+            "SubstituteExtensions.ReceivedWithAnyArgs(Of Func(Of Foo))",
+            "SubstituteExtensions.DidNotReceive",
+            "SubstituteExtensions.DidNotReceive(Of Func(Of Foo))",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Func(Of Foo))")]
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForDelegate(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 Imports System
+
+Public Class Foo
+End Class
 
 Namespace MyNamespace
 
     Public Class FooTests
 
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of Func(Of Integer))()
-            SubstituteExtensions.Received(substitute)()
+            Dim substitute = NSubstitute.Substitute.[For](Of Func(Of Foo))()
+            {method}(substitute)()
         End Sub
     End Class
 End Namespace
@@ -120,21 +131,21 @@ End Namespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForSealedMethod()
+        public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForSealedMethod(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
-    Public Class Foo
+    Public Class FooBar
 
         Public Overridable Function Bar() As Integer
             Return 2
         End Function
     End Class
 
-    Public Class Foo2
-        Inherits Foo
+    Public Class Foo
+        Inherits FooBar
 
         Public NotOverridable Overrides Function Bar() As Integer
             Return 1
@@ -144,30 +155,18 @@ Namespace MyNamespace
     Public Class FooTests
 
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of Foo2)()
-            SubstituteExtensions.Received(substitute).Bar()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            [|{method}(substitute)|].Bar()
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualReceivedSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(24, 13)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractMethod()
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractMethod(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -180,7 +179,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.Received(substitute).Bar()
+            {method}(substitute).Bar()
         End Sub
     End Class
 End Namespace
@@ -189,13 +188,13 @@ End Namespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceMethod()
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceMethod(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
-    Interface IFoo
+    Interface Foo
 
         Function Bar() As Integer
 
@@ -204,8 +203,8 @@ Namespace MyNamespace
     Public Class FooTests
 
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.Received(substitute).Bar()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            {method}(substitute).Bar()
         End Sub
     End Class
 End Namespace
@@ -213,13 +212,13 @@ End Namespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceProperty()
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceProperty(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
-    Interface IFoo
+    Interface Foo
 
        Property Bar As Integer
 
@@ -228,8 +227,8 @@ Namespace MyNamespace
     Public Class FooTests
 
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            Dim x As Integer = SubstituteExtensions.Received(substitute).Bar
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim x As Integer = {method}(substitute).Bar
         End Sub
     End Class
 End Namespace
@@ -237,13 +236,23 @@ End Namespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForGenericInterfaceMethod()
+        [CombinatoryData(
+            "SubstituteExtensions.Received",
+            "SubstituteExtensions.Received(Of Foo(Of Integer))",
+            "SubstituteExtensions.ReceivedWithAnyArgs",
+            "SubstituteExtensions.ReceivedWithAnyArgs(Of Foo(Of Integer))",
+            "SubstituteExtensions.DidNotReceive",
+            "SubstituteExtensions.DidNotReceive(Of Foo(Of Integer))",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Foo(Of Integer))")]
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForGenericInterfaceMethod(
+            string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
-    Public Interface IFoo(Of T)
+    Public Interface Foo(Of T)
 
         Function Bar(Of T)() As Integer
     End Interface
@@ -251,17 +260,17 @@ Namespace MyNamespace
     Public Class FooTests
 
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of IFoo(Of Integer))()
-            SubstituteExtensions.Received(substitute).Bar(Of Integer)
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo(Of Integer))()
+            {method}(substitute).Bar(Of Integer)
         End Sub
     End Class
 End Namespace";
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractProperty()
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractProperty(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -274,7 +283,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            Dim x As Integer = SubstituteExtensions.Received(substitute).Bar
+            Dim x As Integer = {method}(substitute).Bar
         End Sub
     End Class
 End Namespace";
@@ -282,13 +291,13 @@ End Namespace";
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceIndexer()
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceIndexer(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
-    Public Interface IFoo
+    Public Interface Foo
 
         Default Property Item(ByVal i As Integer) As Integer
     End Interface
@@ -296,17 +305,17 @@ Namespace MyNamespace
     Public Class FooTests
 
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.For(Of IFoo)
-            Dim x As Integer = SubstituteExtensions.Received(substitute)(1)
+            Dim substitute = NSubstitute.Substitute.For(Of Foo)
+            Dim x As Integer = {method}(substitute)(1)
         End Sub
     End Class
 End Namespace";
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualProperty()
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualProperty(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -322,7 +331,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            Dim x As Integer = SubstituteExtensions.Received(substitute).Bar
+            Dim x As Integer = {method}(substitute).Bar
         End Sub
     End Class
 End Namespace";
@@ -330,9 +339,9 @@ End Namespace";
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualProperty()
+        public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualProperty(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -348,29 +357,17 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            Dim x As Integer = SubstituteExtensions.Received(substitute).Bar
+            Dim x As Integer = [|{method}(substitute)|].Bar
         End Sub
     End Class
 End Namespace";
 
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualReceivedSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(17, 32)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualIndexer()
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualIndexer(string method)
         {
-            var source = @"Imports System
+            var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -392,16 +389,16 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            Dim x As Integer = SubstituteExtensions.Received(substitute)(1)
+            Dim x As Integer = {method}(substitute)(1)
         End Sub
     End Class
 End Namespace";
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualIndexer()
+        public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualIndexer(string method)
         {
-            var source = @"Imports System
+            var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -419,29 +416,17 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            Dim x As Integer = SubstituteExtensions.Received(substitute)(1)
+            Dim x As Integer = [|{method}(substitute)|](1)
         End Sub
     End Class
 End Namespace";
 
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualReceivedSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(19, 32)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod()
+        public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method)
         {
-            var source = @"Imports System.Runtime.CompilerServices
+            var source = $@"Imports System.Runtime.CompilerServices
 
 Namespace NSubstitute
     Public Class Foo
@@ -452,7 +437,22 @@ Namespace NSubstitute
 
     Module SubstituteExtensions
         <Extension>
-        Function Received(Of T)(ByVal returnValue As T) As T
+        Function Received(Of T)(ByVal returnValue As T, ByVal x as Single) As T
+            Return Nothing
+        End Function
+
+        <Extension>
+        Function ReceivedWithAnyArgs(Of T)(ByVal returnValue As T, ByVal x as Single) As T
+            Return Nothing
+        End Function
+
+        <Extension>
+        Function DidNotReceive(Of T)(ByVal returnValue As T, ByVal x as Single) As T
+            Return Nothing
+        End Function
+
+        <Extension>
+        Function DidNotReceiveWithAnyArgs(Of T)(ByVal returnValue As T, ByVal x as Single) As T
             Return Nothing
         End Function
     End Module
@@ -460,7 +460,7 @@ Namespace NSubstitute
     Public Class FooTests
         Public Sub Test()
             Dim substitute As Foo = Nothing
-            SubstituteExtensions.Received(substitute).Bar()
+            {method}(substitute, 1D).Bar()
         End Sub
     End Class
 End Namespace
