@@ -211,7 +211,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         private static void VerifyDiagnosticResults(Diagnostic[] actualResults, DiagnosticAnalyzer analyzer, params Diagnostic[] expectedResults)
         {
-            expectedResults.Should().HaveSameCount(actualResults, "because diagnostic count should match. Diagnostics:", FormatDiagnostics(actualResults));
+            actualResults.Should().HaveSameCount(expectedResults, "because diagnostic count should match. Diagnostics:", FormatDiagnostics(actualResults));
             for (var i = 0; i < expectedResults.Length; i++)
             {
                 var actual = actualResults.ElementAt(i);
