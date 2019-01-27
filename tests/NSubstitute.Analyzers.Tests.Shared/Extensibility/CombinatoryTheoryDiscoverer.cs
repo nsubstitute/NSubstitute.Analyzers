@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
@@ -15,7 +16,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.Extensibility
         protected override IEnumerable<IXunitTestCase> CreateTestCasesForDataRow(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo theoryAttribute, object[] dataRow)
         {
             var attribute = testMethod.Method.GetCustomAttributes(typeof(CombinatoryData)).SingleOrDefault() ??
-                            testMethod.TestClass.Class.GetCustomAttributes(typeof(CombinatoryData)).SingleOrDefault();
+                            testMethod.TestClass.Class.GetCustomAttributes(typeof(CombinatoryData)).SingleOrDefault()
+                            ?? throw new InvalidOperationException($"Could not find {nameof(CombinatoryData)} attribute on method or class level");
 
             var newDataRows = attribute.GetNamedArgument<object[]>(nameof(CombinatoryData.Data)).Select(variation => new[] { variation }.Concat(dataRow).ToArray());
 
