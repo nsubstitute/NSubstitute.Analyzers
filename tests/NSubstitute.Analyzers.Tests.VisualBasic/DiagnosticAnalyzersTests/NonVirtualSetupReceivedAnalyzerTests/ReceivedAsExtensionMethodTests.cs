@@ -216,8 +216,7 @@ End Namespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForGenericInterfaceMethod(
-            string method)
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForGenericInterfaceMethod(string method)
         {
             var source = $@"Imports NSubstitute
 

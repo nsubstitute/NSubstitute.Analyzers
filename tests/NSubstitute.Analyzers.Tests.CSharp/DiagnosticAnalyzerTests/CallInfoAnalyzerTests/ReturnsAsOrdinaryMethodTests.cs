@@ -478,8 +478,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, CallInfoMoreThanOneArgumentOfTypeDescriptor, message);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(
-            string method, string call)
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(string method, string call)
         {
             var source = $@"using NSubstitute;
 

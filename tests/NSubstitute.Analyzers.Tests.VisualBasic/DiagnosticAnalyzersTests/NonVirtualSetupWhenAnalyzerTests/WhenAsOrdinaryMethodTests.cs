@@ -59,14 +59,14 @@ End Namespace
             var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
-    Public Class Foo
+    Public Class FooBar
         Public Overridable Function Bar() As Integer
             Return 2
         End Function
     End Class
 
-    Public Class Foo2
-        Inherits Foo
+    Public Class Foo
+        Inherits FooBar
 
         Public Overrides Function Bar() As Integer
             Return 1
@@ -76,7 +76,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim i As Integer = 1
-            Dim substitute = NSubstitute.Substitute.[For](Of Foo2)()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
         End Sub
     End Class

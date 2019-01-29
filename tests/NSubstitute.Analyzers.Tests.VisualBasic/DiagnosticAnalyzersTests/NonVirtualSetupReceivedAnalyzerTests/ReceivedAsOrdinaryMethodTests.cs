@@ -245,8 +245,7 @@ End Namespace
             "SubstituteExtensions.DidNotReceive(Of Foo(Of Integer))",
             "SubstituteExtensions.DidNotReceiveWithAnyArgs",
             "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Foo(Of Integer))")]
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForGenericInterfaceMethod(
-            string method)
+        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForGenericInterfaceMethod(string method)
         {
             var source = $@"Imports NSubstitute
 
