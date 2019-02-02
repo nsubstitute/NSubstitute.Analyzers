@@ -48,7 +48,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
-        protected abstract SyntaxNode GetSubstituteCall(IMethodSymbol methodSymbol, TInvocationExpressionSyntax invocationExpressionSyntax);
+        protected abstract SyntaxNode GetSubstituteCall(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, TInvocationExpressionSyntax invocationExpressionSyntax);
 
         protected abstract IEnumerable<TExpressionSyntax> GetArgumentExpressions(TInvocationExpressionSyntax invocationExpressionSyntax);
 
@@ -288,7 +288,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private IList<IParameterSymbol> GetSubstituteCallParameters(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, TInvocationExpressionSyntax invocationExpression)
         {
-            var parentMethodCallSyntax = GetSubstituteCall(methodSymbol, invocationExpression);
+            var parentMethodCallSyntax = GetSubstituteCall(syntaxNodeContext, methodSymbol, invocationExpression);
             var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(parentMethodCallSyntax).Symbol;
 
             switch (symbol)

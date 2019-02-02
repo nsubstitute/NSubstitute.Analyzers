@@ -4,7 +4,7 @@ using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAnalyzerTests
 {
     [CombinatoryData("AndDoes")]
-    public class AndDoesMethodTests : CallInfoDiagnosticVerifier
+    public class AndDoesMethodPrecededByExtensionMethodTests : CallInfoDiagnosticVerifier
     {
         public override async Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string method, string call, string argAccess)
         {

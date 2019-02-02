@@ -16,8 +16,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
     {
         private static ImmutableArray<Type> callHierarchy = ImmutableArray.Create(
             typeof(MemberAccessExpressionSyntax),
-            typeof(InvocationExpressionSyntax),
-            typeof(MemberAccessExpressionSyntax));
+            typeof(InvocationExpressionSyntax));
 
         public CallInfoAnalyzer()
             : base(new DiagnosticDescriptorsProvider())
@@ -26,7 +25,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
-        protected override SyntaxNode GetSubstituteCall(IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax)
+        protected override SyntaxNode GetSubstituteCall(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax)
         {
             if (methodSymbol.IsExtensionMethod)
             {
@@ -53,8 +52,16 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
                     }
                 }
 
-                if (hierarchyEnumerator.MoveNext() == false && descendantNodesEnumerator.MoveNext())
+                if (hierarchyEnumerator.MoveNext() == false)
                 {
+                    var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(descendantNodesEnumerator.Current);
+
+                    if (symbol.Symbol is IMethodSymbol mSymbol && mSymbol.ReducedFrom == null)
+                    {
+                        return ((InvocationExpressionSyntax)descendantNodesEnumerator.Current).ArgumentList.Arguments
+                            .First().Expression;
+                    }
+
                     return descendantNodesEnumerator.Current;
                 }
             }
