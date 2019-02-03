@@ -1,4 +1,6 @@
-﻿// https://github.com/JosefPihrt/Roslynator/blob/master/src/Tests/TestFramework.Core/Text/TextParser.cs
+﻿// Src: https://github.com/JosefPihrt/Roslynator/blob/e18e430246be649c418cc17d393b48d8e1cf7feb/src/Tests/TestFramework.Core/Text/TextParser.cs
+// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt at at https://github.com/JosefPihrt/Roslynator for license information.
+// Some modifications made (such as namespace) for NSubstitute.Analyzers project.
 
 using System;
 using System.Collections.Generic;
