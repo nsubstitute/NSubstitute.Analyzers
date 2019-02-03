@@ -4,6 +4,7 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Markdig" Version="0.15.4" />

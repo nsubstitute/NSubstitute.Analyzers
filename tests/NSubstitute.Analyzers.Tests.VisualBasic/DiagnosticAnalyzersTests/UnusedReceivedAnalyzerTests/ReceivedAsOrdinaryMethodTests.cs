@@ -3,110 +3,121 @@ using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Tests.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.UnusedReceivedAnalyzerTests
 {
+    [CombinatoryData(
+        "SubstituteExtensions.Received",
+        "SubstituteExtensions.Received(Of Foo)",
+        "SubstituteExtensions.ReceivedWithAnyArgs",
+        "SubstituteExtensions.ReceivedWithAnyArgs(Of Foo)",
+        "SubstituteExtensions.DidNotReceive",
+        "SubstituteExtensions.DidNotReceive(Of Foo)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Foo)")]
     public class ReceivedAsOrdinaryMethodTests : UnusedReceivedDiagnosticVerifier
     {
-        public override async Task ReportDiagnostics_WhenUsedWithoutMemberCall()
+        public override async Task ReportDiagnostics_WhenUsedWithoutMemberCall(string method)
         {
-            var source = @"Imports NSubstitute
+            var plainMethodName = method.Replace("(Of Foo)", string.Empty);
+            var planMethodNameWithoutNamespace = plainMethodName.Replace("SubstituteExtensions.", string.Empty);
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
-    Interface IFoo
+    Interface Foo
     End Interface
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.Received(substitute)
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            [|{method}(substitute)|]
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.UnusedReceived,
-                Severity = DiagnosticSeverity.Warning,
-                Message = @"Unused received check. To fix, make sure there is a call after ""Received"". Correct: ""SubstituteExtensions.Received(sub).SomeCall();"". Incorrect: ""SubstituteExtensions.Received(sub);""",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(10, 13)
-                }
-            };
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, $@"Unused received check. To fix, make sure there is a call after ""{planMethodNameWithoutNamespace}"". Correct: ""{plainMethodName}(sub).SomeCall();"". Incorrect: ""{plainMethodName}(sub);""");
         }
 
-        public override async Task ReportNoDiagnostics_WhenUsedWithMethodMemberAccess()
+        public override async Task ReportNoDiagnostics_WhenUsedWithMethodMemberAccess(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class FooBar
     End Class
 
-    Interface IFoo
+    Interface Foo
         Function Bar() As FooBar
     End Interface
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.Received(substitute).Bar()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            {method}(substitute).Bar()
         End Sub
     End Class
 End Namespace
 ";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportNoDiagnostics_WhenUsedWithPropertyMemberAccess()
+        public override async Task ReportNoDiagnostics_WhenUsedWithPropertyMemberAccess(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
-    Interface IFoo
+    Interface Foo
         Property Bar As Integer
     End Interface
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            Dim bar = SubstituteExtensions.Received(substitute).Bar
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim bar = {method}(substitute).Bar
         End Sub
     End Class
 End Namespace
 ";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportNoDiagnostics_WhenUsedWithIndexerMemberAccess()
+        public override async Task ReportNoDiagnostics_WhenUsedWithIndexerMemberAccess(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
-    Interface IFoo
+    Interface Foo
         Default ReadOnly Property Item(ByVal x As Integer) As Integer
     End Interface
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            Dim bar = SubstituteExtensions.Received(substitute)(0)
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim bar = {method}(substitute)(0)
         End Sub
     End Class
 End Namespace
 ";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportNoDiagnostics_WhenUsedWithInvokingDelegate()
+        [CombinatoryData(
+            "SubstituteExtensions.Received",
+            "SubstituteExtensions.Received(Of Func(Of Integer))",
+            "SubstituteExtensions.ReceivedWithAnyArgs",
+            "SubstituteExtensions.ReceivedWithAnyArgs(Of Func(Of Integer))",
+            "SubstituteExtensions.DidNotReceive",
+            "SubstituteExtensions.DidNotReceive(Of Func(Of Integer))",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Func(Of Integer))")]
+        public override async Task ReportNoDiagnostics_WhenUsedWithInvokingDelegate(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 Imports System
 
 Namespace MyNamespace
@@ -115,17 +126,17 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Func(Of Integer))()
-            SubstituteExtensions.Received(substitute)()
+            {method}(substitute)()
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod()
+        public override async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod(string method)
         {
-            var source = @"Imports System
+            var source = $@"Imports System
 Imports System.Runtime.CompilerServices
 
 Namespace NSubstitute
@@ -134,17 +145,36 @@ Namespace NSubstitute
         Function Received(Of T As Class)(ByVal substitute As T, ByVal params As Decimal) As T
             Return Nothing
         End Function
+
+        <Extension()>
+        Function ReceivedWithAnyArgs(Of T As Class)(ByVal substitute As T, ByVal params As Decimal) As T
+            Return Nothing
+        End Function
+
+        <Extension()>
+        Function DidNotReceive(Of T As Class)(ByVal substitute As T, ByVal params As Decimal) As T
+            Return Nothing
+        End Function
+
+        <Extension()>
+        Function DidNotReceiveWithAnyArgs(Of T As Class)(ByVal substitute As T, ByVal params As Decimal) As T
+            Return Nothing
+        End Function
+
     End Module
+
+    Public Class Foo
+    End Class
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of Func(Of Integer))()
-            SubstituteExtensions.Received(substitute, 1D)
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            {method}(substitute, 1D)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
     }
 }

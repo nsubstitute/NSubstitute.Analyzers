@@ -1,14 +1,12 @@
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using NSubstitute.Analyzers.Shared;
-using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
-using Xunit;
+using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallInfoAnalyzerTests
 {
+    [CombinatoryData("Returns", "ReturnsForAnyArgs")]
     public class ReturnsAsExtensionMethodsTests : CallInfoDiagnosticVerifier
     {
-        public override async Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string call, string argAccess)
+        public override async Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string method, string call, string argAccess)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -24,7 +22,7 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             Dim returnedValue = {call}
-            returnedValue.Returns(Function(callInfo)
+            returnedValue.{method}(Function(callInfo)
                                       {argAccess}
                                       Return 1
                                   End Function)
@@ -32,10 +30,10 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string call, string argAccess, int expectedLine, int expectedColumn)
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string method, string call, string argAccess)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -50,7 +48,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            {call}.Returns(Function(callInfo)
+            {call}.{method}(Function(callInfo)
                                {argAccess}
                                Return 1
                            End Function)
@@ -58,21 +56,10 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoArgumentOutOfRange,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "There is no argument at position 1",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(expectedLine, expectedColumn)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, CallInfoArgumentOutOfRangeDescriptor, "There is no argument at position 1");
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentOutOfBound_AndPositionIsNotLiteralExpression(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentOutOfBound_AndPositionIsNotLiteralExpression(string method, string call, string argAccess)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -87,17 +74,17 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            {call}.Returns(Function(callInfo)
+            {call}.{method}(Function(callInfo)
                                    {argAccess}
                                    Return 1
                            End Function)
         End Sub
     End Class
 End Namespace";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string method, string call, string argAccess)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -112,7 +99,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            {call}.Returns(Function(callInfo)
+            {call}.{method}(Function(callInfo)
                                    {argAccess}
                                    Return 1
                            End Function)
@@ -120,10 +107,10 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenManuallyCasting_ToSupportedType(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenManuallyCasting_ToSupportedType(string method, string call, string argAccess)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -144,7 +131,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            {call}.Returns(Function(callInfo)
+            {call}.{method}(Function(callInfo)
                                    {argAccess}
                                    Return 1
                            End Function)
@@ -152,10 +139,10 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenManuallyCasting_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn)
+        public override async Task ReportsDiagnostic_WhenManuallyCasting_ToUnsupportedType(string method, string call, string argAccess)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -178,7 +165,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            {call}.Returns(Function(callInfo)
+            {call}.{method}(Function(callInfo)
                                {argAccess}
                                Return 1
                            End Function)
@@ -186,21 +173,11 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoCouldNotConvertParameterAtPosition,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Couldn't convert parameter at position 1 to type MyNamespace.Bar.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(expectedLine, expectedColumn)
-                }
-            };
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, CallInfoCouldNotConvertParameterAtPositionDescriptor, "Couldn't convert parameter at position 1 to type MyNamespace.Bar.");
         }
 
-        public override async Task ReportsNoDiagnostic_WhenCasting_WithArgAt_ToSupportedType(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenCasting_WithArgAt_ToSupportedType(string method, string call, string argAccess)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -221,7 +198,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            {call}.Returns(Function(callInfo)
+            {call}.{method}(Function(callInfo)
                                    {argAccess}
                                    Return 1
                            End Function)
@@ -229,10 +206,10 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn, string message)
+        public override async Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string method, string call, string argAccess, string message)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -255,7 +232,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            {call}.Returns(Function(callInfo)
+            {call}.{method}(Function(callInfo)
                                {argAccess}
                                Return 1
                            End Function)
@@ -263,21 +240,10 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoCouldNotConvertParameterAtPosition,
-                Severity = DiagnosticSeverity.Warning,
-                Message = message,
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(expectedLine, expectedColumn)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, CallInfoCouldNotConvertParameterAtPositionDescriptor, message);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string method, string call, string argAccess)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -294,7 +260,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            {call}.Returns(Function(callInfo)
+            {call}.{method}(Function(callInfo)
                                {argAccess}
                                Return 1
                            End Function)
@@ -302,10 +268,10 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAssigningValueToNotRefNorOutArgumentViaIndirectCall(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenAssigningValueToNotRefNorOutArgumentViaIndirectCall(string method, string call, string argAccess)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -322,7 +288,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            {call}.Returns(Function(callInfo)
+            {call}.{method}(Function(callInfo)
                                {argAccess}
                                Return 1
                            End Function)
@@ -330,10 +296,10 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string call, string argAccess, string message)
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string method, string call, string argAccess, string message)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -349,7 +315,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            {call}.Returns(Function(callInfo)
+            {call}.{method}(Function(callInfo)
                                {argAccess}
                                Return 1
                            End Function)
@@ -357,21 +323,11 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoCouldNotFindArgumentToThisCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message = message,
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(16, 32)
-                }
-            };
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, CallInfoCouldNotFindArgumentToThisCallDescriptor, message);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string method, string call, string argAccess)
         {
             var source = $@"Imports System
 Imports NSubstitute
@@ -394,7 +350,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            {call}.Returns(Function(callInfo)
+            {call}.{method}(Function(callInfo)
                                {argAccess}
                                Return 1
                            End Function)
@@ -403,10 +359,10 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call, string argAccess, string message)
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string method, string call, string argAccess, string message)
         {
             var source = $@"Imports NSubstitute
 
@@ -419,7 +375,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            {call}.Returns(Function(callInfo)
+            {call}.{method}(Function(callInfo)
                                {argAccess}
                                Return 1
                            End Function)
@@ -427,21 +383,10 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoMoreThanOneArgumentOfType,
-                Severity = DiagnosticSeverity.Warning,
-                Message = message,
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(13, 32)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, CallInfoMoreThanOneArgumentOfTypeDescriptor, message);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(string call)
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(string method, string call)
         {
             var source = $@"Imports NSubstitute
 
@@ -454,7 +399,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            {call}.Returns(Function(callInfo)
+            {call}.{method}(Function(callInfo)
                                callInfo.Arg(Of Integer)()
                                Return 1
                            End Function)
@@ -463,10 +408,10 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string call)
+        public override async Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string method, string call)
         {
             var source = $@"Imports NSubstitute
 
@@ -479,31 +424,20 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            {call}.Returns(Function(callInfo)
-                               callInfo(1) = 1
+            {call}.{method}(Function(callInfo)
+                               [|callInfo(1)|] = 1
                                Return 1
                            End Function)
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoArgumentIsNotOutOrRef,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Could not set argument 1 (Double) as it is not an out or ref argument.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(13, 32)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, CallInfoArgumentIsNotOutOrRefDescriptor, "Could not set argument 1 (Double) as it is not an out or ref argument.");
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAssigningValueToRefArgument()
+        public override async Task ReportsNoDiagnostic_WhenAssigningValueToRefArgument(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface Foo
@@ -514,7 +448,7 @@ Namespace MyNamespace
         Public Sub Test()
             Dim value As Integer = 0
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            substitute.Bar(value).Returns(Function(callInfo)
+            substitute.Bar(value).{method}(Function(callInfo)
                                               callInfo(0) = 1
                                               Return 1
                                           End Function)
@@ -522,12 +456,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAssigningValueToOutArgument()
+        public override async Task ReportsNoDiagnostic_WhenAssigningValueToOutArgument(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 Imports System.Runtime.InteropServices
 
 Namespace MyNamespace
@@ -539,7 +473,7 @@ Namespace MyNamespace
         Public Sub Test()
             Dim value As Integer = 0
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            substitute.Bar(value).Returns(Function(callInfo)
+            substitute.Bar(value).{method}(Function(callInfo)
                                               callInfo(0) = 1
                                               Return 1
                                           End Function)
@@ -547,12 +481,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostic_WhenAssigningValueToOutOfBoundsArgument()
+        public override async Task ReportsDiagnostic_WhenAssigningValueToOutOfBoundsArgument(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 Imports System.Runtime.InteropServices
 
 Namespace MyNamespace
@@ -564,29 +498,18 @@ Namespace MyNamespace
         Public Sub Test()
             Dim value As Integer = 0
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            substitute.Bar(value).Returns(Function(callInfo)
-                                              callInfo(1) = 1
+            substitute.Bar(value).{method}(Function(callInfo)
+                                              [|callInfo(1)|] = 1
                                               Return 1
                                           End Function)
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoArgumentOutOfRange,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "There is no argument at position 1",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(14, 47)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, CallInfoArgumentOutOfRangeDescriptor, "There is no argument at position 1");
         }
 
-        public override async Task ReportsDiagnostic_WhenAssigningType_NotAssignableTo_Argument(string left, string right, string expectedMessage)
+        public override async Task ReportsDiagnostic_WhenAssigningType_NotAssignableTo_Argument(string method, string left, string right, string expectedMessage)
         {
             var source = $@"Imports NSubstitute
 Imports System.Runtime.InteropServices
@@ -601,8 +524,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim value As {left} = Nothing
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            substitute.Bar(value).Returns(Function(callInfo)
-                                              callInfo(0) = {right}
+            substitute.Bar(value).{method}(Function(callInfo)
+                                              [|callInfo(0)|] = {right}
                                               Return 1
                                           End Function)
         End Sub
@@ -610,21 +533,10 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoArgumentSetWithIncompatibleValue,
-                Severity = DiagnosticSeverity.Warning,
-                Message = expectedMessage,
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(15, 47)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, CallInfoArgumentSetWithIncompatibleValueDescriptor, expectedMessage);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string left, string right)
+        public override async Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string method, string left, string right)
         {
             var source = $@"Imports NSubstitute
 Imports System.Runtime.InteropServices
@@ -639,7 +551,7 @@ Namespace MyNamespace
         Public Sub Test()
             Dim value As {left} = Nothing
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            substitute.Bar(value).Returns(Function(callInfo)
+            substitute.Bar(value).{method}(Function(callInfo)
                                               callInfo(0) = {right}
                                               Return 1
                                           End Function)
@@ -648,7 +560,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
     }
 }

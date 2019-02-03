@@ -4,38 +4,38 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 {
     public interface INonVirtualSetupWhenDiagnosticVerifier
     {
-        Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string whenAction, int expectedLine, int expectedColumn);
+        Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method, string whenAction);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string whenAction);
+        Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string method, string whenAction);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string whenAction);
+        Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string method, string whenAction);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string whenAction);
+        Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string method, string whenAction);
 
-        Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string whenAction, int expectedLine, int expectedColumn);
+        Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string method, string whenAction);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string whenAction);
+        Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string method, string whenAction);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod(string whenAction);
+        Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod(string method, string whenAction);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string whenAction);
+        Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string method, string whenAction);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod(string whenAction);
+        Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod(string method, string whenAction);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string whenAction);
+        Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string method, string whenAction);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer(string whenAction);
+        Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer(string method, string whenAction);
 
-        Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string whenAction);
+        Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method, string whenAction);
 
-        Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string whenAction, int expectedLine, int expectedColumn);
+        Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string method, string whenAction);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string whenAction);
+        Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string method, string whenAction);
 
-        Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string whenAction, int expectedLine, int expectedColumn);
+        Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string method, string whenAction);
 
-        Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularFunction();
+        Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularFunction(string method);
 
-        Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularFunction();
+        Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularFunction(string method);
     }
 }

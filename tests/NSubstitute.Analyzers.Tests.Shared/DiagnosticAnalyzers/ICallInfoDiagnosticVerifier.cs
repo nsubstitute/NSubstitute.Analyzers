@@ -4,44 +4,44 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 {
     public interface ICallInfoDiagnosticVerifier
     {
-        Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string call, string argAccess);
+        Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string method, string call, string argAccess);
 
-        Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string call, string argAccess, int expectedLine, int expectedColumn);
+        Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string method, string call, string argAccess);
 
-        Task ReportsNoDiagnostic_WhenAccessingArgumentOutOfBound_AndPositionIsNotLiteralExpression(string call, string argAccess);
+        Task ReportsNoDiagnostic_WhenAccessingArgumentOutOfBound_AndPositionIsNotLiteralExpression(string method, string call, string argAccess);
 
-        Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string call, string argAccess);
+        Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string method, string call, string argAccess);
 
-        Task ReportsNoDiagnostic_WhenManuallyCasting_ToSupportedType(string call, string argAccess);
+        Task ReportsNoDiagnostic_WhenManuallyCasting_ToSupportedType(string method, string call, string argAccess);
 
-        Task ReportsDiagnostic_WhenManuallyCasting_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn);
+        Task ReportsDiagnostic_WhenManuallyCasting_ToUnsupportedType(string method, string call, string argAccess);
 
-        Task ReportsNoDiagnostic_WhenCasting_WithArgAt_ToSupportedType(string call, string argAccess);
+        Task ReportsNoDiagnostic_WhenCasting_WithArgAt_ToSupportedType(string method, string call, string argAccess);
 
-        Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn, string message);
+        Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string method, string call, string argAccess, string message);
 
-        Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string call, string argAccess);
+        Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string method, string call, string argAccess);
 
-        Task ReportsNoDiagnostic_WhenAssigningValueToNotRefNorOutArgumentViaIndirectCall(string call, string argAccess);
+        Task ReportsNoDiagnostic_WhenAssigningValueToNotRefNorOutArgumentViaIndirectCall(string method, string call, string argAccess);
 
-        Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string call, string argAccess, string message);
+        Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string method, string call, string argAccess, string message);
 
-        Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call, string argAccess);
+        Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string method, string call, string argAccess);
 
-        Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call, string argAccess, string message);
+        Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string method, string call, string argAccess, string message);
 
-        Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(string call);
+        Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(string method, string call);
 
-        Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string call);
+        Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string method, string call);
 
-        Task ReportsNoDiagnostic_WhenAssigningValueToRefArgument();
+        Task ReportsNoDiagnostic_WhenAssigningValueToRefArgument(string method);
 
-        Task ReportsNoDiagnostic_WhenAssigningValueToOutArgument();
+        Task ReportsNoDiagnostic_WhenAssigningValueToOutArgument(string method);
 
-        Task ReportsDiagnostic_WhenAssigningValueToOutOfBoundsArgument();
+        Task ReportsDiagnostic_WhenAssigningValueToOutOfBoundsArgument(string method);
 
-        Task ReportsDiagnostic_WhenAssigningType_NotAssignableTo_Argument(string left, string right, string expectedMessage);
+        Task ReportsDiagnostic_WhenAssigningType_NotAssignableTo_Argument(string method, string left, string right, string expectedMessage);
 
-        Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string left, string right);
+        Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string method, string left, string right);
     }
 }

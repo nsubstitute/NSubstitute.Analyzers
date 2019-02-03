@@ -1,23 +1,12 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using NSubstitute.Analyzers.Shared;
-using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
-using Xunit;
+using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonVirtualSetupWhenAnalyzerTests
 {
+    [CombinatoryData("SubstituteExtensions.When", "SubstituteExtensions.When(Of Foo)", "SubstituteExtensions.WhenForAnyArgs", "SubstituteExtensions.WhenForAnyArgs(Of Foo)")]
     public class WhenAsOrdinaryMethodTests : NonVirtualSetupWhenDiagnosticVerifier
     {
-        [Theory]
-        [InlineData("Sub(sb) sb.Bar()", 14, 58)]
-        [InlineData(@"Function(ByVal [sub] As Foo) [sub].Bar()", 14, 79)]
-        [InlineData(
-            @"Sub(sb As Foo)
-                sb.Bar()
-            End Sub",
-            15,
-            17)]
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string whenAction, int expectedLine, int expectedColumn)
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method, string whenAction)
         {
             var source = $@"Imports NSubstitute
 
@@ -32,34 +21,16 @@ Namespace MyNamespace
         Public Sub Test()
             Dim i As Integer = 1
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.When(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
+            {method}(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
         End Sub
     End Class
 End Namespace
 ";
 
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualWhenSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(expectedLine, expectedColumn)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        [Theory]
-        [InlineData("Sub(sb) sb.Bar()")]
-        [InlineData(@"Function(ByVal [sub] As Foo) [sub].Bar()")]
-        [InlineData(
-            @"Sub(sb As Foo)
-                sb.Bar()
-            End Sub")]
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string method, string whenAction)
         {
             var source = $@"Imports NSubstitute
 
@@ -74,35 +45,28 @@ Namespace MyNamespace
         Public Sub Test()
             Dim i As Integer = 1
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.When(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
+            {method}(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
         End Sub
     End Class
 End Namespace
 ";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("Sub(sb) sb.Bar()")]
-        [InlineData(@"Function(ByVal [sub] As Foo) [sub].Bar()")]
-        [InlineData(
-            @"Sub(sb As Foo)
-                sb.Bar()
-            End Sub")]
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string method, string whenAction)
         {
             var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
-    Public Class Foo
+    Public Class FooBar
         Public Overridable Function Bar() As Integer
             Return 2
         End Function
     End Class
 
-    Public Class Foo2
-        Inherits Foo
+    Public Class Foo
+        Inherits FooBar
 
         Public Overrides Function Bar() As Integer
             Return 1
@@ -112,23 +76,17 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim i As Integer = 1
-            Dim substitute = NSubstitute.Substitute.[For](Of Foo2)()
-            SubstituteExtensions.When(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            {method}(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("Sub(sb) sb()")]
-        [InlineData(@"Function(ByVal [sub] As Func(Of Integer)) [sub]()")]
-        [InlineData(
-            @"Sub(sb As Func(Of Integer))
-                sb()
-            End Sub")]
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string whenAction)
+        [CombinatoryData("SubstituteExtensions.When", "SubstituteExtensions.When(Of Func(Of Integer))", "SubstituteExtensions.WhenForAnyArgs", "SubstituteExtensions.WhenForAnyArgs(Of Func(Of Integer))")]
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string method, string whenAction)
         {
             var source = $@"Imports NSubstitute
 Imports System
@@ -138,36 +96,27 @@ Namespace MyNamespace
         Public Sub Test()
             Dim i As Integer = 1
             Dim substitute = NSubstitute.Substitute.[For](Of Func(Of Integer))()
-            SubstituteExtensions.When(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
+            {method}(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("Sub(sb) sb.Bar()", 22, 58)]
-        [InlineData(@"Function(ByVal [sub] As Foo2) [sub].Bar()", 22, 80)]
-        [InlineData(
-            @"Sub(sb As Foo2)
-                sb.Bar()
-            End Sub",
-            23,
-            17)]
-        public override async Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string whenAction, int expectedLine, int expectedColumn)
+        public override async Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string method, string whenAction)
         {
             var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
-    Public Class Foo
+    Public Class FooBar
         Public Overridable Function Bar() As Integer
             Return 2
         End Function
     End Class
 
-    Public Class Foo2
-        Inherits Foo
+    Public Class Foo
+        Inherits FooBar
 
         Public NotOverridable Overrides Function Bar() As Integer
             Return 1
@@ -177,34 +126,16 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim i As Integer = 1
-            Dim substitute = NSubstitute.Substitute.[For](Of Foo2)()
-            SubstituteExtensions.When(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            {method}(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualWhenSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(expectedLine, expectedColumn)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        [Theory]
-        [InlineData("Sub(sb) sb.Bar()")]
-        [InlineData(@"Function(ByVal [sub] As Foo) [sub].Bar()")]
-        [InlineData(
-            @"Sub(sb As Foo)
-                sb.Bar()
-            End Sub")]
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string method, string whenAction)
         {
             var source = $@"Imports NSubstitute
 
@@ -217,87 +148,64 @@ Namespace MyNamespace
         Public Sub Test()
             Dim i As Integer = 1
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.When(substitute,{whenAction}).[Do](Sub(callInfo) i = i +1)
+            {method}(substitute,{whenAction}).[Do](Sub(callInfo) i = i +1)
         End Sub
     End Class
 End Namespace
 ";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("Sub(sb) sb.Bar()")]
-        [InlineData(@"Function(ByVal [sub] As IFoo) [sub].Bar()")]
-        [InlineData(
-            @"Sub(sb As IFoo)
-                sb.Bar()
-            End Sub")]
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod(string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod(string method, string whenAction)
         {
             var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
-    Interface IFoo
+    Interface Foo
         Function Bar() As Integer
     End Interface
 
     Public Class FooTests
         Public Sub Test()
             Dim i As Integer = 1
-            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.When(substitute,{whenAction}).[Do](Sub(callInfo) i = i +1)
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            {method}(substitute,{whenAction}).[Do](Sub(callInfo) i = i +1)
         End Sub
     End Class
 End Namespace";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData(
-            @"Sub(sb As IFoo)
-                Dim x = sb.Bar
-            End Sub")]
-        [InlineData(
-            @"Sub(sb As IFoo)
-                Dim x as Integer
-                x = sb.Bar
-            End Sub")]
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string method, string whenAction)
         {
             var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
-    Interface IFoo
+    Interface Foo
         ReadOnly Property Bar As Integer
     End Interface
 
     Public Class FooTests
         Public Sub Test()
             Dim i As Integer = 1
-            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.When(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            {method}(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("Sub(sb) sb.Bar(Of Integer)()")]
-        [InlineData(@"Function(ByVal [sub] As IFoo(Of Integer)) [sub].Bar(Of Integer)()")]
-        [InlineData(
-            @"Sub(sb As IFoo(Of Integer))
-                sb.Bar(Of Integer)()
-            End Sub")]
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod(string whenAction)
+        [CombinatoryData("SubstituteExtensions.When", "SubstituteExtensions.When(Of Foo(Of Integer))", "SubstituteExtensions.WhenForAnyArgs", "SubstituteExtensions.WhenForAnyArgs(Of Foo(Of Integer))")]
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod(string method, string whenAction)
         {
             var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
-    Public Interface IFoo(Of T)
+    Public Interface Foo(Of T)
 
         Function Bar(Of T)() As Integer
     End Interface
@@ -306,25 +214,15 @@ Namespace MyNamespace
 
     Public Sub Test()
             Dim i As Integer = 1
-            Dim substitute = NSubstitute.Substitute.[For](Of IFoo (Of Integer))()
-            SubstituteExtensions.When(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo (Of Integer))()
+            {method}(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
         End Sub
     End Class
 End Namespace";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData(
-            @"Sub(sb As Foo)
-                Dim x = sb.Bar
-            End Sub")]
-        [InlineData(
-            @"Sub(sb As Foo)
-                Dim x as Integer
-                x = sb.Bar
-            End Sub")]
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string method, string whenAction)
         {
             var source = $@"Imports NSubstitute
 
@@ -337,49 +235,37 @@ Namespace MyNamespace
         Public Sub Test()
             Dim i As Integer = 1
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.When(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
+            {method}(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
         End Sub
     End Class
 End Namespace
 ";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData(
-            @"Sub(sb As IFoo)
-                Dim x = sb(1)
-            End Sub")]
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer(string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer(string method, string whenAction)
         {
             var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
-    Interface IFoo
+    Interface Foo
         Default Property Item(ByVal i As Integer) As Integer
     End Interface
 
     Public Class FooTests
         Public Sub Test()
             Dim i As Integer = 1
-            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.When(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            {method}(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("Sub(sb) sb.Bar()")]
-        [InlineData(@"Function(ByVal [sub] As Foo) [sub].Bar()")]
-        [InlineData(
-            @"Sub(sb As Foo)
-                sb.Bar()
-            End Sub")]
-        public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method, string whenAction)
         {
             var source = $@"Imports System.Runtime.CompilerServices
 
@@ -395,34 +281,25 @@ Namespace NSubstitute
         Function [When](Of T)(ByVal substitute As T, ByVal substituteCall As System.Action(Of T), ByVal x As Integer) As T
             Return Nothing
         End Function
+
+        <Extension()>
+        Function [WhenForAnyArgs](Of T)(ByVal substitute As T, ByVal substituteCall As System.Action(Of T), ByVal x As Integer) As T
+            Return Nothing
+        End Function
     End Module
 
     Public Class FooTests
         Public Sub Test()
             Dim substitute As Foo = Nothing
-            SubstituteExtensions.[When](substitute, {whenAction}, 1)
+            {method}(substitute, {whenAction}, 1)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData(
-            @"Sub(sb As Foo)
-                Dim x = sb.Bar
-            End Sub",
-            13,
-            25)]
-        [InlineData(
-            @"Sub(sb As Foo)
-                Dim x as Integer
-                x = sb.Bar
-            End Sub",
-            14,
-            21)]
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string whenAction, int expectedLine, int expectedColumn)
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string method, string whenAction)
         {
             var source = $@"Imports NSubstitute
 
@@ -435,36 +312,15 @@ Namespace MyNamespace
         Public Sub Test()
             Dim i As Integer = 1
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.When(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
+            {method}(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualWhenSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(expectedLine, expectedColumn)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        [Theory]
-        [InlineData(
-            @"Sub(sb As Foo)
-                Dim x = sb.Bar
-            End Sub")]
-        [InlineData(
-            @"Sub(sb As Foo)
-                Dim x as Integer
-                x = sb.Bar
-            End Sub")]
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string whenAction)
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string method, string whenAction)
         {
             var source = $@"Imports NSubstitute
 
@@ -477,29 +333,15 @@ Namespace MyNamespace
         Public Sub Test()
             Dim i As Integer = 1
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.When(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
+            {method}(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData(
-            @"Sub(sb As Foo)
-                Dim x = sb(1)
-            End Sub",
-            19,
-            25)]
-        [InlineData(
-            @"Sub(sb As Foo)
-                Dim x as Integer
-                x = sb(1)
-            End Sub",
-            20,
-            21)]
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string whenAction, int expectedLine, int expectedColumn)
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string method, string whenAction)
         {
             var source = $@"Imports NSubstitute
 
@@ -518,29 +360,17 @@ Namespace MyNamespace
         Public Sub Test()
             Dim i As Integer = 1
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.When(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
+            {method}(substitute,{whenAction}).[Do](Sub(callInfo) i = i + 1)
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualWhenSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(expectedLine, expectedColumn)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        [Fact]
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularFunction()
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularFunction(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -553,34 +383,22 @@ Namespace MyNamespace
         Public Sub Test()
             Dim i As Integer = 0
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.When(substitute,AddressOf SubstituteCall).[Do](Sub(callInfo) i = i + 1)
+            {method}(substitute,AddressOf SubstituteCall).[Do](Sub(callInfo) i = i + 1)
             substitute.Bar()
         End Sub
 
         Private Sub SubstituteCall(ByVal [sub] As Foo)
-            Dim objBarr = [sub].Bar()
+            Dim objBarr = [|[sub].Bar()|]
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualWhenSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(19, 27)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        [Fact]
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularFunction()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularFunction(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -593,7 +411,7 @@ Namespace MyNamespace
         Public Sub Test()
             Dim i As Integer = 0
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.When(substitute,AddressOf SubstituteCall).[Do](Sub(callInfo) i = i + 1)
+            {method}(substitute,AddressOf SubstituteCall).[Do](Sub(callInfo) i = i + 1)
             substitute.Bar()
         End Sub
 
@@ -604,7 +422,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
     }
 }

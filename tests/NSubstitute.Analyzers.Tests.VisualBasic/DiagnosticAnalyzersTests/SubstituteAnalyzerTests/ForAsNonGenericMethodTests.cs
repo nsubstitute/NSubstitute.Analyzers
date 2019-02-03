@@ -26,7 +26,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         [Fact]
@@ -46,7 +46,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         [Fact]
@@ -60,23 +60,12 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For]({GetType(IFoo)}, New Object() {1})
+            Dim substitute = [|NSubstitute.Substitute.[For]({GetType(IFoo)}, New Object() {1})|]
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteConstructorArgumentsForInterface,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Can not provide constructor arguments when substituting for an interface. Use NSubstitute.Substitute.[For]({GetType(IFoo)},Nothing) instead.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(9, 30)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteConstructorArgumentsForInterfaceDescriptor, "Can not provide constructor arguments when substituting for an interface. Use NSubstitute.Substitute.[For]({GetType(IFoo)},Nothing) instead.");
         }
 
         [Fact]
@@ -96,7 +85,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         [Fact]
@@ -108,23 +97,12 @@ Imports System
 Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For]({GetType(Func(Of Integer))}, New Object() {1})
+            Dim substitute = [|NSubstitute.Substitute.[For]({GetType(Func(Of Integer))}, New Object() {1})|]
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteConstructorArgumentsForDelegate,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Can not provide constructor arguments when substituting for a delegate. Use NSubstitute.Substitute.[For]({GetType(Func(Of Integer))},Nothing) instead.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(7, 30)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteConstructorArgumentsForDelegateDescriptor, "Can not provide constructor arguments when substituting for a delegate. Use NSubstitute.Substitute.[For]({GetType(Func(Of Integer))},Nothing) instead.");
         }
 
         [Theory]
@@ -151,7 +129,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         [Fact]
@@ -168,24 +146,12 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo), GetType(Bar)}, Nothing)
+            Dim substitute = [|NSubstitute.Substitute.[For]({GetType(Foo), GetType(Bar)}, Nothing)|]
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteMultipleClasses,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Can not substitute for multiple classes. To substitute for multiple types only one type can be a concrete class; other types can only be interfaces.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(12, 30)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteMultipleClassesDescriptor);
         }
 
         [Fact]
@@ -205,7 +171,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         [Fact]
@@ -228,7 +194,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         [Fact]
@@ -251,7 +217,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         [Fact]
@@ -268,23 +234,12 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For]({GetType(IFoo), GetType(Bar)}, New Object() {1})
+            Dim substitute = [|NSubstitute.Substitute.[For]({GetType(IFoo), GetType(Bar)}, New Object() {1})|]
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "The number of arguments passed to NSubstitute.Substitute.[For] do not match the number of constructor arguments for MyNamespace.Bar. Check the constructors for MyNamespace.Bar and make sure you have passed the required number of arguments.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(12, 30)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.[For] do not match the number of constructor arguments for MyNamespace.Bar. Check the constructors for MyNamespace.Bar and make sure you have passed the required number of arguments.");
         }
 
         public override async Task ReturnsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor()
@@ -299,23 +254,12 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, Nothing)
+            Dim substitute = [|NSubstitute.Substitute.[For]({GetType(Foo)}, Nothing)|]
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteForWithoutAccessibleConstructor,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(11, 30)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
         }
 
         public override async Task ReturnsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount()
@@ -330,23 +274,12 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, New Object() {1, 2, 3})
+            Dim substitute = [|NSubstitute.Substitute.[For]({GetType(Foo)}, New Object() {1, 2, 3})|]
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "The number of arguments passed to NSubstitute.Substitute.[For] do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(11, 30)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.[For] do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
         }
 
         public override async Task ReturnsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount()
@@ -361,23 +294,12 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, New Object() {1})
+            Dim substitute = [|NSubstitute.Substitute.[For]({GetType(Foo)}, New Object() {1})|]
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "The number of arguments passed to NSubstitute.Substitute.[For] do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(11, 30)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.[For] do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
         }
 
         public override async Task ReturnsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters()
@@ -392,23 +314,12 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, New Object() {1})
+            Dim substitute = [|NSubstitute.Substitute.[For]({GetType(Foo)}, New Object() {1})|]
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteForConstructorParametersMismatch,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "The number of arguments passed to NSubstitute.Substitute.[For] do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(11, 30)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.[For] do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
         }
 
         public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToNotApplied()
@@ -421,23 +332,12 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, Nothing)
+            Dim substitute = [|NSubstitute.Substitute.[For]({GetType(Foo)}, Nothing)|]
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteForInternalMember,
-                Severity = DiagnosticSeverity.Warning,
-                Message = @"Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via <Assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")>",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(9, 30)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteForInternalMemberDescriptor);
         }
 
         public override async Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
@@ -459,7 +359,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly()
@@ -474,23 +374,12 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, Nothing)
+            Dim substitute = [|NSubstitute.Substitute.[For]({GetType(Foo)}, Nothing)|]
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteForInternalMember,
-                Severity = DiagnosticSeverity.Warning,
-                Message = @"Can not substitute for internal type. To substitute for internal type expose your type to DynamicProxyGenAssembly2 via <Assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")>",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(11, 30)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteForInternalMemberDescriptor);
         }
 
         [Theory]
@@ -513,22 +402,12 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For]({{GetType(Foo)}}, {invocationValues})
+            Dim substitute = [|NSubstitute.Substitute.[For]({{GetType(Foo)}}, {invocationValues})|]
         End Sub
     End Class
 End Namespace";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.SubstituteConstructorMismatch,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Arguments passed to NSubstitute.Substitute.[For] do not match the constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required arguments and argument types.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(12, 30)
-                }
-            };
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, SubstituteConstructorMismatchDescriptor, "Arguments passed to NSubstitute.Substitute.[For] do not match the constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required arguments and argument types.");
         }
 
         [Theory]
@@ -560,7 +439,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReturnsNoDiagnostic_WhenUsedWithGenericArgument()
@@ -575,7 +454,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
     }
 }

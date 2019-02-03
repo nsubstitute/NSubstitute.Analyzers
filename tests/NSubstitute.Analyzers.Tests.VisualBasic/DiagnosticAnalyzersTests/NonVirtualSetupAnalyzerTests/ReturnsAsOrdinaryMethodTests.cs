@@ -1,17 +1,18 @@
-﻿using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Shared.Settings;
-using NSubstitute.Analyzers.Tests.Shared;
-using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Tests.Shared.Extensibility;
+using NSubstitute.Analyzers.Tests.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonVirtualSetupAnalyzerTests
 {
+    [CombinatoryData("SubstituteExtensions.Returns", "SubstituteExtensions.Returns(Of Integer)", "SubstituteExtensions.ReturnsForAnyArgs", "SubstituteExtensions.ReturnsForAnyArgs(Of Integer)")]
     public class ReturnsAsOrdinaryMethodTests : NonVirtualSetupDiagnosticVerifier
     {
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod()
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -26,57 +27,36 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.Returns(substitute.Bar(), 1)
+            {method}([|substitute.Bar()|], 1)
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(16, 42)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForLiteral(string literal, string type)
+        [CombinatoryData("SubstituteExtensions.Returns", "SubstituteExtensions.Returns(Of)", "SubstituteExtensions.ReturnsForAnyArgs", "SubstituteExtensions.ReturnsForAnyArgs(Of)")]
+        public override async Task ReportsDiagnostics_WhenSettingValueForLiteral(string method, string literal, string type)
         {
+            method = method.Replace("(Of)", $"(Of {type})");
+
             var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            SubstituteExtensions.Returns({literal}, {literal})
+            {method}([|{literal}|], {literal})
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    $"Member {literal} can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(7, 42)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, $"Member {literal} can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForStaticMethod()
+        public override async Task ReportsDiagnostics_WhenSettingValueForStaticMethod(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -90,29 +70,17 @@ Namespace MyNamespace
     Public Class FooTests
 
         Public Sub Test()
-            SubstituteExtensions.Returns(Foo.Bar(), 1)
+            {method}([|Foo.Bar()|], 1)
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(15, 42)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -127,17 +95,17 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.Returns(substitute.Bar(), 1)
+            {method}(substitute.Bar(), 1)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -160,17 +128,17 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo2)()
-            SubstituteExtensions.Returns(substitute.Bar(), 1)
+            {method}(substitute.Bar(), 1)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenDataFlowAnalysisIsRequired()
+        public override async Task ReportsNoDiagnostics_WhenDataFlowAnalysisIsRequired(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -186,17 +154,17 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             Dim returnValue = substitute.Bar()
-            SubstituteExtensions.Returns(returnValue, 1)
+            {method}(returnValue, 1)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForDelegate()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 Imports System
 
 Namespace MyNamespace
@@ -205,17 +173,17 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Func(Of Integer))()
-            SubstituteExtensions.Returns(substitute(), 1)
+            {method}(substitute(), 1)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod()
+        public override async Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -238,29 +206,17 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo2)()
-            SubstituteExtensions.Returns(substitute.Bar(), 1)
+            {method}([|substitute.Bar()|], 1)
         End Sub
     End Class
 End Namespace
 ";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(24, 42)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -273,18 +229,18 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.Returns(substitute.Bar(), 1)
+            {method}(substitute.Bar(), 1)
         End Sub
     End Class
 End Namespace
 ";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -298,17 +254,17 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.Returns(substitute.Bar(), 1)
+            {method}(substitute.Bar(), 1)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -322,17 +278,17 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.Returns(substitute.Bar, 1)
+            {method}(substitute.Bar, 1)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -345,17 +301,17 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo(Of Integer))()
-            SubstituteExtensions.Returns(substitute.Bar(Of Integer), 1)
+            {method}(substitute.Bar(Of Integer), 1)
         End Sub
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -368,17 +324,17 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            SubstituteExtensions.Returns(substitute.Bar, 1)
+            {method}(substitute.Bar, 1)
         End Sub
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -391,16 +347,16 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of IFoo)
-            SubstituteExtensions.Returns(substitute(1), 1)
+            {method}(substitute(1), 1)
         End Sub
     End Class
 End Namespace";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -416,17 +372,17 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            SubstituteExtensions.Returns(substitute.Bar, 1)
+            {method}(substitute.Bar, 1)
         End Sub
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty()
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string method)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -442,29 +398,17 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            SubstituteExtensions.Returns(substitute.Bar, 1)
+            {method}([|substitute.Bar|], 1)
         End Sub
     End Class
 End Namespace";
 
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(17, 42)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualIndexer()
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualIndexer(string method)
         {
-            var source = @"Imports System
+            var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -486,17 +430,17 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            SubstituteExtensions.Returns(substitute(1), 1)
+            {method}(substitute(1), 1)
         End Sub
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer()
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string method)
         {
-            var source = @"Imports System
+            var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -514,29 +458,17 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            SubstituteExtensions.Returns(substitute(1), 1)
+            {method}([|substitute(1)|], 1)
         End Sub
     End Class
 End Namespace";
 
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message =
-                    "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(19, 42)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod()
+        public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method)
         {
-            var source = @"Imports System.Runtime.CompilerServices
+            var source = $@"Imports System.Runtime.CompilerServices
 
 Namespace NSubstitute
     Public Class Foo
@@ -550,24 +482,29 @@ Namespace NSubstitute
         Function Returns(Of T)(ByVal returnValue As T, ByVal returnThis As T) As T
             Return Nothing
         End Function
+
+        <Extension>
+        Function ReturnsForAnyArgs(Of T)(ByVal returnValue As T, ByVal returnThis As T) As T
+            Return Nothing
+        End Function
     End Module
 
     Public Class FooTests
         Public Sub Test()
             Dim substitute As Foo = Nothing
-            SubstituteExtensions.Returns(substitute.Bar(), 1)
+            {method}(substitute.Bar(), 1)
         End Sub
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualProperty()
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualProperty(string method)
         {
             Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo.Bar", DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -578,31 +515,21 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.Returns(substitute.Bar, 1)
-            SubstituteExtensions.Returns(substitute.FooBar, 1)
+            {method}(substitute.Bar, 1)
+            {method}([|substitute.FooBar|], 1)
         End Sub
     End Class
 End Namespace
 ";
 
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(13, 42)
-                }
-            };
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericProperty()
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericProperty(string method)
         {
             Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo`1.Bar", DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo(Of T)
@@ -613,31 +540,21 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo(Of Integer))()
-            SubstituteExtensions.Returns(substitute.Bar, 1)
-            SubstituteExtensions.Returns(substitute.FooBar, 1)
+            {method}(substitute.Bar, 1)
+            {method}([|substitute.FooBar|], 1)
         End Sub
     End Class
 End Namespace
 ";
 
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(13, 42)
-                }
-            };
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod()
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod(string method)
         {
             Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar(System.Int32,System.Int32)", DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -653,31 +570,21 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.Returns(substitute.Bar(1, 2), 1)
-            SubstituteExtensions.Returns(substitute.Bar(1), 1)
+            {method}(substitute.Bar(1, 2), 1)
+            {method}([|substitute.Bar(1)|], 1)
         End Sub
     End Class
 End Namespace
 ";
 
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(18, 42)
-                }
-            };
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericMethod()
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericMethod(string method)
         {
             Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar``1(``0,``0)", DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -693,31 +600,21 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.Returns(substitute.Bar(Of Integer)(1, 2), 1)
-            SubstituteExtensions.Returns(substitute.Bar(1), 1)
+            {method}(substitute.Bar(Of Integer)(1, 2), 1)
+            {method}([|substitute.Bar(1)|], 1)
         End Sub
     End Class
 End Namespace
 ";
 
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(18, 42)
-                }
-            };
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualIndexer()
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualIndexer(string method)
         {
             Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo.Item(System.Int32,System.Int32)", DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -737,32 +634,21 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.Returns(substitute(1 ,2), 1)
-            SubstituteExtensions.Returns(substitute(1), 1)
+            {method}(substitute(1 ,2), 1)
+            {method}([|substitute(1)|], 1)
         End Sub
     End Class
 End Namespace
 ";
 
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(22, 42)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericIndexer()
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualGenericIndexer(string method)
         {
             Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo`1.Item(`0,`0)", DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo(Of T)
@@ -782,32 +668,21 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo(Of Integer))()
-            SubstituteExtensions.Returns(substitute(1 ,2), 1)
-            SubstituteExtensions.Returns(substitute(1), 1)
+            {method}(substitute(1 ,2), 1)
+            {method}([|substitute(1)|], 1)
         End Sub
     End Class
 End Namespace
 ";
 
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(22, 42)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
-        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireType()
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireType(string method)
         {
              Settings = AnalyzersSettings.CreateWithSuppressions("T:MyNamespace.Foo", DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
-             var source = @"Imports NSubstitute
+             var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -841,60 +716,37 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.Returns(substitute(1), 1)
-            SubstituteExtensions.Returns(substitute.Bar, 1)
-            SubstituteExtensions.Returns(substitute.FooBar(), 1)
+            {method}(substitute(1), 1)
+            {method}(substitute.Bar, 1)
+            {method}(substitute.FooBar(), 1)
             Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar)()
-            SubstituteExtensions.Returns(substituteFooBarBar(1), 1)
-            SubstituteExtensions.Returns(substituteFooBarBar.Bar, 1)
-            SubstituteExtensions.Returns(substituteFooBarBar.FooBar(), 1)
+            {method}([|substituteFooBarBar(1)|], 1)
+            {method}([|substituteFooBarBar.Bar|], 1)
+            {method}([|substituteFooBarBar.FooBar()|], 1)
         End Sub
     End Class
 End Namespace
 ";
 
-             var expectedDiagnostic = new[]
-            {
-                new DiagnosticResult
-                {
-                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                    Severity = DiagnosticSeverity.Warning,
-                    Message = "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                    Locations = new[]
-                    {
-                        new DiagnosticResultLocation(39, 42)
-                    }
-                },
-                new DiagnosticResult
-                {
-                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                    Severity = DiagnosticSeverity.Warning,
-                    Message = "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                    Locations = new[]
-                    {
-                        new DiagnosticResultLocation(40, 42)
-                    }
-                },
-                new DiagnosticResult
-                {
-                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                    Severity = DiagnosticSeverity.Warning,
-                    Message = "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                    Locations = new[]
-                    {
-                        new DiagnosticResultLocation(41, 42)
-                    }
-                }
-            };
+             var textParserResult = TextParser.GetSpans(source);
 
-             await VerifyDiagnostic(source, expectedDiagnostic);
+             var diagnosticMessages = new[]
+             {
+                 "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                 "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                 "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted."
+             };
+
+             var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
+
+             await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
-        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireGenericType()
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireGenericType(string method)
         {
             Settings = AnalyzersSettings.CreateWithSuppressions("T:MyNamespace.Foo`1", DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo(Of T)
@@ -928,60 +780,37 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo(Of Integer))()
-            SubstituteExtensions.Returns(substitute(1), 1)
-            SubstituteExtensions.Returns(substitute.Bar, 1)
-            SubstituteExtensions.Returns(substitute.FooBar(), 1)
+            {method}(substitute(1), 1)
+            {method}(substitute.Bar, 1)
+            {method}(substitute.FooBar(), 1)
             Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar(Of Integer))()
-            SubstituteExtensions.Returns(substituteFooBarBar(1), 1)
-            SubstituteExtensions.Returns(substituteFooBarBar.Bar, 1)
-            SubstituteExtensions.Returns(substituteFooBarBar.FooBar(), 1)
+            {method}([|substituteFooBarBar(1)|], 1)
+            {method}([|substituteFooBarBar.Bar|], 1)
+            {method}([|substituteFooBarBar.FooBar()|], 1)
         End Sub
     End Class
 End Namespace
 ";
 
-            var expectedDiagnostic = new[]
+            var textParserResult = TextParser.GetSpans(source);
+
+            var diagnosticMessages = new[]
             {
-                new DiagnosticResult
-                {
-                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                    Severity = DiagnosticSeverity.Warning,
-                    Message = "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                    Locations = new[]
-                    {
-                        new DiagnosticResultLocation(39, 42)
-                    }
-                },
-                new DiagnosticResult
-                {
-                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                    Severity = DiagnosticSeverity.Warning,
-                    Message = "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                    Locations = new[]
-                    {
-                        new DiagnosticResultLocation(40, 42)
-                    }
-                },
-                new DiagnosticResult
-                {
-                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                    Severity = DiagnosticSeverity.Warning,
-                    Message = "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                    Locations = new[]
-                    {
-                        new DiagnosticResultLocation(41, 42)
-                    }
-                }
+                "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted."
             };
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
+
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
-        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireNamespace()
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingMembersFromEntireNamespace(string method)
         {
             Settings = AnalyzersSettings.CreateWithSuppressions("N:MyNamespace", DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 Imports MyOtherNamespace
 
 Namespace MyOtherNamespace
@@ -1018,60 +847,37 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.Returns(substitute(1), 1)
-            SubstituteExtensions.Returns(substitute.Bar, 1)
-            SubstituteExtensions.Returns(substitute.FooBar(), 1)
+            {method}(substitute(1), 1)
+            {method}(substitute.Bar, 1)
+            {method}(substitute.FooBar(), 1)
             Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar)()
-            SubstituteExtensions.Returns(substituteFooBarBar(1), 1)
-            SubstituteExtensions.Returns(substituteFooBarBar.Bar, 1)
-            SubstituteExtensions.Returns(substituteFooBarBar.FooBar(), 1)
+            {method}([|substituteFooBarBar(1)|], 1)
+            {method}([|substituteFooBarBar.Bar|], 1)
+            {method}([|substituteFooBarBar.FooBar()|], 1)
         End Sub
     End Class
 End Namespace
 ";
 
-            var expectedDiagnostic = new[]
+            var textParserResult = TextParser.GetSpans(source);
+
+            var diagnosticMessages = new[]
             {
-                new DiagnosticResult
-                {
-                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                    Severity = DiagnosticSeverity.Warning,
-                    Message = "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                    Locations = new[]
-                    {
-                        new DiagnosticResultLocation(42, 42)
-                    }
-                },
-                new DiagnosticResult
-                {
-                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                    Severity = DiagnosticSeverity.Warning,
-                    Message = "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                    Locations = new[]
-                    {
-                        new DiagnosticResultLocation(43, 42)
-                    }
-                },
-                new DiagnosticResult
-                {
-                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                    Severity = DiagnosticSeverity.Warning,
-                    Message = "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                    Locations = new[]
-                    {
-                        new DiagnosticResultLocation(44, 42)
-                    }
-                }
+                "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+                "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted."
             };
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
+
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
-        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingExtensionMethod()
+        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingExtensionMethod(string method)
         {
             Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.MyExtensions.GetBar(MyNamespace.IFoo)~System.Int32", DiagnosticIdentifiers.NonVirtualSetupSpecification);
 
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 Namespace MyNamespace
@@ -1079,8 +885,8 @@ Namespace MyNamespace
         Public Sub Test()
             Bar = NSubstitute.Substitute.[For](Of IBar)()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.Returns(substitute.GetBar(), 1)
-            SubstituteExtensions.Returns(substitute.GetFooBar(), 1)
+            {method}(substitute.GetBar(), 1)
+            {method}([|substitute.GetFooBar()|], 1)
         End Sub
     End Class
 
@@ -1108,21 +914,7 @@ Namespace MyNamespace
     End Interface
 End Namespace";
 
-            var expectedDiagnostic = new[]
-            {
-                new DiagnosticResult
-                {
-                    Id = DiagnosticIdentifiers.NonVirtualSetupSpecification,
-                    Severity = DiagnosticSeverity.Warning,
-                    Message = "Member GetFooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
-                    Locations = new[]
-                    {
-                        new DiagnosticResultLocation(10, 42)
-                    }
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, "Member GetFooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
     }
 }

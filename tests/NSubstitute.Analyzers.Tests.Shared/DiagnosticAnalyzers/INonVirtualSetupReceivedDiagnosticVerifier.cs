@@ -4,34 +4,34 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 {
     public interface INonVirtualSetupReceivedDiagnosticVerifier
     {
-        Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualMethod();
+        Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualMethod(string method);
 
-        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualMethod();
+        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualMethod(string method);
 
-        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForNonSealedMethod();
+        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForNonSealedMethod(string method);
 
-        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForDelegate();
+        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForDelegate(string method);
 
-        Task ReportsDiagnostics_WhenCheckingReceivedCallsForSealedMethod();
+        Task ReportsDiagnostics_WhenCheckingReceivedCallsForSealedMethod(string method);
 
-        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractMethod();
+        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractMethod(string method);
 
-        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceMethod();
+        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceMethod(string method);
 
-        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceProperty();
+        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceProperty(string method);
 
-        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForGenericInterfaceMethod();
+        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForGenericInterfaceMethod(string method);
 
-        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractProperty();
+        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractProperty(string method);
 
-        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceIndexer();
+        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceIndexer(string method);
 
-        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualProperty();
+        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualProperty(string method);
 
-        Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualProperty();
+        Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualProperty(string method);
 
-        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualIndexer();
+        Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualIndexer(string method);
 
-        Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualIndexer();
+        Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualIndexer(string method);
     }
 }
