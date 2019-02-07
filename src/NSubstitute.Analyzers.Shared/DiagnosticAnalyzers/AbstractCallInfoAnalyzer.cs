@@ -266,16 +266,19 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private bool SupportsCallInfo(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax syntax, IMethodSymbol methodSymbol)
         {
-            // TODO Simplify
-            var allArguments = GetArgumentExpressions(syntax);
-            var argumentsForAnalysis = methodSymbol.MethodKind == MethodKind.ReducedExtension
-                ? allArguments
-                : methodSymbol.IsExtensionMethod ? allArguments.Skip(1) : allArguments;
-
             if (MethodNames.TryGetValue(methodSymbol.Name, out var typeName) == false)
             {
                 return false;
             }
+
+            var allArguments = GetArgumentExpressions(syntax);
+            IEnumerable<TExpressionSyntax> argumentsForAnalysis;
+            if (methodSymbol.MethodKind == MethodKind.ReducedExtension)
+                argumentsForAnalysis = allArguments;
+            else if (methodSymbol.IsExtensionMethod)
+                argumentsForAnalysis = allArguments.Skip(1);
+            else
+                argumentsForAnalysis = allArguments;
 
             var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax);
 

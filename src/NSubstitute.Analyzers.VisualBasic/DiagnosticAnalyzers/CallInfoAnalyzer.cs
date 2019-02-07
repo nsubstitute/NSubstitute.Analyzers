@@ -1,24 +1,17 @@
-using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.VisualBasic;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.VisualBasic.Extensions;
 
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
     [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
     internal class CallInfoAnalyzer : AbstractCallInfoAnalyzer<SyntaxKind, InvocationExpressionSyntax, ExpressionSyntax, InvocationExpressionSyntax>
     {
-        private static ImmutableArray<Type> callHierarchy = ImmutableArray.Create(
-            typeof(MemberAccessExpressionSyntax),
-            typeof(InvocationExpressionSyntax),
-            typeof(MemberAccessExpressionSyntax));
-
         public CallInfoAnalyzer()
             : base(new DiagnosticDescriptorsProvider())
         {
@@ -41,25 +34,21 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
                 }
             }
 
-            // TODO fix
-            using (var descendantNodesEnumerator = invocationExpressionSyntax.DescendantNodes().GetEnumerator())
-            {
-                var hierarchyEnumerator = callHierarchy.GetEnumerator();
-                while (hierarchyEnumerator.MoveNext() && descendantNodesEnumerator.MoveNext())
-                {
-                    if (descendantNodesEnumerator.Current.GetType().GetTypeInfo().IsAssignableFrom(hierarchyEnumerator.Current.GetTypeInfo()) == false)
-                    {
-                        return null;
-                    }
-                }
+            var parentInvocation = invocationExpressionSyntax.GetParentInvocationExpression();
 
-                if (hierarchyEnumerator.MoveNext() == false && descendantNodesEnumerator.MoveNext())
-                {
-                    return descendantNodesEnumerator.Current;
-                }
+            if (parentInvocation == null)
+            {
+                return null;
             }
 
-            return null;
+            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(parentInvocation);
+
+            if (symbol.Symbol is IMethodSymbol mSymbol && mSymbol.ReducedFrom == null)
+            {
+                return parentInvocation.ArgumentList.Arguments.First().GetExpression();
+            }
+
+            return parentInvocation.Expression.DescendantNodes().First();
         }
 
         protected override IEnumerable<ExpressionSyntax> GetArgumentExpressions(InvocationExpressionSyntax invocationExpressionSyntax)

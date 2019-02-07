@@ -1,12 +1,10 @@
-using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.CSharp.Extensions;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
@@ -14,10 +12,6 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     internal class CallInfoAnalyzer : AbstractCallInfoAnalyzer<SyntaxKind, InvocationExpressionSyntax, ExpressionSyntax, ElementAccessExpressionSyntax>
     {
-        private static ImmutableArray<Type> callHierarchy = ImmutableArray.Create(
-            typeof(MemberAccessExpressionSyntax),
-            typeof(InvocationExpressionSyntax));
-
         public CallInfoAnalyzer()
             : base(new DiagnosticDescriptorsProvider())
         {
@@ -40,33 +34,21 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
                 }
             }
 
-            // TODO fix
-            using (var descendantNodesEnumerator = invocationExpressionSyntax.DescendantNodes().GetEnumerator())
+            var parentInvocation = invocationExpressionSyntax.GetParentInvocationExpression();
+
+            if (parentInvocation == null)
             {
-                var hierarchyEnumerator = callHierarchy.GetEnumerator();
-                while (hierarchyEnumerator.MoveNext() && descendantNodesEnumerator.MoveNext())
-                {
-                    if (descendantNodesEnumerator.Current.GetType().GetTypeInfo().IsAssignableFrom(hierarchyEnumerator.Current.GetTypeInfo()) == false)
-                    {
-                        return null;
-                    }
-                }
-
-                if (hierarchyEnumerator.MoveNext() == false)
-                {
-                    var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(descendantNodesEnumerator.Current);
-
-                    if (symbol.Symbol is IMethodSymbol mSymbol && mSymbol.ReducedFrom == null)
-                    {
-                        return ((InvocationExpressionSyntax)descendantNodesEnumerator.Current).ArgumentList.Arguments
-                            .First().Expression;
-                    }
-
-                    return descendantNodesEnumerator.Current;
-                }
+                return null;
             }
 
-            return null;
+            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(parentInvocation);
+
+            if (symbol.Symbol is IMethodSymbol mSymbol && mSymbol.ReducedFrom == null)
+            {
+                return parentInvocation.ArgumentList.Arguments.First().Expression;
+            }
+
+            return parentInvocation.Expression.DescendantNodes().First();
         }
 
         protected override IEnumerable<ExpressionSyntax> GetArgumentExpressions(InvocationExpressionSyntax invocationExpressionSyntax)
