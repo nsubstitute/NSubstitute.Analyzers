@@ -1,8 +1,11 @@
-﻿using System;
+﻿// Src: https://github.com/JosefPihrt/Roslynator/blob/e18e430246be649c418cc17d393b48d8e1cf7feb/src/Tests/TestFramework.Core/Text/TextParser.cs
+// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt at at https://github.com/JosefPihrt/Roslynator for license information.
+// Some modifications made (such as namespace) for NSubstitute.Analyzers project.
+
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text;
-using Microsoft.CodeAnalysis.Text;
 
 namespace NSubstitute.Analyzers.Tests.Shared.Text
 {
@@ -11,10 +14,6 @@ namespace NSubstitute.Analyzers.Tests.Shared.Text
         public static TextParser Default { get; } = new DefaultTextParser();
 
         public abstract TextParserResult GetSpans(string s, bool reverse = false);
-
-        public abstract (TextSpan span, string text) ReplaceEmptySpan(string s, string replacement);
-
-        public abstract (TextSpan span, string text1, string text2) ReplaceEmptySpan(string s, string replacement1, string replacement2);
 
         private class DefaultTextParser : TextParser
         {
@@ -179,45 +178,6 @@ namespace NSubstitute.Analyzers.Tests.Shared.Text
 
                     sb.Append(s, lastPos, i - lastPos);
                 }
-            }
-
-            public override (TextSpan span, string text) ReplaceEmptySpan(string s, string replacement)
-            {
-                var index = s.IndexOf(OpenCloseTokens, StringComparison.Ordinal);
-
-                if (index == -1)
-                    throw new ArgumentException("Empty span not found.", nameof(s));
-
-                var span = new TextSpan(index, replacement.Length);
-
-                var result = Replace(s, index, replacement);
-
-                return (span, result);
-            }
-
-            public override (TextSpan span, string text1, string text2) ReplaceEmptySpan(string s, string replacement1, string replacement2)
-            {
-                var index = s.IndexOf(OpenCloseTokens, StringComparison.Ordinal);
-
-                if (index == -1)
-                    throw new ArgumentException("Empty span not found.", nameof(s));
-
-                var span = new TextSpan(index, replacement1.Length);
-
-                var result1 = Replace(s, index, replacement1);
-                var result2 = Replace(s, index, replacement2);
-
-                return (span, result1, result2);
-            }
-
-            private static string Replace(string s, int index, string replacement)
-            {
-                var sb = new StringBuilder(s.Length - TokensLength + replacement.Length)
-                    .Append(s, 0, index)
-                    .Append(replacement)
-                    .Append(s, index + TokensLength, s.Length - index - TokensLength);
-
-                return sb.ToString();
             }
         }
     }

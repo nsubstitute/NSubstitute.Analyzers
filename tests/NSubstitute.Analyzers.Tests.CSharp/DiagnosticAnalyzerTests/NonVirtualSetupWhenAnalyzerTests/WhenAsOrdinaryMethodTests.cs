@@ -67,7 +67,7 @@ namespace MyNamespace
 
 namespace MyNamespace
 {{
-    public class Foo
+    public class FooBar
     {{
         public virtual int Bar()
         {{
@@ -75,7 +75,7 @@ namespace MyNamespace
         }}
     }}
 
-    public class Foo2 : Foo
+    public class Foo : FooBar
     {{
         public override int Bar() => 1;
     }}
@@ -85,7 +85,7 @@ namespace MyNamespace
         public void Test()
         {{
             int i = 1;
-            var substitute = NSubstitute.Substitute.For<Foo2>();
+            var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute, {whenAction}).Do(callInfo => i++);
         }}
     }}
