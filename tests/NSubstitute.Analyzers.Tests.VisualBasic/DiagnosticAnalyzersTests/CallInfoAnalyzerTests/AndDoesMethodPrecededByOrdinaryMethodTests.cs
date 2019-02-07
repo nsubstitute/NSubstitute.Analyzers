@@ -21,8 +21,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            Dim returnedValue = {call}
-            SubstituteExtensions.Returns(returnedValue, 1).{method}(Function(callInfo)
+            Dim returnedValue = SubstituteExtensions.Returns({call}, 1)
+            returnedValue.{method}(Function(callInfo)
                                       {argAccess}
                                   End Function)
         End Sub

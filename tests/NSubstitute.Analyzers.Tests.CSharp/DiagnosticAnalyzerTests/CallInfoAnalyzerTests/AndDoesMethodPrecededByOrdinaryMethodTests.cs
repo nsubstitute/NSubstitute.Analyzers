@@ -27,8 +27,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var returnedValue = {call};
-            SubstituteExtensions.Returns(returnedValue, 1).{method}(callInfo =>
+            var returnedValue = SubstituteExtensions.Returns({call}, 1);
+            returnedValue.{method}(callInfo =>
             {{
                 {argAccess}
             }});

@@ -292,6 +292,12 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         private IList<IParameterSymbol> GetSubstituteCallParameters(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, TInvocationExpressionSyntax invocationExpression)
         {
             var parentMethodCallSyntax = GetSubstituteCall(syntaxNodeContext, methodSymbol, invocationExpression);
+
+            if (parentMethodCallSyntax == null)
+            {
+                return null;
+            }
+
             var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(parentMethodCallSyntax).Symbol;
 
             switch (symbol)
