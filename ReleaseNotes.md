@@ -1,4 +1,4 @@
-### 1.0.4 (09 February 2019)
+### 1.0.5 (09 February 2019)
 
  - [#61](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/61) - CallInfo analysis for AndDoes method
 
