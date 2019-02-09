@@ -1,3 +1,7 @@
+### 1.0.4 (09 February 2019)
+
+ - [#61](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/61) - CallInfo analysis for AndDoes method
+
 ### 1.0.4 (03 January 2019)
 
  - [#57](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/57) - Incorrect NS3004 for derived types
