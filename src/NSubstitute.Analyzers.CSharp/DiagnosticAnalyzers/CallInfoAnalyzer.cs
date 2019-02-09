@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.CSharp.Extensions;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
@@ -18,17 +19,36 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
-        protected override SyntaxNode GetSubstituteCall(IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax)
+        protected override SyntaxNode GetSubstituteCall(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax)
         {
-            switch (methodSymbol.MethodKind)
+            if (methodSymbol.IsExtensionMethod)
             {
-                case MethodKind.ReducedExtension:
-                    return invocationExpressionSyntax.Expression.DescendantNodes().First();
-                case MethodKind.Ordinary:
-                    return invocationExpressionSyntax.ArgumentList.Arguments.First().Expression;
-                default:
-                    return null;
+                switch (methodSymbol.MethodKind)
+                {
+                    case MethodKind.ReducedExtension:
+                        return invocationExpressionSyntax.Expression.DescendantNodes().First();
+                    case MethodKind.Ordinary:
+                        return invocationExpressionSyntax.ArgumentList.Arguments.First().Expression;
+                    default:
+                        return null;
+                }
             }
+
+            var parentInvocation = invocationExpressionSyntax.GetParentInvocationExpression();
+
+            if (parentInvocation == null)
+            {
+                return null;
+            }
+
+            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(parentInvocation);
+
+            if (symbol.Symbol is IMethodSymbol mSymbol && mSymbol.ReducedFrom == null)
+            {
+                return parentInvocation.ArgumentList.Arguments.First().Expression;
+            }
+
+            return parentInvocation.Expression.DescendantNodes().First();
         }
 
         protected override IEnumerable<ExpressionSyntax> GetArgumentExpressions(InvocationExpressionSyntax invocationExpressionSyntax)

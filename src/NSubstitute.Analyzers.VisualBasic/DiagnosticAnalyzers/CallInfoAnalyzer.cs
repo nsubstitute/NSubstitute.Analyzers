@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.VisualBasic;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.VisualBasic.Extensions;
 
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
@@ -18,17 +19,36 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
-        protected override SyntaxNode GetSubstituteCall(IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax)
+        protected override SyntaxNode GetSubstituteCall(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax)
         {
-            switch (methodSymbol.MethodKind)
+            if (methodSymbol.IsExtensionMethod)
             {
-                case MethodKind.ReducedExtension:
-                    return invocationExpressionSyntax.Expression.DescendantNodes().First();
-                case MethodKind.Ordinary:
-                    return invocationExpressionSyntax.ArgumentList.Arguments.First().GetExpression();
-                default:
-                    return null;
+                switch (methodSymbol.MethodKind)
+                {
+                    case MethodKind.ReducedExtension:
+                        return invocationExpressionSyntax.Expression.DescendantNodes().First();
+                    case MethodKind.Ordinary:
+                        return invocationExpressionSyntax.ArgumentList.Arguments.First().GetExpression();
+                    default:
+                        return null;
+                }
             }
+
+            var parentInvocation = invocationExpressionSyntax.GetParentInvocationExpression();
+
+            if (parentInvocation == null)
+            {
+                return null;
+            }
+
+            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(parentInvocation);
+
+            if (symbol.Symbol is IMethodSymbol mSymbol && mSymbol.ReducedFrom == null)
+            {
+                return parentInvocation.ArgumentList.Arguments.First().GetExpression();
+            }
+
+            return parentInvocation.Expression.DescendantNodes().First();
         }
 
         protected override IEnumerable<ExpressionSyntax> GetArgumentExpressions(InvocationExpressionSyntax invocationExpressionSyntax)

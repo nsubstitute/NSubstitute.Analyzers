@@ -29,7 +29,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             [MetadataNames.NSubstituteReturnsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
             [MetadataNames.NSubstituteReturnsForAnyArgsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
             [MetadataNames.NSubstituteThrowsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName,
-            [MetadataNames.NSubstituteThrowsForAnyArgsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName
+            [MetadataNames.NSubstituteThrowsForAnyArgsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName,
+            [MetadataNames.NSubstituteAndDoesMethod] = MetadataNames.NSubstituteConfiguredCallFullTypeName
         }.ToImmutableDictionary();
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
@@ -47,7 +48,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
-        protected abstract SyntaxNode GetSubstituteCall(IMethodSymbol methodSymbol, TInvocationExpressionSyntax invocationExpressionSyntax);
+        protected abstract SyntaxNode GetSubstituteCall(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, TInvocationExpressionSyntax invocationExpressionSyntax);
 
         protected abstract IEnumerable<TExpressionSyntax> GetArgumentExpressions(TInvocationExpressionSyntax invocationExpressionSyntax);
 
@@ -265,15 +266,19 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private bool SupportsCallInfo(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax syntax, IMethodSymbol methodSymbol)
         {
-            var allArguments = GetArgumentExpressions(syntax);
-            var argumentsForAnalysis = methodSymbol.MethodKind == MethodKind.ReducedExtension
-                ? allArguments
-                : allArguments.Skip(1);
-
             if (MethodNames.TryGetValue(methodSymbol.Name, out var typeName) == false)
             {
                 return false;
             }
+
+            var allArguments = GetArgumentExpressions(syntax);
+            IEnumerable<TExpressionSyntax> argumentsForAnalysis;
+            if (methodSymbol.MethodKind == MethodKind.ReducedExtension)
+                argumentsForAnalysis = allArguments;
+            else if (methodSymbol.IsExtensionMethod)
+                argumentsForAnalysis = allArguments.Skip(1);
+            else
+                argumentsForAnalysis = allArguments;
 
             var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax);
 
@@ -286,7 +291,13 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private IList<IParameterSymbol> GetSubstituteCallParameters(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, TInvocationExpressionSyntax invocationExpression)
         {
-            var parentMethodCallSyntax = GetSubstituteCall(methodSymbol, invocationExpression);
+            var parentMethodCallSyntax = GetSubstituteCall(syntaxNodeContext, methodSymbol, invocationExpression);
+
+            if (parentMethodCallSyntax == null)
+            {
+                return null;
+            }
+
             var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(parentMethodCallSyntax).Symbol;
 
             switch (symbol)

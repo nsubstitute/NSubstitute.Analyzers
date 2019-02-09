@@ -39,7 +39,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
             {
                 var symbol = _semanticModel.GetSymbolInfo(node).Symbol;
 
-                if (symbol != null && symbol.ContainingType.ToString().Equals(MetadataNames.NSubstituteCoreFullTypeName))
+                if (symbol != null && symbol.ContainingType.ToString().Equals(MetadataNames.NSubstituteCallInfoFullTypeName))
                 {
                     switch (symbol.Name)
                     {
@@ -59,7 +59,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
                 {
                     var expressionSymbol = _semanticModel.GetSymbolInfo(node.Expression).Symbol;
 
-                    if (expressionSymbol != null && expressionSymbol.ContainingType.ToString().Equals(MetadataNames.NSubstituteCoreFullTypeName))
+                    if (expressionSymbol != null && expressionSymbol.ContainingType.ToString().Equals(MetadataNames.NSubstituteCallInfoFullTypeName))
                     {
                         DirectIndexerAccesses.Add(node);
                     }
