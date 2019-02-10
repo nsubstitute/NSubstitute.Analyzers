@@ -12,7 +12,9 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         where TInvocationExpressionSyntax : SyntaxNode
         where TSyntaxKind : struct
     {
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(DiagnosticDescriptorsProvider.NonVirtualWhenSetupSpecification);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
+            DiagnosticDescriptorsProvider.NonVirtualWhenSetupSpecification,
+            DiagnosticDescriptorsProvider.InternalWhenSetupSpecification);
 
         private static readonly ImmutableHashSet<string> MethodNames = ImmutableHashSet.Create(
             MetadataNames.NSubstituteWhenMethod,
@@ -58,14 +60,28 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             foreach (var analysedSyntax in expressionsForAnalysys)
             {
                 var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(analysedSyntax);
-                if (symbolInfo.Symbol != null && symbolInfo.Symbol.ContainingType == typeSymbol && symbolInfo.Symbol.CanBeSetuped() == false)
+                if (symbolInfo.Symbol != null && symbolInfo.Symbol.ContainingType == typeSymbol)
                 {
-                    var diagnostic = Diagnostic.Create(
-                        DiagnosticDescriptorsProvider.NonVirtualWhenSetupSpecification,
-                        analysedSyntax.GetLocation(),
-                        symbolInfo.Symbol.Name);
+                    var canBeSetuped = symbolInfo.Symbol.CanBeSetuped();
+                    if (canBeSetuped == false)
+                    {
+                        var diagnostic = Diagnostic.Create(
+                            DiagnosticDescriptorsProvider.NonVirtualWhenSetupSpecification,
+                            analysedSyntax.GetLocation(),
+                            symbolInfo.Symbol.Name);
 
-                    syntaxNodeContext.ReportDiagnostic(diagnostic);
+                        syntaxNodeContext.ReportDiagnostic(diagnostic);
+                    }
+
+                    if (canBeSetuped && symbolInfo.Symbol.MemberVisibleToProxyGenerator() == false)
+                    {
+                        var diagnostic = Diagnostic.Create(
+                            DiagnosticDescriptorsProvider.InternalWhenSetupSpecification,
+                            analysedSyntax.GetLocation(),
+                            symbolInfo.Symbol.Name);
+
+                        syntaxNodeContext.ReportDiagnostic(diagnostic);
+                    }
                 }
             }
         }

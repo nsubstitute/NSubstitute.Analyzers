@@ -37,5 +37,13 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
         Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularFunction(string method);
 
         Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularFunction(string method);
+
+        Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message);
+
+        Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call);
+
+        Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message);
+
+        Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call);
     }
 }
