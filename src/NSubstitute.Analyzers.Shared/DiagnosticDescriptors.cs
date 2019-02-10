@@ -22,6 +22,14 @@ namespace NSubstitute.Analyzers.Shared
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true);
 
+        public static DiagnosticDescriptor InternalSetupSpecification { get; } =
+            CreateDiagnosticDescriptor(
+                name: nameof(InternalSetupSpecification),
+                id: DiagnosticIdentifiers.InternalSetupSpecification,
+                category: DiagnosticCategory.NonVirtualSubstitution.GetDisplayName(),
+                defaultSeverity: DiagnosticSeverity.Warning,
+                isEnabledByDefault: true);
+
         public static DiagnosticDescriptor NonVirtualReceivedSetupSpecification { get; } =
             CreateDiagnosticDescriptor(
                 name: nameof(NonVirtualReceivedSetupSpecification),

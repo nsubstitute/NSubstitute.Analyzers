@@ -224,6 +224,33 @@ namespace NSubstitute.Analyzers.Shared {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Internal virtual members can not be intercepted..
+        /// </summary>
+        internal static string InternalSetupSpecificationDescription {
+            get {
+                return ResourceManager.GetString("InternalSetupSpecificationDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Internal member {0} can not be intercepted..
+        /// </summary>
+        internal static string InternalSetupSpecificationMessageFormat {
+            get {
+                return ResourceManager.GetString("InternalSetupSpecificationMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Internal virtual setup specification..
+        /// </summary>
+        internal static string InternalSetupSpecificationTitle {
+            get {
+                return ResourceManager.GetString("InternalSetupSpecificationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Non-virtual members can not be intercepted..
         /// </summary>
         internal static string NonVirtualReceivedSetupSpecificationDescription {

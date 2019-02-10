@@ -24,7 +24,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }.ToImmutableDictionary();
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(DiagnosticDescriptorsProvider.NonVirtualSetupSpecification);
+            ImmutableArray.Create(DiagnosticDescriptorsProvider.NonVirtualSetupSpecification, DiagnosticDescriptorsProvider.InternalSetupSpecification);
 
         protected abstract ImmutableHashSet<int> SupportedMemberAccesses { get; }
 
@@ -130,6 +130,16 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     accessedSymbol.Symbol?.Name ?? accessedMember.ToString());
 
                 TryReportDiagnostic(syntaxNodeContext, diagnostic, accessedSymbol.Symbol);
+            }
+
+            if (accessedSymbol.Symbol != null && canBeSetuped.HasValue && canBeSetuped == true && accessedSymbol.Symbol.MemberVisibleToProxyGenerator() == false)
+            {
+                var diagnostic = Diagnostic.Create(
+                    DiagnosticDescriptorsProvider.InternalSetupSpecification,
+                    accessedMember.GetLocation(),
+                    accessedSymbol.Symbol.Name);
+
+                syntaxNodeContext.ReportDiagnostic(diagnostic);
             }
         }
 
