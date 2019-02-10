@@ -142,6 +142,18 @@
     <value>Internal member {0} can not be intercepted.</value>
         <comment>The format-able message the diagnostic displays.</comment>
   </data>
+    <data name="InternalReceivedSetupSpecificationDescription" xml:space="preserve">
+    <value>Internal virtual members can not be intercepted.</value>
+        <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+    <data name="InternalReceivedSetupSpecificationTitle" xml:space="preserve">
+    <value>Internal virtual setup specification.</value>
+        <comment>The title of the diagnostic.</comment>
+  </data>
+    <data name="InternalReceivedSetupSpecificationMessageFormat" xml:space="preserve">
+    <value>Internal member {0} can not be intercepted.</value>
+        <comment>The format-able message the diagnostic displays.</comment>
+  </data>
   <data name="UnusedReceivedDescription" xml:space="preserve">
     <value>Unused received check.</value>
     <comment>An optional longer localizable description of the diagnostic.</comment>

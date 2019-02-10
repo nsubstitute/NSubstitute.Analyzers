@@ -30,6 +30,8 @@ namespace NSubstitute.Analyzers.Shared
 
         DiagnosticDescriptor NonVirtualReceivedSetupSpecification { get; }
 
+        DiagnosticDescriptor InternalReceivedSetupSpecification { get; }
+
         DiagnosticDescriptor NonVirtualWhenSetupSpecification { get; }
 
         DiagnosticDescriptor ReEntrantSubstituteCall { get; }

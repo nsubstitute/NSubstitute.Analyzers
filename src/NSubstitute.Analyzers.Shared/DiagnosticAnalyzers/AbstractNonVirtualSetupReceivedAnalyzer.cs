@@ -17,7 +17,9 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             MetadataNames.NSubstituteDidNotReceiveMethod,
             MetadataNames.NSubstituteDidNotReceiveWithAnyArgsMethod);
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(DiagnosticDescriptorsProvider.NonVirtualReceivedSetupSpecification);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
+            DiagnosticDescriptorsProvider.NonVirtualReceivedSetupSpecification,
+            DiagnosticDescriptorsProvider.InternalReceivedSetupSpecification);
 
         protected AbstractNonVirtualSetupReceivedAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
             : base(diagnosticDescriptorsProvider)
@@ -68,17 +70,27 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            if (symbolInfo.Symbol.CanBeSetuped())
+            var canBeSetuped = symbolInfo.Symbol.CanBeSetuped();
+
+            if (canBeSetuped == false)
             {
-                return;
+                var diagnostic = Diagnostic.Create(
+                    DiagnosticDescriptorsProvider.NonVirtualReceivedSetupSpecification,
+                    invocationExpression.GetLocation(),
+                    symbolInfo.Symbol.Name);
+
+                syntaxNodeContext.ReportDiagnostic(diagnostic);
             }
 
-            var diagnostic = Diagnostic.Create(
-                DiagnosticDescriptorsProvider.NonVirtualReceivedSetupSpecification,
-                invocationExpression.GetLocation(),
-                symbolInfo.Symbol.Name);
+            if (canBeSetuped && symbolInfo.Symbol != null && symbolInfo.Symbol.MemberVisibleToProxyGenerator() == false)
+            {
+                var diagnostic = Diagnostic.Create(
+                    DiagnosticDescriptorsProvider.InternalReceivedSetupSpecification,
+                    invocationExpression.GetLocation(),
+                    symbolInfo.Symbol.Name);
 
-            syntaxNodeContext.ReportDiagnostic(diagnostic);
+                syntaxNodeContext.ReportDiagnostic(diagnostic);
+            }
         }
 
         private static bool IsReceivedLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntax, string memberName)

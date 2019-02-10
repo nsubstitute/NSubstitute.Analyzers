@@ -30,7 +30,7 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
+            await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
         }
 
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualMethod(string method)
@@ -143,7 +143,7 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
+            await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
         }
 
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractMethod(string method)
@@ -332,7 +332,7 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
+            await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
         }
 
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualIndexer(string method)
@@ -379,7 +379,7 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source, Descriptor, "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
+            await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
         }
 
         public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method)
@@ -428,6 +428,148 @@ namespace NSubstitute
         }}
     }}
 }}";
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message)
+        {
+            var source = $@"using NSubstitute;
+
+namespace MyNamespace
+{{
+    public class Foo
+    {{
+        internal virtual int Bar {{ get; }}
+
+        internal virtual int FooBar()
+        {{
+            return 1;
+        }}
+
+        internal virtual int this[int x]
+        {{
+            get {{ return 1; }}
+        }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            var x = [|substitute.{method}()|]{call};
+        }}
+    }}
+}}";
+
+            await VerifyDiagnostic(source, InternalReceivedSetupSpecification, message);
+        }
+
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call)
+        {
+            var source = $@"using NSubstitute;
+using System.Runtime.CompilerServices;
+[assembly: InternalsVisibleTo(""OtherFirstAssembly"")]
+[assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
+[assembly: InternalsVisibleTo(""OtherSecondAssembly"")]
+
+namespace MyNamespace
+{{
+    public class Foo
+    {{
+        internal virtual int Bar {{ get; }}
+
+        internal virtual int FooBar()
+        {{
+            return 1;
+        }}
+
+        internal virtual int this[int x]
+        {{
+            get {{ return 1; }}
+        }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            var x = substitute.{method}(){call};
+        }}
+    }}
+}}";
+
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message)
+        {
+            var source = $@"using NSubstitute;
+using System.Runtime.CompilerServices;
+[assembly: InternalsVisibleTo(""OtherAssembly"")]
+
+namespace MyNamespace
+{{
+    public class Foo
+    {{
+        internal virtual int Bar {{ get; }}
+
+        internal virtual int FooBar()
+        {{
+            return 1;
+        }}
+
+        internal virtual int this[int x]
+        {{
+            get {{ return 1; }}
+        }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            var x = [|substitute.{method}()|]{call};
+        }}
+    }}
+}}";
+
+            await VerifyDiagnostic(source, InternalReceivedSetupSpecification, message);
+        }
+
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call)
+        {
+            var source = $@"using NSubstitute;
+
+namespace MyNamespace
+{{
+    public class Foo
+    {{
+        protected internal virtual int Bar {{ get; }}
+
+        protected internal virtual int FooBar()
+        {{
+            return 1;
+        }}
+
+        protected internal virtual int this[int x]
+        {{
+            get {{ return 1; }}
+        }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            var x = substitute.{method}(){call};
+        }}
+    }}
+}}";
+
             await VerifyNoDiagnostic(source);
         }
     }
