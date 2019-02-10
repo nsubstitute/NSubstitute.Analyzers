@@ -12,7 +12,9 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonVi
 {
     public abstract class NonVirtualSetupReceivedDiagnosticVerifier : VisualBasicDiagnosticVerifier, INonVirtualSetupReceivedDiagnosticVerifier
     {
-        protected DiagnosticDescriptor Descriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.NonVirtualReceivedSetupSpecification;
+        protected DiagnosticDescriptor NonVirtualReceivedSetupSpecificationDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.NonVirtualReceivedSetupSpecification;
+
+        protected DiagnosticDescriptor InternalReceivedSetupSpecificationDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.InternalReceivedSetupSpecification;
 
         [CombinatoryTheory]
         [InlineData]
@@ -75,19 +77,27 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonVi
         public abstract Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualIndexer(string method);
 
         [CombinatoryTheory]
-        [InlineData]
+        [InlineData(".Bar", "Internal member Bar can not be intercepted.")]
+        [InlineData(".FooBar()", "Internal member FooBar can not be intercepted.")]
+        [InlineData("(0)", "Internal member Item can not be intercepted.")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message);
 
         [CombinatoryTheory]
-        [InlineData]
+        [InlineData(".Bar")]
+        [InlineData(".FooBar()")]
+        [InlineData("(0)")]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call);
 
         [CombinatoryTheory]
-        [InlineData]
+        [InlineData(".Bar", "Internal member Bar can not be intercepted.")]
+        [InlineData(".FooBar()", "Internal member FooBar can not be intercepted.")]
+        [InlineData("(0)", "Internal member Item can not be intercepted.")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message);
 
         [CombinatoryTheory]
-        [InlineData]
+        [InlineData(".Bar")]
+        [InlineData(".FooBar()")]
+        [InlineData("(0)")]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call);
 
         [CombinatoryTheory]

@@ -39,7 +39,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+            await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualMethod(string method)
@@ -161,7 +161,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+            await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractMethod(string method)
@@ -361,7 +361,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source, Descriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+            await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualIndexer(string method)
@@ -420,27 +420,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source, Descriptor, "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
-        }
-
-        public override Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public override Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public override Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public override Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call)
-        {
-            throw new System.NotImplementedException();
+            await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
         public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method)
@@ -484,6 +464,132 @@ Namespace NSubstitute
     End Class
 End Namespace
 ";
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message)
+        {
+            var source = $@"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class Foo
+        Friend Overridable ReadOnly Property Bar As Integer
+
+        Friend Overridable Function FooBar() As Integer
+            Return 1
+        End Function
+
+        Default Friend Overridable ReadOnly Property Item(ByVal x As Integer) As Integer
+            Get
+                Return 1
+            End Get
+        End Property
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim x = [|{method}(substitute)|]{call}
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifyDiagnostic(source, InternalReceivedSetupSpecificationDescriptor, message);
+        }
+
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call)
+        {
+            var source = $@"Imports NSubstitute
+
+<Assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""OtherFirstAssembly"")>
+<Assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""DynamicProxyGenAssembly2"")>
+<Assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""OtherSecondAssembly"")>
+
+Namespace MyNamespace
+    Public Class Foo
+        Friend Overridable ReadOnly Property Bar As Integer
+
+        Friend Overridable Function FooBar() As Integer
+            Return 1
+        End Function
+
+        Default Friend Overridable ReadOnly Property Item(ByVal x As Integer) As Integer
+            Get
+                Return 1
+            End Get
+        End Property
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim x = {method}(substitute){call}
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message)
+        {
+            var source = $@"Imports NSubstitute
+
+<Assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""FirstAssembly"")>
+
+Namespace MyNamespace
+    Public Class Foo
+        Friend Overridable ReadOnly Property Bar As Integer
+
+        Friend Overridable Function FooBar() As Integer
+            Return 1
+        End Function
+
+        Default Friend Overridable ReadOnly Property Item(ByVal x As Integer) As Integer
+            Get
+                Return 1
+            End Get
+        End Property
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim x = [|{method}(substitute)|]{call}
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifyDiagnostic(source, InternalReceivedSetupSpecificationDescriptor, message);
+        }
+
+        public override async Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call)
+        {
+            var source = $@"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class Foo
+        Protected Friend Overridable ReadOnly Property Bar As Integer
+
+        Protected Friend Overridable Function FooBar() As Integer
+            Return 1
+        End Function
+
+        Default Protected Friend Overridable ReadOnly Property Item(ByVal x As Integer) As Integer
+            Get
+                Return 1
+            End Get
+        End Property
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim x = {method}(substitute){call}
+        End Sub
+    End Class
+End Namespace";
+
             await VerifyNoDiagnostic(source);
         }
     }
