@@ -423,6 +423,26 @@ End Namespace";
             await VerifyDiagnostic(source, Descriptor, "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
+        public override Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method)
         {
             var source = $@"Imports System.Runtime.CompilerServices

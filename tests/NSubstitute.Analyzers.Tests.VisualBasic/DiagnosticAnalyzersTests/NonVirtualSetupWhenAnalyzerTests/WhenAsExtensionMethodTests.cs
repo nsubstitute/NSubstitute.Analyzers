@@ -427,5 +427,25 @@ End Namespace
 
             await VerifyNoDiagnostic(source);
         }
+
+        public override Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
