@@ -142,9 +142,9 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualS
         public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingExtensionMethod(string method);
 
         [CombinatoryTheory]
-        [InlineData(".Bar", "Internal member Bar can not be intercepted.")]
-        [InlineData(".FooBar()", "Internal member FooBar can not be intercepted.")]
-        [InlineData("[0]", "Internal member this[] can not be intercepted.")]
+        [InlineData(".Bar", "Internal member Bar can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData(".FooBar()", "Internal member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData("[0]", "Internal member this[] can not be intercepted without InternalsVisibleToAttribute.")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message);
 
         [CombinatoryTheory]
@@ -154,9 +154,9 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualS
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call);
 
         [CombinatoryTheory]
-        [InlineData(".Bar", "Internal member Bar can not be intercepted.")]
-        [InlineData(".FooBar()", "Internal member FooBar can not be intercepted.")]
-        [InlineData("[0]", "Internal member this[] can not be intercepted.")]
+        [InlineData(".Bar", "Internal member Bar can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData(".FooBar()", "Internal member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData("[0]", "Internal member this[] can not be intercepted without InternalsVisibleToAttribute.")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message);
 
         [CombinatoryTheory]

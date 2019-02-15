@@ -226,33 +226,6 @@ namespace NSubstitute.Analyzers.Shared {
         /// <summary>
         ///   Looks up a localized string similar to Internal virtual members can not be intercepted..
         /// </summary>
-        internal static string InternalReceivedSetupSpecificationDescription {
-            get {
-                return ResourceManager.GetString("InternalReceivedSetupSpecificationDescription", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Internal member {0} can not be intercepted..
-        /// </summary>
-        internal static string InternalReceivedSetupSpecificationMessageFormat {
-            get {
-                return ResourceManager.GetString("InternalReceivedSetupSpecificationMessageFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Internal virtual setup specification..
-        /// </summary>
-        internal static string InternalReceivedSetupSpecificationTitle {
-            get {
-                return ResourceManager.GetString("InternalReceivedSetupSpecificationTitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Internal virtual members can not be intercepted..
-        /// </summary>
         internal static string InternalSetupSpecificationDescription {
             get {
                 return ResourceManager.GetString("InternalSetupSpecificationDescription", resourceCulture);
@@ -260,7 +233,7 @@ namespace NSubstitute.Analyzers.Shared {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Internal member {0} can not be intercepted..
+        ///   Looks up a localized string similar to Internal member {0} can not be intercepted without InternalsVisibleToAttribute..
         /// </summary>
         internal static string InternalSetupSpecificationMessageFormat {
             get {
@@ -274,33 +247,6 @@ namespace NSubstitute.Analyzers.Shared {
         internal static string InternalSetupSpecificationTitle {
             get {
                 return ResourceManager.GetString("InternalSetupSpecificationTitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Internal virtual members can not be intercepted..
-        /// </summary>
-        internal static string InternalWhenSetupSpecificationDescription {
-            get {
-                return ResourceManager.GetString("InternalWhenSetupSpecificationDescription", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Internal member {0} can not be intercepted..
-        /// </summary>
-        internal static string InternalWhenSetupSpecificationMessageFormat {
-            get {
-                return ResourceManager.GetString("InternalWhenSetupSpecificationMessageFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Internal virtual setup specification..
-        /// </summary>
-        internal static string InternalWhenSetupSpecificationTitle {
-            get {
-                return ResourceManager.GetString("InternalWhenSetupSpecificationTitle", resourceCulture);
             }
         }
         

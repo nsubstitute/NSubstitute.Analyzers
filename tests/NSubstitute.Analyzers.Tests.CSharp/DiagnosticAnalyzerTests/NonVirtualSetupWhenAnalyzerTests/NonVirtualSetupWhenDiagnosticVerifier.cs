@@ -14,7 +14,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualS
     {
         protected DiagnosticDescriptor NonVirtualWhenSetupSpecificationDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.NonVirtualWhenSetupSpecification;
 
-        protected DiagnosticDescriptor InternalWhenSetupSpecificationDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.InternalWhenSetupSpecification;
+        protected DiagnosticDescriptor InternalSetupSpecificationDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.InternalSetupSpecification;
 
         [CombinatoryTheory]
         [InlineData("sub => [|sub.Bar|]()")]
@@ -137,9 +137,9 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualS
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularExpressionBodiedFunction(string method);
 
         [CombinatoryTheory]
-        [InlineData("sub => { var x = [|sub.Bar|]; }", "Internal member Bar can not be intercepted.")]
-        [InlineData("sub => [|sub.FooBar|]()", "Internal member FooBar can not be intercepted.")]
-        [InlineData("sub => { var x = [|sub[0]|]; }", "Internal member this[] can not be intercepted.")]
+        [InlineData("sub => { var x = [|sub.Bar|]; }", "Internal member Bar can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData("sub => [|sub.FooBar|]()", "Internal member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData("sub => { var x = [|sub[0]|]; }", "Internal member this[] can not be intercepted without InternalsVisibleToAttribute.")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message);
 
         [CombinatoryTheory]
@@ -149,9 +149,9 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonVirtualS
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call);
 
         [CombinatoryTheory]
-        [InlineData("sub => { var x = [|sub.Bar|]; }", "Internal member Bar can not be intercepted.")]
-        [InlineData("sub => [|sub.FooBar|]()", "Internal member FooBar can not be intercepted.")]
-        [InlineData("sub => { var x = [|sub[0]|]; }", "Internal member this[] can not be intercepted.")]
+        [InlineData("sub => { var x = [|sub.Bar|]; }", "Internal member Bar can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData("sub => [|sub.FooBar|]()", "Internal member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData("sub => { var x = [|sub[0]|]; }", "Internal member this[] can not be intercepted without InternalsVisibleToAttribute.")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message);
 
         [CombinatoryTheory]

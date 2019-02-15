@@ -14,7 +14,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             DiagnosticDescriptorsProvider.NonVirtualWhenSetupSpecification,
-            DiagnosticDescriptorsProvider.InternalWhenSetupSpecification);
+            DiagnosticDescriptorsProvider.InternalSetupSpecification);
 
         private static readonly ImmutableHashSet<string> MethodNames = ImmutableHashSet.Create(
             MetadataNames.NSubstituteWhenMethod,
@@ -76,7 +76,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     if (canBeSetuped && symbolInfo.Symbol.MemberVisibleToProxyGenerator() == false)
                     {
                         var diagnostic = Diagnostic.Create(
-                            DiagnosticDescriptorsProvider.InternalWhenSetupSpecification,
+                            DiagnosticDescriptorsProvider.InternalSetupSpecification,
                             analysedSyntax.GetLocation(),
                             symbolInfo.Symbol.Name);
 

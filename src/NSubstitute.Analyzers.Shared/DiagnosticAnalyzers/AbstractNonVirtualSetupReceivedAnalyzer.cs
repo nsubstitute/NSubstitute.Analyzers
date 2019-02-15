@@ -19,7 +19,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             DiagnosticDescriptorsProvider.NonVirtualReceivedSetupSpecification,
-            DiagnosticDescriptorsProvider.InternalReceivedSetupSpecification);
+            DiagnosticDescriptorsProvider.InternalSetupSpecification);
 
         protected AbstractNonVirtualSetupReceivedAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
             : base(diagnosticDescriptorsProvider)
@@ -85,7 +85,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             if (canBeSetuped && symbolInfo.Symbol != null && symbolInfo.Symbol.MemberVisibleToProxyGenerator() == false)
             {
                 var diagnostic = Diagnostic.Create(
-                    DiagnosticDescriptorsProvider.InternalReceivedSetupSpecification,
+                    DiagnosticDescriptorsProvider.InternalSetupSpecification,
                     invocationExpression.GetLocation(),
                     symbolInfo.Symbol.Name);
 

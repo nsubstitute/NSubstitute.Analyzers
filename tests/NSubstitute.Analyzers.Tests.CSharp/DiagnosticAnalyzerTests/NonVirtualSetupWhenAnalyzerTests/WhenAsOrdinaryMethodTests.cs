@@ -703,7 +703,7 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source, InternalWhenSetupSpecificationDescriptor, message);
+            await VerifyDiagnostic(source, InternalSetupSpecificationDescriptor, message);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call)
@@ -779,7 +779,7 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source, InternalWhenSetupSpecificationDescriptor, message);
+            await VerifyDiagnostic(source, InternalSetupSpecificationDescriptor, message);
         }
 
         public override async Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call)
