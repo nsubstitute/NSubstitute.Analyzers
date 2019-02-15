@@ -25,11 +25,5 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.ConventionTests
         {
             _fixture.AssertExportCodeFixProviderAttributeUsageFromAssemblyContaining<NonVirtualSetupAnalyzer>(LanguageNames.VisualBasic);
         }
-
-        [Fact]
-        public void DiagnosticIdsConventionsShouldBeSatisfied()
-        {
-            _fixture.AssertDiagnosticIdsDefinitionsFromAssemblyContaining<NonVirtualSetupAnalyzer>();
-        }
     }
 }
