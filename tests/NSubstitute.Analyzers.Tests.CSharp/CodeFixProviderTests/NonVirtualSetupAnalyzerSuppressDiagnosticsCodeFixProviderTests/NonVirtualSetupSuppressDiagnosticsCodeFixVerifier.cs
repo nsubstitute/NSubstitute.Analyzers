@@ -36,7 +36,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.NonVirtualSetu
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
-            return new NonVirtualSetupAnalyzer();
+            return new NonSubstitutableMemberAnalyzer();
         }
 
         protected override CodeFixProvider GetCodeFixProvider()

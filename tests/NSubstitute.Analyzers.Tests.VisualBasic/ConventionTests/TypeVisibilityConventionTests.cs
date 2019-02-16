@@ -17,7 +17,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.ConventionTests
         [Fact]
         public void TypeVisibilityConventionsShouldBeSatisfied()
         {
-            _typeVisibilityConventionFixture.AssertTypeVisibilityConventionsFromAssemblyContaining<NonVirtualSetupAnalyzer>();
+            _typeVisibilityConventionFixture.AssertTypeVisibilityConventionsFromAssemblyContaining<NonSubstitutableMemberAnalyzer>();
         }
     }
 }

@@ -17,13 +17,13 @@ namespace NSubstitute.Analyzers.Tests.CSharp.ConventionTests
         [Fact]
         public void DiagnosticAnalyzersConventionsShouldBeSatisfied()
         {
-            _fixture.AssertDiagnosticAnalyzerAttributeUsageFromAssemblyContaining<NonVirtualSetupAnalyzer>(LanguageNames.CSharp);
+            _fixture.AssertDiagnosticAnalyzerAttributeUsageFromAssemblyContaining<NonSubstitutableMemberAnalyzer>(LanguageNames.CSharp);
         }
 
         [Fact]
         public void CodeFixProvidersConventionsShouldBeSatisfied()
         {
-            _fixture.AssertExportCodeFixProviderAttributeUsageFromAssemblyContaining<NonVirtualSetupAnalyzer>(LanguageNames.CSharp);
+            _fixture.AssertExportCodeFixProviderAttributeUsageFromAssemblyContaining<NonSubstitutableMemberAnalyzer>(LanguageNames.CSharp);
         }
     }
 }

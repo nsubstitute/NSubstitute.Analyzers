@@ -19,7 +19,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.ConventionTests
         public void TypeVisibilityConventionsShouldBeSatisfied()
         {
             _typeVisibilityConventionFixture.AssertTypeVisibilityConventionsFromAssembly(
-                typeof(NonVirtualSetupAnalyzer).Assembly, typeof(AbstractDiagnosticDescriptorsProvider<>).Assembly);
+                typeof(NonSubstitutableMemberAnalyzer).Assembly, typeof(AbstractDiagnosticDescriptorsProvider<>).Assembly);
         }
     }
 }
