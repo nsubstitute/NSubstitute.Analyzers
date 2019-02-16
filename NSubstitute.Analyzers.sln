@@ -43,6 +43,7 @@ ProjectSection(SolutionItems) = preProject
 	documentation\rules\NS3005.md = documentation\rules\NS3005.md
 	documentation\rules\NS4000.md = documentation\rules\NS4000.md
 	documentation\rules\NS5000.md = documentation\rules\NS5000.md
+	documentation\rules\NS1003.md = documentation\rules\NS1003.md
 EndProjectSection
 EndProject
 Global
