@@ -62,6 +62,15 @@ namespace NSubstitute.Analyzers.VisualBasic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Friend member {0} can not be intercepted without InternalsVisibleToAttribute..
+        /// </summary>
+        internal static string InternalSetupSpecificationMessageFormat {
+            get {
+                return ResourceManager.GetString("InternalSetupSpecificationMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Member {0} can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted..
         /// </summary>
         internal static string NonVirtualReceivedSetupSpecificationMessageFormat {

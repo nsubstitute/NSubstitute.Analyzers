@@ -176,12 +176,12 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
         [InlineData(
             @"Sub(sb As Foo)
                 Dim x = [|sb.Bar|]
-            End Sub", "Internal member Bar can not be intercepted without InternalsVisibleToAttribute.")]
-        [InlineData(@"Sub(sb As Foo) [|sb.FooBar()|]", "Internal member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
+            End Sub", "Friend member Bar can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData(@"Sub(sb As Foo) [|sb.FooBar()|]", "Friend member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
         [InlineData(
             @"Sub(sb As Foo)
                 Dim x = [|sb(0)|]
-            End Sub", "Internal member Item can not be intercepted without InternalsVisibleToAttribute.")]
+            End Sub", "Friend member Item can not be intercepted without InternalsVisibleToAttribute.")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message);
 
         [CombinatoryTheory]
@@ -200,12 +200,12 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
         [InlineData(
             @"Sub(sb As Foo)
                 Dim x = [|sb.Bar|]
-            End Sub", "Internal member Bar can not be intercepted without InternalsVisibleToAttribute.")]
-        [InlineData(@"Sub(sb As Foo) [|sb.FooBar()|]", "Internal member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
+            End Sub", "Friend member Bar can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData(@"Sub(sb As Foo) [|sb.FooBar()|]", "Friend member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
         [InlineData(
             @"Sub(sb As Foo)
                 Dim x = [|sb(0)|]
-            End Sub", "Internal member Item can not be intercepted without InternalsVisibleToAttribute.")]
+            End Sub", "Friend member Item can not be intercepted without InternalsVisibleToAttribute.")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message);
 
         [CombinatoryTheory]

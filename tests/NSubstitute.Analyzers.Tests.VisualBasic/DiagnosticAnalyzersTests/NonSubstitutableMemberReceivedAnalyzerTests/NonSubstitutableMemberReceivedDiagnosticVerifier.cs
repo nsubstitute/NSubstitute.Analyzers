@@ -77,9 +77,9 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
         public abstract Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualIndexer(string method);
 
         [CombinatoryTheory]
-        [InlineData(".Bar", "Internal member Bar can not be intercepted without InternalsVisibleToAttribute.")]
-        [InlineData(".FooBar()", "Internal member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
-        [InlineData("(0)", "Internal member Item can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData(".Bar", "Friend member Bar can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData(".FooBar()", "Friend member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData("(0)", "Friend member Item can not be intercepted without InternalsVisibleToAttribute.")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message);
 
         [CombinatoryTheory]
@@ -89,9 +89,9 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call);
 
         [CombinatoryTheory]
-        [InlineData(".Bar", "Internal member Bar can not be intercepted without InternalsVisibleToAttribute.")]
-        [InlineData(".FooBar()", "Internal member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
-        [InlineData("(0)", "Internal member Item can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData(".Bar", "Friend member Bar can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData(".FooBar()", "Friend member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData("(0)", "Friend member Item can not be intercepted without InternalsVisibleToAttribute.")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message);
 
         [CombinatoryTheory]

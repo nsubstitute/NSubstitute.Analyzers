@@ -233,15 +233,6 @@ namespace NSubstitute.Analyzers.Shared {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Internal member {0} can not be intercepted without InternalsVisibleToAttribute..
-        /// </summary>
-        internal static string InternalSetupSpecificationMessageFormat {
-            get {
-                return ResourceManager.GetString("InternalSetupSpecificationMessageFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Internal virtual setup specification..
         /// </summary>
         internal static string InternalSetupSpecificationTitle {

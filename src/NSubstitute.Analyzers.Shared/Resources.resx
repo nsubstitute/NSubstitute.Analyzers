@@ -138,10 +138,6 @@
     <value>Internal virtual setup specification.</value>
         <comment>The title of the diagnostic.</comment>
   </data>
-    <data name="InternalSetupSpecificationMessageFormat" xml:space="preserve">
-    <value>Internal member {0} can not be intercepted without InternalsVisibleToAttribute.</value>
-        <comment>The format-able message the diagnostic displays.</comment>
-  </data>
   <data name="UnusedReceivedDescription" xml:space="preserve">
     <value>Unused received check.</value>
     <comment>An optional longer localizable description of the diagnostic.</comment>
