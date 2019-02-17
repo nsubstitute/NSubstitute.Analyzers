@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.CSharp.Refactorings;
 using NSubstitute.Analyzers.Shared.CodeFixProviders;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -17,27 +18,9 @@ namespace NSubstitute.Analyzers.CSharp.CodeFixProviders
             return new SubstituteProxyAnalysis();
         }
 
-        protected override CompilationUnitSyntax AppendInternalsVisibleToAttribute(CompilationUnitSyntax compilationUnitSyntax)
+        protected override void RegisterCodeFix(CodeFixContext context, Diagnostic diagnostic, CompilationUnitSyntax compilationUnitSyntax)
         {
-            return compilationUnitSyntax.AddAttributeLists(
-                AttributeList(
-                    AttributeTargetSpecifier(
-                        Token(SyntaxKind.AssemblyKeyword)),
-                    SingletonSeparatedList(
-                        Attribute(
-                            QualifiedName(
-                                QualifiedName(
-                                    QualifiedName(
-                                        IdentifierName("System"),
-                                        IdentifierName("Runtime")),
-                                    IdentifierName("CompilerServices")),
-                                IdentifierName("InternalsVisibleTo")),
-                            AttributeArgumentList(
-                                SingletonSeparatedList(
-                                    AttributeArgument(
-                                        LiteralExpression(
-                                            SyntaxKind.StringLiteralExpression,
-                                            Literal("DynamicProxyGenAssembly2")))))))));
+            AddInternalsVisibleToAttributeRefactoring.RegisterCodeFix(context, diagnostic, compilationUnitSyntax);
         }
     }
 }
