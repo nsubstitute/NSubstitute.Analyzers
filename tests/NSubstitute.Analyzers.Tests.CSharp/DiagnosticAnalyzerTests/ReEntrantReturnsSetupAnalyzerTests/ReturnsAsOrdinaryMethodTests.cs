@@ -529,5 +529,49 @@ namespace MyNamespace
 
             await VerifyDiagnostics(new[] { source, secondSource }, Descriptor, $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => FooBar.ReturnThis()).");
         }
+
+        [CombinatoryData("SubstituteExtensions.Returns", "SubstituteExtensions.Returns<object>", "SubstituteExtensions.ReturnsForAnyArgs", "SubstituteExtensions.ReturnsForAnyArgs<object>")]
+        public override async Task ReportsNoDiagnostic_WhenUsed_WithTypeofExpression(string method, string type)
+        {
+            var source = $@"using NSubstitute;
+
+namespace MyNamespace
+{{
+    public class Foo
+    {{
+        public object FooBar()
+        {{
+            return null;
+        }}
+
+        public object Bar()
+        {{
+            var sub = Substitute.For<Foo>();
+            sub.FooBar().Returns(1);
+            return null;
+        }}
+    }}
+
+    public struct FooBar
+    {{
+        public object Bar()
+        {{
+            var sub = Substitute.For<Foo>();
+            sub.FooBar().Returns(1);
+            return null;
+        }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            {method}(substitute.FooBar(), typeof({type}));
+        }}
+    }}
+}}";
+            await VerifyNoDiagnostic(source);
+        }
     }
 }
