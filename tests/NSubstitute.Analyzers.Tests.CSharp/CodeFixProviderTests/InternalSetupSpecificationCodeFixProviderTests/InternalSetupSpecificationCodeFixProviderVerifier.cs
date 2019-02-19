@@ -13,6 +13,18 @@ namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.InternalSetupS
     {
         [CombinatoryTheory]
         [InlineData]
+        public abstract Task ChangesInternalToPublic_ForIndexer_WhenUsedWithInternalMember(string method);
+
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ChangesInternalToPublic_ForProperty_WhenUsedWithInternalMember(string method);
+
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ChangesInternalToPublic_ForMethod_WhenUsedWithInternalMember(string method);
+
+        [CombinatoryTheory]
+        [InlineData]
         public abstract Task AppendsProtectedInternal_ToIndexer_WhenUsedWithInternalMember(string method);
 
         [CombinatoryTheory]

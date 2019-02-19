@@ -4,8 +4,8 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.InternalSetupSpecificationCodeFixProviderTests
 {
-    [CombinatoryData("Returns")]
-    public class ReturnsAsExtensionMethodTests : InternalSetupSpecificationCodeFixProviderVerifier
+    [CombinatoryData("SubstituteExtensions.Returns")]
+    public class ReturnsAsOrdinaryMethodTests : InternalSetupSpecificationCodeFixProviderVerifier
     {
         public override async Task ChangesInternalToPublic_ForIndexer_WhenUsedWithInternalMember(string method)
         {
@@ -27,7 +27,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute[0].{method}(1);
+            var x = {method}(substitute[0], 1);
         }}
     }}
 }}";
@@ -50,7 +50,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute[0].{method}(1);
+            var x = {method}(substitute[0], 1);
         }}
     }}
 }}";
@@ -78,7 +78,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute.Bar.{method}(1);
+            var x = {method}(substitute.Bar, 1);
         }}
     }}
 }}";
@@ -101,7 +101,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute.Bar.{method}(1);
+            var x = {method}(substitute.Bar, 1);
         }}
     }}
 }}";
@@ -129,7 +129,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute.Bar().{method}(1);
+            var x = {method}(substitute.Bar(), 1);
         }}
     }}
 }}";
@@ -152,7 +152,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute.Bar().{method}(1);
+            var x = {method}(substitute.Bar(), 1);
         }}
     }}
 }}";
@@ -179,7 +179,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute[0].{method}(1);
+            var x = {method}(substitute[0], 1);
         }}
     }}
 }}";
@@ -202,7 +202,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute[0].{method}(1);
+            var x = {method}(substitute[0], 1);
         }}
     }}
 }}";
@@ -230,7 +230,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute.Bar.{method}(1);
+            var x = {method}(substitute.Bar, 1);
         }}
     }}
 }}";
@@ -253,7 +253,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute.Bar.{method}(1);
+            var x = {method}(substitute.Bar, 1);
         }}
     }}
 }}";
@@ -281,7 +281,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute.Bar().{method}(1);
+            var x = {method}(substitute.Bar(), 1);
         }}
     }}
 }}";
@@ -304,7 +304,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute.Bar().{method}(1);
+            var x = {method}(substitute.Bar(), 1);
         }}
     }}
 }}";
@@ -339,7 +339,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute{call}.{method}(1);
+            var x = {method}(substitute{call}, 1);
         }}
     }}
 }}";
@@ -371,7 +371,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute{call}.{method}(1);
+            var x = {method}(substitute{call}, 1);
         }}
     }}
 }}";

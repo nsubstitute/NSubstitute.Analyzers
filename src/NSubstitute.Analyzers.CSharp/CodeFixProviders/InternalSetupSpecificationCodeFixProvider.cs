@@ -41,6 +41,7 @@ namespace NSubstitute.Analyzers.CSharp.CodeFixProviders
             }
 
             context.RegisterCodeFix(CodeAction.Create("Add protected modifier", token => AddModifierRefactoring.RefactorAsync(context.Document, syntaxNode, Accessibility.Protected)), diagnostic);
+            context.RegisterCodeFix(CodeAction.Create("Replace internal with public modifier", token => ReplaceModifierRefactoring.RefactorAsync(context.Document, syntaxNode, Accessibility.Internal, Accessibility.Public)), diagnostic);
 
             var compilationUnitSyntax = FindCompilationUnitSyntax(syntaxNode);
 
