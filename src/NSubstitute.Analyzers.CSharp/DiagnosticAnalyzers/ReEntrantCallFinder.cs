@@ -47,6 +47,14 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
                 base.VisitInvocationExpression(node);
             }
 
+            public override void VisitClassDeclaration(ClassDeclarationSyntax node)
+            {
+            }
+
+            public override void VisitStructDeclaration(StructDeclarationSyntax node)
+            {
+            }
+
             public override void DefaultVisit(SyntaxNode node)
             {
                 VisitRelatedSymbols(node);

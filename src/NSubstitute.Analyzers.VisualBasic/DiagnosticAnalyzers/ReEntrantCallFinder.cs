@@ -46,6 +46,14 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
                 base.VisitInvocationExpression(node);
             }
 
+            public override void VisitClassBlock(ClassBlockSyntax node)
+            {
+            }
+
+            public override void VisitStructureBlock(StructureBlockSyntax node)
+            {
+            }
+
             public override void DefaultVisit(SyntaxNode node)
             {
                 VisitRelatedSymbols(node);
