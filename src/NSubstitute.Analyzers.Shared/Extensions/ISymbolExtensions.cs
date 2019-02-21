@@ -10,6 +10,11 @@ namespace NSubstitute.Analyzers.Shared.Extensions
             return IsInterfaceMember(symbol) || IsVirtual(symbol);
         }
 
+        public static bool MemberVisibleToProxyGenerator(this ISymbol symbol)
+        {
+            return symbol.DeclaredAccessibility != Accessibility.Internal || symbol.InternalsVisibleToProxyGenerator();
+        }
+
         public static bool InternalsVisibleToProxyGenerator(this ISymbol typeSymbol)
         {
             return typeSymbol.ContainingAssembly != null &&

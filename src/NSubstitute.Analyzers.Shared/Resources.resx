@@ -130,6 +130,14 @@
     <value>Non-virtual setup specification.</value>
     <comment>The title of the diagnostic.</comment>
   </data>
+    <data name="InternalSetupSpecificationDescription" xml:space="preserve">
+    <value>Internal virtual members can not be intercepted.</value>
+        <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+    <data name="InternalSetupSpecificationTitle" xml:space="preserve">
+    <value>Internal virtual setup specification.</value>
+        <comment>The title of the diagnostic.</comment>
+  </data>
   <data name="UnusedReceivedDescription" xml:space="preserve">
     <value>Unused received check.</value>
     <comment>An optional longer localizable description of the diagnostic.</comment>

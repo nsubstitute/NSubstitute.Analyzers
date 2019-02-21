@@ -42,24 +42,6 @@ namespace NSubstitute.Analyzers.Tests.Shared.Fixtures
                     $"because each analyzer should support only selected language ${expectedLanguage}");
         }
 
-        public void AssertDiagnosticIdsDefinitionsFromAssemblyContaining<T>()
-        {
-            AssertDiagnosticIdsDefinitionsFromAssemblyContaining(typeof(T));
-        }
-
-        private void AssertDiagnosticIdsDefinitionsFromAssemblyContaining(Type type)
-        {
-            var diagnosticAnalyzers = GetTypesAssignableTo<DiagnosticAnalyzer>(type.Assembly);
-            var exportedAnalyzers = diagnosticAnalyzers.Where(analyzer => analyzer.GetCustomAttributes<DiagnosticAnalyzerAttribute>().Any());
-
-            var instances = exportedAnalyzers.Select(CreateInstance<DiagnosticAnalyzer>).ToList();
-
-            var allDiagnostics = instances.SelectMany(instance => instance.SupportedDiagnostics.Select(diagnostic => diagnostic.Id)).ToList();
-            var distinctDiagnostics = allDiagnostics.Distinct();
-
-            distinctDiagnostics.Should().BeEquivalentTo(allDiagnostics, "because diagnostic ids should not be used across multiple analyzers");
-        }
-
         private static T CreateInstance<T>(Type analyzer)
         {
             var args = analyzer.GetConstructors().First().GetParameters().Select(parameter => Substitute.For(new[] { parameter.ParameterType }, null)).ToArray();
