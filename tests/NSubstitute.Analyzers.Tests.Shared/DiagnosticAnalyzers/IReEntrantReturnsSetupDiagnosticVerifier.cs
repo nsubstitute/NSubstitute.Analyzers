@@ -23,5 +23,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
         Task ReportsNoDiagnostic_WhenReEntrantSubstituteNotUsed(string method, string firstReturn, string secondReturn);
 
         Task ReportsDiagnostic_WhenUsingReEntrantReturns_AcrossMultipleFiles(string method);
+
+        Task ReportsNoDiagnostic_WhenUsed_WithTypeofExpression(string method, string type);
     }
 }
