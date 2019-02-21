@@ -1,3 +1,7 @@
+### 1.0.6 (21 February 2019)
+
+ - [#71](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/71) - Incorrect NS4000 when using typeof expression
+
 ### 1.0.5 (09 February 2019)
 
  - [#61](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/61) - CallInfo analysis for AndDoes method
