@@ -76,7 +76,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             {
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.NonVirtualReceivedSetupSpecification,
-                    invocationExpression.GetLocation(),
+                    GetSymbolLocation(parentNode, symbolInfo.Symbol),
                     symbolInfo.Symbol.Name);
 
                 syntaxNodeContext.ReportDiagnostic(diagnostic);
@@ -86,7 +86,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             {
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.InternalSetupSpecification,
-                    invocationExpression.GetLocation(),
+                    GetSymbolLocation(parentNode, symbolInfo.Symbol),
                     symbolInfo.Symbol.Name);
 
                 syntaxNodeContext.ReportDiagnostic(diagnostic);
@@ -116,6 +116,13 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
 
             return null;
+        }
+
+        private Location GetSymbolLocation(SyntaxNode syntaxNode, ISymbol symbol)
+        {
+            var actualNode = symbol is IMethodSymbol _ ? syntaxNode.Parent : syntaxNode;
+
+            return actualNode.GetLocation();
         }
     }
 }
