@@ -2,12 +2,12 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.VisualBasic;
+using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using NSubstitute.Analyzers.Shared.Extensions;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static Microsoft.CodeAnalysis.VisualBasic.SyntaxFactory;
 
-namespace NSubstitute.Analyzers.CSharp.Refactorings
+namespace NSubstitute.Analyzers.VisualBasic.Refactorings
 {
     internal class ReplaceModifierRefactoring
     {
@@ -27,7 +27,7 @@ namespace NSubstitute.Analyzers.CSharp.Refactorings
             switch (fromAccessibility)
             {
                 case Accessibility.Internal:
-                    syntaxKind = SyntaxKind.InternalKeyword;
+                    syntaxKind = SyntaxKind.FriendKeyword;
                     break;
                 case Accessibility.Public:
                     syntaxKind = SyntaxKind.PublicKeyword;
@@ -43,12 +43,10 @@ namespace NSubstitute.Analyzers.CSharp.Refactorings
         {
             switch (node)
             {
-                case MethodDeclarationSyntax methodDeclarationSyntax:
+                case MethodStatementSyntax methodDeclarationSyntax:
                     return methodDeclarationSyntax.WithModifiers(ReplaceModifier(methodDeclarationSyntax.Modifiers, fromSyntaxKind, toSyntaxKind));
-                case PropertyDeclarationSyntax propertyDeclarationSyntax:
+                case PropertyStatementSyntax propertyDeclarationSyntax:
                     return propertyDeclarationSyntax.WithModifiers(ReplaceModifier(propertyDeclarationSyntax.Modifiers, fromSyntaxKind, toSyntaxKind));
-                case IndexerDeclarationSyntax indexerDeclarationSyntax:
-                    return indexerDeclarationSyntax.WithModifiers(ReplaceModifier(indexerDeclarationSyntax.Modifiers, fromSyntaxKind, toSyntaxKind));
                 default:
                     throw new NotSupportedException($"Replacing {fromSyntaxKind} in {node.Kind()} is not supported");
             }

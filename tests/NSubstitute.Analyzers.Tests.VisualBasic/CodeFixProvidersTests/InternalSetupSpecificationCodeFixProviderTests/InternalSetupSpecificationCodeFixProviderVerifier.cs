@@ -1,15 +1,15 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
-using NSubstitute.Analyzers.CSharp.CodeFixProviders;
-using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
+using NSubstitute.Analyzers.VisualBasic.CodeFixProviders;
+using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.InternalSetupSpecificationCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.InternalSetupSpecificationCodeFixProviderTests
 {
-    public abstract class InternalSetupSpecificationCodeFixProviderVerifier : CSharpSuppressDiagnosticSettingsVerifier, IInternalSetupSpecificationCodeFixProviderVerifier
+    public abstract class InternalSetupSpecificationCodeFixProviderVerifier : VisualBasicCodeFixVerifier, IInternalSetupSpecificationCodeFixProviderVerifier
     {
         [CombinatoryTheory]
         [InlineData]
@@ -38,7 +38,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.InternalSetupS
         [CombinatoryTheory]
         [InlineData(".Bar")]
         [InlineData(".FooBar()")]
-        [InlineData("[0]")]
+        [InlineData("(0)")]
         public abstract Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalMember(string method, string call);
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()

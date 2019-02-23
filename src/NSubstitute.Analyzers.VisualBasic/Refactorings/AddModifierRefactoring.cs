@@ -1,12 +1,12 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.VisualBasic;
+using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using NSubstitute.Analyzers.Shared.Extensions;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static Microsoft.CodeAnalysis.VisualBasic.SyntaxFactory;
 
-namespace NSubstitute.Analyzers.CSharp.Refactorings
+namespace NSubstitute.Analyzers.VisualBasic.Refactorings
 {
     internal static class AddModifierRefactoring
     {
@@ -32,12 +32,10 @@ namespace NSubstitute.Analyzers.CSharp.Refactorings
         {
             switch (node)
             {
-                case MethodDeclarationSyntax methodDeclarationSyntax:
+                case MethodStatementSyntax methodDeclarationSyntax:
                     return methodDeclarationSyntax.WithModifiers(UpdateModifiers(methodDeclarationSyntax.Modifiers, syntaxKind));
-                case PropertyDeclarationSyntax propertyDeclarationSyntax:
+                case PropertyStatementSyntax propertyDeclarationSyntax:
                     return propertyDeclarationSyntax.WithModifiers(UpdateModifiers(propertyDeclarationSyntax.Modifiers, syntaxKind));
-                case IndexerDeclarationSyntax indexerDeclarationSyntax:
-                    return indexerDeclarationSyntax.WithModifiers(UpdateModifiers(indexerDeclarationSyntax.Modifiers, syntaxKind));
                 default:
                     throw new NotSupportedException($"Adding {syntaxKind} to {node.Kind()} is not supported");
             }
