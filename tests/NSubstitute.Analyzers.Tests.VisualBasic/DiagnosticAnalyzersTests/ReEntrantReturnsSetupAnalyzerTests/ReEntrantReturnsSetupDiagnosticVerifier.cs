@@ -89,6 +89,11 @@ barr = fooBar")]
         [InlineData]
         public abstract Task ReportsDiagnostic_WhenUsingReEntrantReturns_AcrossMultipleFiles(string method);
 
+        [CombinatoryTheory]
+        [InlineData("Foo")]
+        [InlineData("FooBar")]
+        public abstract Task ReportsNoDiagnostic_WhenUsed_WithTypeofExpression(string method, string type);
+
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
             return new ReEntrantSetupAnalyzer();

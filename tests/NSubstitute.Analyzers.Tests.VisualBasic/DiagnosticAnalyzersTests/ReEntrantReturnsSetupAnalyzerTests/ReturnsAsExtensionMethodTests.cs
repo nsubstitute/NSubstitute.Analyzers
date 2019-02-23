@@ -450,5 +450,41 @@ End Namespace
 
             await VerifyDiagnostics(new[] { source, secondSource }, Descriptor, $"{method}() is set with a method that itself calls {method}. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) FooBar.ReturnThis()).");
         }
+
+        public override async Task ReportsNoDiagnostic_WhenUsed_WithTypeofExpression(string method, string type)
+        {
+            var source = $@"Imports NSubstitute
+Imports System
+Namespace MyNamespace
+    Public Class Foo
+        Public Function FooBar() As Type
+            Return Nothing
+        End Function
+
+        Public Function Bar() As Type
+            Dim [sub] = Substitute.[For](Of Foo)()
+            [sub].FooBar().Returns(GetType(Object))
+            Return Nothing
+        End Function
+    End Class
+
+    Public Structure FooBar
+        Public Function Bar() As Type
+            Dim [sub] = Substitute.[For](Of Foo)()
+            [sub].FooBar().Returns(GetType(Object))
+            Return Nothing
+        End Function
+    End Structure
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            substitute.FooBar().{method}(GetType([{type}]))
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifyNoDiagnostic(source);
+        }
     }
 }
