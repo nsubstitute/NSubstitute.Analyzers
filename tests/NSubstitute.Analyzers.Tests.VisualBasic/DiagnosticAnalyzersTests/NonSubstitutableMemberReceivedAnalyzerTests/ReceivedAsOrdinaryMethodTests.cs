@@ -31,7 +31,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            [|{method}(substitute)|].Bar()
+            [|{method}(substitute).Bar()|]
         End Sub
     End Class
 End Namespace
@@ -153,7 +153,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            [|{method}(substitute)|].Bar()
+            [|{method}(substitute).Bar()|]
         End Sub
     End Class
 End Namespace
@@ -353,7 +353,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            Dim x As Integer = [|{method}(substitute)|].Bar
+            Dim x As Integer = [|{method}(substitute).Bar|]
         End Sub
     End Class
 End Namespace";
@@ -412,7 +412,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            Dim x As Integer = [|{method}(substitute)|](1)
+            Dim x As Integer = [|{method}(substitute)(1)|]
         End Sub
     End Class
 End Namespace";
@@ -486,7 +486,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            Dim x = [|{method}(substitute)|]{call}
+            Dim x = [|{method}(substitute){call}|]
         End Sub
     End Class
 End Namespace";
@@ -552,7 +552,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            Dim x = [|{method}(substitute)|]{call}
+            Dim x = [|{method}(substitute){call}|]
         End Sub
     End Class
 End Namespace";
