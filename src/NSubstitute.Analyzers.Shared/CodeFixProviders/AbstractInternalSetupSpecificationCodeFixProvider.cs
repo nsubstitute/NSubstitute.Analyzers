@@ -12,6 +12,8 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
     {
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.InternalSetupSpecification);
 
+        protected abstract string ReplaceModifierCodeFixTitle { get; }
+
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             var diagnostic =
@@ -38,8 +40,8 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
                 return;
             }
 
-            context.RegisterCodeFix(CodeAction.Create("Add protected modifier", token => AddModifierRefactoring(context.Document, syntaxNode)), diagnostic);
-            context.RegisterCodeFix(CodeAction.Create("Replace internal with public modifier", token => ReplaceModifierRefactoring(context.Document, syntaxNode)), diagnostic);
+            context.RegisterCodeFix(CodeAction.Create("Add protected modifier", token => AddModifierRefactoring(context.Document, syntaxNode, Accessibility.Protected)), diagnostic);
+            context.RegisterCodeFix(CodeAction.Create(ReplaceModifierCodeFixTitle, token => ReplaceModifierRefactoring(context.Document, syntaxNode, Accessibility.Internal, Accessibility.Public)), diagnostic);
 
             var compilationUnitSyntax = FindCompilationUnitSyntax(syntaxNode);
 
@@ -51,9 +53,9 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             RegisterAddInternalsVisibleToAttributeCodeFix(context, diagnostic, compilationUnitSyntax);
         }
 
-        protected abstract Task<Document> AddModifierRefactoring(Document document, SyntaxNode node);
+        protected abstract Task<Document> AddModifierRefactoring(Document document, SyntaxNode node, Accessibility accessibility);
 
-        protected abstract Task<Document> ReplaceModifierRefactoring(Document document, SyntaxNode node);
+        protected abstract Task<Document> ReplaceModifierRefactoring(Document document, SyntaxNode node, Accessibility fromAccessibility, Accessibility toAccessibility);
 
         protected abstract void RegisterAddInternalsVisibleToAttributeCodeFix(CodeFixContext context, Diagnostic diagnostic, TCompilationUnitSyntax compilationUnitSyntax);
 

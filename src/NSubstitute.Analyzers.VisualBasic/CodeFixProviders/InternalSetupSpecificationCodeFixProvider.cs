@@ -14,14 +14,16 @@ namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders
     {
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.InternalSetupSpecification);
 
-        protected override Task<Document> AddModifierRefactoring(Document document, SyntaxNode node)
+        protected override string ReplaceModifierCodeFixTitle { get; } = "Replace friend with public modifier";
+
+        protected override Task<Document> AddModifierRefactoring(Document document, SyntaxNode node, Accessibility accessibility)
         {
-            return Refactorings.AddModifierRefactoring.RefactorAsync(document, node, Accessibility.Protected);
+            return Refactorings.AddModifierRefactoring.RefactorAsync(document, node, accessibility);
         }
 
-        protected override Task<Document> ReplaceModifierRefactoring(Document document, SyntaxNode node)
+        protected override Task<Document> ReplaceModifierRefactoring(Document document, SyntaxNode node, Accessibility fromAccessibility, Accessibility toAccessibility)
         {
-            return Refactorings.ReplaceModifierRefactoring.RefactorAsync(document, node, Accessibility.Internal, Accessibility.Public);
+            return Refactorings.ReplaceModifierRefactoring.RefactorAsync(document, node, fromAccessibility, toAccessibility);
         }
 
         protected override void RegisterAddInternalsVisibleToAttributeCodeFix(CodeFixContext context, Diagnostic diagnostic, CompilationUnitSyntax compilationUnitSyntax)
