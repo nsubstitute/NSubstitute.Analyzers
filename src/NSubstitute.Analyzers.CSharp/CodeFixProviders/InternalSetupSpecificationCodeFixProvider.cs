@@ -1,10 +1,8 @@
-using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NSubstitute.Analyzers.CSharp.Refactorings;
-using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Shared.CodeFixProviders;
 
 namespace NSubstitute.Analyzers.CSharp.CodeFixProviders
@@ -12,8 +10,6 @@ namespace NSubstitute.Analyzers.CSharp.CodeFixProviders
     [ExportCodeFixProvider(LanguageNames.CSharp)]
     internal class InternalSetupSpecificationCodeFixProvider : AbstractInternalSetupSpecificationCodeFixProvider<CompilationUnitSyntax>
     {
-        public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.InternalSetupSpecification);
-
         protected override string ReplaceModifierCodeFixTitle { get; } = "Replace internal with public modifier";
 
         protected override Task<Document> AddModifierRefactoring(Document document, SyntaxNode node, Accessibility accessibility)

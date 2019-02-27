@@ -1,5 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.CSharp.CodeFixProviders;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
@@ -43,6 +49,7 @@ namespace MyNamespace
         public async Task DoesNotCreateCodeActions_WhenSymbol_DoesNotBelongToCompilation()
         {
             var source = @"using NSubstitute;
+using ExternalNamespace;
 
 namespace MyNamespace
 {
@@ -50,12 +57,17 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = NSubstitute.Substitute.For<object>();
-            var x = substitute.ToString().Returns(string.Empty);
+            var substitute = NSubstitute.Substitute.For<InternalFoo>();
+            var x = substitute.Bar().Returns(1);
         }
     }
 }";
             await VerifyCodeActions(source);
+        }
+
+        protected override IEnumerable<MetadataReference> GetAdditionalMetadataReferences()
+        {
+            return new[] { GetInternalLibraryMetadataReference() };
         }
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
@@ -66,6 +78,41 @@ namespace MyNamespace
         protected override CodeFixProvider GetCodeFixProvider()
         {
             return new InternalSetupSpecificationCodeFixProvider();
+        }
+
+        private static PortableExecutableReference GetInternalLibraryMetadataReference()
+        {
+            var syntaxTree = CSharpSyntaxTree.ParseText($@"
+using System.Runtime.CompilerServices;
+[assembly: InternalsVisibleTo(""{TestProjectName}"")]
+namespace ExternalNamespace
+{{
+    public class InternalFoo
+    {{
+        internal virtual int Bar()
+        {{
+            return 1;
+        }}
+    }}
+}}");
+
+            var references = new[] { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) };
+            var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
+            var compilation = CSharpCompilation.Create("Internal", new[] { syntaxTree }, references, compilationOptions);
+
+            using (var ms = new MemoryStream())
+            {
+                var result = compilation.Emit(ms);
+
+                if (result.Success == false)
+                {
+                    var errors = result.Diagnostics.Where(diag => diag.IsWarningAsError || diag.Severity == DiagnosticSeverity.Error);
+                    throw new InvalidOperationException($"Internal library compilation failed: {string.Join(",", errors)}");
+                }
+
+                ms.Seek(0, SeekOrigin.Begin);
+                return MetadataReference.CreateFromStream(ms);
+            }
         }
     }
 }
