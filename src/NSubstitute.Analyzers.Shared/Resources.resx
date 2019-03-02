@@ -350,4 +350,16 @@
     <value>Could not set argument.</value>
     <comment>The title of the diagnostic.</comment>
   </data>
+    <data name="ConflictingAssignmentsToOutRefArgumentDescription" xml:space="preserve">
+    <value>Conflicting assignments to out/ref arguments.</value>
+        <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+    <data name="ConflictingAssignmentsToOutRefArgumentMessageFormat" xml:space="preserve">
+    <value>Conflicting assignments to out/ref arguments.</value>
+        <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+    <data name="ConflictingAssignmentsToOutRefArgumentsTitle" xml:space="preserve">
+    <value>Conflicting assignments to out/ref arguments.</value>
+        <comment>The title of the diagnostic.</comment>
+  </data>
 </root>

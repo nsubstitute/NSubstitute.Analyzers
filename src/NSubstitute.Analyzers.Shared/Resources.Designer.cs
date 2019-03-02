@@ -224,6 +224,33 @@ namespace NSubstitute.Analyzers.Shared {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Conflicting assignments to out/ref arguments..
+        /// </summary>
+        internal static string ConflictingAssignmentsToOutRefArgumentDescription {
+            get {
+                return ResourceManager.GetString("ConflictingAssignmentsToOutRefArgumentDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Conflicting assignments to out/ref arguments..
+        /// </summary>
+        internal static string ConflictingAssignmentsToOutRefArgumentMessageFormat {
+            get {
+                return ResourceManager.GetString("ConflictingAssignmentsToOutRefArgumentMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Conflicting assignments to out/ref arguments..
+        /// </summary>
+        internal static string ConflictingAssignmentsToOutRefArgumentsTitle {
+            get {
+                return ResourceManager.GetString("ConflictingAssignmentsToOutRefArgumentsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Internal virtual members can not be intercepted..
         /// </summary>
         internal static string InternalSetupSpecificationDescription {
