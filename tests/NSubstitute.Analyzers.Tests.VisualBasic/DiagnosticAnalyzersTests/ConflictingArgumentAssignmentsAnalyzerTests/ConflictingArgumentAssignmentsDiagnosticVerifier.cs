@@ -15,21 +15,21 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Confl
         public DiagnosticDescriptor Descriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ConflictingAssignmentsToOutRefArgument;
 
         [CombinatoryTheory]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo[1] = 1;", "[|callInfo[1]|] = 1;")]
-        [InlineData("substitute.Barr", "callInfo[1] = 1;", "[|callInfo[1]|] = 1;")]
-        [InlineData("substitute[Arg.Any<int>()]", "callInfo[1] = 1;", "[|callInfo[1]|] = 1;")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "callInfo(1) = 1", "[|callInfo(1)|] = 1")]
+        [InlineData("substitute.Barr", "callInfo(1) = 1", "[|callInfo(1)|] = 1")]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo(1) = 1", "[|callInfo(1)|] = 1")]
         public abstract Task ReportsDiagnostic_When_AndDoesMethod_SetsSameArgument_AsPreviousSetupMethod(string method, string call, string previousCallArgAccess, string andDoesArgAccess);
 
         [CombinatoryTheory]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo[1] = 1;")]
-        [InlineData("substitute.Barr", "callInfo[1] = 1;")]
-        [InlineData("substitute[Arg.Any<int>()]", "callInfo[1] = 1;")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "callInfo(1) = 1")]
+        [InlineData("substitute.Barr", "callInfo(1) = 1")]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo(1) = 1")]
         public abstract Task ReportsNoDiagnostics_When_AndDoesMethod_SetsDifferentArgument_AsPreviousSetupMethod(string method, string call, string andDoesArgAccess);
 
         [CombinatoryTheory]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "var x = callInfo[1];")]
-        [InlineData("substitute.Barr", "var x = callInfo[1];")]
-        [InlineData("substitute[Arg.Any<int>()]", "var x = callInfo[1];")]
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "Dim x = callInfo(1)")]
+        [InlineData("substitute.Barr", "Dim x = callInfo(1)")]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "Dim x = callInfo(1)")]
         public abstract Task ReportsNoDiagnostics_When_AndDoesMethod_AccessSameArguments_AsPreviousSetupMethod(string method, string call, string argAccess);
 
         [CombinatoryTheory]
@@ -37,10 +37,11 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Confl
         public abstract Task ReportsNoDiagnostics_When_AndDoesMethod_SetSameArguments_AsPreviousSetupMethod_SetsIndirectly(string method);
 
         [CombinatoryTheory]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo[1] = 1;")]
-        [InlineData("substitute.Barr", "callInfo[1] = 1;")]
-        [InlineData("substitute[Arg.Any<int>()]", "callInfo[1] = 1;")]
-        public abstract Task ReportsNoDiagnostic_When_AndDoesMethod_SetArgument_AndPreviousMethod_IsNotUsedWithCallInfo(string method, string call, string andDoesArgAccess);
+        [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "callInfo(1) = 1")]
+        [InlineData("substitute.Barr", "callInfo(1) = 1")]
+        [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo(1) = 1")]
+        public abstract Task ReportsNoDiagnostic_When_AndDoesMethod_SetArgument_AndPreviousMethod_IsNotUsedWithCallInfo(
+            string method, string call, string andDoesArgAccess);
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
