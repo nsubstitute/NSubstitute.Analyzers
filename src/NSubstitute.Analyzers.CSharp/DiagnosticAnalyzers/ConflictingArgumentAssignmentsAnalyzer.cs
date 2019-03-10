@@ -27,22 +27,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 
         protected override SyntaxNode GetSubstituteCall(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax)
         {
-            if (methodSymbol.IsExtensionMethod)
-            {
-                switch (methodSymbol.MethodKind)
-                {
-                    case MethodKind.ReducedExtension:
-                        return invocationExpressionSyntax.Expression.DescendantNodes().First();
-                    case MethodKind.Ordinary:
-                        return invocationExpressionSyntax.ArgumentList.Arguments.First().Expression;
-                    default:
-                        return null;
-                }
-            }
-
-            var parentInvocation = invocationExpressionSyntax.GetParentInvocationExpression();
-
-            return parentInvocation;
+            return invocationExpressionSyntax.GetParentInvocationExpression();
         }
 
         protected override AbstractCallInfoFinder<InvocationExpressionSyntax, ElementAccessExpressionSyntax> GetCallInfoFinder()
