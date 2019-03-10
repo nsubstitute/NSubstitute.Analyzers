@@ -1,21 +1,15 @@
 using System.Threading.Tasks;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
-using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ConflictingRefOutAnalyzerTests
+namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ConflictingArgumentAssignmentsAnalyzerTests
 {
-    [CombinatoryData("ExceptionExtensions.Throws", "ExceptionExtensions.ThrowsForAnyArgs")]
-    public class ThrowsAsOrdinaryMethodTests : ConflictingRefOutDiagnosticVerifier
+    [CombinatoryData("AndDoes")]
+    public class AndDoesAsOrdinaryMethodTests : ConflictingArgumentAssignmentsDiagnosticVerifier
     {
-        [CombinatoryTheory]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo[1] = 1;", "[|callInfo[1]|] = 1;")]
-        [InlineData("substitute.Barr", "callInfo[1] = 1;", "[|callInfo[1]|] = 1;")]
-        [InlineData("substitute[Arg.Any<int>()]", "callInfo[1] = 1;", "[|callInfo[1]|] = 1;")]
-        public async Task ReportsDiagnostic_When_AndDoesMethod_SetsSameArgument_AsPreviousSetupMethod(string method, string call, string previousCallArgAccess, string andDoesArgAccess)
+        public override async Task ReportsDiagnostic_When_AndDoesMethod_SetsSameArgument_AsPreviousSetupMethod(string method, string call, string previousCallArgAccess, string andDoesArgAccess)
         {
             var source = $@"using System;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -33,10 +27,9 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}({call}, callInfo =>
+            {call}.Returns(1).{method}(callInfo =>
             {{
                 {previousCallArgAccess}
-                return new Exception();
             }}).AndDoes(callInfo =>
             {{
                 {andDoesArgAccess}
@@ -48,15 +41,10 @@ namespace MyNamespace
             await VerifyDiagnostic(source, Descriptor);
         }
 
-        [CombinatoryTheory]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo[1] = 1;")]
-        [InlineData("substitute.Barr", "callInfo[1] = 1;")]
-        [InlineData("substitute[Arg.Any<int>()]", "callInfo[1] = 1;")]
-        public async Task ReportsNoDiagnostics_When_AndDoesMethod_SetsDifferentArgument_AsPreviousSetupMethod(string method, string call, string andDoesArgAccess)
+        public override async Task ReportsNoDiagnostics_When_AndDoesMethod_SetsDifferentArgument_AsPreviousSetupMethod(string method, string call, string andDoesArgAccess)
         {
             var source = $@"using System;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -74,10 +62,9 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}({call}, callInfo =>
+            {call}.Returns(1).{method}(callInfo =>
             {{
                 callInfo[0] = 1;
-                return new Exception();
             }}).AndDoes(callInfo =>
             {{
                 {andDoesArgAccess}
@@ -89,15 +76,10 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        [CombinatoryTheory]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "var x = callInfo[1];")]
-        [InlineData("substitute.Barr", "var x = callInfo[1];")]
-        [InlineData("substitute[Arg.Any<int>()]", "var x = callInfo[1];")]
-        public async Task ReportsNoDiagnostics_When_AndDoesMethod_AccessSameArguments_AsPreviousSetupMethod(string method, string call, string argAccess)
+        public override async Task ReportsNoDiagnostics_When_AndDoesMethod_AccessSameArguments_AsPreviousSetupMethod(string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -115,10 +97,9 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}({call}, callInfo =>
+            {call}.Returns(1).{method}(callInfo =>
             {{
                 {argAccess}
-                return new Exception();
             }}).AndDoes(callInfo =>
             {{
                 {argAccess}
@@ -130,13 +111,10 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        [CombinatoryTheory]
-        [InlineData]
-        public async Task ReportsNoDiagnostics_When_AndDoesMethod_SetSameArguments_AsPreviousSetupMethod_SetsIndirectly(string method)
+        public override async Task ReportsNoDiagnostics_When_AndDoesMethod_SetSameArguments_AsPreviousSetupMethod_SetsIndirectly(string method)
         {
             var source = $@"using System;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -150,12 +128,11 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}(substitute.Bar(Arg.Any<int>()), callInfo =>
+            substitute.Bar(Arg.Any<int>()).Returns(1).{method}(callInfo =>
             {{
                  callInfo.Args()[0] = 1;
                  callInfo.ArgTypes()[0] = typeof(int);
                  ((byte[])callInfo[0])[0] = 1;
-                return new Exception();
             }}).AndDoes(callInfo =>
             {{
                 callInfo[0] = 1;
@@ -167,15 +144,10 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        [CombinatoryTheory]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo[1] = 1;")]
-        [InlineData("substitute.Barr", "callInfo[1] = 1;")]
-        [InlineData("substitute[Arg.Any<int>()]", "callInfo[1] = 1;")]
-        public async Task ReportsNoDiagnostic_When_AndDoesMethod_SetArgument_AndPreviousMethod_IsNotUsedWithCallInfo(string method, string call, string andDoesArgAccess)
+        public override async Task ReportsNoDiagnostic_When_AndDoesMethod_SetArgument_AndPreviousMethod_IsNotUsedWithCallInfo(string method, string call, string andDoesArgAccess)
         {
             var source = $@"using System;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -193,7 +165,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}({call}, new Exception()).AndDoes(callInfo =>
+            {call}.Returns(1).{method}(_ => {{}}).AndDoes(callInfo =>
             {{
                 {andDoesArgAccess}
             }});

@@ -11,9 +11,9 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    internal class ConflictingRefOutAnalyzer : AbstractConflictingRefOutAnalyzer<SyntaxKind, InvocationExpressionSyntax, ExpressionSyntax, ElementAccessExpressionSyntax>
+    internal class ConflictingArgumentAssignmentsAnalyzer : AbstractConflictingArgumentAssignmentsAnalyzer<SyntaxKind, InvocationExpressionSyntax, ExpressionSyntax, ElementAccessExpressionSyntax>
     {
-        public ConflictingRefOutAnalyzer()
+        public ConflictingArgumentAssignmentsAnalyzer()
             : base(new DiagnosticDescriptorsProvider())
         {
         }

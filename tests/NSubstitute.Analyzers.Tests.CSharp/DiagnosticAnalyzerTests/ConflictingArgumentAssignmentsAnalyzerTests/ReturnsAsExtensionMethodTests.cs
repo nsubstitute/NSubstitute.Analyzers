@@ -2,20 +2,15 @@ using System.Threading.Tasks;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ConflictingRefOutAnalyzerTests
+namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ConflictingArgumentAssignmentsAnalyzerTests
 {
-    [CombinatoryData("Throws", "ThrowsForAnyArgs")]
-    public class ThrowsAsExtensionMethodTests : ConflictingRefOutDiagnosticVerifier
+    [CombinatoryData("Returns", "Returns<int>", "ReturnsForAnyArgs", "ReturnsForAnyArgs<int>")]
+    public class ReturnsAsExtensionMethodTests : ConflictingArgumentAssignmentsDiagnosticVerifier
     {
-        [CombinatoryTheory]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo[1] = 1;", "[|callInfo[1]|] = 1;")]
-        [InlineData("substitute.Barr", "callInfo[1] = 1;", "[|callInfo[1]|] = 1;")]
-        [InlineData("substitute[Arg.Any<int>()]", "callInfo[1] = 1;", "[|callInfo[1]|] = 1;")]
-        public async Task ReportsDiagnostic_When_AndDoesMethod_SetsSameArgument_AsPreviousSetupMethod(string method, string call, string previousCallArgAccess, string andDoesArgAccess)
+        public override async Task ReportsDiagnostic_When_AndDoesMethod_SetsSameArgument_AsPreviousSetupMethod(string method, string call, string previousCallArgAccess, string andDoesArgAccess)
         {
             var source = $@"using System;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -33,10 +28,11 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.{method}(callInfo =>
+            {call}.{method}(callInfo => 1,
+            callInfo =>
             {{
                 {previousCallArgAccess}
-                return new Exception();
+                return 1;
             }}).AndDoes(callInfo =>
             {{
                 {andDoesArgAccess}
@@ -48,15 +44,10 @@ namespace MyNamespace
             await VerifyDiagnostic(source, Descriptor);
         }
 
-        [CombinatoryTheory]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo[1] = 1;")]
-        [InlineData("substitute.Barr", "callInfo[1] = 1;")]
-        [InlineData("substitute[Arg.Any<int>()]", "callInfo[1] = 1;")]
-        public async Task ReportsNoDiagnostics_When_AndDoesMethod_SetsDifferentArgument_AsPreviousSetupMethod(string method, string call, string andDoesArgAccess)
+        public override async Task ReportsNoDiagnostics_When_AndDoesMethod_SetsDifferentArgument_AsPreviousSetupMethod(string method, string call, string andDoesArgAccess)
         {
             var source = $@"using System;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -77,7 +68,7 @@ namespace MyNamespace
             {call}.{method}(callInfo =>
             {{
                 callInfo[0] = 1;
-                return new Exception();
+                return 1;
             }}).AndDoes(callInfo =>
             {{
                 {andDoesArgAccess}
@@ -89,15 +80,10 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        [CombinatoryTheory]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "var x = callInfo[1];")]
-        [InlineData("substitute.Barr", "var x = callInfo[1];")]
-        [InlineData("substitute[Arg.Any<int>()]", "var x = callInfo[1];")]
-        public async Task ReportsNoDiagnostics_When_AndDoesMethod_AccessSameArguments_AsPreviousSetupMethod(string method, string call, string argAccess)
+        public override async Task ReportsNoDiagnostics_When_AndDoesMethod_AccessSameArguments_AsPreviousSetupMethod(string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -118,7 +104,7 @@ namespace MyNamespace
             {call}.{method}(callInfo =>
             {{
                 {argAccess}
-                return new Exception();
+                return 1;
             }}).AndDoes(callInfo =>
             {{
                 {argAccess}
@@ -130,13 +116,10 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        [CombinatoryTheory]
-        [InlineData]
-        public async Task ReportsNoDiagnostics_When_AndDoesMethod_SetSameArguments_AsPreviousSetupMethod_SetsIndirectly(string method)
+        public override async Task ReportsNoDiagnostics_When_AndDoesMethod_SetSameArguments_AsPreviousSetupMethod_SetsIndirectly(string method)
         {
             var source = $@"using System;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -155,7 +138,7 @@ namespace MyNamespace
                  callInfo.Args()[0] = 1;
                  callInfo.ArgTypes()[0] = typeof(int);
                  ((byte[])callInfo[0])[0] = 1;
-                return new Exception();
+                return 1;
             }}).AndDoes(callInfo =>
             {{
                 callInfo[0] = 1;
@@ -167,15 +150,10 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        [CombinatoryTheory]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo[1] = 1;")]
-        [InlineData("substitute.Barr", "callInfo[1] = 1;")]
-        [InlineData("substitute[Arg.Any<int>()]", "callInfo[1] = 1;")]
-        public async Task ReportsNoDiagnostic_When_AndDoesMethod_SetArgument_AndPreviousMethod_IsNotUsedWithCallInfo(string method, string call, string andDoesArgAccess)
+        public override async Task ReportsNoDiagnostic_When_AndDoesMethod_SetArgument_AndPreviousMethod_IsNotUsedWithCallInfo(string method, string call, string andDoesArgAccess)
         {
             var source = $@"using System;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -193,7 +171,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.{method}(new Exception()).AndDoes(callInfo =>
+            {call}.{method}(1).AndDoes(callInfo =>
             {{
                 {andDoesArgAccess}
             }});
