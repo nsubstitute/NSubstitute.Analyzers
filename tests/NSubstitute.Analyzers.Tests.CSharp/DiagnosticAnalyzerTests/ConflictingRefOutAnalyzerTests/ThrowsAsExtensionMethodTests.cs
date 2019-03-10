@@ -4,8 +4,8 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ConflictingRefOutAnalyzerTests
 {
-    [CombinatoryData("Returns", "Returns<int>", "ReturnsForAnyArgs", "ReturnsForAnyArgs<int>")]
-    public class ReturnsAsExtensionMethodTests : ConflictingRefOutDiagnosticVerifier
+    [CombinatoryData("Throws", "ThrowsForAnyArgs")]
+    public class ThrowsAsExtensionMethodTests : ConflictingRefOutDiagnosticVerifier
     {
         [CombinatoryTheory]
         [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo[1] = 1;", "[|callInfo[1]|] = 1;")]
@@ -15,6 +15,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.Conflicting
         {
             var source = $@"using System;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -32,11 +33,10 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.{method}(callInfo => 1,
-            callInfo =>
+            {call}.{method}(callInfo =>
             {{
                 {previousCallArgAccess}
-                return 1;
+                return new Exception();
             }}).AndDoes(callInfo =>
             {{
                 {andDoesArgAccess}
@@ -56,6 +56,7 @@ namespace MyNamespace
         {
             var source = $@"using System;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -76,7 +77,7 @@ namespace MyNamespace
             {call}.{method}(callInfo =>
             {{
                 callInfo[0] = 1;
-                return 1;
+                return new Exception();
             }}).AndDoes(callInfo =>
             {{
                 {andDoesArgAccess}
@@ -96,6 +97,7 @@ namespace MyNamespace
         {
             var source = $@"using System;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -116,7 +118,7 @@ namespace MyNamespace
             {call}.{method}(callInfo =>
             {{
                 {argAccess}
-                return 1;
+                return new Exception();
             }}).AndDoes(callInfo =>
             {{
                 {argAccess}
@@ -134,6 +136,7 @@ namespace MyNamespace
         {
             var source = $@"using System;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -152,7 +155,7 @@ namespace MyNamespace
                  callInfo.Args()[0] = 1;
                  callInfo.ArgTypes()[0] = typeof(int);
                  ((byte[])callInfo[0])[0] = 1;
-                return 1;
+                return new Exception();
             }}).AndDoes(callInfo =>
             {{
                 callInfo[0] = 1;
@@ -172,6 +175,7 @@ namespace MyNamespace
         {
             var source = $@"using System;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
@@ -189,7 +193,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.{method}(1).AndDoes(callInfo =>
+            {call}.{method}(new Exception()).AndDoes(callInfo =>
             {{
                 {andDoesArgAccess}
             }});

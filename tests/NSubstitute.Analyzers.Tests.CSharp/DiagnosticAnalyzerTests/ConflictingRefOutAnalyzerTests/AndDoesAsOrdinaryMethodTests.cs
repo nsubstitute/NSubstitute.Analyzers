@@ -4,8 +4,8 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ConflictingRefOutAnalyzerTests
 {
-    [CombinatoryData("Returns", "Returns<int>", "ReturnsForAnyArgs", "ReturnsForAnyArgs<int>")]
-    public class ReturnsAsExtensionMethodTests : ConflictingRefOutDiagnosticVerifier
+    [CombinatoryData("AndDoes")]
+    public class AndDoesAsOrdinaryMethodTests : ConflictingRefOutDiagnosticVerifier
     {
         [CombinatoryTheory]
         [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo[1] = 1;", "[|callInfo[1]|] = 1;")]
@@ -32,11 +32,9 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.{method}(callInfo => 1,
-            callInfo =>
+            {call}.Returns(1).{method}(callInfo =>
             {{
                 {previousCallArgAccess}
-                return 1;
             }}).AndDoes(callInfo =>
             {{
                 {andDoesArgAccess}
@@ -73,10 +71,9 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.{method}(callInfo =>
+            {call}.Returns(1).{method}(callInfo =>
             {{
                 callInfo[0] = 1;
-                return 1;
             }}).AndDoes(callInfo =>
             {{
                 {andDoesArgAccess}
@@ -113,10 +110,9 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.{method}(callInfo =>
+            {call}.Returns(1).{method}(callInfo =>
             {{
                 {argAccess}
-                return 1;
             }}).AndDoes(callInfo =>
             {{
                 {argAccess}
@@ -147,12 +143,11 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar(Arg.Any<int>()).{method}(callInfo =>
+            substitute.Bar(Arg.Any<int>()).Returns(1).{method}(callInfo =>
             {{
                  callInfo.Args()[0] = 1;
                  callInfo.ArgTypes()[0] = typeof(int);
                  ((byte[])callInfo[0])[0] = 1;
-                return 1;
             }}).AndDoes(callInfo =>
             {{
                 callInfo[0] = 1;
@@ -189,7 +184,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.{method}(1).AndDoes(callInfo =>
+            {call}.Returns(1).{method}(_ => {{}}).AndDoes(callInfo =>
             {{
                 {andDoesArgAccess}
             }});

@@ -4,7 +4,7 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ConflictingRefOutAnalyzerTests
 {
-    [CombinatoryData("Returns")]
+    [CombinatoryData("SubstituteExtensions.Returns", "SubstituteExtensions.Returns<int>", "SubstituteExtensions.ReturnsForAnyArgs", "SubstituteExtensions.ReturnsForAnyArgs<int>")]
     public class ReturnsAsOrdinaryMethodTests : ConflictingRefOutDiagnosticVerifier
     {
         [CombinatoryTheory]
@@ -32,7 +32,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.{method}(callInfo => 1,
+            {method}({call}, callInfo => 1,
             callInfo =>
             {{
                 {previousCallArgAccess}
@@ -73,7 +73,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.{method}(callInfo =>
+            {method}({call}, callInfo =>
             {{
                 callInfo[0] = 1;
                 return 1;
@@ -113,7 +113,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.{method}(callInfo =>
+            {method}({call}, callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -147,7 +147,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar(Arg.Any<int>()).{method}(callInfo =>
+            {method}(substitute.Bar(Arg.Any<int>()), callInfo =>
             {{
                  callInfo.Args()[0] = 1;
                  callInfo.ArgTypes()[0] = typeof(int);
@@ -189,7 +189,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.{method}(1).AndDoes(callInfo =>
+            {method}({call}, 1).AndDoes(callInfo =>
             {{
                 {andDoesArgAccess}
             }});

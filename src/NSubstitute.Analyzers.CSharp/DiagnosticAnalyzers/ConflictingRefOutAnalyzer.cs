@@ -42,18 +42,6 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 
             var parentInvocation = invocationExpressionSyntax.GetParentInvocationExpression();
 
-            if (parentInvocation == null)
-            {
-                return null;
-            }
-
-            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(parentInvocation);
-
-            if (symbol.Symbol is IMethodSymbol mSymbol && mSymbol.ReducedFrom == null)
-            {
-                return parentInvocation.ArgumentList.Arguments.First().Expression;
-            }
-
             return parentInvocation;
         }
 
