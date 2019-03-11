@@ -73,6 +73,45 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
+        public override async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod(string method)
+        {
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.Core;
+
+namespace MyNamespace
+{{
+    public interface Foo
+    {{
+        int Bar(int x);
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            substitute.Bar(Arg.Any<int>()).Returns(1).{method}(callInfo =>
+            {{
+                callInfo[0] = 1;
+            }}).AndDoes(callInfo =>
+            {{
+                callInfo[0] = 1;
+            }}, callInfo => {{}});
+        }}
+    }}
+
+    public static class ConfiguredCallExtensions
+    {{
+        public static void AndDoes(this ConfiguredCall call, Action<CallInfo> firstCall, Action<CallInfo> secondCall)
+        {{
+        }}
+    }}
+}}";
+
+            await VerifyNoDiagnostic(source);
+        }
+
         public override async Task ReportsNoDiagnostics_When_AndDoesMethod_SetsDifferentArgument_AsPreviousSetupMethod(string method, string call, string andDoesArgAccess)
         {
             var source = $@"using System;

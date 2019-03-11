@@ -25,6 +25,10 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.Conflicting
         public abstract Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string method);
 
         [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod(string method);
+
+        [CombinatoryTheory]
         [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo[1] = 1;")]
         [InlineData("substitute.Barr", "callInfo[1] = 1;")]
         [InlineData("substitute[Arg.Any<int>()]", "callInfo[1] = 1;")]

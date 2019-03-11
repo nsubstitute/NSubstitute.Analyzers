@@ -42,8 +42,8 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
         protected override ISymbol GetIndexerSymbol(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, InvocationExpressionSyntax indexerExpressionSyntax)
         {
-            return ModelExtensions.GetSymbolInfo(syntaxNodeAnalysisContext.SemanticModel, indexerExpressionSyntax).Symbol ??
-                   ModelExtensions.GetSymbolInfo(syntaxNodeAnalysisContext.SemanticModel, indexerExpressionSyntax.Expression).Symbol;
+            return syntaxNodeAnalysisContext.SemanticModel.GetSymbolInfo(indexerExpressionSyntax).Symbol ??
+                   syntaxNodeAnalysisContext.SemanticModel.GetSymbolInfo(indexerExpressionSyntax.Expression).Symbol;
         }
 
         protected override SyntaxNode GetAssignmentExpression(InvocationExpressionSyntax indexerExpressionSyntax)

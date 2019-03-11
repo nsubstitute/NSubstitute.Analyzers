@@ -1,9 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
@@ -57,12 +57,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
 
-            if (MethodNames.TryGetValue(methodSymbol.Name, out var typeName) == false)
-            {
-                return;
-            }
-
-            if (SupportsCallInfo(syntaxNodeContext, invocationExpression, methodSymbol) == false)
+            if (IsAndDoesLikeMethod(syntaxNodeContext, invocationExpression, methodSymbol.Name) == false)
             {
                 return;
             }
@@ -98,24 +93,17 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
         }
 
-        private bool SupportsCallInfo(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax syntax, IMethodSymbol methodSymbol)
+        private bool IsAndDoesLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntax, string memberName)
         {
-            var allArguments = GetArgumentExpressions(syntax);
-            IEnumerable<TExpressionSyntax> argumentsForAnalysis;
-            if (methodSymbol.MethodKind == MethodKind.ReducedExtension)
-                argumentsForAnalysis = allArguments;
-            else if (methodSymbol.IsExtensionMethod)
-                argumentsForAnalysis = allArguments.Skip(1);
-            else
-                argumentsForAnalysis = allArguments;
+            if (MethodNames.TryGetValue(memberName, out var containingType) == false)
+            {
+                return false;
+            }
 
             var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax);
 
-            // TODO
-//            var supportsCallInfo =
-//                symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-//                symbol.Symbol?.ContainingType?.ToString().Equals(typeName, StringComparison.OrdinalIgnoreCase) == true;
-            return argumentsForAnalysis.Any(arg => syntaxNodeContext.SemanticModel.GetTypeInfo(arg).IsCallInfoDelegate(syntaxNodeContext.SemanticModel));
+            return symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
+                   symbol.Symbol?.ContainingType?.ToString().Equals(containingType, StringComparison.OrdinalIgnoreCase) == true;
         }
 
         private IndexerInfo GetIndexerInfo(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax)

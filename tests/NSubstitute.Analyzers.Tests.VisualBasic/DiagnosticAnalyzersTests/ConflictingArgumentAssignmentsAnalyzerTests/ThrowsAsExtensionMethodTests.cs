@@ -64,6 +64,46 @@ End Namespace";
             await VerifyNoDiagnostic(source);
         }
 
+        public override async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod(string method)
+        {
+            var source = $@"Imports System
+Imports System.Runtime.CompilerServices
+Imports NSubstitute
+Imports NSubstitute.Core
+Imports NSubstitute.ExceptionExtensions
+
+Namespace MyNamespace
+    Interface Foo
+        Function Bar(ByVal x As Integer) As Integer
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            substitute.Bar(Arg.Any(Of Integer)()).{method}(Function(callInfo)
+                callInfo(0) = 1
+                Return New Exception()
+            End Function).AndDoes(Function(callInfo)
+                callInfo(0) = 1
+            End Function,
+            Function(callInfo)
+                callInfo(0) = 1
+            End Function)
+        End Sub
+    End Class
+
+    Module MyExtensions
+        <Extension()>
+        Function AndDoes(ByVal [call] As ConfiguredCall, ByVal firstCall As Action(Of CallInfo), ByVal secondCall As Action(Of CallInfo))
+        End Function
+
+    End Module
+
+End Namespace";
+
+            await VerifyNoDiagnostic(source);
+        }
+
         public override async Task ReportsNoDiagnostics_When_AndDoesMethod_SetsDifferentArgument_AsPreviousSetupMethod(string method, string call, string andDoesArgAccess)
         {
             var source = $@"Imports System
