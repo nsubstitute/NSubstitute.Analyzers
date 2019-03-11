@@ -6,6 +6,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
     {
         Task ReportsDiagnostic_When_AndDoesMethod_SetsSameArgument_AsPreviousSetupMethod(string method, string call, string previousCallArgAccess, string andDoesArgAccess);
 
+        Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string method);
+
         Task ReportsNoDiagnostics_When_AndDoesMethod_SetsDifferentArgument_AsPreviousSetupMethod(string method, string call, string andDoesArgAccess);
 
         Task ReportsNoDiagnostics_When_AndDoesMethod_AccessSameArguments_AsPreviousSetupMethod(string method, string call, string argAccess);

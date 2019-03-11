@@ -21,6 +21,10 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Confl
         public abstract Task ReportsDiagnostic_When_AndDoesMethod_SetsSameArgument_AsPreviousSetupMethod(string method, string call, string previousCallArgAccess, string andDoesArgAccess);
 
         [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string method);
+
+        [CombinatoryTheory]
         [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "callInfo(1) = 1")]
         [InlineData("substitute.Barr", "callInfo(1) = 1")]
         [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo(1) = 1")]
@@ -40,8 +44,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Confl
         [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "callInfo(1) = 1")]
         [InlineData("substitute.Barr", "callInfo(1) = 1")]
         [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo(1) = 1")]
-        public abstract Task ReportsNoDiagnostic_When_AndDoesMethod_SetArgument_AndPreviousMethod_IsNotUsedWithCallInfo(
-            string method, string call, string andDoesArgAccess);
+        public abstract Task ReportsNoDiagnostic_When_AndDoesMethod_SetArgument_AndPreviousMethod_IsNotUsedWithCallInfo(string method, string call, string andDoesArgAccess);
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {

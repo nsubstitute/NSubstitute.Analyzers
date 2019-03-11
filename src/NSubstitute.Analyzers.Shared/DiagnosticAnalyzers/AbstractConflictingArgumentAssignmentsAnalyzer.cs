@@ -69,6 +69,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var previousCall = GetSubstituteCall(syntaxNodeContext, methodSymbol, invocationExpression) as TInvocationExpressionSyntax;
 
+            if (previousCall == null)
+            {
+                return;
+            }
+
             var expressionSyntax = GetArgumentExpressions(invocationExpression).First();
 
             // analyze assignments

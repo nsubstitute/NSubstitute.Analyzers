@@ -21,6 +21,10 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.Conflicting
         public abstract Task ReportsDiagnostic_When_AndDoesMethod_SetsSameArgument_AsPreviousSetupMethod(string method, string call, string previousCallArgAccess, string andDoesArgAccess);
 
         [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string method);
+
+        [CombinatoryTheory]
         [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo[1] = 1;")]
         [InlineData("substitute.Barr", "callInfo[1] = 1;")]
         [InlineData("substitute[Arg.Any<int>()]", "callInfo[1] = 1;")]

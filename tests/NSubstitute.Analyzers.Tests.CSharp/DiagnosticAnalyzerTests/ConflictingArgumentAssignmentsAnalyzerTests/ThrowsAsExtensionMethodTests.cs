@@ -44,6 +44,40 @@ namespace MyNamespace
             await VerifyDiagnostic(source, Descriptor);
         }
 
+        public override async Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string method)
+        {
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
+
+namespace MyNamespace
+{{
+    public interface Foo
+    {{
+        int Bar(int x);
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            var configuredCall = substitute.Bar(Arg.Any<int>()).{method}(callInfo =>
+            {{
+                callInfo[0] = 1;
+                return new Exception();
+            }});
+
+            configuredCall.AndDoes(callInfo =>
+            {{
+                callInfo[0] = 1;
+            }});
+        }}
+    }}
+}}";
+            await VerifyNoDiagnostic(source);
+        }
+
         public override async Task ReportsNoDiagnostics_When_AndDoesMethod_SetsDifferentArgument_AsPreviousSetupMethod(string method, string call, string andDoesArgAccess)
         {
             var source = $@"using System;

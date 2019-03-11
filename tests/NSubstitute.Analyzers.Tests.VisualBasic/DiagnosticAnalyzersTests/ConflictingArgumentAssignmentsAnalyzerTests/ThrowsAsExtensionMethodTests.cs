@@ -36,6 +36,34 @@ End Namespace
             await VerifyDiagnostic(source, Descriptor);
         }
 
+        public override async Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string method)
+        {
+            var source = $@"Imports System
+Imports NSubstitute
+Imports NSubstitute.ExceptionExtensions
+
+Namespace MyNamespace
+    Interface Foo
+        Function Bar(ByVal x As Integer) As Integer
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim configuredCall = substitute.Bar(Arg.Any(Of Integer)()).{method}(Function(callInfo)
+                                                                                               callInfo(0) = 1
+                                                                                               Return New Exception()
+                                                                                           End Function)
+            configuredCall.AndDoes(Function(callInfo)
+                                       callInfo(0) = 1
+                                   End Function)
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifyNoDiagnostic(source);
+        }
+
         public override async Task ReportsNoDiagnostics_When_AndDoesMethod_SetsDifferentArgument_AsPreviousSetupMethod(string method, string call, string andDoesArgAccess)
         {
             var source = $@"Imports System
