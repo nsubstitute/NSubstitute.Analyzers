@@ -182,55 +182,53 @@ namespace MyNamespace
             await VerifyDiagnostic(source, SubstituteForInternalMemberDescriptor);
         }
 
-        [Fact]
-        public override async Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
+        public override async Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2(string assemblyAttributes)
         {
-            var source = @"using System;
+            var source = $@"using System;
 using System.Runtime.CompilerServices;
 using NSubstitute.Core;
 
-[assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
+{assemblyAttributes}
 
 namespace MyNamespace
-{
+{{
     internal class Foo
-    {
-    }
+    {{
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
-            var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, null);
-        }
-    }
-}";
+        {{
+            var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] {{ typeof(Foo)}}, null);
+        }}
+    }}
+}}";
             await VerifyNoDiagnostic(source);
         }
 
-        [Fact]
-        public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly()
+        public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly(string assemblyAttributes)
         {
-            var source = @"using System;
+            var source = $@"using System;
 using System.Runtime.CompilerServices;
 using NSubstitute.Core;
 
-[assembly: InternalsVisibleTo(""SomeValue"")]
+{assemblyAttributes}
 
 namespace MyNamespace
-{
+{{
     internal class Foo
-    {
-    }
+    {{
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
-            var substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, null)|];
-        }
-    }
-}";
+        {{
+            var substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] {{ typeof(Foo)}}, null)|];
+        }}
+    }}
+}}";
             await VerifyDiagnostic(source, SubstituteForInternalMemberDescriptor);
         }
 

@@ -43,14 +43,21 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.SubstituteA
         [Fact]
         public abstract Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToNotApplied();
 
-        [Fact]
-        public abstract Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2();
+        [Theory]
+        [InlineData(@"[assembly: InternalsVisibleTo(""OtherFirstAssembly"")]
+[assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
+[assembly: InternalsVisibleTo(""OtherSecondAssembly"")]")]
+        public abstract Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2(string assemblyAttributes);
 
-        [Fact]
-        public abstract Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly();
+        [Theory]
+        [InlineData(@"[assembly: InternalsVisibleTo(""SomeValue"")]")]
+        [InlineData(@"[assembly: InternalsVisibleTo(""DynamicProxyGenAssembly21"")]")]
+        public abstract Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly(string assemblyAttributes);
 
+        [Theory]
         public abstract Task ReturnsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues);
 
+        [Theory]
         public abstract Task ReturnsNoDiagnostic_WhenConstructorArgumentsDoNotRequireImplicitConversion(string ctorValues, string invocationValues);
 
         [Fact]
