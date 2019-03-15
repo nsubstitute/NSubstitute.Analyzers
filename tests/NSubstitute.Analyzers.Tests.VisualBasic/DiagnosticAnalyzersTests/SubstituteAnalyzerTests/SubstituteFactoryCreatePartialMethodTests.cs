@@ -157,21 +157,20 @@ End Namespace
             await VerifyDiagnostic(source, SubstituteForInternalMemberDescriptor);
         }
 
-        [Fact]
-        public override async Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
+        public override async Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2(string assemblyAttributes)
         {
-            var source = @"Imports System
+            var source = $@"Imports System
 Imports System.Runtime.CompilerServices
 Imports NSubstitute.Core
 
-<Assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")>
+{assemblyAttributes}
 Namespace MyNamespace
     Friend Class Foo
     End Class
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Foo)}, Nothing)
+            Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {{GetType(Foo)}}, Nothing)
         End Sub
     End Class
 End Namespace
@@ -179,21 +178,20 @@ End Namespace
             await VerifyNoDiagnostic(source);
         }
 
-        [Fact]
-        public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly()
+        public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly(string assemblyAttributes)
         {
-            var source = @"Imports System
+            var source = $@"Imports System
 Imports System.Runtime.CompilerServices
 Imports NSubstitute.Core
 
-<Assembly: InternalsVisibleTo(""SomeValue"")>
+{assemblyAttributes}
 Namespace MyNamespace
     Friend Class Foo
     End Class
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Foo)}, Nothing)|]
+            Dim substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {{GetType(Foo)}}, Nothing)|]
         End Sub
     End Class
 End Namespace

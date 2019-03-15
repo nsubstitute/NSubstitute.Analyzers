@@ -400,51 +400,47 @@ namespace MyNamespace
             await VerifyDiagnostic(source, SubstituteForInternalMemberDescriptor);
         }
 
-        [Fact]
-        public override async Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
+        public override async Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2(string assemblyAttributes)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
 using System.Runtime.CompilerServices;
-[assembly: InternalsVisibleTo(""OtherFirstAssembly"")]
-[assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
-[assembly: InternalsVisibleTo(""OtherSecondAssembly"")]
+{assemblyAttributes}
 namespace MyNamespace
-{
+{{
     internal class Foo
-    {
-    }
+    {{
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
-            var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo) }, null );
-        }
-    }
-}";
+        {{
+            var substitute = NSubstitute.Substitute.For(new [] {{ typeof(Foo) }}, null );
+        }}
+    }}
+}}";
             await VerifyNoDiagnostic(source);
         }
 
-        [Fact]
-        public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly()
+        public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly(string assemblyAttributes)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
 using System.Runtime.CompilerServices;
-[assembly: InternalsVisibleTo(""SomeValue"")]
+{assemblyAttributes}
 namespace MyNamespace
-{
+{{
     internal class Foo
-    {
-    }
+    {{
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
-            var substitute = [|NSubstitute.Substitute.For(new [] { typeof(Foo) }, null)|];
-        }
-    }
-}";
+        {{
+            var substitute = [|NSubstitute.Substitute.For(new [] {{ typeof(Foo) }}, null)|];
+        }}
+    }}
+}}";
             await VerifyDiagnostic(source, SubstituteForInternalMemberDescriptor);
         }
 
