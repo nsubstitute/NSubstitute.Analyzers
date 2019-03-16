@@ -14,15 +14,16 @@ namespace NSubstitute.Analyzers.Shared.Extensions
                                       typeSymbol is INamedTypeSymbol namedTypeSymbol &&
                                       (namedTypeSymbol.ConstructedFrom.Equals(semanticModel.Compilation.GetTypeByMetadataName("System.Func`2")) ||
                                        namedTypeSymbol.ConstructedFrom.Equals(semanticModel.Compilation.GetTypeByMetadataName("System.Action`1"))) &&
-                                      IsCallInfoParameter(namedTypeSymbol.TypeArguments.First());
+                                      IsCallInfoSymbol(namedTypeSymbol.TypeArguments.First());
 
             return isCalledViaDelegate;
         }
 
-        private static bool IsCallInfoParameter(ITypeSymbol symbol)
+        public static bool IsCallInfoSymbol(this ITypeSymbol symbol)
         {
-            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.ToString().Equals(MetadataNames.NSubstituteCallInfoFullTypeName, StringComparison.OrdinalIgnoreCase) == true;
+            return symbol != null &&
+                   symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
+                   symbol.ToString().Equals(MetadataNames.NSubstituteCallInfoFullTypeName, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

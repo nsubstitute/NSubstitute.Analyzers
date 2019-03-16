@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
@@ -11,15 +12,15 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         where TInvocationExpressionSyntax : SyntaxNode
         where TExpressionSyntax : SyntaxNode
         where TIndexerExpressionSyntax : SyntaxNode
-        where TSyntaxKind : struct
+        where TSyntaxKind : struct, Enum
     {
         protected AbstractConflictingArgumentAssignmentsAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
             : base(diagnosticDescriptorsProvider)
         {
+            SupportedDiagnostics = ImmutableArray.Create(DiagnosticDescriptorsProvider.ConflictingAssignmentsToOutRefArgument);
         }
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(DiagnosticDescriptorsProvider.ConflictingAssignmentsToOutRefArgument);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
@@ -37,11 +38,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract SyntaxNode GetSubstituteCall(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, TInvocationExpressionSyntax invocationExpressionSyntax);
 
-        protected abstract ISymbol GetIndexerSymbol(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax);
-
         protected abstract AbstractCallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> GetCallInfoFinder();
 
         protected abstract int? GetIndexerPosition(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax);
+
+        protected abstract ISymbol GetIndexerSymbol(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax);
 
         protected abstract SyntaxNode GetAssignmentExpression(TIndexerExpressionSyntax indexerExpressionSyntax);
 
@@ -69,26 +70,20 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            var expressionSyntax = GetArgumentExpressions(invocationExpression).First();
+            var andDoesIndexers = FindCallInfoIndexers(syntaxNodeContext, invocationExpression);
+            var previousCallIndexers = FindCallInfoIndexers(syntaxNodeContext, previousCall);
 
-            // analyze assignments
-            var andDoesIndexers = GetCallInfoFinder().GetCallInfoContext(syntaxNodeContext.SemanticModel, expressionSyntax);
-            var previousCallIndexer = GetArgumentExpressions(previousCall).Select(arg => GetCallInfoFinder().GetCallInfoContext(syntaxNodeContext.SemanticModel, arg));
+            var immutableHashSet = previousCallIndexers.Select(indexerExpression => GetIndexerPosition(syntaxNodeContext, indexerExpression))
+                .ToImmutableHashSet();
 
-            var immutableHashSet = previousCallIndexer.SelectMany(x => x.IndexerAccesses).Where(acc => GetIndexerInfo(syntaxNodeContext, acc).VerifyAssignment && GetAssignmentExpression(acc) != null)
-                .Select(x => GetIndexerPosition(syntaxNodeContext, x)).ToImmutableHashSet();
-
-            foreach (var indexerExpressionSyntax in andDoesIndexers.IndexerAccesses)
+            foreach (var indexerExpressionSyntax in andDoesIndexers)
             {
-                // TODO
-                var info = GetIndexerInfo(syntaxNodeContext, indexerExpressionSyntax);
-                if (info.VerifyAssignment && GetAssignmentExpression(indexerExpressionSyntax) != null)
+                var position = GetIndexerPosition(syntaxNodeContext, indexerExpressionSyntax);
+                if (position.HasValue && immutableHashSet.Contains(position.Value))
                 {
-                    var position = GetIndexerPosition(syntaxNodeContext, indexerExpressionSyntax);
-                    if (position.HasValue && immutableHashSet.Contains(position.Value))
-                    {
-                        syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(DiagnosticDescriptorsProvider.ConflictingAssignmentsToOutRefArgument, indexerExpressionSyntax.GetLocation()));
-                    }
+                    syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
+                        DiagnosticDescriptorsProvider.ConflictingAssignmentsToOutRefArgument,
+                        indexerExpressionSyntax.GetLocation()));
                 }
             }
         }
@@ -106,28 +101,17 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                    symbol.Symbol?.ContainingType?.ToString().Equals(containingType, StringComparison.OrdinalIgnoreCase) == true;
         }
 
-        private IndexerInfo GetIndexerInfo(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax)
+        private bool IsAssigned(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax)
         {
-            var info = GetIndexerSymbol(syntaxNodeAnalysisContext, indexerExpressionSyntax);
-            var symbol = info as IMethodSymbol;
-            var verifyIndexerCast = symbol == null || symbol.Name != MetadataNames.CallInfoArgTypesMethod;
-            var verifyAssignment = symbol == null;
-
-            var indexerInfo = new IndexerInfo(verifyIndexerCast, verifyAssignment);
-            return indexerInfo;
+            return GetAssignmentExpression(indexerExpressionSyntax) != null &&
+                   GetIndexerSymbol(syntaxNodeAnalysisContext, indexerExpressionSyntax) is IPropertySymbol propertySymbol &&
+                   propertySymbol.ContainingType.IsCallInfoSymbol();
         }
 
-        private struct IndexerInfo
+        private IEnumerable<TIndexerExpressionSyntax> FindCallInfoIndexers(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpressionSyntax)
         {
-            public bool VerifyIndexerCast { get; }
-
-            public bool VerifyAssignment { get; }
-
-            public IndexerInfo(bool verifyIndexerCast, bool verifyAssignment)
-            {
-                VerifyIndexerCast = verifyIndexerCast;
-                VerifyAssignment = verifyAssignment;
-            }
+            return GetArgumentExpressions(invocationExpressionSyntax).SelectMany(argument => GetCallInfoFinder().GetCallInfoContext(syntaxNodeContext.SemanticModel, argument).IndexerAccesses)
+                .Where(indexerExpression => IsAssigned(syntaxNodeContext, indexerExpression));
         }
     }
 }
