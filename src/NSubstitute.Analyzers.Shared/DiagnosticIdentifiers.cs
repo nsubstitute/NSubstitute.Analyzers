@@ -22,6 +22,7 @@
         public const string CallInfoMoreThanOneArgumentOfType = "NS3003";
         public const string CallInfoArgumentSetWithIncompatibleValue = "NS3004";
         public const string CallInfoArgumentIsNotOutOrRef = "NS3005";
+        public const string ConflictingArgumentAssignments = "NS3006";
 
         public const string ReEntrantSubstituteCall = "NS4000";
 

@@ -46,6 +46,6 @@ namespace NSubstitute.Analyzers.Shared
 
         DiagnosticDescriptor CallInfoArgumentIsNotOutOrRef { get; }
 
-        DiagnosticDescriptor ConflictingAssignmentsToOutRefArgument { get; }
+        DiagnosticDescriptor ConflictingArgumentAssignments { get; }
     }
 }

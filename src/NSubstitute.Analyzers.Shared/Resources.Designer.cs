@@ -224,29 +224,29 @@ namespace NSubstitute.Analyzers.Shared {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Conflicting assignments to out/ref arguments..
+        ///   Looks up a localized string similar to Conflicting argument assignments..
         /// </summary>
-        internal static string ConflictingAssignmentsToOutRefArgumentDescription {
+        internal static string ConflictingArgumentAssignmentsDescription {
             get {
-                return ResourceManager.GetString("ConflictingAssignmentsToOutRefArgumentDescription", resourceCulture);
+                return ResourceManager.GetString("ConflictingArgumentAssignmentsDescription", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Conflicting assignments to out/ref arguments..
+        ///   Looks up a localized string similar to Conflicting argument assignments..
         /// </summary>
-        internal static string ConflictingAssignmentsToOutRefArgumentMessageFormat {
+        internal static string ConflictingArgumentAssignmentsMessageFormat {
             get {
-                return ResourceManager.GetString("ConflictingAssignmentsToOutRefArgumentMessageFormat", resourceCulture);
+                return ResourceManager.GetString("ConflictingArgumentAssignmentsMessageFormat", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Conflicting assignments to out/ref arguments..
+        ///   Looks up a localized string similar to Conflicting argument assignments..
         /// </summary>
-        internal static string ConflictingAssignmentsToOutRefArgumentsTitle {
+        internal static string ConflictingArgumentAssignmentsTitle {
             get {
-                return ResourceManager.GetString("ConflictingAssignmentsToOutRefArgumentsTitle", resourceCulture);
+                return ResourceManager.GetString("ConflictingArgumentAssignmentsTitle", resourceCulture);
             }
         }
         

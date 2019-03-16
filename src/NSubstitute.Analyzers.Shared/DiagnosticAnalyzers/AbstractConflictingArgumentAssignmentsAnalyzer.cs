@@ -12,12 +12,12 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         where TInvocationExpressionSyntax : SyntaxNode
         where TExpressionSyntax : SyntaxNode
         where TIndexerExpressionSyntax : SyntaxNode
-        where TSyntaxKind : struct, Enum
+        where TSyntaxKind : struct
     {
         protected AbstractConflictingArgumentAssignmentsAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
             : base(diagnosticDescriptorsProvider)
         {
-            SupportedDiagnostics = ImmutableArray.Create(DiagnosticDescriptorsProvider.ConflictingAssignmentsToOutRefArgument);
+            SupportedDiagnostics = ImmutableArray.Create(DiagnosticDescriptorsProvider.ConflictingArgumentAssignments);
         }
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
@@ -82,7 +82,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 if (position.HasValue && immutableHashSet.Contains(position.Value))
                 {
                     syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
-                        DiagnosticDescriptorsProvider.ConflictingAssignmentsToOutRefArgument,
+                        DiagnosticDescriptorsProvider.ConflictingArgumentAssignments,
                         indexerExpressionSyntax.GetLocation()));
                 }
             }

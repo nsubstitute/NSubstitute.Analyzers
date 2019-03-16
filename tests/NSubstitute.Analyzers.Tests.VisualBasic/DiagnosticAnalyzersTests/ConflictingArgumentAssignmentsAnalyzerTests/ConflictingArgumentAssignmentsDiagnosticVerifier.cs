@@ -12,7 +12,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Confl
 {
     public abstract class ConflictingArgumentAssignmentsDiagnosticVerifier : VisualBasicDiagnosticVerifier, IConflictingArgumentAssignmentsDiagnosticVerifier
     {
-        public DiagnosticDescriptor Descriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ConflictingAssignmentsToOutRefArgument;
+        public DiagnosticDescriptor Descriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ConflictingArgumentAssignments;
 
         [CombinatoryTheory]
         [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "callInfo(1) = 1", "[|callInfo(1)|] = 1")]
