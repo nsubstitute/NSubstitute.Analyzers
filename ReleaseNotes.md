@@ -3,7 +3,7 @@
  - [#79](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/79) - NS2003 triggers a warning when InternalsVisibleTo using strong name
  - [#73](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/73) - NS1001 highlights wrong member
  - [#70](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/70) - Implement code fix providers for substituting for internal member
- - [#66](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/66) - Detect substituting for `internal` members without `InternalsVisibleTo` +enhancement
+ - [#66](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/66) - Detect substituting for `internal` members without `InternalsVisibleTo`
 
 ### 1.0.6 (21 February 2019)
 
