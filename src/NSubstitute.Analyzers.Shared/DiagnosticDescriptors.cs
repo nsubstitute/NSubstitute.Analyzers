@@ -181,6 +181,14 @@ namespace NSubstitute.Analyzers.Shared
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true);
 
+        public static DiagnosticDescriptor ConflictingArgumentAssignments { get; } =
+            CreateDiagnosticDescriptor(
+                name: nameof(ConflictingArgumentAssignments),
+                id: DiagnosticIdentifiers.ConflictingArgumentAssignments,
+                category: DiagnosticCategory.ArgumentSpecification.GetDisplayName(),
+                defaultSeverity: DiagnosticSeverity.Warning,
+                isEnabledByDefault: true);
+
         private static DiagnosticDescriptor CreateDiagnosticDescriptor(
             string name, string id, string category, DiagnosticSeverity defaultSeverity, bool isEnabledByDefault)
         {
