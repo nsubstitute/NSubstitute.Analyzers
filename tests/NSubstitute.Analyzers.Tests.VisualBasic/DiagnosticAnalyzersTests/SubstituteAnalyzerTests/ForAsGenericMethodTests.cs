@@ -288,15 +288,13 @@ End Namespace
             await VerifyDiagnostic(source, SubstituteForInternalMemberDescriptor);
         }
 
-        public override async Task
-            ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
+        public override async Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2(string assemblyAttributes)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
-<Assembly: InternalsVisibleTo(""OtherFirstAssembly"")>
-<Assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")>
-<Assembly: InternalsVisibleTo(""OtherSecondAssembly"")>
+{assemblyAttributes}
+
 Namespace MyNamespace
     Friend Class Foo
     End Class
@@ -311,12 +309,11 @@ End Namespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly()
+        public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly(string assemblyAttributes)
         {
-            var source = @"Imports NSubstitute
+            var source = $@"Imports NSubstitute
 Imports System.Runtime.CompilerServices
-
-<Assembly: InternalsVisibleTo(""SomeValue"")>
+{assemblyAttributes}
 Namespace MyNamespace
     Friend Class Foo
     End Class

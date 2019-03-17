@@ -20,7 +20,8 @@ namespace NSubstitute.Analyzers.Shared.Extensions
             return typeSymbol.ContainingAssembly != null &&
                    typeSymbol.ContainingAssembly.GetAttributes()
                        .Any(att => att.AttributeClass.ToString() == MetadataNames.InternalsVisibleToAttributeFullTypeName &&
-                                   att.ConstructorArguments.Any(arg => arg.Value.ToString() == MetadataNames.CastleDynamicProxyGenAssembly2Name));
+                                   att.ConstructorArguments.Any(arg => arg.Value != null && AssemblyIdentity.TryParseDisplayName(arg.Value.ToString(), out var identity) &&
+                                                                       identity.Name == MetadataNames.CastleDynamicProxyGenAssembly2Name));
         }
 
         public static string ToMinimalMethodString(this ISymbol symbol, SemanticModel semanticModel)
