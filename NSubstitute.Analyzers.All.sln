@@ -16,6 +16,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSubstitute.Analyzers.Visua
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSubstitute.Analyzers.Tests.VisualBasic", "tests\NSubstitute.Analyzers.Tests.VisualBasic\NSubstitute.Analyzers.Tests.VisualBasic.csproj", "{00A000B8-B887-4216-92B2-E810616CE7A8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSubstitute.Analyzers.CSharp.Vsix", "src\NSubstitute.Analyzers.CSharp.Vsix\NSubstitute.Analyzers.CSharp.Vsix.csproj", "{4DF03310-98B3-450E-90FE-2EF423A6CC59}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSubstitute.Analyzers.VisualBasic.Vsix", "src\NSubstitute.Analyzers.VisualBasic.Vsix\NSubstitute.Analyzers.VisualBasic.Vsix.csproj", "{0B098301-16AA-401B-ACAC-3D81189C18C6}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "documentation", "documentation", "{047744D1-7786-40B6-B246-1A78D018AF26}"
 ProjectSection(SolutionItems) = preProject
 	documentation\Configuration.md = documentation\Configuration.md

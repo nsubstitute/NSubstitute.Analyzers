@@ -3,6 +3,7 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="coverlet.msbuild" Version="2.6.0" />
     <PackageReference Include="FluentAssertions" Version="5.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Workspaces" Version="2.8.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
