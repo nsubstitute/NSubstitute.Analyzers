@@ -10,6 +10,7 @@ public class BuildParameters
     public bool IsPullRequest { get; private set; }
     public string TargetFramework { get; private set; }
     public string TargetFrameworkFull { get; private set; }
+    public bool IsRunningOnWindows { get; private set; }
 
     public bool ShouldPublish
     {
@@ -38,7 +39,8 @@ public class BuildParameters
             IsTagged = IsBuildTagged(buildSystem),
             IsPullRequest = IsPullRequestBuild(buildSystem),
             TargetFramework = "netcoreapp2.0",
-            TargetFrameworkFull = "netstandard1.1"
+            TargetFrameworkFull = "netstandard1.1",
+            IsRunningOnWindows = context.IsRunningOnWindows()
         };
     }
 

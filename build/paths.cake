@@ -24,8 +24,12 @@ public class BuildPaths
             buildDirectories.SrcRootDir.CombineWithFilePath("NSubstitute.Analyzers.VisualBasic/NSubstitute.Analyzers.VisualBasic.csproj")
         };
 
+        var solutionFile = context.IsRunningOnWindows() ? 
+        buildDirectories.RootDir.CombineWithFilePath("NSubstitute.Analyzers.All.sln")
+        : buildDirectories.RootDir.CombineWithFilePath("NSubstitute.Analyzers.sln");
+
         var buildFiles = new BuildFiles(
-            buildDirectories.RootDir.CombineWithFilePath("NSubstitute.Analyzers.sln"),
+            solutionFile,
             buildDirectories.TestResults.CombineWithFilePath("OpenCover.xml"),
             buildDirectories.RootDir.CombineWithFilePath("ReleaseNotes.md"),
             buildDirectories.Artifacts.CombineWithFilePath("ReleaseNotes.md"),
@@ -51,9 +55,9 @@ public class BuildPaths
         var visualBasicAnalyzerTestDir = rootDir.Combine("tests").Combine("NSubstitute.Analyzers.Tests.VisualBasic");
 
         var testDirs = new []{
-                                sharedTestsDir,
-                                csharpAnalyzerTestDir,
-                                visualBasicAnalyzerTestDir
+                                sharedTestsDir //,
+                                // csharpAnalyzerTestDir,
+                                // visualBasicAnalyzerTestDir
                             };
         var toClean = new[] {
                                  artifacts

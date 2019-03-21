@@ -3,11 +3,13 @@
 #load "./paths.cake"
 #load "./releasenotes.cake"
 
+// Install modules
+#module nuget:?package=Cake.DotNetTool.Module&version=0.1.0
+
 // Install tools.
-#tool "nuget:https://www.nuget.org/api/v2?package=GitVersion.CommandLine&version=3.6.5"
-#tool "nuget:https://www.nuget.org/api/v2?package=OpenCover&version=4.6.519"
-#tool "nuget:https://www.nuget.org/api/v2?package=ReportGenerator&version=3.1.2"
+#tool "dotnet:https://api.nuget.org/v3/index.json?package=GitVersion.Tool&version=4.0.1-beta1-58"
 #tool "nuget:https://www.nuget.org/api/v2?package=coveralls.io&version=1.4.2"
+#tool "nuget:https://www.nuget.org/api/v2?package=ReportGenerator&version=4.0.4"
 #addin "nuget:https://www.nuget.org/api/v2?package=cake.coveralls&version=0.8.0"
 
 using System.Text.RegularExpressions;
@@ -67,36 +69,60 @@ Task("Run-Tests")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    Action<ICakeContext> testAction = context =>
+    
+    if (parameters.SkipOpenCover)
     {
-        context.DotNetCoreVSTest(paths.Files.TestAssemblies, new DotNetCoreVSTestSettings
+        DotNetCoreVSTest(paths.Files.TestAssemblies, new DotNetCoreVSTestSettings
         {
             Framework = "FrameworkCore10",
             Parallel = true,
             Platform = VSTestPlatform.x64
         });
-    };
 
-    if (parameters.SkipOpenCover)
-    {
-        testAction(Context);
-    }
-    else
-    {
-        OpenCover(testAction,
-                        paths.Files.TestCoverageOutput,
-                        new OpenCoverSettings
-                        {
-                            ReturnTargetCodeOffset = 0,
-                            OldStyle = true,
-                            MergeOutput = true
-                        }
-                        .WithFilter("+[NSubstitute.Analyzers*]* -[NSubstitute.Analyzers.Test*]*")
-                        .ExcludeByAttribute("*.ExcludeFromCodeCoverage*")
-                        .ExcludeByFile("*.Designer.cs;*.g.cs;*.g.i.cs"));
-        ReportGenerator(paths.Files.TestCoverageOutput, paths.Directories.TestResults);
+        return;
     }
 
+    foreach(var filePath in paths.Directories.TestDirs)
+    {
+        DotNetCoreTest(filePath.ToString(), new DotNetCoreTestSettings
+        {
+            Framework = "netcoreapp2.0",
+            NoBuild = true,
+            NoRestore = true,
+            Configuration = parameters.Configuration,
+            ArgumentCustomization = arg => arg.AppendSwitch("/p:CollectCoverage","=","True")
+                                                           .AppendSwitch("/p:CoverletOutputFormat", "=", "opencover")
+                                                           .AppendSwitch("/p:MergeWith", "=", $@"""{paths.Files.TestCoverageOutput.ToString()}""")
+                                                           .AppendSwitch("/p:CoverletOutput", "=", $@"""{paths.Files.TestCoverageOutput.ToString()}""")
+                                                           .AppendSwitch("/p:Exclude", "=", @"\""[xunit.*]*,[NSubstitute.Analyzers.Test*]*\""")
+                                                           .AppendSwitch("/p:Include", "=", "[NSubstitute.Analyzers*]*")
+        });
+    }
+
+    Information("Working dir {0}", Context.Environment.WorkingDirectory);
+    var reportGeneratorWorkingDir = Context.Environment.WorkingDirectory
+                                                       .Combine("tools")
+                                                       .Combine("ReportGenerator.4.0.4")
+                                                       .Combine("tools")
+                                                       .Combine("netcoreapp2.0");
+
+    Information(reportGeneratorWorkingDir);
+
+    var argumentBuilder = new ProcessArgumentBuilder()
+    .Append("ReportGenerator.dll")
+    .Append($@"""-reports:{paths.Files.TestCoverageOutput.MakeAbsolute(Context.Environment).ToString()}""")
+    .Append($@"""-targetdir:{paths.Directories.TestResults.MakeAbsolute(Context.Environment).ToString()}");
+
+    var exitCode = StartProcess("dotnet", new ProcessSettings
+    {
+        WorkingDirectory = reportGeneratorWorkingDir,
+        Arguments = argumentBuilder
+    });
+
+    if(exitCode != 0)
+    {
+        throw new CakeException("");
+    }
 });
 
 Task("Build")
