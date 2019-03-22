@@ -1,15 +1,28 @@
-image: Visual Studio 2017
+image:
+  - Visual Studio 2017
+  - Ubuntu
 # Build script
 init:
   - git config --global core.autocrlf true
 
-# Build script
-build_script:
-  - cd Build
-  - ps: >-
-      echo "Platform: $ENV:OS dotnet version: $(dotnet --version)"
-
-  - ps: .\build.ps1 -Configuration Release -Target AppVeyor
+for:
+  -
+    matrix:
+      only:
+        - image: Visual Studio 2017
+    build_script:
+      - cd Build
+      - ps: >-
+          echo "Platform: $ENV:OS dotnet version: $(dotnet --version)"
+      - ps: .\build.ps1 -Configuration Release -Target AppVeyor
+  -
+    matrix:
+      only:
+        - image: Ubuntu
+          
+    build_script:
+      - cd build
+      - sh: ./build.sh --Configuration Release --Target AppVeyor
 
 # Tests
 test: off
