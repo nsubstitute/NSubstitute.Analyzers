@@ -22,7 +22,9 @@ for:
           
     build_script:
       - cd build
-      - sh: ./build.sh --Configuration Release --Target AppVeyor
+      - ls
+      - dotnet --version
+      - sh: sudo ./build.sh --Configuration Release --Target AppVeyor
 
 # Tests
 test: off
