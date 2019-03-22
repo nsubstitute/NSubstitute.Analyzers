@@ -30,7 +30,8 @@ public class BuildPaths
 
         var buildFiles = new BuildFiles(
             solutionFile,
-            buildDirectories.TestResults.CombineWithFilePath("OpenCover.xml"),
+            buildDirectories.TestResults.CombineWithFilePath("OpenCover.opencover.xml"),
+            buildDirectories.TestResults.CombineWithFilePath("OpenCover"),
             buildDirectories.RootDir.CombineWithFilePath("ReleaseNotes.md"),
             buildDirectories.Artifacts.CombineWithFilePath("ReleaseNotes.md"),
             buildDirectories.Artifacts.CombineWithFilePath("DupOutpuFinder.xml"),
@@ -55,9 +56,9 @@ public class BuildPaths
         var visualBasicAnalyzerTestDir = rootDir.Combine("tests").Combine("NSubstitute.Analyzers.Tests.VisualBasic");
 
         var testDirs = new []{
-                                sharedTestsDir //,
-                                // csharpAnalyzerTestDir,
-                                // visualBasicAnalyzerTestDir
+                                sharedTestsDir,
+                                csharpAnalyzerTestDir,
+                                visualBasicAnalyzerTestDir
                             };
         var toClean = new[] {
                                  artifacts
@@ -76,6 +77,7 @@ public class BuildFiles
 {
     public FilePath Solution { get; private set; }
     public FilePath TestCoverageOutput { get; set;}
+    public FilePath TestCoverageOutputWithoutExtension { get; set;}
     public FilePath AllReleaseNotes { get; private set; }
     public FilePath CurrentReleaseNotes { get; private set; }
     public FilePath DupeFinderOutput { get; private set; }
@@ -84,6 +86,7 @@ public class BuildFiles
 
     public BuildFiles(FilePath solution,
                       FilePath testCoverageOutput,
+                      FilePath testCoverageOutputWithoutExtension,
                       FilePath allReleaseNotes,
                       FilePath currentReleaseNote,
                       FilePath dupeFinderOutput,
@@ -93,6 +96,7 @@ public class BuildFiles
         Solution = solution;
         TestAssemblies = testAssemblies;
         TestCoverageOutput = testCoverageOutput;
+        TestCoverageOutputWithoutExtension = testCoverageOutputWithoutExtension;
         AllReleaseNotes = allReleaseNotes;
         CurrentReleaseNotes = currentReleaseNote;
         DupeFinderOutput = dupeFinderOutput;

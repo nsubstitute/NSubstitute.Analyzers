@@ -44,6 +44,10 @@ Setup(context =>
     {
         DeleteFile(paths.Files.CurrentReleaseNotes);
     }
+    /*
+    Information("Creating file {0}", paths.Files.TestCoverageMergeFile.MakeAbsolute(Context.Environment).ToString());
+    System.IO.File.WriteAllText(paths.Files.TestCoverageMergeFile.MakeAbsolute(Context.Environment).ToString(), "{}");
+    */
 
     string releaseNotesVersion = releaseNotes[0].SemVersion;
     if (parameters.ShouldPublish && buildVersion.SemVersion.Equals(releaseNotesVersion, StringComparison.Ordinal) == false)
@@ -82,24 +86,21 @@ Task("Run-Tests")
         return;
     }
 
-    foreach(var filePath in paths.Directories.TestDirs)
+    DotNetCoreTest(paths.Files.Solution.MakeAbsolute(Context.Environment).ToString(), new DotNetCoreTestSettings
     {
-        DotNetCoreTest(filePath.ToString(), new DotNetCoreTestSettings
-        {
-            Framework = "netcoreapp2.0",
-            NoBuild = true,
-            NoRestore = true,
-            Configuration = parameters.Configuration,
-            ArgumentCustomization = arg => arg.AppendSwitch("/p:CollectCoverage","=","True")
-                                                           .AppendSwitch("/p:CoverletOutputFormat", "=", "opencover")
-                                                           .AppendSwitch("/p:MergeWith", "=", $@"""{paths.Files.TestCoverageOutput.ToString()}""")
-                                                           .AppendSwitch("/p:CoverletOutput", "=", $@"""{paths.Files.TestCoverageOutput.ToString()}""")
-                                                           .AppendSwitch("/p:Exclude", "=", @"\""[xunit.*]*,[NSubstitute.Analyzers.Test*]*\""")
-                                                           .AppendSwitch("/p:Include", "=", "[NSubstitute.Analyzers*]*")
+        Framework = "netcoreapp2.0",
+        NoBuild = true,
+        NoRestore = true,
+        Configuration = parameters.Configuration,
+        ArgumentCustomization = arg => arg.AppendSwitch("/p:CollectCoverage","=","True")
+                                                       .AppendSwitch("/p:CoverletOutputFormat", "=", @"\""json,opencover\""")
+                                                       .AppendSwitch("/p:MergeWith", "=", $@"""{paths.Files.TestCoverageOutputWithoutExtension.ToString()}.json""")
+                                                       .AppendSwitch("/p:CoverletOutput", "=", $@"""{paths.Files.TestCoverageOutputWithoutExtension.ToString()}""")
+                                                       .AppendSwitch("/p:ExcludeByAttribute", "=", @"\""GeneratedCodeAttribute,ExcludeFromCodeCoverage\""")
+                                                       .AppendSwitch("/p:Exclude", "=", @"\""[xunit.*]*,[NSubstitute.Analyzers.Test*]*\""")
+                                                       .AppendSwitch("/p:Include", "=", "[NSubstitute.Analyzers*]*")
         });
-    }
 
-    Information("Working dir {0}", Context.Environment.WorkingDirectory);
     var reportGeneratorWorkingDir = Context.Environment.WorkingDirectory
                                                        .Combine("tools")
                                                        .Combine("ReportGenerator.4.0.4")
@@ -121,7 +122,7 @@ Task("Run-Tests")
 
     if(exitCode != 0)
     {
-        throw new CakeException("");
+        throw new CakeException($"Report generator returned non-zero {exitCode} exit code");
     }
 });
 
