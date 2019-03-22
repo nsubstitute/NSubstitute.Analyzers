@@ -4,7 +4,8 @@ image:
 # Build script
 init:
   - git config --global core.autocrlf true
-
+environment:
+  APPVEYOR_YML_DISABLE_PS_LINUX: true
 for:
   -
     matrix:
@@ -22,9 +23,10 @@ for:
           
     build_script:
       - cd build
-      - ls
+      - ls -l
       - dotnet --version
-      - sh: sudo ./build.sh --Configuration Release --Target AppVeyor
+      - chmod +xxx ./build.sh
+      - ./build.sh --Configuration Release --Target AppVeyor
 
 # Tests
 test: off
