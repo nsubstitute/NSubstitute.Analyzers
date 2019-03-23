@@ -10,15 +10,6 @@ for:
   -
     matrix:
       only:
-        - image: Visual Studio 2017
-    build_script:
-      - cd Build
-      - ps: >-
-          echo "Platform: $ENV:OS dotnet version: $(dotnet --version)"
-      - ps: .\build.ps1 -Configuration Release -Target AppVeyor
-  -
-    matrix:
-      only:
         - image: Ubuntu
           
     build_script:
@@ -27,7 +18,15 @@ for:
       - dotnet --version
       - chmod +xxx ./build.sh
       - ./build.sh --target="AppVeyor" --configuration=Release
-
+  -
+    matrix:
+      only:
+        - image: Visual Studio 2017
+    build_script:
+      - cd Build
+      - ps: >-
+          echo "Platform: $ENV:OS dotnet version: $(dotnet --version)"
+      - ps: .\build.ps1 -Configuration Release -Target AppVeyor
 # Tests
 test: off
 
