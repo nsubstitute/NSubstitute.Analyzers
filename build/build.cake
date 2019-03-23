@@ -10,7 +10,7 @@
 #tool "dotnet:https://api.nuget.org/v3/index.json?package=GitVersion.Tool&version=4.0.1-beta1-58"
 #tool "nuget:https://www.nuget.org/api/v2?package=coveralls.io&version=1.4.2"
 #tool "nuget:https://www.nuget.org/api/v2?package=ReportGenerator&version=4.0.4"
-#addin "nuget:https://www.nuget.org/api/v2?package=cake.coveralls&version=0.8.0"
+#addin "nuget:https://www.nuget.org/api/v2?package=cake.coveralls&version=0.9.0"
 
 using System.Text.RegularExpressions;
 
@@ -44,10 +44,6 @@ Setup(context =>
     {
         DeleteFile(paths.Files.CurrentReleaseNotes);
     }
-    /*
-    Information("Creating file {0}", paths.Files.TestCoverageMergeFile.MakeAbsolute(Context.Environment).ToString());
-    System.IO.File.WriteAllText(paths.Files.TestCoverageMergeFile.MakeAbsolute(Context.Environment).ToString(), "{}");
-    */
 
     string releaseNotesVersion = releaseNotes[0].SemVersion;
     if (parameters.ShouldPublish && buildVersion.SemVersion.Equals(releaseNotesVersion, StringComparison.Ordinal) == false)
