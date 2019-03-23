@@ -186,7 +186,7 @@ Task("Publish")
 
 Task("Upload-Coverage-Report")
     .WithCriteria(() => FileExists(paths.Files.TestCoverageOutput))
-    .WithCriteria(() => !parameters.IsLocalBuild)
+    .WithCriteria(() => parameters.IsRunningOnWindows && !parameters.IsLocalBuild)
     .IsDependentOn("Publish")
     .Does(() =>
 {
