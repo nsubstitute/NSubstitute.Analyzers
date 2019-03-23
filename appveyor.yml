@@ -26,7 +26,7 @@ for:
       - ls -l
       - dotnet --version
       - chmod +xxx ./build.sh
-      - ./build.sh --Configuration Release --Target AppVeyor
+      - ./build.sh --target="AppVeyor" --configuration=Release
 
 # Tests
 test: off

@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 # Define varibles
-echo "BEFORE"
 SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-echo "AFTER $SCRIPT_DIR"
 CAKE_VERSION="0.32.1"
 TOOLS_DIR=$SCRIPT_DIR/tools
 CAKE_EXE=$TOOLS_DIR/dotnet-cake
