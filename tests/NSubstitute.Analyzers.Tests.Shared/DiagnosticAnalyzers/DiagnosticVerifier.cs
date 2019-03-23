@@ -33,6 +33,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         private static readonly MetadataReference TasksExtensionsReference = MetadataReference.CreateFromFile(Assembly.Load("System.Threading.Tasks.Extensions").Location);
 
+        private static readonly MetadataReference NetStandard = MetadataReference.CreateFromFile(Assembly.Load("netstandard, Version=2.0.0.0").Location);
+
         public static string DefaultFilePathPrefix { get; } = "Test";
 
         public static string TestProjectName { get; } = "TestProject";
@@ -177,6 +179,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
                     .AddMetadataReference(projectId, SystemCoreReference)
                     .AddMetadataReference(projectId, CodeAnalysisReference)
                     .AddMetadataReference(projectId, NSubstituteReference)
+                    .AddMetadataReference(projectId, NetStandard)
                     .AddMetadataReference(projectId, TasksExtensionsReference)
                     .AddMetadataReference(projectId, systemRuntimeReference)
                     .AddMetadataReference(projectId, systemThreadingTasksReference)
