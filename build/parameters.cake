@@ -16,7 +16,7 @@ public class BuildParameters
     {
         get
         {
-            return !IsLocalBuild && IsMaster && IsTagged && !IsPullRequest;
+            return IsRunningOnWindows && !IsLocalBuild && IsMaster && IsTagged && !IsPullRequest;
         }
     }
     
