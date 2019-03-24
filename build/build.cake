@@ -11,19 +11,23 @@
 #tool "nuget:https://www.nuget.org/api/v2?package=coveralls.io&version=1.4.2"
 #tool "nuget:https://www.nuget.org/api/v2?package=ReportGenerator&version=4.0.4"
 #addin "nuget:https://www.nuget.org/api/v2?package=cake.coveralls&version=0.9.0"
+#addin "nuget:https://www.nuget.org/api/v2?package=Cake.Http&version=0.5.0"
+#addin "Cake.Json"
+#addin "nuget:?package=Cake.Incubator&version=4.0.1"
 
 using System.Text.RegularExpressions;
+using Cake.Incubator.LoggingExtensions;
+using System.Threading;
 
 var parameters = BuildParameters.GetParameters(Context);
 var buildVersion = BuildVersion.Calculate(Context);
 var paths = BuildPaths.GetPaths(Context, parameters, buildVersion);
-var publishingError = false;
 var packages = BuildPackages.GetPackages(paths, buildVersion);
 var releaseNotes = ReleaseNotes.ParseAllReleaseNotes(Context, paths);
 
 Setup(context =>
 {
-    Information("Building version {0} of NSubstitute.Analyzers", buildVersion.SemVersion);
+    Information("Building version {0} of NSubstitute.Analyzers with following parameters {1} {2}", buildVersion.SemVersion, Environment.NewLine, parameters.Dump());
 
     if(DirectoryExists(paths.Directories.Artifacts))
     {
@@ -155,11 +159,72 @@ Task("NuGet-Pack")
     }
 });
 
+Task("Wait-For-Pending-Jobs")
+    .WithCriteria(context => context.IsRunningOnWindows() /* parameters.ShouldPublish */)
+    .Does(async () =>
+{
+    var apiToken = EnvironmentVariable("APPVEYOR_API_TOKEN");
+    var buildVersion = EnvironmentVariable("APPVEYOR_BUILD_VERSION");
+    var jobId = EnvironmentVariable("APPVEYOR_JOB_ID");
+
+    jobId = "h99u77g2c7djaqj2";
+    apiToken = "e0dw296ksogsw0478uvi";
+    buildVersion = "1.0.212";
+
+    var settings = new HttpSettings
+        {
+            Headers = new Dictionary<string, string>
+            {
+                { "Authorization", $"Bearer {apiToken}" },
+                { "Content-type", "application/json" },
+            },
+            EnsureSuccessStatusCode = true,
+            ThrowExceptionOnNonSuccessStatusCode = true
+        };
+
+    var ct = new CancellationTokenSource(TimeSpan.FromMinutes(15)).Token;
+    
+    while(true)
+    {
+        var responseBody = HttpGet($"https://ci.appveyor.com/api/projects/nsubstitute/nsubstitute-analyzers/build/{buildVersion}", settings);
+        var parsed = ParseJson(responseBody);
+
+        var nonSuccessfulJobs = parsed["build"].Value<JObject>()["jobs"].Value<JArray>()
+                    .Cast<JObject>()
+                    .Where(jObject => jObject["jobId"].Value<string>() != jobId && jObject["status"].Value<string>() != "success")
+                    .ToList();
+
+        if (nonSuccessfulJobs.Any() == false)
+        {
+            Information("All other build jobs in matrix finished");
+            return;
+        }
+
+        var failedJobs = nonSuccessfulJobs.Where(jObject => jObject["status"].Value<string>() == "failed").ToList();
+
+        if (failedJobs.Any())
+        {
+            var jobs = string.Join(",", failedJobs.Select(jObject => jObject["name"]));
+            throw new CakeException($"Other build jobs failed, {jobs}");
+        }
+
+        var pendingJobs = nonSuccessfulJobs.Except(failedJobs).ToList();
+        var pendingJobsNames = string.Join(",", pendingJobs.Select(jObject => jObject["name"]));
+        
+        Information("There are unfinished build jobs {0}, waiting for them to finish", pendingJobsNames);
+
+        await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(30), ct);                      
+    }
+});
+
 Task("Publish")
     .IsDependentOn("NuGet-Pack")
+    .IsDependentOn("Wait-For-Pending-Jobs")
     .WithCriteria(context => parameters.ShouldPublish)
     .Does(() =>
 {
+    Information("Publishing");
+    /*
     var apiKey = EnvironmentVariable("NUGET_API_KEY");
     if (string.IsNullOrEmpty(apiKey))
     {
@@ -177,10 +242,7 @@ Task("Publish")
         ApiKey = apiKey,
         Source = apiUrl
     });
-}).OnError(exception =>
-{
-    Information("Publish Task failed, but continuing with next Task...");
-    publishingError = true;
+    */
 });
 
 
@@ -204,14 +266,7 @@ Task("Upload-Coverage-Report")
 
 Task("AppVeyor")
   .IsDependentOn("Upload-Coverage-Report")
-  .IsDependentOn("Publish")
-  .Finally(() =>
-{
-    if (publishingError)
-    {
-        throw new Exception("An error occurred during the publishing of Cake.  All publishing tasks have been attempted.");
-    }
-});
+  .IsDependentOn("Publish");
 
 Teardown(context =>
 {

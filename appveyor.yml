@@ -17,10 +17,13 @@ for:
   -
     matrix:
       only:
-        - image: Visual Studio 2017
+        - image: Visual Studio 2017      
     build_script:
       - cd Build
-      - ps: .\build.ps1 -Configuration Release -Target AppVeyor
+      - ps: >-
+          .\build.ps1 -Configuration Release -Target AppVeyor
+          
+      
 # Tests
 test: off
 
