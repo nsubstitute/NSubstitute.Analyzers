@@ -1,6 +1,6 @@
 image:
-  - Visual Studio 2017
   - Ubuntu
+  - Visual Studio 2017
 # Build script
 init:
   - git config --global core.autocrlf true
@@ -9,7 +9,7 @@ for:
     matrix:
       only:
         - image: Ubuntu
-          
+    test: off      
     build_script:
       - cd build
       - chmod +xxx ./build.sh
@@ -17,11 +17,12 @@ for:
   -
     matrix:
       only:
-        - image: Visual Studio 2017      
+        - image: Visual Studio 2017
+    test: off
     build_script:
       - cd Build
       - ps: >-
-          .\build.ps1 -Configuration Release -Target AppVeyor
+          .\build.ps1 --target="AppVeyor" --configuration=Release
           
       
 # Tests

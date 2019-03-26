@@ -167,10 +167,6 @@ Task("Wait-For-Pending-Jobs")
     var buildVersion = EnvironmentVariable("APPVEYOR_BUILD_VERSION");
     var jobId = EnvironmentVariable("APPVEYOR_JOB_ID");
 
-    jobId = "h99u77g2c7djaqj2";
-    apiToken = "e0dw296ksogsw0478uvi";
-    buildVersion = "1.0.212";
-
     var settings = new HttpSettings
         {
             Headers = new Dictionary<string, string>
@@ -187,6 +183,7 @@ Task("Wait-For-Pending-Jobs")
     while(true)
     {
         var responseBody = HttpGet($"https://ci.appveyor.com/api/projects/nsubstitute/nsubstitute-analyzers/build/{buildVersion}", settings);
+        Information(responseBody);
         var parsed = ParseJson(responseBody);
 
         var nonSuccessfulJobs = parsed["build"].Value<JObject>()["jobs"].Value<JArray>()
