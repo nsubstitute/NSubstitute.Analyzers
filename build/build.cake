@@ -169,6 +169,15 @@ Task("Wait-For-Pending-Jobs")
     var buildVersion = EnvironmentVariable("APPVEYOR_BUILD_VERSION");
     var jobId = EnvironmentVariable("APPVEYOR_JOB_ID");
 
+    if(string.IsNullOrEmpty(apiToken))
+        throw new InvalidOperationException("Could not resolve APPVEYOR_API_TOKEN.");
+
+    if(string.IsNullOrEmpty(buildVersion))
+        throw new InvalidOperationException("Could not resolve APPVEYOR_BUILD_VERSION.");
+
+    if(string.IsNullOrEmpty(jobId))
+        throw new InvalidOperationException("Could not resolve APPVEYOR_JOB_ID.");
+
     var ct = new CancellationTokenSource(TimeSpan.FromMinutes(15)).Token;
     var url = $"https://ci.appveyor.com/api/projects/nsubstitute/nsubstitute-analyzers/build/{buildVersion}";
 
