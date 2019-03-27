@@ -11,13 +11,15 @@
 #tool "nuget:https://www.nuget.org/api/v2?package=coveralls.io&version=1.4.2"
 #tool "nuget:https://www.nuget.org/api/v2?package=ReportGenerator&version=4.0.4"
 #addin "nuget:https://www.nuget.org/api/v2?package=cake.coveralls&version=0.9.0"
-#addin "nuget:https://www.nuget.org/api/v2?package=Cake.Http&version=0.5.0"
-#addin "Cake.Json"
-#addin "nuget:?package=Cake.Incubator&version=4.0.1"
+#addin "nuget:https://www.nuget.org/api/v2?package=Cake.Incubator&version=4.0.1"
+#addin "nuget:https://www.nuget.org/api/v2?package=Newtonsoft.Json&version=9.0.1"
 
+using Newtonsoft.Json.Linq;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using Cake.Incubator.LoggingExtensions;
 using System.Threading;
+using System.Net.Http.Headers;
 
 var parameters = BuildParameters.GetParameters(Context);
 var buildVersion = BuildVersion.Calculate(Context);
@@ -167,49 +169,49 @@ Task("Wait-For-Pending-Jobs")
     var buildVersion = EnvironmentVariable("APPVEYOR_BUILD_VERSION");
     var jobId = EnvironmentVariable("APPVEYOR_JOB_ID");
 
-    var settings = new HttpSettings
-        {
-            Headers = new Dictionary<string, string>
-            {
-                { "Authorization", $"Bearer {apiToken}" },
-                { "Content-type", "application/json" },
-            },
-            EnsureSuccessStatusCode = true,
-            ThrowExceptionOnNonSuccessStatusCode = true
-        };
-
     var ct = new CancellationTokenSource(TimeSpan.FromMinutes(15)).Token;
-    
+    var url = $"https://ci.appveyor.com/api/projects/nsubstitute/nsubstitute-analyzers/build/{buildVersion}";
+
     while(true)
     {
-        var responseBody = HttpGet($"https://ci.appveyor.com/api/projects/nsubstitute/nsubstitute-analyzers/build/{buildVersion}", settings);
-        var parsed = ParseJson(responseBody);
-
-        var nonSuccessfulJobs = parsed["build"].Value<JObject>()["jobs"].Value<JArray>()
-                    .Cast<JObject>()
-                    .Where(jObject => jObject["jobId"].Value<string>() != jobId && jObject["status"].Value<string>() != "success")
-                    .ToList();
-
-        if (nonSuccessfulJobs.Any() == false)
+        using (var client = new HttpClient())
         {
-            Information("All other build jobs in matrix finished");
-            return;
+            client.DefaultRequestHeaders
+                .Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
+            var httpResponseMessage = await client.GetAsync(url);
+            httpResponseMessage.EnsureSuccessStatusCode();
+
+            var response = await httpResponseMessage.Content.ReadAsStringAsync();
+
+            var parsed = JToken.Parse(response);
+
+            var nonSuccessfulJobs = parsed["build"].Value<JObject>()["jobs"].Value<JArray>()
+                        .Cast<JObject>()
+                        .Where(jObject => jObject["jobId"].Value<string>() != jobId && jObject["status"].Value<string>() != "success")
+                        .ToList();
+
+            if (nonSuccessfulJobs.Any() == false)
+            {
+                Information("All other build jobs in matrix finished");
+                return;
+            }
+
+            var failedJobs = nonSuccessfulJobs.Where(jObject => jObject["status"].Value<string>() == "failed").ToList();
+
+            if (failedJobs.Any())
+            {
+                var jobs = string.Join(",", failedJobs.Select(jObject => jObject["name"]));
+                throw new CakeException($"Other build jobs failed, {jobs}");
+            }
+
+            var pendingJobs = nonSuccessfulJobs.Except(failedJobs).ToList();
+            var pendingJobsNames = string.Join(",", pendingJobs.Select(jObject => jObject["name"]));
+            
+            Information("There are unfinished build jobs {0}, waiting for them to finish", pendingJobsNames);
+
+            await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(30), ct);                             
         }
-
-        var failedJobs = nonSuccessfulJobs.Where(jObject => jObject["status"].Value<string>() == "failed").ToList();
-
-        if (failedJobs.Any())
-        {
-            var jobs = string.Join(",", failedJobs.Select(jObject => jObject["name"]));
-            throw new CakeException($"Other build jobs failed, {jobs}");
-        }
-
-        var pendingJobs = nonSuccessfulJobs.Except(failedJobs).ToList();
-        var pendingJobsNames = string.Join(",", pendingJobs.Select(jObject => jObject["name"]));
-        
-        Information("There are unfinished build jobs {0}, waiting for them to finish", pendingJobsNames);
-
-        await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(30), ct);                      
     }
 });
 
