@@ -160,7 +160,7 @@ Task("NuGet-Pack")
 });
 
 Task("Wait-For-Pending-Jobs")
-    .WithCriteria(context => context.IsRunningOnWindows() /* parameters.ShouldPublish */)
+    .WithCriteria(context => parameters.ShouldPublish)
     .Does(async () =>
 {
     var apiToken = EnvironmentVariable("APPVEYOR_API_TOKEN");
@@ -183,7 +183,6 @@ Task("Wait-For-Pending-Jobs")
     while(true)
     {
         var responseBody = HttpGet($"https://ci.appveyor.com/api/projects/nsubstitute/nsubstitute-analyzers/build/{buildVersion}", settings);
-        Information(responseBody);
         var parsed = ParseJson(responseBody);
 
         var nonSuccessfulJobs = parsed["build"].Value<JObject>()["jobs"].Value<JArray>()
@@ -220,8 +219,6 @@ Task("Publish")
     .WithCriteria(context => parameters.ShouldPublish)
     .Does(() =>
 {
-    Information("Publishing");
-    /*
     var apiKey = EnvironmentVariable("NUGET_API_KEY");
     if (string.IsNullOrEmpty(apiKey))
     {
@@ -239,7 +236,6 @@ Task("Publish")
         ApiKey = apiKey,
         Source = apiUrl
     });
-    */
 });
 
 
