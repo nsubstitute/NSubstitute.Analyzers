@@ -34,7 +34,6 @@ public class BuildPaths
             buildDirectories.TestResults.CombineWithFilePath("OpenCover"),
             buildDirectories.RootDir.CombineWithFilePath("ReleaseNotes.md"),
             buildDirectories.Artifacts.CombineWithFilePath("ReleaseNotes.md"),
-            buildDirectories.Artifacts.CombineWithFilePath("DupOutpuFinder.xml"),
             projectsToPack,
             testAssemblies);
 
@@ -80,7 +79,6 @@ public class BuildFiles
     public FilePath TestCoverageOutputWithoutExtension { get; set;}
     public FilePath AllReleaseNotes { get; private set; }
     public FilePath CurrentReleaseNotes { get; private set; }
-    public FilePath DupeFinderOutput { get; private set; }
     public ICollection<FilePath> ProjectsToPack { get; private set; }
     public ICollection<FilePath> TestAssemblies { get; private set; }
 
@@ -89,7 +87,6 @@ public class BuildFiles
                       FilePath testCoverageOutputWithoutExtension,
                       FilePath allReleaseNotes,
                       FilePath currentReleaseNote,
-                      FilePath dupeFinderOutput,
                       ICollection<FilePath> projectToPack,
                       ICollection<FilePath> testAssemblies)
     {
@@ -99,7 +96,6 @@ public class BuildFiles
         TestCoverageOutputWithoutExtension = testCoverageOutputWithoutExtension;
         AllReleaseNotes = allReleaseNotes;
         CurrentReleaseNotes = currentReleaseNote;
-        DupeFinderOutput = dupeFinderOutput;
         ProjectsToPack = projectToPack;
     }
 }
