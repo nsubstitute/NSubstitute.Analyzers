@@ -76,55 +76,50 @@ Task("Run-Tests")
     .Does(() =>
 {
     
-    if (parameters.SkipOpenCover)
+    var testSettings = new DotNetCoreTestSettings
     {
-        DotNetCoreVSTest(paths.Files.TestAssemblies, new DotNetCoreVSTestSettings
-        {
-            Framework = "FrameworkCore10",
-            Parallel = true,
-            Platform = VSTestPlatform.x64
-        });
-
-        return;
-    }
-
-    DotNetCoreTest(paths.Files.Solution.MakeAbsolute(Context.Environment).ToString(), new DotNetCoreTestSettings
-    {
-        Framework = "netcoreapp2.0",
+        Framework = parameters.TargetFramework,
         NoBuild = true,
         NoRestore = true,
-        Configuration = parameters.Configuration,
-        ArgumentCustomization = arg => arg.AppendSwitch("/p:CollectCoverage","=","True")
+        Configuration = parameters.Configuration
+    };
+
+    if(parameters.SkipCodeCoverage == false)
+    {
+        testSettings.ArgumentCustomization = arg => arg.AppendSwitch("/p:CollectCoverage","=","True")
                                                        .AppendSwitch("/p:CoverletOutputFormat", "=", @"\""json,opencover\""")
                                                        .AppendSwitch("/p:MergeWith", "=", $@"""{paths.Files.TestCoverageOutputWithoutExtension.ToString()}.json""")
                                                        .AppendSwitch("/p:CoverletOutput", "=", $@"""{paths.Files.TestCoverageOutputWithoutExtension.ToString()}""")
                                                        .AppendSwitch("/p:ExcludeByAttribute", "=", @"\""GeneratedCodeAttribute,ExcludeFromCodeCoverage\""")
                                                        .AppendSwitch("/p:Exclude", "=", @"\""[xunit.*]*,[NSubstitute.Analyzers.Test*]*\""")
-                                                       .AppendSwitch("/p:Include", "=", "[NSubstitute.Analyzers*]*")
-        });
+                                                       .AppendSwitch("/p:Include", "=", "[NSubstitute.Analyzers*]*");
+    }
 
-    var reportGeneratorWorkingDir = Context.Environment.WorkingDirectory
+    DotNetCoreTest(paths.Files.Solution.MakeAbsolute(Context.Environment).ToString(), testSettings);
+
+    if(parameters.SkipCodeCoverage == false)
+    {
+        var reportGeneratorWorkingDir = Context.Environment.WorkingDirectory
                                                        .Combine("tools")
                                                        .Combine("ReportGenerator.4.0.4")
                                                        .Combine("tools")
-                                                       .Combine("netcoreapp2.0");
+                                                       .Combine(parameters.TargetFramework);
 
-    Information(reportGeneratorWorkingDir);
+        var argumentBuilder = new ProcessArgumentBuilder()
+        .Append("ReportGenerator.dll")
+        .Append($@"""-reports:{paths.Files.TestCoverageOutput.MakeAbsolute(Context.Environment).ToString()}""")
+        .Append($@"""-targetdir:{paths.Directories.TestResults.MakeAbsolute(Context.Environment).ToString()}");
 
-    var argumentBuilder = new ProcessArgumentBuilder()
-    .Append("ReportGenerator.dll")
-    .Append($@"""-reports:{paths.Files.TestCoverageOutput.MakeAbsolute(Context.Environment).ToString()}""")
-    .Append($@"""-targetdir:{paths.Directories.TestResults.MakeAbsolute(Context.Environment).ToString()}");
+        var exitCode = StartProcess("dotnet", new ProcessSettings
+        {
+            WorkingDirectory = reportGeneratorWorkingDir,
+            Arguments = argumentBuilder
+        });
 
-    var exitCode = StartProcess("dotnet", new ProcessSettings
-    {
-        WorkingDirectory = reportGeneratorWorkingDir,
-        Arguments = argumentBuilder
-    });
-
-    if(exitCode != 0)
-    {
-        throw new CakeException($"Report generator returned non-zero {exitCode} exit code");
+        if(exitCode != 0)
+        {
+            throw new CakeException($"Report generator returned non-zero {exitCode} exit code");
+        }
     }
 });
 
