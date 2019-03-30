@@ -68,6 +68,31 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract bool IsAssignableTo(Compilation compilation, ITypeSymbol fromSymbol, ITypeSymbol toSymbol);
 
+        protected virtual bool SupportsCallInfo(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax syntax, IMethodSymbol methodSymbol)
+        {
+            if (MethodNames.TryGetValue(methodSymbol.Name, out var typeName) == false)
+            {
+                return false;
+            }
+
+            var allArguments = GetArgumentExpressions(syntax);
+            IEnumerable<TExpressionSyntax> argumentsForAnalysis;
+            if (methodSymbol.MethodKind == MethodKind.ReducedExtension)
+                argumentsForAnalysis = allArguments;
+            else if (methodSymbol.IsExtensionMethod)
+                argumentsForAnalysis = allArguments.Skip(1);
+            else
+                argumentsForAnalysis = allArguments;
+
+            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax);
+
+            var supportsCallInfo =
+                symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
+                symbol.Symbol?.ContainingType?.ToString().Equals(typeName, StringComparison.OrdinalIgnoreCase) == true;
+
+            return supportsCallInfo && argumentsForAnalysis.Any(arg => syntaxNodeContext.SemanticModel.GetTypeInfo(arg).IsCallInfoDelegate(syntaxNodeContext.SemanticModel));
+        }
+
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
             var invocationExpression = (TInvocationExpressionSyntax)syntaxNodeContext.Node;
@@ -262,31 +287,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
 
             return false;
-        }
-
-        private bool SupportsCallInfo(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax syntax, IMethodSymbol methodSymbol)
-        {
-            if (MethodNames.TryGetValue(methodSymbol.Name, out var typeName) == false)
-            {
-                return false;
-            }
-
-            var allArguments = GetArgumentExpressions(syntax);
-            IEnumerable<TExpressionSyntax> argumentsForAnalysis;
-            if (methodSymbol.MethodKind == MethodKind.ReducedExtension)
-                argumentsForAnalysis = allArguments;
-            else if (methodSymbol.IsExtensionMethod)
-                argumentsForAnalysis = allArguments.Skip(1);
-            else
-                argumentsForAnalysis = allArguments;
-
-            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax);
-
-            var supportsCallInfo =
-                symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                symbol.Symbol?.ContainingType?.ToString().Equals(typeName, StringComparison.OrdinalIgnoreCase) == true;
-
-            return supportsCallInfo && argumentsForAnalysis.Any(arg => syntaxNodeContext.SemanticModel.GetTypeInfo(arg).IsCallInfoDelegate(syntaxNodeContext.SemanticModel));
         }
 
         private IList<IParameterSymbol> GetSubstituteCallParameters(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, TInvocationExpressionSyntax invocationExpression)
