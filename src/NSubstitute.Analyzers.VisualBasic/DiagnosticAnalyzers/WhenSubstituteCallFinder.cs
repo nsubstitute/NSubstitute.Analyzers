@@ -9,7 +9,21 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
     internal class WhenSubstituteCallFinder
     {
-        public IEnumerable<SyntaxNode> Find(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode argumentSyntax)
+        public IEnumerable<SyntaxNode> Find(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax whenInvocationExpression, ISymbol whenInvocationSymbol = null)
+        {
+            if ((whenInvocationSymbol ?? syntaxNodeContext.SemanticModel.GetSymbolInfo(whenInvocationExpression).Symbol) is IMethodSymbol parentInvocationSymbol)
+            {
+                var argumentExpression = parentInvocationSymbol.MethodKind == MethodKind.ReducedExtension
+                    ? whenInvocationExpression.ArgumentList.Arguments.First().GetExpression()
+                    : whenInvocationExpression.ArgumentList.Arguments.Skip(1).First().GetExpression();
+
+                return Find(syntaxNodeContext, argumentExpression);
+            }
+
+            return null;
+        }
+
+        private IEnumerable<SyntaxNode> Find(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode argumentSyntax)
         {
             SyntaxNode body = null;
             switch (argumentSyntax)

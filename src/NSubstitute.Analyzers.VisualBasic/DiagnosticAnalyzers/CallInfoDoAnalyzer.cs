@@ -8,6 +8,7 @@ using NSubstitute.Analyzers.VisualBasic.Extensions;
 
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
+    [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
     internal class CallInfoDoAnalyzer : CallInfoAnalyzer
     {
         private readonly Lazy<WhenSubstituteCallFinder> _whenSubstituteCallFinderProxy = new Lazy<WhenSubstituteCallFinder>(() => new WhenSubstituteCallFinder());
@@ -34,16 +35,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
                 return null;
             }
 
-            if (syntaxNodeContext.SemanticModel.GetSymbolInfo(parentInvocationExpression).Symbol is IMethodSymbol parentInvocationSymbol)
-            {
-                var argumentExpression = parentInvocationSymbol.MethodKind == MethodKind.ReducedExtension
-                       ? parentInvocationExpression.ArgumentList.Arguments.First().GetExpression()
-                       : parentInvocationExpression.ArgumentList.Arguments.Skip(1).First().GetExpression();
-
-                return WhenSubstituteCallFinder.Find(syntaxNodeContext, argumentExpression).FirstOrDefault();
-            }
-
-            return null;
+            return WhenSubstituteCallFinder.Find(syntaxNodeContext, parentInvocationExpression).FirstOrDefault();
         }
     }
 }

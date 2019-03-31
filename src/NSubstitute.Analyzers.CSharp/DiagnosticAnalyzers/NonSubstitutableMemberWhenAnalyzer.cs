@@ -25,9 +25,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 
         protected override IEnumerable<SyntaxNode> GetExpressionsForAnalysys(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax)
         {
-            var argumentListArguments = invocationExpressionSyntax.ArgumentList.Arguments;
-            var argumentSyntax = methodSymbol.MethodKind == MethodKind.ReducedExtension ? argumentListArguments.First() : argumentListArguments.Skip(1).First();
-            return WhenSubstituteCallFinder.Find(syntaxNodeAnalysisContext, argumentSyntax.Expression);
+            return WhenSubstituteCallFinder.Find(syntaxNodeAnalysisContext, invocationExpressionSyntax, methodSymbol);
         }
     }
 }
