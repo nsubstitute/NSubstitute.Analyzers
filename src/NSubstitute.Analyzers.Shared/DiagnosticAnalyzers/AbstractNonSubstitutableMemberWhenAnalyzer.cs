@@ -22,9 +22,14 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
+        private readonly Lazy<AbstractSubstitutionNodeFinder<TInvocationExpressionSyntax>> _substitutionNodeFinderProxy;
+
+        private AbstractSubstitutionNodeFinder<TInvocationExpressionSyntax> SubstitutionNodeFinderProxy => _substitutionNodeFinderProxy.Value;
+
         protected AbstractNonSubstitutableMemberWhenAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
             : base(diagnosticDescriptorsProvider)
         {
+            _substitutionNodeFinderProxy = new Lazy<AbstractSubstitutionNodeFinder<TInvocationExpressionSyntax>>(GetSubstitutionNodeFinder);
         }
 
         public override void Initialize(AnalysisContext context)
@@ -32,7 +37,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             context.RegisterSyntaxNodeAction(AnalyzeInvocation, InvocationExpressionKind);
         }
 
-        protected abstract IEnumerable<SyntaxNode> GetExpressionsForAnalysys(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, IMethodSymbol methodSymbol, TInvocationExpressionSyntax invocationExpressionSyntax);
+        protected abstract AbstractSubstitutionNodeFinder<TInvocationExpressionSyntax> GetSubstitutionNodeFinder();
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
@@ -55,7 +60,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            var expressionsForAnalysys = GetExpressionsForAnalysys(syntaxNodeContext, methodSymbol, invocationExpression);
+            var expressionsForAnalysys = SubstitutionNodeFinderProxy.FindForWhenExpression(syntaxNodeContext, invocationExpression, methodSymbol);
             var typeSymbol = methodSymbol.TypeArguments.FirstOrDefault() ?? methodSymbol.ReceiverType;
             foreach (var analysedSyntax in expressionsForAnalysys)
             {

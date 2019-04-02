@@ -4,26 +4,68 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.VisualBasic;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
+using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.VisualBasic.Extensions;
 
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
-    internal class WhenSubstituteCallFinder
+    internal class SubstitutionNodeFinder : AbstractSubstitutionNodeFinder<InvocationExpressionSyntax>
     {
-        public IEnumerable<SyntaxNode> Find(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax whenInvocationExpression, ISymbol whenInvocationSymbol = null)
+        public override IEnumerable<SyntaxNode> FindForWhenExpression(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax whenInvocationExpression, IMethodSymbol whenInvocationSymbol = null)
         {
-            if ((whenInvocationSymbol ?? syntaxNodeContext.SemanticModel.GetSymbolInfo(whenInvocationExpression).Symbol) is IMethodSymbol parentInvocationSymbol)
+            if (whenInvocationExpression == null)
             {
-                var argumentExpression = parentInvocationSymbol.MethodKind == MethodKind.ReducedExtension
-                    ? whenInvocationExpression.ArgumentList.Arguments.First().GetExpression()
-                    : whenInvocationExpression.ArgumentList.Arguments.Skip(1).First().GetExpression();
-
-                return Find(syntaxNodeContext, argumentExpression);
+                return Enumerable.Empty<SyntaxNode>();
             }
 
-            return null;
+            whenInvocationSymbol = whenInvocationSymbol ?? syntaxNodeContext.SemanticModel.GetSymbolInfo(whenInvocationExpression).Symbol as IMethodSymbol;
+
+            if (whenInvocationSymbol == null)
+            {
+                return Enumerable.Empty<SyntaxNode>();
+            }
+
+            var argumentExpression = whenInvocationSymbol.MethodKind == MethodKind.ReducedExtension
+                ? whenInvocationExpression.ArgumentList.Arguments.First().GetExpression()
+                : whenInvocationExpression.ArgumentList.Arguments.Skip(1).First().GetExpression();
+
+            return FindForWhenExpression(syntaxNodeContext, argumentExpression);
         }
 
-        private IEnumerable<SyntaxNode> Find(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode argumentSyntax)
+        public override SyntaxNode FindForAndDoesExpression(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax invocationExpression, IMethodSymbol invocationExpressionSymbol)
+        {
+            var parentInvocationExpression = invocationExpression?.GetParentInvocationExpression();
+            if (parentInvocationExpression == null)
+            {
+                return null;
+            }
+
+            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(parentInvocationExpression);
+
+            return symbol.Symbol is IMethodSymbol methodSymbol && methodSymbol.ReducedFrom == null
+                ? parentInvocationExpression.ArgumentList.Arguments.First().GetExpression()
+                : parentInvocationExpression.Expression.DescendantNodes().First();
+        }
+
+        protected override InvocationExpressionSyntax GetParentInvocationExpression(InvocationExpressionSyntax invocationExpressionSyntax)
+        {
+            return invocationExpressionSyntax.GetParentInvocationExpression();
+        }
+
+        protected override SyntaxNode FindForStandardSubstitution(InvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol invocationExpressionSymbol)
+        {
+            switch (invocationExpressionSymbol.MethodKind)
+            {
+                case MethodKind.ReducedExtension:
+                    return invocationExpressionSyntax.Expression.DescendantNodes().First();
+                case MethodKind.Ordinary:
+                    return invocationExpressionSyntax.ArgumentList.Arguments.First().GetExpression();
+                default:
+                    return null;
+            }
+        }
+
+        private IEnumerable<SyntaxNode> FindForWhenExpression(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode argumentSyntax)
         {
             SyntaxNode body = null;
             switch (argumentSyntax)
@@ -49,7 +91,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
                     break;
                 case UnaryExpressionSyntax unaryExpressionSyntax:
-                    foreach (var syntaxNode in Find(syntaxNodeContext, unaryExpressionSyntax.Operand))
+                    foreach (var syntaxNode in FindForWhenExpression(syntaxNodeContext, unaryExpressionSyntax.Operand))
                     {
                         yield return syntaxNode;
                     }
@@ -69,7 +111,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
                         }
 
                         innerNode = innerNode ?? syntaxNode;
-                        foreach (var expressionsForAnalysy in Find(syntaxNodeContext, innerNode))
+                        foreach (var expressionsForAnalysy in FindForWhenExpression(syntaxNodeContext, innerNode))
                         {
                             yield return expressionsForAnalysy;
                         }
@@ -105,7 +147,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
             IEnumerable<SyntaxNode> IterateStatements(IEnumerable<StatementSyntax> statements)
             {
-                return statements.SelectMany(statement => Find(syntaxNodeContext, statement));
+                return statements.SelectMany(statement => FindForWhenExpression(syntaxNodeContext, statement));
             }
         }
     }

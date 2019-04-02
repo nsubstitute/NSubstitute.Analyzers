@@ -1,10 +1,10 @@
 using System.Threading.Tasks;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallInfoDoAnalyzerTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallInfoAnalyzerTests
 {
     [CombinatoryData("SubstituteExtensions.When", "SubstituteExtensions.WhenForAnyArgs")]
-    public class DoMethodPrecededByOrdinaryMethodTests : CallInfoDoAnalyzerVerifier
+    public class DoMethodPrecededByOrdinaryMethodTests : CallInfoDiagnosticVerifier
     {
         public override async Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string method, string call, string argAccess)
         {

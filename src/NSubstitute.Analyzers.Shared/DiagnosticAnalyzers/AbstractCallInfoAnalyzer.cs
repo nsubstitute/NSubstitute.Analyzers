@@ -16,12 +16,17 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
     {
         private readonly Lazy<AbstractCallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax>> _callInfoFinderProxy;
 
+        private readonly Lazy<AbstractSubstitutionNodeFinder<TInvocationExpressionSyntax>> _substitutionNodeFinderProxy;
+
         private AbstractCallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> CallInfoFinder => _callInfoFinderProxy.Value;
+
+        private AbstractSubstitutionNodeFinder<TInvocationExpressionSyntax> SubstitutionNodeFinder => _substitutionNodeFinderProxy.Value;
 
         protected AbstractCallInfoAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
             : base(diagnosticDescriptorsProvider)
         {
             _callInfoFinderProxy = new Lazy<AbstractCallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax>>(GetCallInfoFinder);
+            _substitutionNodeFinderProxy = new Lazy<AbstractSubstitutionNodeFinder<TInvocationExpressionSyntax>>(GetSubstitutionNodeFinder);
         }
 
         private static readonly ImmutableDictionary<string, string> MethodNames = new Dictionary<string, string>()
@@ -30,7 +35,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             [MetadataNames.NSubstituteReturnsForAnyArgsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
             [MetadataNames.NSubstituteThrowsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName,
             [MetadataNames.NSubstituteThrowsForAnyArgsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName,
-            [MetadataNames.NSubstituteAndDoesMethod] = MetadataNames.NSubstituteConfiguredCallFullTypeName
+            [MetadataNames.NSubstituteAndDoesMethod] = MetadataNames.NSubstituteConfiguredCallFullTypeName,
+            [MetadataNames.NSubstituteDoMethod] = MetadataNames.NSubstituteWhenCalledType
         }.ToImmutableDictionary();
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
@@ -48,11 +54,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
-        protected abstract SyntaxNode GetSubstituteCall(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, TInvocationExpressionSyntax invocationExpressionSyntax);
-
         protected abstract IEnumerable<TExpressionSyntax> GetArgumentExpressions(TInvocationExpressionSyntax invocationExpressionSyntax);
 
         protected abstract AbstractCallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> GetCallInfoFinder();
+
+        protected abstract AbstractSubstitutionNodeFinder<TInvocationExpressionSyntax> GetSubstitutionNodeFinder();
 
         protected abstract SyntaxNode GetCastTypeExpression(TIndexerExpressionSyntax indexerExpressionSyntax);
 
@@ -68,9 +74,21 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract bool IsAssignableTo(Compilation compilation, ITypeSymbol fromSymbol, ITypeSymbol toSymbol);
 
-        protected virtual bool SupportsCallInfo(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax syntax, IMethodSymbol methodSymbol)
+        private bool SupportsCallInfo(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax syntax, IMethodSymbol methodSymbol)
         {
             if (MethodNames.TryGetValue(methodSymbol.Name, out var typeName) == false)
+            {
+                return false;
+            }
+
+            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax);
+
+            var supportsCallInfo =
+                symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
+                (symbol.Symbol?.ContainingType?.ToString().Equals(typeName, StringComparison.OrdinalIgnoreCase) == true ||
+                 (symbol.Symbol.ContainingType?.ConstructedFrom.Name)?.Equals(typeName, StringComparison.OrdinalIgnoreCase) == true);
+
+            if (supportsCallInfo == false)
             {
                 return false;
             }
@@ -84,13 +102,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             else
                 argumentsForAnalysis = allArguments;
 
-            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax);
-
-            var supportsCallInfo =
-                symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                symbol.Symbol?.ContainingType?.ToString().Equals(typeName, StringComparison.OrdinalIgnoreCase) == true;
-
-            return supportsCallInfo && argumentsForAnalysis.Any(arg => syntaxNodeContext.SemanticModel.GetTypeInfo(arg).IsCallInfoDelegate(syntaxNodeContext.SemanticModel));
+            return argumentsForAnalysis.Any(arg => syntaxNodeContext.SemanticModel.GetTypeInfo(arg).IsCallInfoDelegate(syntaxNodeContext.SemanticModel));
         }
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
@@ -291,7 +303,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private IList<IParameterSymbol> GetSubstituteCallParameters(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, TInvocationExpressionSyntax invocationExpression)
         {
-            var parentMethodCallSyntax = GetSubstituteCall(syntaxNodeContext, methodSymbol, invocationExpression);
+            var parentMethodCallSyntax = SubstitutionNodeFinder.Find(syntaxNodeContext, invocationExpression, methodSymbol).FirstOrDefault();
 
             if (parentMethodCallSyntax == null)
             {

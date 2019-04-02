@@ -19,38 +19,6 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
-        protected override SyntaxNode GetSubstituteCall(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax)
-        {
-            if (methodSymbol.IsExtensionMethod)
-            {
-                switch (methodSymbol.MethodKind)
-                {
-                    case MethodKind.ReducedExtension:
-                        return invocationExpressionSyntax.Expression.DescendantNodes().First();
-                    case MethodKind.Ordinary:
-                        return invocationExpressionSyntax.ArgumentList.Arguments.First().GetExpression();
-                    default:
-                        return null;
-                }
-            }
-
-            var parentInvocation = invocationExpressionSyntax.GetParentInvocationExpression();
-
-            if (parentInvocation == null)
-            {
-                return null;
-            }
-
-            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(parentInvocation);
-
-            if (symbol.Symbol is IMethodSymbol mSymbol && mSymbol.ReducedFrom == null)
-            {
-                return parentInvocation.ArgumentList.Arguments.First().GetExpression();
-            }
-
-            return parentInvocation.Expression.DescendantNodes().First();
-        }
-
         protected override IEnumerable<ExpressionSyntax> GetArgumentExpressions(InvocationExpressionSyntax invocationExpressionSyntax)
         {
             return invocationExpressionSyntax.ArgumentList.Arguments.Select(arg => arg.GetExpression());
@@ -59,6 +27,11 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
         protected override AbstractCallInfoFinder<InvocationExpressionSyntax, InvocationExpressionSyntax> GetCallInfoFinder()
         {
             return new CallInfoCallFinder();
+        }
+
+        protected override AbstractSubstitutionNodeFinder<InvocationExpressionSyntax> GetSubstitutionNodeFinder()
+        {
+            return new SubstitutionNodeFinder();
         }
 
         protected override SyntaxNode GetCastTypeExpression(InvocationExpressionSyntax indexerExpressionSyntax)

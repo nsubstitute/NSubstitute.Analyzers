@@ -19,13 +19,9 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
-        private readonly Lazy<WhenSubstituteCallFinder> _whenSubstituteCallFinderProxy = new Lazy<WhenSubstituteCallFinder>(() => new WhenSubstituteCallFinder());
-
-        private WhenSubstituteCallFinder WhenSubstituteCallFinder => _whenSubstituteCallFinderProxy.Value;
-
-        protected override IEnumerable<SyntaxNode> GetExpressionsForAnalysys(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax)
+        protected override AbstractSubstitutionNodeFinder<InvocationExpressionSyntax> GetSubstitutionNodeFinder()
         {
-            return WhenSubstituteCallFinder.Find(syntaxNodeAnalysisContext, invocationExpressionSyntax, methodSymbol);
+            return new SubstitutionNodeFinder();
         }
     }
 }
