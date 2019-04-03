@@ -13,15 +13,10 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
     internal class NonSubstitutableMemberWhenAnalyzer : AbstractNonSubstitutableMemberWhenAnalyzer<SyntaxKind, InvocationExpressionSyntax>
     {
         public NonSubstitutableMemberWhenAnalyzer()
-            : base(new DiagnosticDescriptorsProvider())
+            : base(new DiagnosticDescriptorsProvider(), new SubstitutionNodeFinder())
         {
         }
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
-
-        protected override AbstractSubstitutionNodeFinder<InvocationExpressionSyntax> GetSubstitutionNodeFinder()
-        {
-            return new SubstitutionNodeFinder();
-        }
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractSubstitutionNodeFinder<TInvocationExpressionSyntax>
+    internal abstract class AbstractSubstitutionNodeFinder<TInvocationExpressionSyntax> : ISubstitutionNodeFinder<TInvocationExpressionSyntax>
         where TInvocationExpressionSyntax : SyntaxNode
     {
         public IEnumerable<SyntaxNode> Find(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpression, IMethodSymbol invocationExpressionSymbol = null)
@@ -36,17 +36,17 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return substitution != null ? new[] { substitution } : Enumerable.Empty<SyntaxNode>();
             }
 
-            var standardSubstitution = FindForStandardSubstitution(invocationExpression, invocationExpressionSymbol);
+            var standardSubstitution = FindForStandardExpression(invocationExpression, invocationExpressionSymbol);
 
             return standardSubstitution != null ? new[] { standardSubstitution } : Enumerable.Empty<SyntaxNode>();
         }
 
         public abstract IEnumerable<SyntaxNode> FindForWhenExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax whenInvocationExpression, IMethodSymbol whenInvocationSymbol = null);
 
-        public abstract SyntaxNode FindForAndDoesExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpression, IMethodSymbol invocationExpressionSymbol);
+        public abstract SyntaxNode FindForAndDoesExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpression, IMethodSymbol invocationExpressionSymbol = null);
+
+        public abstract SyntaxNode FindForStandardExpression(TInvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol invocationExpressionSymbol = null);
 
         protected abstract TInvocationExpressionSyntax GetParentInvocationExpression(TInvocationExpressionSyntax invocationExpressionSyntax);
-
-        protected abstract SyntaxNode FindForStandardSubstitution(TInvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol methodSymbol);
     }
 }

@@ -14,19 +14,17 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         where TIndexerExpressionSyntax : SyntaxNode
         where TSyntaxKind : struct
     {
-        private readonly Lazy<AbstractCallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax>> _callInfoFinderProxy;
+        private readonly ICallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> _callInfoFinder;
+        private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
 
-        private readonly Lazy<AbstractSubstitutionNodeFinder<TInvocationExpressionSyntax>> _substitutionNodeFinderProxy;
-
-        private AbstractCallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> CallInfoFinder => _callInfoFinderProxy.Value;
-
-        private AbstractSubstitutionNodeFinder<TInvocationExpressionSyntax> SubstitutionNodeFinder => _substitutionNodeFinderProxy.Value;
-
-        protected AbstractCallInfoAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
+        protected AbstractCallInfoAnalyzer(
+            IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
+            ICallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> callInfoFinder,
+            ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder)
             : base(diagnosticDescriptorsProvider)
         {
-            _callInfoFinderProxy = new Lazy<AbstractCallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax>>(GetCallInfoFinder);
-            _substitutionNodeFinderProxy = new Lazy<AbstractSubstitutionNodeFinder<TInvocationExpressionSyntax>>(GetSubstitutionNodeFinder);
+            _callInfoFinder = callInfoFinder;
+            _substitutionNodeFinder = substitutionNodeFinder;
         }
 
         private static readonly ImmutableDictionary<string, string> MethodNames = new Dictionary<string, string>()
@@ -55,10 +53,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
         protected abstract IEnumerable<TExpressionSyntax> GetArgumentExpressions(TInvocationExpressionSyntax invocationExpressionSyntax);
-
-        protected abstract AbstractCallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> GetCallInfoFinder();
-
-        protected abstract AbstractSubstitutionNodeFinder<TInvocationExpressionSyntax> GetSubstitutionNodeFinder();
 
         protected abstract SyntaxNode GetCastTypeExpression(TIndexerExpressionSyntax indexerExpressionSyntax);
 
@@ -130,7 +124,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             foreach (var argumentExpressionSyntax in GetArgumentExpressions(invocationExpression))
             {
-                var callInfoContext = CallInfoFinder.GetCallInfoContext(syntaxNodeContext.SemanticModel, argumentExpressionSyntax);
+                var callInfoContext = _callInfoFinder.GetCallInfoContext(syntaxNodeContext.SemanticModel, argumentExpressionSyntax);
 
                 AnalyzeArgAtInvocations(syntaxNodeContext, callInfoContext, substituteCallParameters);
 
@@ -303,7 +297,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private IList<IParameterSymbol> GetSubstituteCallParameters(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, TInvocationExpressionSyntax invocationExpression)
         {
-            var parentMethodCallSyntax = SubstitutionNodeFinder.Find(syntaxNodeContext, invocationExpression, methodSymbol).FirstOrDefault();
+            var parentMethodCallSyntax = _substitutionNodeFinder.Find(syntaxNodeContext, invocationExpression, methodSymbol).FirstOrDefault();
 
             if (parentMethodCallSyntax == null)
             {

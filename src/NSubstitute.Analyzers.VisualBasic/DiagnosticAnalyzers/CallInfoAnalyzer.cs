@@ -13,7 +13,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
     internal class CallInfoAnalyzer : AbstractCallInfoAnalyzer<SyntaxKind, InvocationExpressionSyntax, ExpressionSyntax, InvocationExpressionSyntax>
     {
         public CallInfoAnalyzer()
-            : base(new DiagnosticDescriptorsProvider())
+            : base(new DiagnosticDescriptorsProvider(), new CallInfoCallFinder(), new SubstitutionNodeFinder())
         {
         }
 
@@ -22,16 +22,6 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
         protected override IEnumerable<ExpressionSyntax> GetArgumentExpressions(InvocationExpressionSyntax invocationExpressionSyntax)
         {
             return invocationExpressionSyntax.ArgumentList.Arguments.Select(arg => arg.GetExpression());
-        }
-
-        protected override AbstractCallInfoFinder<InvocationExpressionSyntax, InvocationExpressionSyntax> GetCallInfoFinder()
-        {
-            return new CallInfoCallFinder();
-        }
-
-        protected override AbstractSubstitutionNodeFinder<InvocationExpressionSyntax> GetSubstitutionNodeFinder()
-        {
-            return new SubstitutionNodeFinder();
         }
 
         protected override SyntaxNode GetCastTypeExpression(InvocationExpressionSyntax indexerExpressionSyntax)

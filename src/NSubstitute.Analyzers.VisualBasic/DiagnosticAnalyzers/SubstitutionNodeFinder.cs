@@ -47,12 +47,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
                 : parentInvocationExpression.Expression.DescendantNodes().First();
         }
 
-        protected override InvocationExpressionSyntax GetParentInvocationExpression(InvocationExpressionSyntax invocationExpressionSyntax)
-        {
-            return invocationExpressionSyntax.GetParentInvocationExpression();
-        }
-
-        protected override SyntaxNode FindForStandardSubstitution(InvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol invocationExpressionSymbol)
+        public override SyntaxNode FindForStandardExpression(InvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol invocationExpressionSymbol)
         {
             switch (invocationExpressionSymbol.MethodKind)
             {
@@ -63,6 +58,11 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
                 default:
                     return null;
             }
+        }
+
+        protected override InvocationExpressionSyntax GetParentInvocationExpression(InvocationExpressionSyntax invocationExpressionSyntax)
+        {
+            return invocationExpressionSyntax.GetParentInvocationExpression();
         }
 
         private IEnumerable<SyntaxNode> FindForWhenExpression(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode argumentSyntax)

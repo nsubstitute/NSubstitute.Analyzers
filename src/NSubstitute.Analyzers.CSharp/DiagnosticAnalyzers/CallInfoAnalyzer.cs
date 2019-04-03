@@ -13,7 +13,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
     internal class CallInfoAnalyzer : AbstractCallInfoAnalyzer<SyntaxKind, InvocationExpressionSyntax, ExpressionSyntax, ElementAccessExpressionSyntax>
     {
         public CallInfoAnalyzer()
-            : base(new DiagnosticDescriptorsProvider())
+            : base(new DiagnosticDescriptorsProvider(), new CallInfoCallFinder(), new SubstitutionNodeFinder())
         {
         }
 
@@ -22,16 +22,6 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
         protected override IEnumerable<ExpressionSyntax> GetArgumentExpressions(InvocationExpressionSyntax invocationExpressionSyntax)
         {
             return invocationExpressionSyntax.ArgumentList.Arguments.Select(arg => arg.Expression);
-        }
-
-        protected override AbstractCallInfoFinder<InvocationExpressionSyntax, ElementAccessExpressionSyntax> GetCallInfoFinder()
-        {
-            return new CallInfoCallFinder();
-        }
-
-        protected override AbstractSubstitutionNodeFinder<InvocationExpressionSyntax> GetSubstitutionNodeFinder()
-        {
-            return new SubstitutionNodeFinder();
         }
 
         protected override SyntaxNode GetCastTypeExpression(ElementAccessExpressionSyntax indexerExpressionSyntax)
