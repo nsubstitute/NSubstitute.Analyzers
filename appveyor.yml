@@ -13,7 +13,7 @@ for:
     build_script:
       - cd build
       - chmod +xxx ./build.sh
-      - ./build.sh --target="AppVeyor" --configuration=Release
+      - ./build.sh --target="AppVeyor" --configuration=Release --UploadCoverageReport=False
   -
     matrix:
       only:
@@ -22,7 +22,7 @@ for:
     build_script:
       - cd Build
       - ps: >-
-          .\build.ps1 --target="AppVeyor" --configuration=Release
+          .\build.ps1 --target="AppVeyor" --configuration=Release --UploadCoverageReport=True
           
       
 # Tests

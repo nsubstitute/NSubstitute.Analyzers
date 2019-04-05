@@ -8,9 +8,8 @@
 
 // Install tools.
 #tool "dotnet:https://api.nuget.org/v3/index.json?package=GitVersion.Tool&version=4.0.1-beta1-58"
-#tool "nuget:https://www.nuget.org/api/v2?package=coveralls.io&version=1.4.2"
+#tool "dotnet:https://api.nuget.org/v3/index.json?package=coveralls.net&version=1.0.0"
 #tool "nuget:https://www.nuget.org/api/v2?package=ReportGenerator&version=4.0.4"
-#addin "nuget:https://www.nuget.org/api/v2?package=cake.coveralls&version=0.9.0"
 #addin "nuget:https://www.nuget.org/api/v2?package=Cake.Incubator&version=4.0.1"
 #addin "nuget:https://www.nuget.org/api/v2?package=Newtonsoft.Json&version=9.0.1"
 
@@ -244,10 +243,9 @@ Task("Publish")
     });
 });
 
-
 Task("Upload-Coverage-Report")
     .WithCriteria(() => FileExists(paths.Files.TestCoverageOutput))
-    .WithCriteria(() => parameters.IsRunningOnWindows && !parameters.IsLocalBuild)
+    .WithCriteria(() => parameters.UploadCoverageReport && !parameters.IsLocalBuild)
     .IsDependentOn("Publish")
     .Does(() =>
 {
@@ -256,11 +254,35 @@ Task("Upload-Coverage-Report")
     {
         throw new InvalidOperationException("Could not resolve coveralls repo key.");
     }
+    var pathSegments = new [] { "tools",
+                                ".store",
+                                "coveralls.net",
+                                "1.0.0",
+                                "coveralls.net",
+                                "1.0.0",
+                                "tools",
+                                "netcoreapp2.1",
+                                "any" };
 
-    CoverallsIo(paths.Files.TestCoverageOutput, new CoverallsIoSettings
-    {
-        RepoToken = repoKey
-    });
+    var workingDir = pathSegments.Aggregate(Context.Environment.WorkingDirectory, (acc, seed) => acc.Combine(seed)); 
+
+    var argumentBuilder = new ProcessArgumentBuilder()
+        .Append("csmacnz.Coveralls.dll")
+        .Append("--opencover")
+        .AppendSwitch("-i"," ", paths.Files.TestCoverageOutput.MakeAbsolute(Context.Environment).ToString())
+        .AppendSwitch("--repoToken"," ", repoKey);
+
+        var exitCode = StartProcess("dotnet", new ProcessSettings
+        {
+            WorkingDirectory = workingDir,
+            Arguments = argumentBuilder
+        });
+
+        if(exitCode != 0)
+        {
+            throw new CakeException($"Cannot upload coverage report, the process returned non-zero {exitCode} exit code");
+        }
+    
 });
 
 Task("AppVeyor")

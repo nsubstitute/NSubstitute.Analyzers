@@ -10,6 +10,7 @@ public class BuildParameters
     public bool IsPullRequest { get; private set; }
     public string TargetFramework { get; private set; }
     public bool IsRunningOnWindows { get; private set; }
+    public bool UploadCoverageReport {get; private set; }
 
     public bool ShouldPublish
     {
@@ -32,6 +33,7 @@ public class BuildParameters
             Target = context.Argument("target", "Build"),
             Configuration = context.Argument("configuration", "Release"),
             SkipCodeCoverage = context.Argument<bool>("SkipCodeCoverage", false),
+            UploadCoverageReport = context.Argument<bool>("UploadCoverageReport", true),
             IsLocalBuild = buildSystem.IsLocalBuild,
             IsMaster = StringComparer.OrdinalIgnoreCase.Equals("master", buildSystem.AppVeyor.Environment.Repository.Branch),
             IsDev = StringComparer.OrdinalIgnoreCase.Equals("dev", buildSystem.AppVeyor.Environment.Repository.Branch),
