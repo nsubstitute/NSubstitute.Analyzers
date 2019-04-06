@@ -8,9 +8,10 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer<TSyntaxKind, TInvocationExpressionSyntax> : AbstractDiagnosticAnalyzer
+    internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer<TSyntaxKind, TInvocationExpressionSyntax, TMemberAccessExpressionSyntax> : AbstractDiagnosticAnalyzer
         where TInvocationExpressionSyntax : SyntaxNode
-        where TSyntaxKind : struct
+        where TMemberAccessExpressionSyntax : SyntaxNode
+        where TSyntaxKind : struct, Enum
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             DiagnosticDescriptorsProvider.NonVirtualWhenSetupSpecification,
@@ -67,7 +68,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     {
                         var diagnostic = Diagnostic.Create(
                             DiagnosticDescriptorsProvider.NonVirtualWhenSetupSpecification,
-                            analysedSyntax.GetLocation(),
+                            GetSubstitutionNodeActualLocation(analysedSyntax, symbolInfo),
                             symbolInfo.Symbol.Name);
 
                         syntaxNodeContext.ReportDiagnostic(diagnostic);
@@ -77,7 +78,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     {
                         var diagnostic = Diagnostic.Create(
                             DiagnosticDescriptorsProvider.InternalSetupSpecification,
-                            analysedSyntax.GetLocation(),
+                            GetSubstitutionNodeActualLocation(analysedSyntax, symbolInfo),
                             symbolInfo.Symbol.Name);
 
                         syntaxNodeContext.ReportDiagnostic(diagnostic);
@@ -97,6 +98,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             return symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
                    symbol.Symbol?.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteExtensionsFullTypeName, StringComparison.OrdinalIgnoreCase) == true;
+        }
+
+        private static Location GetSubstitutionNodeActualLocation(SyntaxNode analysedSyntax, SymbolInfo symbolInfo)
+        {
+            return analysedSyntax.GetSubstitutionNodeActualLocation<TMemberAccessExpressionSyntax>(symbolInfo.Symbol);
         }
     }
 }

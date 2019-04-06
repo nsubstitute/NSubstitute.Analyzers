@@ -28,5 +28,13 @@ namespace NSubstitute.Analyzers.Shared.Extensions
 
             return null;
         }
+
+        public static Location GetSubstitutionNodeActualLocation<TMemberAccessExpression>(this SyntaxNode node, ISymbol symbol)
+            where TMemberAccessExpression : SyntaxNode
+        {
+            var actualNode = node is TMemberAccessExpression && symbol is IMethodSymbol _ ? node.Parent : node;
+
+            return actualNode.GetLocation();
+        }
     }
 }

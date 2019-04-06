@@ -9,7 +9,7 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
     [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
-    internal class NonSubstitutableMemberWhenAnalyzer : AbstractNonSubstitutableMemberWhenAnalyzer<SyntaxKind, InvocationExpressionSyntax>
+    internal class NonSubstitutableMemberWhenAnalyzer : AbstractNonSubstitutableMemberWhenAnalyzer<SyntaxKind, InvocationExpressionSyntax, MemberAccessExpressionSyntax>
     {
         public NonSubstitutableMemberWhenAnalyzer()
             : base(new DiagnosticDescriptorsProvider())
