@@ -7,7 +7,7 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractReEntrantCallFinder
+    internal abstract class AbstractReEntrantCallFinder : IReEntrantCallFinder
     {
         private static readonly ImmutableDictionary<string, string> MethodNames = new Dictionary<string, string>()
         {
