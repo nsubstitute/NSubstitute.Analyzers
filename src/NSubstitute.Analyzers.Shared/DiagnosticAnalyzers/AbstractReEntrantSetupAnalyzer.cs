@@ -11,24 +11,20 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         where TInvocationExpressionSyntax : SyntaxNode
         where TSyntaxKind : struct
     {
+        private readonly IReEntrantCallFinder _reEntrantCallFinder;
+
         private static readonly ImmutableHashSet<string> MethodNames = ImmutableHashSet.Create(
             MetadataNames.NSubstituteReturnsMethod,
             MetadataNames.NSubstituteReturnsForAnyArgsMethod);
 
-        private AbstractReEntrantCallFinder ReEntrantCallFinder => _reEntrantCallFinderProxy.Value;
-
-        private readonly Lazy<AbstractReEntrantCallFinder> _reEntrantCallFinderProxy;
-
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
             ImmutableArray.Create(DiagnosticDescriptorsProvider.ReEntrantSubstituteCall);
 
-        protected AbstractReEntrantSetupAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
+        protected AbstractReEntrantSetupAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider, IReEntrantCallFinder reEntrantCallFinder)
             : base(diagnosticDescriptorsProvider)
         {
-            _reEntrantCallFinderProxy = new Lazy<AbstractReEntrantCallFinder>(GetReEntrantCallFinder);
+            _reEntrantCallFinder = reEntrantCallFinder;
         }
-
-        protected abstract AbstractReEntrantCallFinder GetReEntrantCallFinder();
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
@@ -61,7 +57,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             foreach (var argument in argumentsForAnalysis)
             {
-                var reentrantSymbol = ReEntrantCallFinder.GetReEntrantCalls(syntaxNodeContext.Compilation, argument).FirstOrDefault();
+                var reentrantSymbol = _reEntrantCallFinder.GetReEntrantCalls(syntaxNodeContext.Compilation, argument).FirstOrDefault();
                 if (reentrantSymbol != null)
                 {
                     var diagnostic = Diagnostic.Create(

@@ -24,8 +24,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.Fixtures
         {
             var types = GetTypesAssignableTo<CodeFixProvider>(type.Assembly).ToList();
 
-            types.Should().OnlyContain(innerType => innerType.GetCustomAttributes<ExportCodeFixProviderAttribute>(true).Count() == 1, "because each code fix provider should be marked with only one attribute ExportCodeFixProviderAttribute");
-            types.SelectMany(innerType => innerType.GetCustomAttributes<ExportCodeFixProviderAttribute>(true)).Should()
+            types.Should().OnlyContain(innerType => innerType.GetCustomAttributes<ExportCodeFixProviderAttribute>(false).Count() == 1, "because each code fix provider should be marked with only one attribute ExportCodeFixProviderAttribute");
+            types.SelectMany(innerType => innerType.GetCustomAttributes<ExportCodeFixProviderAttribute>(false)).Should()
                 .OnlyContain(
                     attr => attr.Languages.Length == 1 && attr.Languages.Count(lang => lang == expectedLanguage) == 1,
                     $"because each code fix provider should support only selected language ${expectedLanguage}");
@@ -35,17 +35,11 @@ namespace NSubstitute.Analyzers.Tests.Shared.Fixtures
         {
             var types = GetTypesAssignableTo<DiagnosticAnalyzer>(type.Assembly).ToList();
 
-            types.Should().OnlyContain(innerType => innerType.GetCustomAttributes<DiagnosticAnalyzerAttribute>(true).Count() == 1, "because each analyzer should be marked with only one attribute DiagnosticAnalyzerAttribute");
-            types.SelectMany(innerType => innerType.GetCustomAttributes<DiagnosticAnalyzerAttribute>(true)).Should()
+            types.Should().OnlyContain(innerType => innerType.GetCustomAttributes<DiagnosticAnalyzerAttribute>(false).Count() == 1, "because each analyzer should be marked with only one attribute DiagnosticAnalyzerAttribute");
+            types.SelectMany(innerType => innerType.GetCustomAttributes<DiagnosticAnalyzerAttribute>(false)).Should()
                 .OnlyContain(
                     attr => attr.Languages.Length == 1 && attr.Languages.Count(lang => lang == expectedLanguage) == 1,
                     $"because each analyzer should support only selected language ${expectedLanguage}");
-        }
-
-        private static T CreateInstance<T>(Type analyzer)
-        {
-            var args = analyzer.GetConstructors().First().GetParameters().Select(parameter => Substitute.For(new[] { parameter.ParameterType }, null)).ToArray();
-            return (T)Activator.CreateInstance(analyzer, args);
         }
 
         private IEnumerable<Type> GetTypesAssignableTo<T>(Assembly assembly)

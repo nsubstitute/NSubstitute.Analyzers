@@ -13,13 +13,8 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
     internal class ReEntrantSetupAnalyzer : AbstractReEntrantSetupAnalyzer<SyntaxKind, InvocationExpressionSyntax>
     {
         public ReEntrantSetupAnalyzer()
-            : base(new DiagnosticDescriptorsProvider())
+            : base(new DiagnosticDescriptorsProvider(), new ReEntrantCallFinder())
         {
-        }
-
-        protected override AbstractReEntrantCallFinder GetReEntrantCallFinder()
-        {
-            return new ReEntrantCallFinder();
         }
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;

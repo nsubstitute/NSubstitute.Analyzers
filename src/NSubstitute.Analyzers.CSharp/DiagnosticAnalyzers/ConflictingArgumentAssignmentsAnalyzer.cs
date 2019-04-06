@@ -14,7 +14,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
     internal class ConflictingArgumentAssignmentsAnalyzer : AbstractConflictingArgumentAssignmentsAnalyzer<SyntaxKind, InvocationExpressionSyntax, ExpressionSyntax, ElementAccessExpressionSyntax>
     {
         public ConflictingArgumentAssignmentsAnalyzer()
-            : base(new DiagnosticDescriptorsProvider())
+            : base(new DiagnosticDescriptorsProvider(), new CallInfoCallFinder())
         {
         }
 
@@ -28,11 +28,6 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
         protected override SyntaxNode GetSubstituteCall(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax)
         {
             return invocationExpressionSyntax.GetParentInvocationExpression();
-        }
-
-        protected override AbstractCallInfoFinder<InvocationExpressionSyntax, ElementAccessExpressionSyntax> GetCallInfoFinder()
-        {
-            return new CallInfoCallFinder();
         }
 
         protected override int? GetIndexerPosition(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, ElementAccessExpressionSyntax indexerExpressionSyntax)
