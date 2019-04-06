@@ -6,6 +6,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
     {
         Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method, string whenAction);
 
+        Task ReportsDiagnostics_WhenSettingValueForNonVirtualMemberFromBaseClass(string method, string whenAction);
+
         Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string method, string whenAction);
 
         Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string method, string whenAction);

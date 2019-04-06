@@ -23,6 +23,12 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitu
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method, string whenAction);
 
         [CombinatoryTheory]
+        [InlineData("sub => [|sub.Bar()|]")]
+        [InlineData("delegate(Foo sub) { [|sub.Bar()|]; }")]
+        [InlineData("sub => { [|sub.Bar()|]; }")]
+        public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMemberFromBaseClass(string method, string whenAction);
+
+        [CombinatoryTheory]
         [InlineData("sub => sub.Bar()")]
         [InlineData("delegate(Foo sub) { sub.Bar(); }")]
         [InlineData("sub => { sub.Bar(); }")]

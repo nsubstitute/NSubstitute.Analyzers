@@ -30,6 +30,33 @@ End Namespace
             await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
         }
 
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMemberFromBaseClass(string method, string whenAction)
+        {
+            var source = $@"Imports NSubstitute
+
+Namespace MyNamespace
+    Public MustInherit Class FooBar
+        Public Function Bar() As Integer
+            Return 1
+        End Function
+    End Class
+
+    Public Class Foo
+        Inherits FooBar
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim i As Integer = 1
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            substitute.{method}({whenAction}).[Do](Sub(callInfo) i = i + 1)
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+        }
+
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string method, string whenAction)
         {
             var source = $@"Imports NSubstitute

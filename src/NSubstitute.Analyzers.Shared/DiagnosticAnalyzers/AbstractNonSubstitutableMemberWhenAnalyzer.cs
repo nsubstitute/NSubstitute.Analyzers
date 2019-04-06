@@ -58,11 +58,10 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
 
             var expressionsForAnalysys = _substitutionNodeFinder.FindForWhenExpression(syntaxNodeContext, invocationExpression, methodSymbol);
-            var typeSymbol = methodSymbol.TypeArguments.FirstOrDefault() ?? methodSymbol.ReceiverType;
             foreach (var analysedSyntax in expressionsForAnalysys)
             {
                 var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(analysedSyntax);
-                if (symbolInfo.Symbol != null && symbolInfo.Symbol.ContainingType == typeSymbol)
+                if (symbolInfo.Symbol != null)
                 {
                     var canBeSetuped = symbolInfo.Symbol.CanBeSetuped();
                     if (canBeSetuped == false)

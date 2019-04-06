@@ -34,6 +34,37 @@ namespace MyNamespace
             await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
         }
 
+        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMemberFromBaseClass(string method, string whenAction)
+        {
+            var source = $@"using NSubstitute;
+namespace MyNamespace
+{{
+    public abstract class FooBar
+    {{
+        public int Bar()
+        {{
+            return 1;
+        }}
+    }}
+
+    public class Foo : FooBar
+    {{
+    }}
+    
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            int i = 1;
+            var substitute = Substitute.For<Foo>();
+
+            substitute.{method}({whenAction}).Do(callInfo => i++);
+        }}
+    }}
+}}";
+            await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
+        }
+
         public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string method, string whenAction)
         {
             var source = $@"using NSubstitute;
