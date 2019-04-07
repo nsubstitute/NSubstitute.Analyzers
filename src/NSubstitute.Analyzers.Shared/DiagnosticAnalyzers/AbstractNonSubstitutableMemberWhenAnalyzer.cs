@@ -13,6 +13,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         where TMemberAccessExpressionSyntax : SyntaxNode
         where TSyntaxKind : struct, Enum
     {
+        private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             DiagnosticDescriptorsProvider.NonVirtualWhenSetupSpecification,
             DiagnosticDescriptorsProvider.InternalSetupSpecification);
@@ -23,17 +25,16 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
-        protected AbstractNonSubstitutableMemberWhenAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
+        protected AbstractNonSubstitutableMemberWhenAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider, ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder)
             : base(diagnosticDescriptorsProvider)
         {
+            _substitutionNodeFinder = substitutionNodeFinder;
         }
 
         public override void Initialize(AnalysisContext context)
         {
             context.RegisterSyntaxNodeAction(AnalyzeInvocation, InvocationExpressionKind);
         }
-
-        protected abstract IEnumerable<SyntaxNode> GetExpressionsForAnalysys(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, IMethodSymbol methodSymbol, TInvocationExpressionSyntax invocationExpressionSyntax);
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
@@ -56,7 +57,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            var expressionsForAnalysys = GetExpressionsForAnalysys(syntaxNodeContext, methodSymbol, invocationExpression);
+            var expressionsForAnalysys = _substitutionNodeFinder.FindForWhenExpression(syntaxNodeContext, invocationExpression, methodSymbol);
             var typeSymbol = methodSymbol.TypeArguments.FirstOrDefault() ?? methodSymbol.ReceiverType;
             foreach (var analysedSyntax in expressionsForAnalysys)
             {

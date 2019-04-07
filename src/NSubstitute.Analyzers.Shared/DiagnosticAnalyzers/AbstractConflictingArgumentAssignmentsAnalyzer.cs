@@ -14,9 +14,12 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         where TIndexerExpressionSyntax : SyntaxNode
         where TSyntaxKind : struct
     {
-        protected AbstractConflictingArgumentAssignmentsAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
+        private readonly ICallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> _callInfoFinder;
+
+        protected AbstractConflictingArgumentAssignmentsAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider, ICallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> callInfoFinder)
             : base(diagnosticDescriptorsProvider)
         {
+            _callInfoFinder = callInfoFinder;
             SupportedDiagnostics = ImmutableArray.Create(DiagnosticDescriptorsProvider.ConflictingArgumentAssignments);
         }
 
@@ -37,8 +40,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         protected abstract IEnumerable<TExpressionSyntax> GetArgumentExpressions(TInvocationExpressionSyntax invocationExpressionSyntax);
 
         protected abstract SyntaxNode GetSubstituteCall(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, TInvocationExpressionSyntax invocationExpressionSyntax);
-
-        protected abstract AbstractCallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> GetCallInfoFinder();
 
         protected abstract int? GetIndexerPosition(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax);
 
@@ -110,7 +111,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private IEnumerable<TIndexerExpressionSyntax> FindCallInfoIndexers(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpressionSyntax)
         {
-            return GetArgumentExpressions(invocationExpressionSyntax).SelectMany(argument => GetCallInfoFinder().GetCallInfoContext(syntaxNodeContext.SemanticModel, argument).IndexerAccesses)
+            return GetArgumentExpressions(invocationExpressionSyntax).SelectMany(argument => _callInfoFinder.GetCallInfoContext(syntaxNodeContext.SemanticModel, argument).IndexerAccesses)
                 .Where(indexerExpression => IsAssigned(syntaxNodeContext, indexerExpression));
         }
     }
