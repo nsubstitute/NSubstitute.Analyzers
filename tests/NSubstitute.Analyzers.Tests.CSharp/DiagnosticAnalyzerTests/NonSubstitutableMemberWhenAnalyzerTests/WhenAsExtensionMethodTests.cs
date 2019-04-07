@@ -432,7 +432,7 @@ namespace MyNamespace
 
             void SubstituteCall(Foo sub)
             {{
-                [|sub.Bar|]();
+                [|sub.Bar()|];
             }}
 
             substitute.{method}(SubstituteCall).Do(callInfo => i++);
@@ -465,7 +465,7 @@ namespace MyNamespace
             int i = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
 
-            void SubstituteCall(Foo sub) => [|sub.Bar|]();
+            void SubstituteCall(Foo sub) => [|sub.Bar()|];
 
             substitute.{method}(SubstituteCall).Do(callInfo => i++);
             substitute.Bar();
@@ -503,7 +503,7 @@ namespace MyNamespace
 
         private void SubstituteCall(Foo sub)
         {{
-            var objBarr = [|sub.Bar|]();
+            var objBarr = [|sub.Bar()|];
         }}
     }}
 }}";
@@ -536,7 +536,7 @@ namespace MyNamespace
             substitute.Bar();
         }}
 
-        private void SubstituteCall(Foo sub) => [|sub.Bar|]();
+        private void SubstituteCall(Foo sub) => [|sub.Bar()|];
     }}
 }}";
 

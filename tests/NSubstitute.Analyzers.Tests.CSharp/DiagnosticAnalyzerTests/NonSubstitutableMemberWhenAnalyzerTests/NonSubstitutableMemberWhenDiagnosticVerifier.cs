@@ -17,9 +17,9 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitu
         protected DiagnosticDescriptor InternalSetupSpecificationDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.InternalSetupSpecification;
 
         [CombinatoryTheory]
-        [InlineData("sub => [|sub.Bar|]()")]
-        [InlineData("delegate(Foo sub) { [|sub.Bar|](); }")]
-        [InlineData("sub => { [|sub.Bar|](); }")]
+        [InlineData("sub => [|sub.Bar()|]")]
+        [InlineData("delegate(Foo sub) { [|sub.Bar()|]; }")]
+        [InlineData("sub => { [|sub.Bar()|]; }")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method, string whenAction);
 
         [CombinatoryTheory]
@@ -41,9 +41,9 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitu
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string method, string whenAction);
 
         [CombinatoryTheory]
-        [InlineData("sub => [|sub.Bar|]()")]
-        [InlineData("delegate(Foo sub) { [|sub.Bar|](); }")]
-        [InlineData("sub => { [|sub.Bar|](); }")]
+        [InlineData("sub => [|sub.Bar()|]")]
+        [InlineData("delegate(Foo sub) { [|sub.Bar()|]; }")]
+        [InlineData("sub => { [|sub.Bar()|]; }")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string method, string whenAction);
 
         [CombinatoryTheory]
@@ -138,7 +138,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitu
 
         [CombinatoryTheory]
         [InlineData("sub => { var x = [|sub.Bar|]; }", "Internal member Bar can not be intercepted without InternalsVisibleToAttribute.")]
-        [InlineData("sub => [|sub.FooBar|]()", "Internal member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData("sub => [|sub.FooBar()|]", "Internal member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
         [InlineData("sub => { var x = [|sub[0]|]; }", "Internal member this[] can not be intercepted without InternalsVisibleToAttribute.")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message);
 
@@ -150,7 +150,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitu
 
         [CombinatoryTheory]
         [InlineData("sub => { var x = [|sub.Bar|]; }", "Internal member Bar can not be intercepted without InternalsVisibleToAttribute.")]
-        [InlineData("sub => [|sub.FooBar|]()", "Internal member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData("sub => [|sub.FooBar()|]", "Internal member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
         [InlineData("sub => { var x = [|sub[0]|]; }", "Internal member this[] can not be intercepted without InternalsVisibleToAttribute.")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message);
 
