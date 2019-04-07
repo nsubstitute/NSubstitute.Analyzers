@@ -1,0 +1,11 @@
+# Declare files that will always have CRLF line endings on checkout.
+*.sln text eol=crlf
+*.cs text eol=crlf
+*.cake text eol=crlf
+*.csproj text eol=crlf
+*.ps1 text eol=crlf
+*.sh text eol=lf
+
+# Denote all files that are truly binary and should not be modified.
+*.png binary
+*.jpg binary
