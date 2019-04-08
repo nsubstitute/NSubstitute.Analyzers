@@ -8,10 +8,13 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer<TSyntaxKind, TInvocationExpressionSyntax> : AbstractDiagnosticAnalyzer
+    internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer<TSyntaxKind, TInvocationExpressionSyntax, TMemberAccessExpressionSyntax> : AbstractDiagnosticAnalyzer
         where TInvocationExpressionSyntax : SyntaxNode
-        where TSyntaxKind : struct
+        where TMemberAccessExpressionSyntax : SyntaxNode
+        where TSyntaxKind : struct, Enum
     {
+        private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             DiagnosticDescriptorsProvider.NonVirtualWhenSetupSpecification,
             DiagnosticDescriptorsProvider.InternalSetupSpecification);
@@ -22,17 +25,16 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
-        protected AbstractNonSubstitutableMemberWhenAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
+        protected AbstractNonSubstitutableMemberWhenAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider, ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder)
             : base(diagnosticDescriptorsProvider)
         {
+            _substitutionNodeFinder = substitutionNodeFinder;
         }
 
         public override void Initialize(AnalysisContext context)
         {
             context.RegisterSyntaxNodeAction(AnalyzeInvocation, InvocationExpressionKind);
         }
-
-        protected abstract IEnumerable<SyntaxNode> GetExpressionsForAnalysys(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, IMethodSymbol methodSymbol, TInvocationExpressionSyntax invocationExpressionSyntax);
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
@@ -55,19 +57,18 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            var expressionsForAnalysys = GetExpressionsForAnalysys(syntaxNodeContext, methodSymbol, invocationExpression);
-            var typeSymbol = methodSymbol.TypeArguments.FirstOrDefault() ?? methodSymbol.ReceiverType;
+            var expressionsForAnalysys = _substitutionNodeFinder.FindForWhenExpression(syntaxNodeContext, invocationExpression, methodSymbol);
             foreach (var analysedSyntax in expressionsForAnalysys)
             {
                 var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(analysedSyntax);
-                if (symbolInfo.Symbol != null && symbolInfo.Symbol.ContainingType == typeSymbol)
+                if (symbolInfo.Symbol != null)
                 {
                     var canBeSetuped = symbolInfo.Symbol.CanBeSetuped();
                     if (canBeSetuped == false)
                     {
                         var diagnostic = Diagnostic.Create(
                             DiagnosticDescriptorsProvider.NonVirtualWhenSetupSpecification,
-                            analysedSyntax.GetLocation(),
+                            GetSubstitutionNodeActualLocation(analysedSyntax, symbolInfo),
                             symbolInfo.Symbol.Name);
 
                         syntaxNodeContext.ReportDiagnostic(diagnostic);
@@ -77,7 +78,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     {
                         var diagnostic = Diagnostic.Create(
                             DiagnosticDescriptorsProvider.InternalSetupSpecification,
-                            analysedSyntax.GetLocation(),
+                            GetSubstitutionNodeActualLocation(analysedSyntax, symbolInfo),
                             symbolInfo.Symbol.Name);
 
                         syntaxNodeContext.ReportDiagnostic(diagnostic);
@@ -97,6 +98,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             return symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
                    symbol.Symbol?.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteExtensionsFullTypeName, StringComparison.OrdinalIgnoreCase) == true;
+        }
+
+        private static Location GetSubstitutionNodeActualLocation(SyntaxNode analysedSyntax, SymbolInfo symbolInfo)
+        {
+            return analysedSyntax.GetSubstitutionNodeActualLocation<TMemberAccessExpressionSyntax>(symbolInfo.Symbol);
         }
     }
 }

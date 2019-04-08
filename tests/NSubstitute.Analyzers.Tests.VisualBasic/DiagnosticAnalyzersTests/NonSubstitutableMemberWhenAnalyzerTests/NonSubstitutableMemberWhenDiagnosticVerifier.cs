@@ -26,6 +26,15 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method, string whenAction);
 
         [CombinatoryTheory]
+        [InlineData("Sub(sb) [|sb.Bar()|]")]
+        [InlineData(@"Function(ByVal [sub] As Foo) [|[sub].Bar()|]")]
+        [InlineData(
+            @"Sub(sb As Foo)
+                [|sb.Bar()|]
+            End Sub")]
+        public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMemberFromBaseClass(string method, string whenAction);
+
+        [CombinatoryTheory]
         [InlineData("Sub(sb) sb.Bar()")]
         [InlineData(@"Function(ByVal [sub] As Foo) [sub].Bar()")]
         [InlineData(

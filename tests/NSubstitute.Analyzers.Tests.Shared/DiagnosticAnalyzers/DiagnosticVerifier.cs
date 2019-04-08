@@ -31,7 +31,11 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         private static readonly MetadataReference NSubstituteReference = MetadataReference.CreateFromFile(typeof(Substitute).Assembly.Location);
 
-        private static readonly MetadataReference ValueTaskReference = MetadataReference.CreateFromFile(typeof(ValueTask<>).Assembly.Location);
+        private static readonly MetadataReference TasksExtensionsReference = MetadataReference.CreateFromFile(Assembly.Load("System.Threading.Tasks.Extensions").Location);
+
+        private static readonly MetadataReference NetStandard = MetadataReference.CreateFromFile(Assembly.Load("netstandard, Version=2.0.0.0").Location);
+
+        private static readonly MetadataReference[] MetadataReferences;
 
         public static string DefaultFilePathPrefix { get; } = "Test";
 
@@ -42,6 +46,18 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
         protected abstract string Language { get; }
 
         protected abstract string FileExtension { get; }
+
+        static DiagnosticVerifier()
+        {
+            var referencedAssemblies = typeof(Substitute).Assembly.GetReferencedAssemblies();
+            var systemRuntimeReference = GetAssemblyReference(referencedAssemblies, "System.Runtime");
+            var systemThreadingTasksReference = GetAssemblyReference(referencedAssemblies, "System.Threading.Tasks");
+            MetadataReferences = new[]
+            {
+                CorlibReference, SystemCoreReference, CodeAnalysisReference, NSubstituteReference, NetStandard,
+                TasksExtensionsReference, systemRuntimeReference, systemThreadingTasksReference
+            };
+        }
 
         protected DiagnosticVerifier()
         {
@@ -159,10 +175,6 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
         protected Project CreateProject(string[] sources)
         {
             var fileNamePrefix = DefaultFilePathPrefix;
-            var referencedAssemblies = typeof(Substitute).Assembly.GetReferencedAssemblies();
-            var systemRuntimeReference = GetAssemblyReference(referencedAssemblies, "System.Runtime");
-            var systemThreadingTasksReference = GetAssemblyReference(referencedAssemblies, "System.Threading.Tasks");
-
             var projectId = ProjectId.CreateNewId(TestProjectName);
 
             using (var adhocWorkspace = new AdhocWorkspace())
@@ -173,22 +185,14 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
                     .CurrentSolution
                     .AddProject(projectId, TestProjectName, TestProjectName, Language)
                     .WithProjectCompilationOptions(projectId, compilationOptions)
-                    .AddMetadataReference(projectId, CorlibReference)
-                    .AddMetadataReference(projectId, SystemCoreReference)
-                    .AddMetadataReference(projectId, CodeAnalysisReference)
-                    .AddMetadataReference(projectId, NSubstituteReference)
-                    .AddMetadataReference(projectId, ValueTaskReference)
-                    .AddMetadataReference(projectId, systemRuntimeReference)
-                    .AddMetadataReference(projectId, systemThreadingTasksReference)
-                    .AddMetadataReferences(projectId, GetAdditionalMetadataReferences());
+                    .AddMetadataReferences(projectId, MetadataReferences.Concat(GetAdditionalMetadataReferences()));
 
-                var count = 0;
-                foreach (var source in sources)
+                for (var index = 0; index < sources.Length; index++)
                 {
-                    var newFileName = fileNamePrefix + count + "." + FileExtension;
+                    var source = sources[index];
+                    var newFileName = fileNamePrefix + index + "." + FileExtension;
                     var documentId = DocumentId.CreateNewId(projectId, debugName: newFileName);
                     solution = solution.AddDocument(documentId, newFileName, SourceText.From(source));
-                    count++;
                 }
 
                 var settings = GetSettings();
@@ -314,7 +318,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
             return diagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();
         }
 
-        private MetadataReference GetAssemblyReference(IEnumerable<AssemblyName> assemblies, string name)
+        private static MetadataReference GetAssemblyReference(IEnumerable<AssemblyName> assemblies, string name)
         {
             return MetadataReference.CreateFromFile(Assembly.Load(assemblies.First(n => n.Name == name)).Location);
         }

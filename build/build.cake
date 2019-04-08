@@ -3,25 +3,32 @@
 #load "./paths.cake"
 #load "./releasenotes.cake"
 
-// Install tools.
-#tool "nuget:https://www.nuget.org/api/v2?package=GitVersion.CommandLine&version=3.6.5"
-#tool "nuget:https://www.nuget.org/api/v2?package=OpenCover&version=4.6.519"
-#tool "nuget:https://www.nuget.org/api/v2?package=ReportGenerator&version=3.1.2"
-#tool "nuget:https://www.nuget.org/api/v2?package=coveralls.io&version=1.4.2"
-#addin "nuget:https://www.nuget.org/api/v2?package=cake.coveralls&version=0.8.0"
+// Install modules
+#module nuget:?package=Cake.DotNetTool.Module&version=0.1.0
 
+// Install tools.
+#tool "dotnet:https://api.nuget.org/v3/index.json?package=GitVersion.Tool&version=4.0.1-beta1-58"
+#tool "dotnet:https://api.nuget.org/v3/index.json?package=coveralls.net&version=1.0.0"
+#tool "nuget:https://www.nuget.org/api/v2?package=ReportGenerator&version=4.0.4"
+#addin "nuget:https://www.nuget.org/api/v2?package=Cake.Incubator&version=4.0.1"
+#addin "nuget:https://www.nuget.org/api/v2?package=Newtonsoft.Json&version=9.0.1"
+
+using Newtonsoft.Json.Linq;
+using System.Net.Http;
 using System.Text.RegularExpressions;
+using Cake.Incubator.LoggingExtensions;
+using System.Threading;
+using System.Net.Http.Headers;
 
 var parameters = BuildParameters.GetParameters(Context);
 var buildVersion = BuildVersion.Calculate(Context);
 var paths = BuildPaths.GetPaths(Context, parameters, buildVersion);
-var publishingError = false;
 var packages = BuildPackages.GetPackages(paths, buildVersion);
 var releaseNotes = ReleaseNotes.ParseAllReleaseNotes(Context, paths);
 
 Setup(context =>
 {
-    Information("Building version {0} of NSubstitute.Analyzers", buildVersion.SemVersion);
+    Information("Building version {0} of NSubstitute.Analyzers with following parameters {1} {2}", buildVersion.SemVersion, Environment.NewLine, parameters.Dump());
 
     if(DirectoryExists(paths.Directories.Artifacts))
     {
@@ -67,36 +74,52 @@ Task("Run-Tests")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    Action<ICakeContext> testAction = context =>
+    
+    var testSettings = new DotNetCoreTestSettings
     {
-        context.DotNetCoreVSTest(paths.Files.TestAssemblies, new DotNetCoreVSTestSettings
-        {
-            Framework = "FrameworkCore10",
-            Parallel = true,
-            Platform = VSTestPlatform.x64
-        });
+        Framework = parameters.TargetFramework,
+        NoBuild = true,
+        NoRestore = true,
+        Configuration = parameters.Configuration
     };
 
-    if (parameters.SkipOpenCover)
+    if(parameters.SkipCodeCoverage == false)
     {
-        testAction(Context);
-    }
-    else
-    {
-        OpenCover(testAction,
-                        paths.Files.TestCoverageOutput,
-                        new OpenCoverSettings
-                        {
-                            ReturnTargetCodeOffset = 0,
-                            OldStyle = true,
-                            MergeOutput = true
-                        }
-                        .WithFilter("+[NSubstitute.Analyzers*]* -[NSubstitute.Analyzers.Test*]*")
-                        .ExcludeByAttribute("*.ExcludeFromCodeCoverage*")
-                        .ExcludeByFile("*.Designer.cs;*.g.cs;*.g.i.cs"));
-        ReportGenerator(paths.Files.TestCoverageOutput, paths.Directories.TestResults);
+        testSettings.ArgumentCustomization = arg => arg.AppendSwitch("/p:CollectCoverage","=","True")
+                                                       .AppendSwitch("/p:CoverletOutputFormat", "=", @"\""json,opencover\""")
+                                                       .AppendSwitch("/p:MergeWith", "=", $@"""{paths.Files.TestCoverageOutputWithoutExtension.ToString()}.json""")
+                                                       .AppendSwitch("/p:CoverletOutput", "=", $@"""{paths.Files.TestCoverageOutputWithoutExtension.ToString()}""")
+                                                       .AppendSwitch("/p:ExcludeByAttribute", "=", @"\""GeneratedCodeAttribute,ExcludeFromCodeCoverage\""")
+                                                       .AppendSwitch("/p:Exclude", "=", @"\""[xunit.*]*,[NSubstitute.Analyzers.Test*]*\""")
+                                                       .AppendSwitch("/p:Include", "=", "[NSubstitute.Analyzers*]*");
     }
 
+    DotNetCoreTest(paths.Files.Solution.MakeAbsolute(Context.Environment).ToString(), testSettings);
+
+    if(parameters.SkipCodeCoverage == false)
+    {
+        var reportGeneratorWorkingDir = Context.Environment.WorkingDirectory
+                                                       .Combine("tools")
+                                                       .Combine("ReportGenerator.4.0.4")
+                                                       .Combine("tools")
+                                                       .Combine(parameters.TargetFramework);
+
+        var argumentBuilder = new ProcessArgumentBuilder()
+        .Append("ReportGenerator.dll")
+        .Append($@"""-reports:{paths.Files.TestCoverageOutput.MakeAbsolute(Context.Environment).ToString()}""")
+        .Append($@"""-targetdir:{paths.Directories.TestResults.MakeAbsolute(Context.Environment).ToString()}");
+
+        var exitCode = StartProcess("dotnet", new ProcessSettings
+        {
+            WorkingDirectory = reportGeneratorWorkingDir,
+            Arguments = argumentBuilder
+        });
+
+        if(exitCode != 0)
+        {
+            throw new CakeException($"Report generator returned non-zero {exitCode} exit code");
+        }
+    }
 });
 
 Task("Build")
@@ -132,8 +155,72 @@ Task("NuGet-Pack")
     }
 });
 
+Task("Wait-For-Pending-Jobs")
+    .WithCriteria(context => parameters.ShouldPublish)
+    .Does(async () =>
+{
+    var apiToken = EnvironmentVariable("APPVEYOR_API_TOKEN");
+    var buildVersion = EnvironmentVariable("APPVEYOR_BUILD_VERSION");
+    var jobId = EnvironmentVariable("APPVEYOR_JOB_ID");
+
+    if(string.IsNullOrEmpty(apiToken))
+        throw new InvalidOperationException("Could not resolve APPVEYOR_API_TOKEN.");
+
+    if(string.IsNullOrEmpty(buildVersion))
+        throw new InvalidOperationException("Could not resolve APPVEYOR_BUILD_VERSION.");
+
+    if(string.IsNullOrEmpty(jobId))
+        throw new InvalidOperationException("Could not resolve APPVEYOR_JOB_ID.");
+
+    var ct = new CancellationTokenSource(TimeSpan.FromMinutes(15)).Token;
+    var url = $"https://ci.appveyor.com/api/projects/nsubstitute/nsubstitute-analyzers/build/{buildVersion}";
+
+    while(true)
+    {
+        using (var client = new HttpClient())
+        {
+            client.DefaultRequestHeaders
+                .Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
+            var httpResponseMessage = await client.GetAsync(url);
+            httpResponseMessage.EnsureSuccessStatusCode();
+
+            var response = await httpResponseMessage.Content.ReadAsStringAsync();
+
+            var parsed = JToken.Parse(response);
+
+            var nonSuccessfulJobs = parsed["build"].Value<JObject>()["jobs"].Value<JArray>()
+                        .Cast<JObject>()
+                        .Where(jObject => jObject["jobId"].Value<string>() != jobId && jObject["status"].Value<string>() != "success")
+                        .ToList();
+
+            if (nonSuccessfulJobs.Any() == false)
+            {
+                Information("All other build jobs in matrix finished");
+                return;
+            }
+
+            var failedJobs = nonSuccessfulJobs.Where(jObject => jObject["status"].Value<string>() == "failed").ToList();
+
+            if (failedJobs.Any())
+            {
+                var jobs = string.Join(",", failedJobs.Select(jObject => jObject["name"]));
+                throw new CakeException($"Other build jobs failed, {jobs}");
+            }
+
+            var pendingJobs = nonSuccessfulJobs.Except(failedJobs).ToList();
+            var pendingJobsNames = string.Join(",", pendingJobs.Select(jObject => jObject["name"]));
+            
+            Information("There are unfinished build jobs {0}, waiting for them to finish", pendingJobsNames);
+
+            await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(30), ct);                             
+        }
+    }
+});
+
 Task("Publish")
     .IsDependentOn("NuGet-Pack")
+    .IsDependentOn("Wait-For-Pending-Jobs")
     .WithCriteria(context => parameters.ShouldPublish)
     .Does(() =>
 {
@@ -154,16 +241,11 @@ Task("Publish")
         ApiKey = apiKey,
         Source = apiUrl
     });
-}).OnError(exception =>
-{
-    Information("Publish Task failed, but continuing with next Task...");
-    publishingError = true;
 });
-
 
 Task("Upload-Coverage-Report")
     .WithCriteria(() => FileExists(paths.Files.TestCoverageOutput))
-    .WithCriteria(() => !parameters.IsLocalBuild)
+    .WithCriteria(() => parameters.UploadCoverageReport && !parameters.IsLocalBuild)
     .IsDependentOn("Publish")
     .Does(() =>
 {
@@ -172,23 +254,40 @@ Task("Upload-Coverage-Report")
     {
         throw new InvalidOperationException("Could not resolve coveralls repo key.");
     }
+    var pathSegments = new [] { "tools",
+                                ".store",
+                                "coveralls.net",
+                                "1.0.0",
+                                "coveralls.net",
+                                "1.0.0",
+                                "tools",
+                                "netcoreapp2.1",
+                                "any" };
 
-    CoverallsIo(paths.Files.TestCoverageOutput, new CoverallsIoSettings
-    {
-        RepoToken = repoKey
-    });
+    var workingDir = pathSegments.Aggregate(Context.Environment.WorkingDirectory, (acc, seed) => acc.Combine(seed)); 
+
+    var argumentBuilder = new ProcessArgumentBuilder()
+        .Append("csmacnz.Coveralls.dll")
+        .Append("--opencover")
+        .AppendSwitch("-i"," ", paths.Files.TestCoverageOutput.MakeAbsolute(Context.Environment).ToString())
+        .AppendSwitch("--repoToken"," ", repoKey);
+
+        var exitCode = StartProcess("dotnet", new ProcessSettings
+        {
+            WorkingDirectory = workingDir,
+            Arguments = argumentBuilder
+        });
+
+        if(exitCode != 0)
+        {
+            throw new CakeException($"Cannot upload coverage report, the process returned non-zero {exitCode} exit code");
+        }
+    
 });
 
 Task("AppVeyor")
   .IsDependentOn("Upload-Coverage-Report")
-  .IsDependentOn("Publish")
-  .Finally(() =>
-{
-    if (publishingError)
-    {
-        throw new Exception("An error occurred during the publishing of Cake.  All publishing tasks have been attempted.");
-    }
-});
+  .IsDependentOn("Publish");
 
 Teardown(context =>
 {

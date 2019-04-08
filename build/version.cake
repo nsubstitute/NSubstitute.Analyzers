@@ -9,11 +9,12 @@ public class BuildVersion
         {
             throw new ArgumentNullException("context");
         }
+
         var version = context.GitVersion(new GitVersionSettings
-        {
-            OutputType = GitVersionOutput.Json,
-        });
-        
+            {
+                OutputType = GitVersionOutput.Json,
+            });
+            
         return new BuildVersion
         {
             Version = version.MajorMinorPatch,

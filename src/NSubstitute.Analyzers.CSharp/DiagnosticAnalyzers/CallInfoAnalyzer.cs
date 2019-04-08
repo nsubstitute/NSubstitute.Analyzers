@@ -13,52 +13,15 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
     internal class CallInfoAnalyzer : AbstractCallInfoAnalyzer<SyntaxKind, InvocationExpressionSyntax, ExpressionSyntax, ElementAccessExpressionSyntax>
     {
         public CallInfoAnalyzer()
-            : base(new DiagnosticDescriptorsProvider())
+            : base(new DiagnosticDescriptorsProvider(), new CallInfoCallFinder(), new SubstitutionNodeFinder())
         {
         }
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
-        protected override SyntaxNode GetSubstituteCall(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax)
-        {
-            if (methodSymbol.IsExtensionMethod)
-            {
-                switch (methodSymbol.MethodKind)
-                {
-                    case MethodKind.ReducedExtension:
-                        return invocationExpressionSyntax.Expression.DescendantNodes().First();
-                    case MethodKind.Ordinary:
-                        return invocationExpressionSyntax.ArgumentList.Arguments.First().Expression;
-                    default:
-                        return null;
-                }
-            }
-
-            var parentInvocation = invocationExpressionSyntax.GetParentInvocationExpression();
-
-            if (parentInvocation == null)
-            {
-                return null;
-            }
-
-            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(parentInvocation);
-
-            if (symbol.Symbol is IMethodSymbol mSymbol && mSymbol.ReducedFrom == null)
-            {
-                return parentInvocation.ArgumentList.Arguments.First().Expression;
-            }
-
-            return parentInvocation.Expression.DescendantNodes().First();
-        }
-
         protected override IEnumerable<ExpressionSyntax> GetArgumentExpressions(InvocationExpressionSyntax invocationExpressionSyntax)
         {
             return invocationExpressionSyntax.ArgumentList.Arguments.Select(arg => arg.Expression);
-        }
-
-        protected override AbstractCallInfoFinder<InvocationExpressionSyntax, ElementAccessExpressionSyntax> GetCallInfoFinder()
-        {
-            return new CallInfoCallFinder();
         }
 
         protected override SyntaxNode GetCastTypeExpression(ElementAccessExpressionSyntax indexerExpressionSyntax)
