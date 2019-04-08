@@ -1,6 +1,6 @@
 ### 1.0.8 (08 April 2019)
 
-- [#89](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/89) NS1002 - doesn't detect non-virtual calls from base class
+- [#89](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/89) NS1002 doesn't detect non-virtual calls from base class
 - [#87](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/87) NS1002 highlights wrong member
 - [#78](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/78) Update documentation so as it includes information about min supported Visual Studio version
 - [#76](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/76) Analyze callInfo usages for Do method
