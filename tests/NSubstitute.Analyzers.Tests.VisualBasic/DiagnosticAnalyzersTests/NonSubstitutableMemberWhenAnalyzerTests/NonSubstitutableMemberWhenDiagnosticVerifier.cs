@@ -17,38 +17,38 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
         protected DiagnosticDescriptor InternalSetupSpecificationDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.InternalSetupSpecification;
 
         [CombinatoryTheory]
-        [InlineData("Sub(sb) [|sb.Bar()|]")]
-        [InlineData(@"Function(ByVal [sub] As Foo) [|[sub].Bar()|]")]
+        [InlineData("Sub(sb) [|sb.Bar(Arg.Any(Of Integer)())|]")]
+        [InlineData(@"Function(ByVal [sub] As Foo) [|[sub].Bar(Arg.Any(Of Integer)())|]")]
         [InlineData(
             @"Sub(sb As Foo)
-                [|sb.Bar()|]
+                [|sb.Bar(Arg.Any(Of Integer)())|]
             End Sub")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method, string whenAction);
 
         [CombinatoryTheory]
-        [InlineData("Sub(sb) [|sb.Bar()|]")]
-        [InlineData(@"Function(ByVal [sub] As Foo) [|[sub].Bar()|]")]
+        [InlineData("Sub(sb) [|sb.Bar(Arg.Any(Of Integer)())|]")]
+        [InlineData(@"Function(ByVal [sub] As Foo) [|[sub].Bar(Arg.Any(Of Integer)())|]")]
         [InlineData(
             @"Sub(sb As Foo)
-                [|sb.Bar()|]
+                [|sb.Bar(Arg.Any(Of Integer)())|]
             End Sub")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMemberFromBaseClass(string method, string whenAction);
 
         [CombinatoryTheory]
-        [InlineData("Sub(sb) sb.Bar()")]
-        [InlineData(@"Function(ByVal [sub] As Foo) [sub].Bar()")]
+        [InlineData("Sub(sb) sb.Bar(Arg.Any(Of Integer)())")]
+        [InlineData(@"Function(ByVal [sub] As Foo) [sub].Bar(Arg.Any(Of Integer)())")]
         [InlineData(
             @"Sub(sb As Foo)
-                sb.Bar()
+                sb.Bar(Arg.Any(Of Integer)())
             End Sub")]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string method, string whenAction);
 
         [CombinatoryTheory]
-        [InlineData("Sub(sb) sb.Bar()")]
-        [InlineData(@"Function(ByVal [sub] As Foo) [sub].Bar()")]
+        [InlineData("Sub(sb) sb.Bar(Arg.Any(Of Integer)())")]
+        [InlineData(@"Function(ByVal [sub] As Foo) [sub].Bar(Arg.Any(Of Integer)())")]
         [InlineData(
             @"Sub(sb As Foo)
-                sb.Bar()
+                sb.Bar(Arg.Any(Of Integer)())
             End Sub")]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string method, string whenAction);
 
@@ -62,29 +62,29 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string method, string whenAction);
 
         [CombinatoryTheory]
-        [InlineData("Sub(sb) [|sb.Bar()|]")]
-        [InlineData(@"Function(ByVal [sub] As Foo) [|[sub].Bar()|]")]
+        [InlineData("Sub(sb) [|sb.Bar(Arg.Any(Of Integer)())|]")]
+        [InlineData(@"Function(ByVal [sub] As Foo) [|[sub].Bar(Arg.Any(Of Integer)())|]")]
         [InlineData(
             @"Sub(sb As Foo)
-                [|sb.Bar()|]
+                [|sb.Bar(Arg.Any(Of Integer)())|]
             End Sub")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string method, string whenAction);
 
         [CombinatoryTheory]
-        [InlineData("Sub(sb) sb.Bar()")]
-        [InlineData(@"Function(ByVal [sub] As Foo) [sub].Bar()")]
+        [InlineData("Sub(sb) sb.Bar(Arg.Any(Of Integer)())")]
+        [InlineData(@"Function(ByVal [sub] As Foo) [sub].Bar(Arg.Any(Of Integer)())")]
         [InlineData(
             @"Sub(sb As Foo)
-                sb.Bar()
+                sb.Bar(Arg.Any(Of Integer)())
             End Sub")]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string method, string whenAction);
 
         [CombinatoryTheory]
-        [InlineData("Sub(sb) sb.Bar()")]
-        [InlineData(@"Function(ByVal [sub] As Foo) [sub].Bar()")]
+        [InlineData("Sub(sb) sb.Bar(Arg.Any(Of Integer)())")]
+        [InlineData(@"Function(ByVal [sub] As Foo) [sub].Bar(Arg.Any(Of Integer)())")]
         [InlineData(
             @"Sub(sb As Foo)
-                sb.Bar()
+                sb.Bar(Arg.Any(Of Integer)())
             End Sub")]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod(string method, string whenAction);
 
@@ -101,11 +101,11 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string method, string whenAction);
 
         [CombinatoryTheory]
-        [InlineData("Sub(sb) sb.Bar(Of Integer)()")]
-        [InlineData(@"Function(ByVal [sub] As Foo(Of Integer)) [sub].Bar(Of Integer)()")]
+        [InlineData("Sub(sb) sb.Bar(Of Integer)(Arg.Any(Of Integer)())")]
+        [InlineData(@"Function(ByVal [sub] As Foo(Of Integer)) [sub].Bar(Of Integer)(Arg.Any(Of Integer)())")]
         [InlineData(
             @"Sub(sb As Foo(Of Integer))
-                sb.Bar(Of Integer)()
+                sb.Bar(Of Integer)(Arg.Any(Of Integer)())
             End Sub")]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod(string method, string whenAction);
 
@@ -124,16 +124,16 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
         [CombinatoryTheory]
         [InlineData(
             @"Sub(sb As Foo)
-                Dim x = sb(1)
+                Dim x = sb(Arg.Any(Of Integer)())
             End Sub")]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer(string method, string whenAction);
 
         [CombinatoryTheory]
-        [InlineData("Sub(sb) sb.Bar()")]
-        [InlineData(@"Function(ByVal [sub] As Foo) [sub].Bar()")]
+        [InlineData("Sub(sb) sb.Bar(Arg.Any(Of Integer)())")]
+        [InlineData(@"Function(ByVal [sub] As Foo) [sub].Bar(Arg.Any(Of Integer)())")]
         [InlineData(
             @"Sub(sb As Foo)
-                sb.Bar()
+                sb.Bar(Arg.Any(Of Integer)())
             End Sub")]
         public abstract Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method, string whenAction);
 
@@ -164,12 +164,12 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
         [CombinatoryTheory]
         [InlineData(
             @"Sub(sb As Foo)
-                Dim x = [|sb(1)|]
+                Dim x = [|sb(Arg.Any(Of Integer)())|]
             End Sub")]
         [InlineData(
             @"Sub(sb As Foo)
                 Dim x as Integer
-                x = [|sb(1)|]
+                x = [|sb(Arg.Any(Of Integer)())|]
             End Sub")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string method, string whenAction);
 
@@ -186,10 +186,10 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
             @"Sub(sb As Foo)
                 Dim x = [|sb.Bar|]
             End Sub", "Friend member Bar can not be intercepted without InternalsVisibleToAttribute.")]
-        [InlineData(@"Sub(sb As Foo) [|sb.FooBar()|]", "Friend member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData(@"Sub(sb As Foo) [|sb.FooBar(Arg.Any(Of Integer)())|]", "Friend member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
         [InlineData(
             @"Sub(sb As Foo)
-                Dim x = [|sb(0)|]
+                Dim x = [|sb(Arg.Any(Of Integer)())|]
             End Sub", "Friend member Item can not be intercepted without InternalsVisibleToAttribute.")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message);
 
@@ -198,10 +198,10 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
             @"Sub(sb As Foo)
                 Dim x = sb.Bar
             End Sub")]
-        [InlineData(@"Sub(sb As Foo) sb.FooBar()")]
+        [InlineData(@"Sub(sb As Foo) sb.FooBar(Arg.Any(Of Integer)())")]
         [InlineData(
             @"Sub(sb As Foo)
-                Dim x = sb(0)
+                Dim x = sb(Arg.Any(Of Integer)())
             End Sub")]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call);
 
@@ -210,10 +210,10 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
             @"Sub(sb As Foo)
                 Dim x = [|sb.Bar|]
             End Sub", "Friend member Bar can not be intercepted without InternalsVisibleToAttribute.")]
-        [InlineData(@"Sub(sb As Foo) [|sb.FooBar()|]", "Friend member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData(@"Sub(sb As Foo) [|sb.FooBar(Arg.Any(Of Integer)())|]", "Friend member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
         [InlineData(
             @"Sub(sb As Foo)
-                Dim x = [|sb(0)|]
+                Dim x = [|sb(Arg.Any(Of Integer)())|]
             End Sub", "Friend member Item can not be intercepted without InternalsVisibleToAttribute.")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message);
 
@@ -222,10 +222,10 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
             @"Sub(sb As Foo)
                 Dim x = sb.Bar
             End Sub")]
-        [InlineData(@"Sub(sb As Foo) sb.FooBar()")]
+        [InlineData(@"Sub(sb As Foo) sb.FooBar(Arg.Any(Of Integer)())")]
         [InlineData(
             @"Sub(sb As Foo)
-                Dim x = sb(0)
+                Dim x = sb(Arg.Any(Of Integer)())
             End Sub")]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call);
 

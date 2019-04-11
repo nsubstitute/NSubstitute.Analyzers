@@ -14,7 +14,7 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public int Bar()
+        public int Bar(int x)
         {{
             return 2;
         }}
@@ -41,7 +41,7 @@ namespace MyNamespace
 {{
     public abstract class FooBar
     {{
-        public int Bar()
+        public int Bar(int x)
         {{
             return 1;
         }}
@@ -73,7 +73,7 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public virtual int Bar()
+        public virtual int Bar(int x)
         {{
             return 2;
         }}
@@ -100,7 +100,7 @@ namespace MyNamespace
 {{
     public class FooBar
     {{
-        public virtual int Bar()
+        public virtual int Bar(int x)
         {{
             return 2;
         }}
@@ -108,7 +108,7 @@ namespace MyNamespace
 
     public class Foo : FooBar
     {{
-        public override int Bar() => 1;
+        public override int Bar(int x) => 1;
     }}
 
     public class FooTests
@@ -153,7 +153,7 @@ namespace MyNamespace
 {{
     public class FooBar
     {{
-        public virtual int Bar()
+        public virtual int Bar(int x)
         {{
             return 2;
         }}
@@ -161,7 +161,7 @@ namespace MyNamespace
 
     public class Foo : FooBar
     {{
-        public sealed override int Bar() => 1;
+        public sealed override int Bar(int x) => 1;
     }}
 
     public class FooTests
@@ -187,7 +187,7 @@ namespace MyNamespace
 {{
     public abstract class Foo
     {{
-        public abstract int Bar();
+        public abstract int Bar(int x);
     }}
 
     public class FooTests
@@ -212,7 +212,7 @@ namespace MyNamespace
 {{
     public interface Foo
     {{
-        int Bar();
+        int Bar(int x);
     }}
 
     public class FooTests
@@ -261,7 +261,7 @@ namespace MyNamespace
 {{
    public interface Foo<T>
     {{
-        int Bar<T>();
+        int Bar<T>(int x);
     }}
 
     public class FooTests
@@ -334,7 +334,7 @@ namespace NSubstitute
 {{
     public class Foo
     {{
-        public int Bar()
+        public int Bar(int x)
         {{
             return 1;
         }}
@@ -448,7 +448,7 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public int Bar()
+        public int Bar(int x)
         {{
             return 2;
         }}
@@ -463,11 +463,11 @@ namespace MyNamespace
 
             void SubstituteCall(Foo sub)
             {{
-                [|sub.Bar()|];
+                [|sub.Bar(Arg.Any<int>())|];
             }}
 
             substitute.{method}(SubstituteCall).Do(callInfo => i++);
-            substitute.Bar();
+            substitute.Bar(1);
         }}
     }}
 }}";
@@ -483,7 +483,7 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public int Bar()
+        public int Bar(int x)
         {{
             return 2;
         }}
@@ -496,10 +496,10 @@ namespace MyNamespace
             int i = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
 
-            void SubstituteCall(Foo sub) => [|sub.Bar()|];
+            void SubstituteCall(Foo sub) => [|sub.Bar(Arg.Any<int>())|];
 
             substitute.{method}(SubstituteCall).Do(callInfo => i++);
-            substitute.Bar();
+            substitute.Bar(1);
         }}
     }}
 }}";
@@ -515,7 +515,7 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public int Bar()
+        public int Bar(int x)
         {{
             return 2;
         }}
@@ -529,12 +529,12 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
 
             substitute.{method}(SubstituteCall).Do(callInfo => i++);
-            substitute.Bar();
+            substitute.Bar(1);
         }}
 
         private void SubstituteCall(Foo sub)
         {{
-            var objBarr = [|sub.Bar()|];
+            var objBarr = [|sub.Bar(Arg.Any<int>())|];
         }}
     }}
 }}";
@@ -550,7 +550,7 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public int Bar()
+        public int Bar(int x)
         {{
             return 2;
         }}
@@ -564,10 +564,10 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
 
             substitute.{method}(SubstituteCall).Do(callInfo => i++);
-            substitute.Bar();
+            substitute.Bar(1);
         }}
 
-        private void SubstituteCall(Foo sub) => [|sub.Bar()|];
+        private void SubstituteCall(Foo sub) => [|sub.Bar(Arg.Any<int>())|];
     }}
 }}";
 
@@ -582,7 +582,7 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public virtual int Bar()
+        public virtual int Bar(int x)
         {{
             return 2;
         }}
@@ -597,11 +597,11 @@ namespace MyNamespace
 
             void SubstituteCall(Foo sub)
             {{
-                sub.Bar();
+                sub.Bar(Arg.Any<int>());
             }}
 
             substitute.{method}(SubstituteCall).Do(callInfo => i++);
-            substitute.Bar();
+            substitute.Bar(1);
         }}
     }}
 }}";
@@ -617,7 +617,7 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public virtual int Bar()
+        public virtual int Bar(int x)
         {{
             return 2;
         }}
@@ -630,10 +630,10 @@ namespace MyNamespace
             int i = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
 
-            void SubstituteCall(Foo sub) => sub.Bar();
+            void SubstituteCall(Foo sub) => sub.Bar(Arg.Any<int>());
 
             substitute.{method}(SubstituteCall).Do(callInfo => i++);
-            substitute.Bar();
+            substitute.Bar(1);
         }}
     }}
 }}";
@@ -648,7 +648,7 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public virtual int Bar()
+        public virtual int Bar(int x)
         {{
             return 2;
         }}
@@ -662,12 +662,12 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
 
             substitute.{method}(SubstituteCall).Do(callInfo => i++);
-            substitute.Bar();
+            substitute.Bar(1);
         }}
 
         private void SubstituteCall(Foo sub)
         {{
-            var objBarr = sub.Bar();
+            var objBarr = sub.Bar(Arg.Any<int>());
         }}
     }}
 }}";
@@ -682,7 +682,7 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public virtual int Bar()
+        public virtual int Bar(int x)
         {{
             return 2;
         }}
@@ -696,10 +696,10 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
 
             substitute.{method}(SubstituteCall).Do(callInfo => i++);
-            substitute.Bar();
+            substitute.Bar(1);
         }}
 
-        private void SubstituteCall(Foo sub) => sub.Bar();
+        private void SubstituteCall(Foo sub) => sub.Bar(Arg.Any<int>());
     }}
 }}";
             await VerifyNoDiagnostic(source);
@@ -715,7 +715,7 @@ namespace MyNamespace
     {{
         internal virtual int Bar {{ get; }}
 
-        internal virtual int FooBar()
+        internal virtual int FooBar(int x)
         {{
             return 1;
         }}
@@ -754,7 +754,7 @@ namespace MyNamespace
     {{
         internal virtual int Bar {{ get; }}
 
-        internal virtual int FooBar()
+        internal virtual int FooBar(int x)
         {{
             return 1;
         }}
@@ -791,7 +791,7 @@ namespace MyNamespace
     {{
         internal virtual int Bar {{ get; }}
 
-        internal virtual int FooBar()
+        internal virtual int FooBar(int x)
         {{
             return 1;
         }}
@@ -826,7 +826,7 @@ namespace MyNamespace
     {{
         protected internal virtual int Bar {{ get; }}
 
-        protected internal virtual int FooBar()
+        protected internal virtual int FooBar(int x)
         {{
             return 1;
         }}

@@ -12,7 +12,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
 
 Namespace MyNamespace
     Public Class Foo
-        Public Function Bar() As Integer
+        Public Function Bar(ByVal x As Integer) As Integer
             Return 2
         End Function
     End Class
@@ -36,7 +36,7 @@ End Namespace
 
 Namespace MyNamespace
     Public MustInherit Class FooBar
-        Public Function Bar() As Integer
+        Public Function Bar(ByVal x As Integer) As Integer
             Return 1
         End Function
     End Class
@@ -63,7 +63,7 @@ End Namespace";
 
 Namespace MyNamespace
     Public Class Foo
-        Public Overridable Function Bar() As Integer
+        Public Overridable Function Bar(ByVal x As Integer) As Integer
             Return 2
         End Function
     End Class
@@ -87,7 +87,7 @@ End Namespace
 
 Namespace MyNamespace
     Public Class FooBar
-        Public Overridable Function Bar() As Integer
+        Public Overridable Function Bar(ByVal x As Integer) As Integer
             Return 2
         End Function
     End Class
@@ -95,7 +95,7 @@ Namespace MyNamespace
     Public Class Foo
         Inherits FooBar
 
-        Public Overrides Function Bar() As Integer
+        Public Overrides Function Bar(ByVal x As Integer) As Integer
             Return 1
         End Function
     End Class
@@ -136,7 +136,7 @@ End Namespace
 
 Namespace MyNamespace
     Public Class FooBar
-        Public Overridable Function Bar() As Integer
+        Public Overridable Function Bar(ByVal x As Integer) As Integer
             Return 2
         End Function
     End Class
@@ -144,7 +144,7 @@ Namespace MyNamespace
     Public Class Foo
         Inherits FooBar
 
-        Public NotOverridable Overrides Function Bar() As Integer
+        Public NotOverridable Overrides Function Bar(ByVal x As Integer) As Integer
             Return 1
         End Function
     End Class
@@ -167,7 +167,7 @@ End Namespace
 
 Namespace MyNamespace
     Public MustInherit Class Foo
-        Public MustOverride Function Bar() As Integer
+        Public MustOverride Function Bar(ByVal x As Integer) As Integer
     End Class
 
     Public Class FooTests
@@ -189,7 +189,7 @@ End Namespace
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar() As Integer
+        Function Bar(ByVal x As Integer) As Integer
     End Interface
 
     Public Class FooTests
@@ -231,8 +231,7 @@ End Namespace
 Namespace MyNamespace
 
     Public Interface Foo(Of T)
-
-        Function Bar(Of T)() As Integer
+        Function Bar(Of T)(ByVal x As Integer) As Integer
     End Interface
 
     Public Class FooTests
@@ -296,7 +295,7 @@ End Namespace
 
 Namespace NSubstitute
     Public Class Foo
-        Public Function Bar() As Integer
+        Public Function Bar(ByVal x As Integer) As Integer
             Return 1
         End Function
     End Class
@@ -400,7 +399,7 @@ End Namespace
 
 Namespace MyNamespace
     Public Class Foo
-        Public Function Bar() As Integer
+        Public Function Bar(ByVal x As Integer) As Integer
             Return 2
         End Function
     End Class
@@ -410,11 +409,11 @@ Namespace MyNamespace
             Dim i As Integer = 0
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.{method}(AddressOf SubstituteCall).[Do](Sub(callInfo) i = i + 1)
-            substitute.Bar()
+            substitute.Bar(1)
         End Sub
 
         Private Sub SubstituteCall(ByVal [sub] As Foo)
-            Dim objBarr = [|[sub].Bar()|]
+            Dim objBarr = [|[sub].Bar(Arg.Any(Of Integer)())|]
         End Sub
     End Class
 End Namespace
@@ -428,7 +427,7 @@ End Namespace
 
 Namespace MyNamespace
     Public Class Foo
-        Public Overridable Function Bar() As Integer
+        Public Overridable Function Bar(ByVal x As Integer) As Integer
             Return 2
         End Function
     End Class
@@ -438,11 +437,11 @@ Namespace MyNamespace
             Dim i As Integer = 0
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.{method}(AddressOf SubstituteCall).[Do](Sub(callInfo) i = i + 1)
-            substitute.Bar()
+            substitute.Bar(1)
         End Sub
 
         Private Sub SubstituteCall(ByVal [sub] As Foo)
-            Dim objBarr = [sub].Bar()
+            Dim objBarr = [sub].Bar(Arg.Any(Of Integer)())
         End Sub
     End Class
 End Namespace
@@ -459,7 +458,7 @@ Namespace MyNamespace
     Public Class Foo
         Friend Overridable ReadOnly Property Bar As Integer
 
-        Friend Overridable Function FooBar() As Integer
+        Friend Overridable Function FooBar(ByVal x As Integer) As Integer
             Return 1
         End Function
 
@@ -494,7 +493,7 @@ Namespace MyNamespace
     Public Class Foo
         Friend Overridable ReadOnly Property Bar As Integer
 
-        Friend Overridable Function FooBar() As Integer
+        Friend Overridable Function FooBar(ByVal x As Integer) As Integer
             Return 1
         End Function
 
@@ -527,7 +526,7 @@ Namespace MyNamespace
     Public Class Foo
         Friend Overridable ReadOnly Property Bar As Integer
 
-        Friend Overridable Function FooBar() As Integer
+        Friend Overridable Function FooBar(ByVal x As Integer) As Integer
             Return 1
         End Function
 
@@ -558,7 +557,7 @@ Namespace MyNamespace
     Public Class Foo
         Protected Friend Overridable ReadOnly Property Bar As Integer
 
-        Protected Friend Overridable Function FooBar() As Integer
+        Protected Friend Overridable Function FooBar(ByVal x As Integer) As Integer
             Return 1
         End Function
 
