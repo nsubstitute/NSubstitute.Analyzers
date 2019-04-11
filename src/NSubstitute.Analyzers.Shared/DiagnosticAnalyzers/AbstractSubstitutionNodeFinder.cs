@@ -41,12 +41,52 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             return standardSubstitution != null ? new[] { standardSubstitution } : Enumerable.Empty<SyntaxNode>();
         }
 
-        public abstract IEnumerable<SyntaxNode> FindForWhenExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax whenInvocationExpression, IMethodSymbol whenInvocationSymbol = null);
+        public IEnumerable<SyntaxNode> FindForWhenExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax whenInvocationExpression, IMethodSymbol whenInvocationSymbol = null)
+        {
+            if (whenInvocationExpression == null)
+            {
+                yield break;
+            }
+
+            whenInvocationSymbol = whenInvocationSymbol ?? syntaxNodeContext.SemanticModel.GetSymbolInfo(whenInvocationExpression).Symbol as IMethodSymbol;
+
+            if (whenInvocationSymbol == null)
+            {
+                yield break;
+            }
+
+            var typeSymbol = whenInvocationSymbol.TypeArguments.FirstOrDefault() ?? whenInvocationSymbol.ReceiverType;
+            foreach (var syntaxNode in FindForWhenExpressionInternal(syntaxNodeContext, whenInvocationExpression, whenInvocationSymbol))
+            {
+                var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode).Symbol;
+                if (symbol != null && typeSymbol != null && ContainsSymbol(typeSymbol, symbol))
+                {
+                    yield return syntaxNode;
+                }
+            }
+        }
 
         public abstract SyntaxNode FindForAndDoesExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpression, IMethodSymbol invocationExpressionSymbol = null);
 
         public abstract SyntaxNode FindForStandardExpression(TInvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol invocationExpressionSymbol = null);
 
         protected abstract TInvocationExpressionSyntax GetParentInvocationExpression(TInvocationExpressionSyntax invocationExpressionSyntax);
+
+        protected abstract IEnumerable<SyntaxNode> FindForWhenExpressionInternal(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax whenInvocationExpression, IMethodSymbol whenInvocationSymbol);
+
+        private bool ContainsSymbol(ITypeSymbol containerSymbol, ISymbol symbol)
+        {
+            return GetBaseTypesAndThis(containerSymbol).Any(typeSymbol => typeSymbol == symbol.ContainingType);
+        }
+
+        private static IEnumerable<ITypeSymbol> GetBaseTypesAndThis(ITypeSymbol type)
+        {
+            var current = type;
+            while (current != null)
+            {
+                yield return current;
+                current = current.BaseType;
+            }
+        }
     }
 }
