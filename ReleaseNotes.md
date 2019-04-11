@@ -1,3 +1,7 @@
+### 1.0.9 (12 April 2019)
+
+ - [#91](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/91) Erroneous NS1002 errors for Arg.Any calls
+
 ### 1.0.8 (08 April 2019)
 
  - [#89](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/89) NS1002 doesn't detect non-virtual calls from base class
