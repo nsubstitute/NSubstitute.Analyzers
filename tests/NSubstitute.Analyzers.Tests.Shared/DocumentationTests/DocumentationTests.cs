@@ -62,7 +62,9 @@ namespace NSubstitute.Analyzers.Tests.Shared.DocumentationTests
 
         private static string GetRulesDocumentationDirectoryPath()
         {
-            return Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "..\\..\\..\\..\\..\\documentation\\rules"));
+            var locations = new[] { "..", "..", "..", "..", "..", "documentation", "rules" };
+            var rulesPath = string.Join(Path.DirectorySeparatorChar, locations);
+            return Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), rulesPath));
         }
 
         private List<HeadingContainer> GetLayoutByHeadings(List<Block> blocks)

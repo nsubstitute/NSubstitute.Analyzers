@@ -1,33 +1,15 @@
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
+using NSubstitute.Analyzers.CSharp;
 using NSubstitute.Analyzers.Shared;
-using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
-using Xunit;
+using NSubstitute.Analyzers.Tests.Shared.Extensibility;
+using NSubstitute.Analyzers.Tests.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAnalyzerTests
 {
+    [CombinatoryData("Returns", "Returns<int>", "ReturnsForAnyArgs", "ReturnsForAnyArgs<int>")]
     public class ReturnsAsExtensionMethodTests : CallInfoDiagnosticVerifier
     {
-        [Theory]
-        [InlineData("substitute[Arg.Any<int>()]", "callInfo.ArgAt<int>(1);")]
-        [InlineData("substitute[Arg.Any<int>()]", "var x = callInfo[1];")]
-        [InlineData("substitute[Arg.Any<int>()]", "callInfo[1] = 1;")]
-        [InlineData("substitute[Arg.Any<int>()]", "var x = callInfo.Args()[1];")]
-        [InlineData("substitute[Arg.Any<int>()]", "callInfo.Args()[1] = 1;")]
-        [InlineData("substitute[Arg.Any<int>()]", "callInfo.ArgTypes()[1] = typeof(int);")]
-        [InlineData("substitute.Barr", "callInfo.ArgAt<int>(1);")]
-        [InlineData("substitute.Barr", "var x = callInfo[1];")]
-        [InlineData("substitute.Barr", "callInfo[1] = 1;")]
-        [InlineData("substitute.Barr", "var x = callInfo.Args()[1];")]
-        [InlineData("substitute.Barr", "callInfo.Args()[1] = 1;")]
-        [InlineData("substitute.Barr", "callInfo.ArgTypes()[1] = typeof(int);")]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo.ArgAt<int>(1);")]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "var x = callInfo[1];")]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo[1] = 1;")]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "var x = callInfo.Args()[1];")]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo.Args()[1] = 1;")]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo.ArgTypes()[1] = typeof(int);")]
-        public override async Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string call, string argAccess)
+        public override async Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -49,7 +31,7 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             var returnedValue = {call};
-            returnedValue.Returns(callInfo =>
+            returnedValue.{method}(callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -58,29 +40,10 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("substitute[Arg.Any<int>()]", "callInfo.ArgAt<int>(1);", 22, 17)]
-        [InlineData("substitute[Arg.Any<int>()]", "var x = callInfo[1];", 22, 25)]
-        [InlineData("substitute[Arg.Any<int>()]", "callInfo[1] = 1;", 22, 17)]
-        [InlineData("substitute[Arg.Any<int>()]", "var x = callInfo.Args()[1];", 22, 25)]
-        [InlineData("substitute[Arg.Any<int>()]", "callInfo.Args()[1] = 1;", 22, 17)]
-        [InlineData("substitute[Arg.Any<int>()]", "callInfo.ArgTypes()[1] = typeof(int);", 22, 17)]
-        [InlineData("substitute.Barr", "callInfo.ArgAt<int>(1);", 22, 17)]
-        [InlineData("substitute.Barr", "var x = callInfo[1];", 22, 25)]
-        [InlineData("substitute.Barr", "callInfo[1] = 1;", 22, 17)]
-        [InlineData("substitute.Barr", "var x = callInfo.Args()[1];", 22, 25)]
-        [InlineData("substitute.Barr", "callInfo.Args()[1] = 1;", 22, 17)]
-        [InlineData("substitute.Barr", "callInfo.ArgTypes()[1] = typeof(int);", 22, 17)]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo.ArgAt<int>(1);", 22, 17)]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "var x = callInfo[1];", 22, 25)]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo[1] = 1;", 22, 17)]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "var x = callInfo.Args()[1];", 22, 25)]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo.Args()[1] = 1;", 22, 17)]
-        [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo.ArgTypes()[1] = typeof(int);", 22, 17)]
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string call, string argAccess, int expectedLine, int expectedColumn)
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -101,7 +64,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns(callInfo =>
+            {call}.{method}(callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -109,34 +72,11 @@ namespace MyNamespace
         }}
     }}
 }}";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoArgumentOutOfRange,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "There is no argument at position 1",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(expectedLine, expectedColumn)
-                }
-            };
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, CallInfoArgumentOutOfRangeDescriptor, "There is no argument at position 1");
         }
 
-        [Theory]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", @"var x = 2; callInfo.ArgAt<int>(x);")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", @"var x = 2; var y = callInfo[x];")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", @"var x = 2; var y = callInfo.Args()[x];")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", @"var x = 2; var y = callInfo.ArgTypes()[x];")]
-        [InlineData("substitute.Barr", @"var x = 2; callInfo.ArgAt<int>(x);")]
-        [InlineData("substitute.Barr", @"var x = 2; var y = callInfo[x];")]
-        [InlineData("substitute.Barr", @"var x = 2; var y = callInfo.Args()[x];")]
-        [InlineData("substitute.Barr", @"var x = 2; var y = callInfo.ArgTypes()[x];")]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())", @"var x = 2; callInfo.ArgAt<int>(x);")]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())", @"var x = 2; var y = callInfo[x];")]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())", @"var x = 2; var y = callInfo.Args()[x];")]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())", @"var x = 2; var y = callInfo.ArgTypes()[x];")]
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentOutOfBound_AndPositionIsNotLiteralExpression(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentOutOfBound_AndPositionIsNotLiteralExpression(string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -157,7 +97,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns(callInfo =>
+            {call}.{method}(callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -165,27 +105,10 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", "callInfo.ArgAt<int>(0);")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", "callInfo.ArgAt<int>(1);")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", "var x = callInfo[0];")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", "var x = callInfo[1];")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", "var x = callInfo.Args()[0];")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", "var x = callInfo.Args()[1];")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", "var x = callInfo.ArgTypes()[0];")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", "var x = callInfo.ArgTypes()[1];")]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())", "callInfo.ArgAt<int>(0);")]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())", "callInfo.ArgAt<int>(1);")]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())", "var x = callInfo[0];")]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())", "var x = callInfo[1];")]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())", "var x = callInfo.Args()[0];")]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())", "var x = callInfo.Args()[1];")]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())", "var x = callInfo.ArgTypes()[0];")]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())", "var x = callInfo.ArgTypes()[1];")]
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -206,7 +129,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns(callInfo =>
+            {call}.{method}(callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -214,27 +137,10 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "var x = (BarBase)callInfo[1];")]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "var x = (object)callInfo[1];")]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "var x = (BarBase)callInfo.Args()[1];")]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "var x = (object)callInfo.Args()[1];")]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "var x = callInfo[1] as BarBase;")]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "var x = callInfo[1] as object;")]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "var x = callInfo.Args()[1] as BarBase;")]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "var x = callInfo.Args()[1] as object;")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = (BarBase)callInfo[1];")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = (object)callInfo[1];")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = (BarBase)callInfo.Args()[1];")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = (object)callInfo.Args()[1];")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = callInfo[1] as BarBase;")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = callInfo[1] as object;")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = callInfo.Args()[1] as BarBase;")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = callInfo.Args()[1] as object;")]
-        public override async Task ReportsNoDiagnostic_WhenConvertingTypeToAssignableTypeForIndirectCasts(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenManuallyCasting_ToSupportedType(string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -261,7 +167,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns(callInfo =>
+            {call}.{method}(callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -270,23 +176,10 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "callInfo.ArgAt<Bar>(1);", 32, 17)]
-        [InlineData("substitute.Foo(Arg.Any<int>(), Arg.Any<FooBar>())", "callInfo.ArgAt<Bar>(1);", 32, 17)]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "var x = (Bar)callInfo[1];", 32, 30)]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "var x = callInfo[1] as Bar;", 32, 25)]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "var x = (Bar)callInfo.Args()[1];", 32, 30)]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())", "var x = callInfo.Args()[1] as Bar;", 32, 25)]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "callInfo.ArgAt<Bar>(1);", 32, 17)]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "var x = (Bar)callInfo[1];", 32, 30)]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "var x = callInfo[1] as Bar;", 32, 25)]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "var x = (Bar)callInfo.Args()[1];", 32, 30)]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]", "var x = callInfo.Args()[1] as Bar;", 32, 25)]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<FooBar>()]", "callInfo.ArgAt<Bar>(1);", 32, 17)]
-        public override async Task ReportsDiagnostic_WhenConvertingTypeToUnsupportedType(string call, string argAccess, int expectedLine, int expectedColumn)
+        public override async Task ReportsDiagnostic_WhenManuallyCasting_ToUnsupportedType(string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -317,7 +210,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns(callInfo =>
+            {call}.{method}(callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -325,32 +218,93 @@ namespace MyNamespace
         }}
     }}
 }}";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoCouldNotConvertParameterAtPosition,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Couldn't convert parameter at position 1 to type MyNamespace.Bar.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(expectedLine, expectedColumn)
-                }
-            };
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, CallInfoCouldNotConvertParameterAtPositionDescriptor, "Couldn't convert parameter at position 1 to type MyNamespace.Bar.");
         }
 
-        [Theory]
-        [InlineData("substitute.Bar(Arg.Any<Bar>())", "callInfo.ArgAt<Bar>(0);")]
-        [InlineData("substitute.Bar(Arg.Any<Bar>())", "var x = (Bar)callInfo[0];")]
-        [InlineData("substitute.Bar(Arg.Any<Bar>())", "var x = callInfo[0] as Bar;")]
-        [InlineData("substitute.Bar(Arg.Any<Bar>())", "var x = (Bar)callInfo.Args()[0];")]
-        [InlineData("substitute.Bar(Arg.Any<Bar>())", "var x = callInfo.Args()[0] as Bar;")]
-        [InlineData("substitute[Arg.Any<Bar>()]", "callInfo.ArgAt<Bar>(0);")]
-        [InlineData("substitute[Arg.Any<Bar>()]", "var x = (Bar)callInfo[0];")]
-        [InlineData("substitute[Arg.Any<Bar>()]", "var x = callInfo[0] as Bar;")]
-        [InlineData("substitute[Arg.Any<Bar>()]", "var x = (Bar)callInfo.Args()[0];")]
-        [InlineData("substitute[Arg.Any<Bar>()]", "var x = callInfo.Args()[0] as Bar;")]
-        public override async Task ReportsNoDiagnostic_WhenConvertingTypeToSupportedType(string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenCasting_WithArgAt_ToSupportedType(string method, string call, string argAccess)
+        {
+            var source = $@"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public interface Foo
+    {{
+        int Bar(int x, Bar y);
+
+        int this[int x, Bar y] {{ get; }}
+    }}
+
+    public class BarBase
+    {{
+    }}
+
+    public class Bar : BarBase
+    {{
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            {call}.{method}(callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+        }}
+    }}
+}}";
+
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string method, string call, string argAccess, string message)
+        {
+            var source = $@"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public interface Foo
+    {{
+        int Bar(int x, double y);
+
+        int Foo(int x, FooBar bar);
+
+        int this[int x, double y] {{ get; }}
+
+        int this[int x, FooBar bar] {{ get; }}
+    }}
+
+    public class Bar
+    {{
+    }}
+
+    public class FooBar : Bar
+    {{
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            {call}.{method}(callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+        }}
+    }}
+}}";
+
+            await VerifyDiagnostic(source, CallInfoCouldNotConvertParameterAtPositionDescriptor, message);
+        }
+
+        public override async Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string method, string callInfo, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -373,7 +327,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns(callInfo =>
+            {callInfo}.{method}(callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -381,19 +335,10 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("substitute.Bar(Arg.Any<Bar>())", "var x = callInfo.ArgTypes() as object;")]
-        [InlineData("substitute.Bar(Arg.Any<Bar>())", "var x = callInfo.ArgTypes()[0] as object;")]
-        [InlineData("substitute.Bar(Arg.Any<Bar>())", "var x = (object)callInfo.ArgTypes();")]
-        [InlineData("substitute.Bar(Arg.Any<Bar>())", "var x = (object)callInfo.ArgTypes()[0];")]
-        [InlineData("substitute[Arg.Any<Bar>()]", "var x = callInfo.ArgTypes() as object;")]
-        [InlineData("substitute[Arg.Any<Bar>()]", "var x = callInfo.ArgTypes()[0] as object;")]
-        [InlineData("substitute[Arg.Any<Bar>()]", "var x = (object)callInfo.ArgTypes();")]
-        [InlineData("substitute[Arg.Any<Bar>()]", "var x = (object)callInfo.ArgTypes()[0];")]
-        public override async Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string callInfo, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenAssigningValueToNotRefNorOutArgumentViaIndirectCall(string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -416,7 +361,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {callInfo}.Returns(callInfo =>
+            {call}.{method}(callInfo =>
             {{
                 {argAccess}
                 return 1;
@@ -424,53 +369,10 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("substitute.Bar(Arg.Any<Bar>())", "callInfo.ArgTypes()[0] = typeof(object);")]
-        [InlineData("substitute.Bar(Arg.Any<Bar>())", "callInfo.Args()[0] = 1m;")]
-        [InlineData("substitute[Arg.Any<Bar>()]", "callInfo.ArgTypes()[0] = typeof(object);")]
-        [InlineData("substitute[Arg.Any<Bar>()]", "callInfo.Args()[0] = 1m;")]
-        public override async Task ReportsNoDiagnostic_WhenAssigningValueToNotRefNorOutArgumentViaIndirectCall(string call, string argAccess)
-        {
-            var source = $@"using System;
-using NSubstitute;
-
-namespace MyNamespace
-{{
-    public interface Foo
-    {{
-        int Bar(Bar x);
-
-        int this[Bar x] {{ get; }}
-    }}
-
-    public class Bar
-    {{
-    }}
-
-    public class FooTests
-    {{
-        public void Test()
-        {{
-            var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns(callInfo =>
-            {{
-                {argAccess}
-                return 1;
-            }});
-        }}
-    }}
-}}";
-            await VerifyDiagnostic(source);
-        }
-
-        [Theory]
-        [InlineData("substitute.Bar(Arg.Any<int>())")]
-        [InlineData("substitute.Barr")]
-        [InlineData("substitute[Arg.Any<int>()]")]
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string call)
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string method, string call, string argAccess, string message)
         {
             var source = $@"using System;
 using NSubstitute;
@@ -491,66 +393,62 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns(callInfo =>
+            {call}.{method}(callInfo =>
             {{
-                callInfo.Arg<double>();
+                {argAccess}
                 return 1;
             }});
         }}
     }}
 }}";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoCouldNotFindArgumentToThisCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Can not find an argument of type double to this call.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(22, 17)
-                }
-            };
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, CallInfoCouldNotFindArgumentToThisCallDescriptor, message);
         }
 
-        [Theory]
-        [InlineData("substitute.Bar(Arg.Any<int>())")]
-        [InlineData("substitute[Arg.Any<int>()]")]
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string call)
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string method, string call, string argAccess)
         {
             var source = $@"using System;
 using NSubstitute;
 
 namespace MyNamespace
 {{
-    public interface Foo
+    public interface IFoo
     {{
         int Bar(int x);
 
+        int Bar(Foo x);
+
         int this[int x] {{ get; }}
+
+        int this[Foo x] {{ get; }}
+    }}
+
+    public class FooBase
+    {{
+    }}
+
+    public class Foo : FooBase
+    {{
     }}
 
     public class FooTests
     {{
         public void Test()
         {{
-            var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns(callInfo =>
+            var substitute = NSubstitute.Substitute.For<IFoo>();
+            {call}.{method}(callInfo =>
             {{
-                callInfo.Arg<int>();
+                {argAccess}
                 return 1;
             }});
         }}
     }}
 }}";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]")]
-        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string call)
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string method, string call, string argAccess, string message)
         {
             var source = $@"using NSubstitute;
 
@@ -568,32 +466,19 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns(callInfo =>
+            {call}.{method}(callInfo =>
             {{
-                callInfo.Arg<int>();
+                {argAccess}
                 return 1;
             }});
         }}
     }}
 }}";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoMoreThanOneArgumentOfType,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "There is more than one argument of type int to this call.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(19, 17)
-                }
-            };
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, CallInfoMoreThanOneArgumentOfTypeDescriptor, message);
         }
 
-        [Theory]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]")]
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(string call)
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(string method, string call)
         {
             var source = $@"using NSubstitute;
 
@@ -611,7 +496,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns(callInfo =>
+            {call}.{method}(callInfo =>
             {{
                 callInfo.Arg<int>();
                 return 1;
@@ -620,13 +505,10 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<double>())")]
-        [InlineData("substitute[Arg.Any<int>(), Arg.Any<double>()]")]
-        public override async Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string call)
+        public override async Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string method, string call)
         {
             var source = $@"using NSubstitute;
 
@@ -644,195 +526,161 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {call}.Returns(callInfo =>
+            {call}.{method}(callInfo =>
             {{
-                callInfo[1] = 1;
+                [|callInfo[1]|] = 1;
                 return 1;
             }});
         }}
     }}
 }}";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoArgumentIsNotOutOrRef,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Could not set argument 1 (double) as it is not an out or ref argument.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(19, 17)
-                }
-            };
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, CallInfoArgumentIsNotOutOrRefDescriptor, "Could not set argument 1 (double) as it is not an out or ref argument.");
         }
 
-        [Fact]
-        public override async Task ReportsNoDiagnostic_WhenAssigningValueToRefArgument()
+        public override async Task ReportsNoDiagnostic_WhenAssigningValueToRefArgument(string method)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public interface Foo
-    {
+    {{
         int Bar(ref int x);
-    }
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
+        {{
             int value = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar(ref value).Returns(callInfo =>
-            {
+            substitute.Bar(ref value).{method}(callInfo =>
+            {{
                 callInfo[0] = 1;
                 return 1;
-            });
-        }
-    }
-}";
-            await VerifyDiagnostic(source);
+            }});
+        }}
+    }}
+}}";
+            await VerifyNoDiagnostic(source);
         }
 
-        [Fact]
-        public override async Task ReportsNoDiagnostic_WhenAssigningValueToOutArgument()
+        public override async Task ReportsNoDiagnostic_WhenAssigningValueToOutArgument(string method)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public interface Foo
-    {
+    {{
         int Bar(out int x);
-    }
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
+        {{
             int value = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar(out value).Returns(callInfo =>
-            {
+            substitute.Bar(out value).{method}(callInfo =>
+            {{
                 callInfo[0] = 1;
                 return 1;
-            });
-        }
-    }
-}";
-            await VerifyDiagnostic(source);
+            }});
+        }}
+    }}
+}}";
+            await VerifyNoDiagnostic(source);
         }
 
-        [Fact]
-        public override async Task ReportsDiagnostic_WhenAssigningValueToOutOfBoundsArgument()
+        public override async Task ReportsDiagnostic_WhenAssigningValueToOutOfBoundsArgument(string method)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public interface Foo
-    {
+    {{
         int Bar(out int x);
-    }
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
+        {{
             int value = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar(out value).Returns(callInfo =>
-            {
-                callInfo[1] = 1;
+            substitute.Bar(out value).{method}(callInfo =>
+            {{
+                [|callInfo[1]|] = 1;
                 return 1;
-            });
-        }
-    }
-}";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoArgumentOutOfRange,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "There is no argument at position 1",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(18, 17)
-                }
-            };
+            }});
+        }}
+    }}
+}}";
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, CallInfoArgumentOutOfRangeDescriptor, "There is no argument at position 1");
         }
 
-        [Fact]
-        public override async Task ReportsDiagnostic_WhenAssigningWrongTypeToArgument()
+        public override async Task ReportsDiagnostic_WhenAssigningType_NotAssignableTo_Argument(string method, string left, string right, string expectedMessage)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
+using System.Collections.Generic;
 
 namespace MyNamespace
-{
+{{
     public interface Foo
-    {
-        int Bar(out decimal x);
-    }
+    {{
+        int Bar(out {left} x);
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
-            decimal value = 0;
+        {{
+            {left} value = default({left});
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar(out value).Returns(callInfo =>
-            {
-                callInfo[0] = 1;
+            substitute.Bar(out value).{method}(callInfo =>
+            {{
+                [|callInfo[0]|] = {right};
                 return 1;
-            });
-        }
-    }
-}";
+            }});
+        }}
+    }}
+}}";
 
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.CallInfoArgumentSetWithIncompatibleValue,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Could not set value of type int to argument 0 (decimal) because the types are incompatible.",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(18, 17)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, CallInfoArgumentSetWithIncompatibleValueDescriptor, expectedMessage);
         }
 
-        [Fact]
-        public override async Task ReportsNoDiagnostic_WhenAssigningProperTypeToArgument()
+        public override async Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string method, string left, string right)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
+using System.Collections.Generic;
 
 namespace MyNamespace
-{
+{{
     public interface Foo
-    {
-        int Bar(out decimal x);
-    }
+    {{
+        int Bar(out {left} x);
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
-            decimal value = 0;
+        {{
+            {left} value = default({left});
             var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar(out value).Returns(callInfo =>
-            {
-                callInfo[0] = 1M;
+            substitute.Bar(out value).{method}(callInfo =>
+            {{
+                callInfo[0] = {right};
                 return 1;
-            });
-        }
-    }
-}";
+            }});
+        }}
+    }}
+}}";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
     }
 }

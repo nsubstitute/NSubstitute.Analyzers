@@ -137,4 +137,8 @@
     <value>{0}() is set with a method that itself calls {1}. This can cause problems with NSubstitute. Consider replacing with a lambda: {0}(x => {2}).</value>
     <comment>The format-able message the diagnostic displays.</comment>
   </data>
+  <data name="InternalSetupSpecificationMessageFormat" xml:space="preserve">
+    <value>Internal member {0} can not be intercepted without InternalsVisibleToAttribute.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
 </root>

@@ -251,6 +251,51 @@ namespace NSubstitute.Analyzers.Shared {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Conflicting argument assignments..
+        /// </summary>
+        internal static string ConflictingArgumentAssignmentsDescription {
+            get {
+                return ResourceManager.GetString("ConflictingArgumentAssignmentsDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Conflicting argument assignments..
+        /// </summary>
+        internal static string ConflictingArgumentAssignmentsMessageFormat {
+            get {
+                return ResourceManager.GetString("ConflictingArgumentAssignmentsMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Conflicting argument assignments..
+        /// </summary>
+        internal static string ConflictingArgumentAssignmentsTitle {
+            get {
+                return ResourceManager.GetString("ConflictingArgumentAssignmentsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Internal virtual members can not be intercepted..
+        /// </summary>
+        internal static string InternalSetupSpecificationDescription {
+            get {
+                return ResourceManager.GetString("InternalSetupSpecificationDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Internal virtual setup specification..
+        /// </summary>
+        internal static string InternalSetupSpecificationTitle {
+            get {
+                return ResourceManager.GetString("InternalSetupSpecificationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Non-virtual members can not be intercepted..
         /// </summary>
         internal static string NonVirtualReceivedSetupSpecificationDescription {

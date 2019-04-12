@@ -1,8 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Shared;
-using NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.SubstituteAnalyzerTests;
-using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.SubstituteForInternalMemberCodeFixProviderTests
@@ -200,6 +198,37 @@ namespace MyNamespace
         }
     }
 }";
+            await VerifyFix(oldSource, oldSource);
+        }
+
+        [Fact]
+        public override async Task DoesNot_AppendsInternalsVisibleTo_WhenInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
+        {
+            var oldSource = @"using NSubstitute.Core;
+
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""OtherFirstAssembly"")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""OtherSecondAssembly"")]
+
+namespace MyNamespace
+{
+    internal class Foo
+    {
+        internal class Bar
+        {
+
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new[] {typeof(Foo)}, null);
+        }
+    }
+}";
+
             await VerifyFix(oldSource, oldSource);
         }
     }

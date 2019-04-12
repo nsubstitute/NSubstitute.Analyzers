@@ -2,7 +2,7 @@
 {
     internal enum DiagnosticCategory
     {
-        [DisplayName("Non virtual substitution")]
+        [DisplayName("Non-substitutable member")]
         NonVirtualSubstitution = 1,
 
         [DisplayName("Substitute creation")]

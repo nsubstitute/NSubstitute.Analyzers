@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.VisualBasic;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.VisualBasic.Extensions;
 
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
@@ -12,33 +13,15 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
     internal class CallInfoAnalyzer : AbstractCallInfoAnalyzer<SyntaxKind, InvocationExpressionSyntax, ExpressionSyntax, InvocationExpressionSyntax>
     {
         public CallInfoAnalyzer()
-            : base(new DiagnosticDescriptorsProvider())
+            : base(new DiagnosticDescriptorsProvider(), new CallInfoCallFinder(), new SubstitutionNodeFinder())
         {
         }
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
-        protected override SyntaxNode GetSubstituteCall(IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax)
-        {
-            switch (methodSymbol.MethodKind)
-            {
-                case MethodKind.ReducedExtension:
-                    return invocationExpressionSyntax.Expression.DescendantNodes().First();
-                case MethodKind.Ordinary:
-                    return invocationExpressionSyntax.ArgumentList.Arguments.First().GetExpression();
-                default:
-                    return null;
-            }
-        }
-
         protected override IEnumerable<ExpressionSyntax> GetArgumentExpressions(InvocationExpressionSyntax invocationExpressionSyntax)
         {
             return invocationExpressionSyntax.ArgumentList.Arguments.Select(arg => arg.GetExpression());
-        }
-
-        protected override AbstractCallInfoFinder<InvocationExpressionSyntax, InvocationExpressionSyntax> GetCallInfoFinder()
-        {
-            return new CallInfoCallFinder();
         }
 
         protected override SyntaxNode GetCastTypeExpression(InvocationExpressionSyntax indexerExpressionSyntax)
@@ -80,6 +63,12 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
         protected override bool CanCast(Compilation compilation, ITypeSymbol sourceSymbol, ITypeSymbol destinationSymbol)
         {
             return compilation.ClassifyConversion(sourceSymbol, destinationSymbol).Exists;
+        }
+
+        protected override bool IsAssignableTo(Compilation compilation, ITypeSymbol fromSymbol, ITypeSymbol toSymbol)
+        {
+            var conversion = compilation.ClassifyConversion(fromSymbol, toSymbol);
+            return conversion.Exists && conversion.IsNarrowing == false && conversion.IsNumeric == false;
         }
 
         private static int? ExtractPositionFromInvocation(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, InvocationExpressionSyntax invocationExpressionSyntax)

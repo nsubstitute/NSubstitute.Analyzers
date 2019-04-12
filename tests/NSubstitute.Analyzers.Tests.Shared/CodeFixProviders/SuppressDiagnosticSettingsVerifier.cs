@@ -47,16 +47,16 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
 
         private async Task<Document> ApplySettingsSuppressionFix(string oldSource, int? codeFixIndex = null)
         {
-            return await ApplySettingsSuppressionFix(Language, GetDiagnosticAnalyzer(), GetCodeFixProvider(), oldSource, codeFixIndex);
+            return await ApplySettingsSuppressionFix(GetDiagnosticAnalyzer(), GetCodeFixProvider(), oldSource, codeFixIndex);
         }
 
-        private async Task<Document> ApplySettingsSuppressionFix(string language, DiagnosticAnalyzer analyzer, CodeFixProvider codeFixProvider, string oldSource, int? codeFixIndex = null)
+        private async Task<Document> ApplySettingsSuppressionFix(DiagnosticAnalyzer analyzer, CodeFixProvider codeFixProvider, string oldSource, int? codeFixIndex = null)
         {
-            var document = CreateDocument(oldSource, language);
+            var document = CreateDocument(oldSource);
             var analyzerDiagnostics = await GetSortedDiagnosticsFromDocuments(analyzer, new[] { document }, false);
             var attempts = analyzerDiagnostics.Length;
 
-            for (int i = 0; i < attempts; ++i)
+            for (var i = 0; i < attempts; ++i)
             {
                 var actions = new List<CodeAction>();
                 var context = new CodeFixContext(document, analyzerDiagnostics[0], (a, d) => actions.Add(a), CancellationToken.None);

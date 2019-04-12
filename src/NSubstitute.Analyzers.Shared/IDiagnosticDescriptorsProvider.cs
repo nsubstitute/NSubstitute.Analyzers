@@ -6,6 +6,8 @@ namespace NSubstitute.Analyzers.Shared
     {
         DiagnosticDescriptor NonVirtualSetupSpecification { get; }
 
+        DiagnosticDescriptor InternalSetupSpecification { get; }
+
         DiagnosticDescriptor UnusedReceived { get; }
 
         DiagnosticDescriptor UnusedReceivedForOrdinaryMethod { get; }
@@ -43,6 +45,8 @@ namespace NSubstitute.Analyzers.Shared
         DiagnosticDescriptor CallInfoArgumentSetWithIncompatibleValue { get; }
 
         DiagnosticDescriptor CallInfoArgumentIsNotOutOrRef { get; }
+
+        DiagnosticDescriptor ConflictingArgumentAssignments { get; }
 
         DiagnosticDescriptor ArgumentMatcherUsedOutsideOfCall { get; }
     }

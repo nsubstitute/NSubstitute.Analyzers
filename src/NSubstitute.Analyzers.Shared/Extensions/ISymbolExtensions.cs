@@ -10,15 +10,18 @@ namespace NSubstitute.Analyzers.Shared.Extensions
             return IsInterfaceMember(symbol) || IsVirtual(symbol);
         }
 
+        public static bool MemberVisibleToProxyGenerator(this ISymbol symbol)
+        {
+            return symbol.DeclaredAccessibility != Accessibility.Internal || symbol.InternalsVisibleToProxyGenerator();
+        }
+
         public static bool InternalsVisibleToProxyGenerator(this ISymbol typeSymbol)
         {
-            var internalsVisibleToAttribute = typeSymbol.ContainingAssembly.GetAttributes()
-                .FirstOrDefault(att =>
-                    att.AttributeClass.ToString() == MetadataNames.InternalsVisibleToAttributeFullTypeName);
-
-            return internalsVisibleToAttribute != null &&
-                   internalsVisibleToAttribute.ConstructorArguments.Any(arg =>
-                       arg.Value.ToString() == MetadataNames.CastleDynamicProxyGenAssembly2Name);
+            return typeSymbol.ContainingAssembly != null &&
+                   typeSymbol.ContainingAssembly.GetAttributes()
+                       .Any(att => att.AttributeClass.ToString() == MetadataNames.InternalsVisibleToAttributeFullTypeName &&
+                                   att.ConstructorArguments.Any(arg => arg.Value != null && AssemblyIdentity.TryParseDisplayName(arg.Value.ToString(), out var identity) &&
+                                                                       identity.Name == MetadataNames.CastleDynamicProxyGenAssembly2Name));
         }
 
         public static string ToMinimalMethodString(this ISymbol symbol, SemanticModel semanticModel)

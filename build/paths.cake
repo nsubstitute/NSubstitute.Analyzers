@@ -24,12 +24,16 @@ public class BuildPaths
             buildDirectories.SrcRootDir.CombineWithFilePath("NSubstitute.Analyzers.VisualBasic/NSubstitute.Analyzers.VisualBasic.csproj")
         };
 
+        var solutionFile = context.IsRunningOnWindows() ? 
+        buildDirectories.RootDir.CombineWithFilePath("NSubstitute.Analyzers.All.sln")
+        : buildDirectories.RootDir.CombineWithFilePath("NSubstitute.Analyzers.sln");
+
         var buildFiles = new BuildFiles(
-            buildDirectories.RootDir.CombineWithFilePath("NSubstitute.Analyzers.sln"),
-            buildDirectories.TestResults.CombineWithFilePath("OpenCover.xml"),
+            solutionFile,
+            buildDirectories.TestResults.CombineWithFilePath("OpenCover.opencover.xml"),
+            buildDirectories.TestResults.CombineWithFilePath("OpenCover"),
             buildDirectories.RootDir.CombineWithFilePath("ReleaseNotes.md"),
             buildDirectories.Artifacts.CombineWithFilePath("ReleaseNotes.md"),
-            buildDirectories.Artifacts.CombineWithFilePath("DupOutpuFinder.xml"),
             projectsToPack,
             testAssemblies);
 
@@ -72,26 +76,26 @@ public class BuildFiles
 {
     public FilePath Solution { get; private set; }
     public FilePath TestCoverageOutput { get; set;}
+    public FilePath TestCoverageOutputWithoutExtension { get; set;}
     public FilePath AllReleaseNotes { get; private set; }
     public FilePath CurrentReleaseNotes { get; private set; }
-    public FilePath DupeFinderOutput { get; private set; }
     public ICollection<FilePath> ProjectsToPack { get; private set; }
     public ICollection<FilePath> TestAssemblies { get; private set; }
 
     public BuildFiles(FilePath solution,
                       FilePath testCoverageOutput,
+                      FilePath testCoverageOutputWithoutExtension,
                       FilePath allReleaseNotes,
                       FilePath currentReleaseNote,
-                      FilePath dupeFinderOutput,
                       ICollection<FilePath> projectToPack,
                       ICollection<FilePath> testAssemblies)
     {
         Solution = solution;
         TestAssemblies = testAssemblies;
         TestCoverageOutput = testCoverageOutput;
+        TestCoverageOutputWithoutExtension = testCoverageOutputWithoutExtension;
         AllReleaseNotes = allReleaseNotes;
         CurrentReleaseNotes = currentReleaseNote;
-        DupeFinderOutput = dupeFinderOutput;
         ProjectsToPack = projectToPack;
     }
 }

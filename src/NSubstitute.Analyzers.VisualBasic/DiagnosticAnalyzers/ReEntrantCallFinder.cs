@@ -33,14 +33,25 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
             public override void VisitInvocationExpression(InvocationExpressionSyntax node)
             {
-                var semanticModel = _compilation.GetSemanticModel(node.SyntaxTree);
-                var symbolInfo = semanticModel.GetSymbolInfo(node);
-                if (_reEntrantCallFinder.IsReturnsLikeMethod(semanticModel, symbolInfo.Symbol))
+                if (_compilation.ContainsSyntaxTree(node.SyntaxTree))
                 {
-                    _invocationSymbols.Add(symbolInfo.Symbol);
+                    var semanticModel = _compilation.GetSemanticModel(node.SyntaxTree);
+                    var symbolInfo = semanticModel.GetSymbolInfo(node);
+                    if (_reEntrantCallFinder.IsReturnsLikeMethod(semanticModel, symbolInfo.Symbol))
+                    {
+                        _invocationSymbols.Add(symbolInfo.Symbol);
+                    }
                 }
 
                 base.VisitInvocationExpression(node);
+            }
+
+            public override void VisitClassBlock(ClassBlockSyntax node)
+            {
+            }
+
+            public override void VisitStructureBlock(StructureBlockSyntax node)
+            {
             }
 
             public override void DefaultVisit(SyntaxNode node)

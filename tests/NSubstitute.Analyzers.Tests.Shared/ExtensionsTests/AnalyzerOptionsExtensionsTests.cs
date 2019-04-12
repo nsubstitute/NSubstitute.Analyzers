@@ -33,9 +33,9 @@ namespace NSubstitute.Analyzers.Tests.Shared.ExtensionsTests
         public void GetSettings_ReturnsSerializedSettings_WhenAnalyzerFileExists(string fileName)
         {
             var analyzersSettings = AnalyzersSettings.CreateWithSuppressions("supression", "NS001");
-            var fileContentg = Json.Encode(analyzersSettings);
+            var fileContent = Json.Encode(analyzersSettings);
             var analyzerAdditionalTexts =
-                ImmutableArray.Create<AdditionalText>(new AnalyzerAdditionalText(fileName, fileContentg));
+                ImmutableArray.Create<AdditionalText>(new AnalyzerAdditionalText(fileName, fileContent));
 
             var analyzerOptions = new AnalyzerOptions(analyzerAdditionalTexts);
             var settings = analyzerOptions.GetSettings(CancellationToken.None);

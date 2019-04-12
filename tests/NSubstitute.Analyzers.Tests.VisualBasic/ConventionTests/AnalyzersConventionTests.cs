@@ -17,19 +17,13 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.ConventionTests
         [Fact]
         public void DiagnosticAnalyzersConventionsShouldBeSatisfied()
         {
-            _fixture.AssertDiagnosticAnalyzerAttributeUsageFromAssemblyContaining<NonVirtualSetupAnalyzer>(LanguageNames.VisualBasic);
+            _fixture.AssertDiagnosticAnalyzerAttributeUsageFromAssemblyContaining<NonSubstitutableMemberAnalyzer>(LanguageNames.VisualBasic);
         }
 
         [Fact]
         public void CodeFixProvidersConventionsShouldBeSatisfied()
         {
-            _fixture.AssertExportCodeFixProviderAttributeUsageFromAssemblyContaining<NonVirtualSetupAnalyzer>(LanguageNames.VisualBasic);
-        }
-
-        [Fact]
-        public void DiagnosticIdsConventionsShouldBeSatisfied()
-        {
-            _fixture.AssertDiagnosticIdsDefinitionsFromAssemblyContaining<NonVirtualSetupAnalyzer>();
+            _fixture.AssertExportCodeFixProviderAttributeUsageFromAssemblyContaining<NonSubstitutableMemberAnalyzer>(LanguageNames.VisualBasic);
         }
     }
 }

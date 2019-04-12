@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using NSubstitute.Analyzers.Shared.CodeFixProviders;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.VisualBasic.Refactorings;
 using static Microsoft.CodeAnalysis.VisualBasic.SyntaxFactory;
 
 namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders
@@ -17,23 +18,9 @@ namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders
             return new SubstituteProxyAnalysis();
         }
 
-        protected override CompilationUnitSyntax AppendInternalsVisibleToAttribute(CompilationUnitSyntax compilationUnitSyntax)
+        protected override void RegisterCodeFix(CodeFixContext context, Diagnostic diagnostic, CompilationUnitSyntax compilationUnitSyntax)
         {
-            return compilationUnitSyntax.AddAttributes(
-                AttributesStatement(SingletonList(
-                    AttributeList(SingletonSeparatedList(Attribute(
-                        AttributeTarget(Token(SyntaxKind.AssemblyKeyword)),
-                        QualifiedName(
-                            QualifiedName(
-                                QualifiedName(
-                                    IdentifierName("System"),
-                                    IdentifierName("Runtime")),
-                                IdentifierName("CompilerServices")),
-                            IdentifierName("InternalsVisibleTo")),
-                        ArgumentList(SingletonSeparatedList<ArgumentSyntax>(SimpleArgument(
-                            LiteralExpression(
-                                SyntaxKind.StringLiteralExpression,
-                                Literal("DynamicProxyGenAssembly2")))))))))));
+            AddInternalsVisibleToAttributeRefactoring.RegisterCodeFix(context, diagnostic, compilationUnitSyntax);
         }
     }
 }

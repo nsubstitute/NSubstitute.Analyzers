@@ -12,16 +12,18 @@ namespace NSubstitute.Analyzers.Shared.Extensions
             var isCalledViaDelegate = typeSymbol != null &&
                                       typeSymbol.TypeKind == TypeKind.Delegate &&
                                       typeSymbol is INamedTypeSymbol namedTypeSymbol &&
-                                      namedTypeSymbol.ConstructedFrom.Equals(semanticModel.Compilation.GetTypeByMetadataName("System.Func`2")) &&
-                                      IsCallInfoParameter(namedTypeSymbol.TypeArguments.First());
+                                      (namedTypeSymbol.ConstructedFrom.Equals(semanticModel.Compilation.GetTypeByMetadataName("System.Func`2")) ||
+                                       namedTypeSymbol.ConstructedFrom.Equals(semanticModel.Compilation.GetTypeByMetadataName("System.Action`1"))) &&
+                                      IsCallInfoSymbol(namedTypeSymbol.TypeArguments.First());
 
             return isCalledViaDelegate;
         }
 
-        private static bool IsCallInfoParameter(ITypeSymbol symbol)
+        public static bool IsCallInfoSymbol(this ITypeSymbol symbol)
         {
-            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.ToString().Equals(MetadataNames.NSubstituteCoreFullTypeName, StringComparison.OrdinalIgnoreCase) == true;
+            return symbol != null &&
+                   symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
+                   symbol.ToString().Equals(MetadataNames.NSubstituteCallInfoFullTypeName, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

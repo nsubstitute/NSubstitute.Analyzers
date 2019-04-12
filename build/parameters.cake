@@ -2,20 +2,21 @@ public class BuildParameters
 {
     public string Target { get; private set; }
     public string Configuration { get; private set; }
-    public bool SkipOpenCover { get; set; }
+    public bool SkipCodeCoverage { get; set; }
     public bool IsMaster { get; private set; }
     public bool IsDev { get; private set; }
     public bool IsLocalBuild { get; private set; }
     public bool IsTagged { get; private set; }
     public bool IsPullRequest { get; private set; }
     public string TargetFramework { get; private set; }
-    public string TargetFrameworkFull { get; private set; }
+    public bool IsRunningOnWindows { get; private set; }
+    public bool UploadCoverageReport {get; private set; }
 
     public bool ShouldPublish
     {
         get
         {
-            return !IsLocalBuild && IsMaster && IsTagged && !IsPullRequest;
+            return IsRunningOnWindows && !IsLocalBuild && IsMaster && IsTagged && !IsPullRequest;
         }
     }
     
@@ -31,14 +32,15 @@ public class BuildParameters
         return new BuildParameters {
             Target = context.Argument("target", "Build"),
             Configuration = context.Argument("configuration", "Release"),
-            SkipOpenCover = context.Argument<bool>("SkipOpenCover", false),
+            SkipCodeCoverage = context.Argument<bool>("SkipCodeCoverage", false),
+            UploadCoverageReport = context.Argument<bool>("UploadCoverageReport", true),
             IsLocalBuild = buildSystem.IsLocalBuild,
             IsMaster = StringComparer.OrdinalIgnoreCase.Equals("master", buildSystem.AppVeyor.Environment.Repository.Branch),
             IsDev = StringComparer.OrdinalIgnoreCase.Equals("dev", buildSystem.AppVeyor.Environment.Repository.Branch),
             IsTagged = IsBuildTagged(buildSystem),
             IsPullRequest = IsPullRequestBuild(buildSystem),
             TargetFramework = "netcoreapp2.0",
-            TargetFrameworkFull = "netstandard1.1"
+            IsRunningOnWindows = context.IsRunningOnWindows()
         };
     }
 

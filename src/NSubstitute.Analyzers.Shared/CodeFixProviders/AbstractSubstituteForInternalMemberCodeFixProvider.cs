@@ -40,7 +40,6 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             }
 
             var syntaxNode = await syntaxReference.GetSyntaxAsync();
-            var document = context.Document.Project.Solution.GetDocument(syntaxNode.SyntaxTree);
             var compilationUnitSyntax = FindCompilationUnitSyntax(syntaxNode);
 
             if (compilationUnitSyntax == null)
@@ -48,21 +47,12 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
                 return;
             }
 
-            var codeAction = CodeAction.Create("Add InternalsVisibleTo attribute", token => CreateChangedDocument(token, compilationUnitSyntax, document), nameof(AbstractSubstituteForInternalMemberCodeFixProvider<TInvocationExpressionSyntax, TExpressionSyntax, TCompilationUnitSyntax>));
-            context.RegisterCodeFix(codeAction, diagnostic);
+            RegisterCodeFix(context, diagnostic, compilationUnitSyntax);
         }
 
         protected abstract AbstractSubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> GetSubstituteProxyAnalysis();
 
-        protected abstract TCompilationUnitSyntax AppendInternalsVisibleToAttribute(TCompilationUnitSyntax compilationUnitSyntax);
-
-        private async Task<Document> CreateChangedDocument(CancellationToken cancellationToken, TCompilationUnitSyntax compilationUnitSyntax, Document document)
-        {
-            var updatedCompilationUnitSyntax = AppendInternalsVisibleToAttribute(compilationUnitSyntax);
-            var root = await document.GetSyntaxRootAsync(cancellationToken);
-            var replaceNode = root.ReplaceNode(compilationUnitSyntax, updatedCompilationUnitSyntax);
-            return document.WithSyntaxRoot(replaceNode);
-        }
+        protected abstract void RegisterCodeFix(CodeFixContext context, Diagnostic diagnostic, TCompilationUnitSyntax compilationUnitSyntax);
 
         private async Task<SyntaxReference> GetDeclaringSyntaxReference(CodeFixContext context, TInvocationExpressionSyntax invocationExpression)
         {

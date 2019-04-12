@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using FluentAssertions.Execution;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 using NSubstitute.Analyzers.Shared.Settings;
+using NSubstitute.Analyzers.Tests.Shared.Extensions;
+using NSubstitute.Analyzers.Tests.Shared.Text;
 
 namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 {
@@ -23,33 +23,41 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
     /// </summary>
     public abstract class DiagnosticVerifier
     {
-        private static readonly MetadataReference CorlibReference =
-            MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
+        private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
 
-        private static readonly MetadataReference SystemCoreReference =
-            MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location);
+        private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location);
 
-        private static readonly MetadataReference CodeAnalysisReference =
-            MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
+        private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
 
-        private static readonly MetadataReference NSubstituteReference =
-            MetadataReference.CreateFromFile(typeof(Substitute).Assembly.Location);
+        private static readonly MetadataReference NSubstituteReference = MetadataReference.CreateFromFile(typeof(Substitute).Assembly.Location);
 
-        private static readonly MetadataReference ValueTaskReference =
-            MetadataReference.CreateFromFile(typeof(ValueTask<>).Assembly.Location);
+        private static readonly MetadataReference TasksExtensionsReference = MetadataReference.CreateFromFile(Assembly.Load("System.Threading.Tasks.Extensions").Location);
 
-        private static readonly MetadataReference LinqExpressionReference =
-            MetadataReference.CreateFromFile(typeof(Expression).Assembly.Location);
+        private static readonly MetadataReference NetStandard = MetadataReference.CreateFromFile(Assembly.Load("netstandard, Version=2.0.0.0").Location);
+
+        private static readonly MetadataReference[] MetadataReferences;
 
         public static string DefaultFilePathPrefix { get; } = "Test";
 
-        public static string CSharpDefaultFileExt { get; } = "cs";
-
-        public static string VisualBasicDefaultExt { get; } = "vb";
-
         public static string TestProjectName { get; } = "TestProject";
 
+        public static TextParser TextParser { get; } = TextParser.Default;
+
         protected abstract string Language { get; }
+
+        protected abstract string FileExtension { get; }
+
+        static DiagnosticVerifier()
+        {
+            var referencedAssemblies = typeof(Substitute).Assembly.GetReferencedAssemblies();
+            var systemRuntimeReference = GetAssemblyReference(referencedAssemblies, "System.Runtime");
+            var systemThreadingTasksReference = GetAssemblyReference(referencedAssemblies, "System.Threading.Tasks");
+            MetadataReferences = new[]
+            {
+                CorlibReference, SystemCoreReference, CodeAnalysisReference, NSubstituteReference, NetStandard,
+                TasksExtensionsReference, systemRuntimeReference, systemThreadingTasksReference
+            };
+        }
 
         protected DiagnosticVerifier()
         {
@@ -57,14 +65,45 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
                 CultureInfo.GetCultureInfoByIetfLanguageTag("en-US");
         }
 
-        public async Task VerifyDiagnostic(string source, params DiagnosticResult[] expected)
+        protected async Task VerifyDiagnostic(string source, DiagnosticDescriptor diagnosticDescriptor, string overridenDiagnosticMessage = null)
         {
-            await VerifyDiagnostic(new[] { source }, expected);
+            await VerifyDiagnostics(new[] { source }, diagnosticDescriptor, overridenDiagnosticMessage);
         }
 
-        public async Task VerifyDiagnostic(string[] source, params DiagnosticResult[] expected)
+        protected async Task VerifyDiagnostics(string[] sources, DiagnosticDescriptor diagnosticDescriptor, string overridenDiagnosticMessage = null)
         {
-            await VerifyDiagnostic(source, Language, GetDiagnosticAnalyzer(), expected, false);
+            diagnosticDescriptor = overridenDiagnosticMessage == null
+                ? diagnosticDescriptor
+                : diagnosticDescriptor.OverrideMessage(overridenDiagnosticMessage);
+
+            var textParserResult = sources.Select(source => TextParser.GetSpans(source)).ToList();
+            var diagnostics = textParserResult.SelectMany(result => result.Spans.Select(span => CreateDiagnostic(diagnosticDescriptor, span.Span, span.LineSpan))).ToArray();
+            await VerifyDiagnostics(textParserResult.Select(result => result.Text).ToArray(), diagnostics);
+        }
+
+        protected async Task VerifyDiagnostic(string source, Diagnostic[] diagnostics)
+        {
+            await VerifyDiagnostics(new[] { source }, diagnostics);
+        }
+
+        protected async Task VerifyDiagnostics(string[] sources, Diagnostic[] diagnostics)
+        {
+            if (diagnostics == null || diagnostics.Length == 0)
+            {
+                throw new ArgumentException("Diagnostics should not be empty", nameof(diagnostics));
+            }
+
+            await VerifyDiagnostics(sources, GetDiagnosticAnalyzer(), diagnostics, false);
+        }
+
+        protected async Task VerifyNoDiagnostic(string source)
+        {
+            await VerifyNoDiagnostics(new[] { source });
+        }
+
+        protected async Task VerifyNoDiagnostics(string[] sources)
+        {
+            await VerifyDiagnostics(sources, GetDiagnosticAnalyzer(), Array.Empty<Diagnostic>(), false);
         }
 
         protected abstract DiagnosticAnalyzer GetDiagnosticAnalyzer();
@@ -116,9 +155,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
                     }
                     else
                     {
-                        for (int i = 0; i < documents.Length; i++)
+                        foreach (var document in documents)
                         {
-                            var document = documents[i];
                             var tree = await document.GetSyntaxTreeAsync();
                             if (tree == diag.Location.SourceTree)
                             {
@@ -134,15 +172,10 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
             return results;
         }
 
-        protected Project CreateProject(string[] sources, string language)
+        protected Project CreateProject(string[] sources)
         {
-            string fileNamePrefix = DefaultFilePathPrefix;
-            string fileExt = language == LanguageNames.CSharp ? CSharpDefaultFileExt : VisualBasicDefaultExt;
-            var referencedAssemblies = typeof(Substitute).Assembly.GetReferencedAssemblies();
-            var systemRuntimeReference = GetAssemblyReference(referencedAssemblies, "System.Runtime");
-            var systemThreadingTasksReference = GetAssemblyReference(referencedAssemblies, "System.Threading.Tasks");
-
-            var projectId = ProjectId.CreateNewId(debugName: TestProjectName);
+            var fileNamePrefix = DefaultFilePathPrefix;
+            var projectId = ProjectId.CreateNewId(TestProjectName);
 
             using (var adhocWorkspace = new AdhocWorkspace())
             {
@@ -150,25 +183,16 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
                 var solution = adhocWorkspace
                     .CurrentSolution
-                    .AddProject(projectId, TestProjectName, TestProjectName, language)
+                    .AddProject(projectId, TestProjectName, TestProjectName, Language)
                     .WithProjectCompilationOptions(projectId, compilationOptions)
-                    .AddMetadataReference(projectId, CorlibReference)
-                    .AddMetadataReference(projectId, SystemCoreReference)
-                    .AddMetadataReference(projectId, CodeAnalysisReference)
-                    .AddMetadataReference(projectId, NSubstituteReference)
-                    .AddMetadataReference(projectId, ValueTaskReference)
-                    .AddMetadataReference(projectId, systemRuntimeReference)
-                    .AddMetadataReference(projectId, systemThreadingTasksReference)
-                    .AddMetadataReference(projectId, LinqExpressionReference)
-                    .AddMetadataReferences(projectId, GetAdditionalMetadataReferences());
+                    .AddMetadataReferences(projectId, MetadataReferences.Concat(GetAdditionalMetadataReferences()));
 
-                int count = 0;
-                foreach (var source in sources)
+                for (var index = 0; index < sources.Length; index++)
                 {
-                    var newFileName = fileNamePrefix + count + "." + fileExt;
+                    var source = sources[index];
+                    var newFileName = fileNamePrefix + index + "." + FileExtension;
                     var documentId = DocumentId.CreateNewId(projectId, debugName: newFileName);
                     solution = solution.AddDocument(documentId, newFileName, SourceText.From(source));
-                    count++;
                 }
 
                 var settings = GetSettings();
@@ -182,194 +206,80 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
             }
         }
 
-        private static void VerifyDiagnosticResults(IEnumerable<Diagnostic> actualResults, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expectedResults)
+        protected Diagnostic CreateDiagnostic(DiagnosticDescriptor descriptor, TextSpan span, LinePositionSpan lineSpan)
         {
-            int expectedCount = expectedResults.Count();
-            int actualCount = actualResults.Count();
+            var location = Location.Create($"{DefaultFilePathPrefix}0.{FileExtension}", span, lineSpan);
 
-            if (expectedCount != actualCount)
-            {
-                string diagnosticsOutput = actualResults.Any() ? FormatDiagnostics(analyzer, actualResults.ToArray()) : "    NONE.";
+            return Diagnostic.Create(descriptor, location);
+        }
 
-                var message =
-                    $@"Mismatch between number of diagnostics returned, expected ""{expectedCount}"" actual ""{actualCount}""
-
-Diagnostics:
-{diagnosticsOutput}
-";
-                Execute.Assertion.FailWith(message);
-            }
-
-            for (int i = 0; i < expectedResults.Length; i++)
+        private static void VerifyDiagnosticResults(Diagnostic[] actualResults, DiagnosticAnalyzer analyzer, params Diagnostic[] expectedResults)
+        {
+            actualResults.Should().HaveSameCount(expectedResults, "because diagnostic count should match. {0}", FormatDiagnostics(actualResults));
+            for (var i = 0; i < expectedResults.Length; i++)
             {
                 var actual = actualResults.ElementAt(i);
                 var expected = expectedResults[i];
 
-                if (expected.Line == -1 && expected.Column == -1)
-                {
-                    if (actual.Location != Location.None)
-                    {
-                        var message =
-                            $@"Expected:
-A project diagnostic with No location
-Actual:
-{FormatDiagnostics(analyzer, actual)}";
-                        Execute.Assertion.FailWith(message);
-                    }
-                }
-                else
-                {
-                    VerifyDiagnosticLocation(analyzer, actual, actual.Location, expected.Locations.First());
-                    var additionalLocations = actual.AdditionalLocations.ToArray();
+                VerifyLocation(actual.Location, expected.Location);
+                var additionalLocations = actual.AdditionalLocations.ToArray();
 
-                    if (additionalLocations.Length != expected.Locations.Length - 1)
-                    {
-                        var message =
-                            $@"Expected {expected.Locations.Length - 1} additional locations but got {additionalLocations.Length} for Diagnostic:
-    {FormatDiagnostics(analyzer, actual)}
-";
-                        Execute.Assertion.FailWith(message);
-                    }
+                additionalLocations.Should().HaveSameCount(expected.AdditionalLocations);
 
-                    for (int j = 0; j < additionalLocations.Length; ++j)
-                    {
-                        VerifyDiagnosticLocation(analyzer, actual, additionalLocations[j], expected.Locations[j + 1]);
-                    }
+                for (var j = 0; j < additionalLocations.Length; ++j)
+                {
+                    VerifyLocation(additionalLocations[j], expected.AdditionalLocations[j + 1]);
                 }
 
-                if (actual.Id != expected.Id)
-                {
-                    var message =
-                        $@"Expected diagnostic id to be ""{expected.Id}"" was ""{actual.Id}""
-
-Diagnostic:
-    {FormatDiagnostics(analyzer, actual)}
-";
-                    Execute.Assertion.FailWith(message);
-                }
-
-                if (actual.Severity != expected.Severity)
-                {
-                    var message =
-                            $@"Expected diagnostic severity to be ""{expected.Severity}"" was ""{actual.Severity}""
-
-Diagnostic:
-    {FormatDiagnostics(analyzer, actual)}
-";
-                    Execute.Assertion.FailWith(message);
-                }
-
-                if (actual.GetMessage() != expected.Message)
-                {
-                    var message =
-                            $@"Expected diagnostic message to be ""{expected.Message}"" was ""{actual.GetMessage()}""
-
-Diagnostic:
-    {FormatDiagnostics(analyzer, actual)}
-";
-                    Execute.Assertion.FailWith(message);
-                }
+                actual.Id.Should().Be(expected.Id);
+                actual.Severity.Should().Be(expected.Severity);
+                actual.GetMessage().Should().Be(expected.GetMessage());
             }
         }
 
-        private static void VerifyDiagnosticLocation(DiagnosticAnalyzer analyzer, Diagnostic diagnostic, Location actual, DiagnosticResultLocation expected)
+        private static void VerifyLocation(
+            Location actualLocation,
+            Location expectedLocation)
         {
-            var actualSpan = actual.GetLineSpan();
-
-            string message;
-            var actualLinePosition = actualSpan.StartLinePosition;
-
-            // Only check line position if there is an actual line in the real diagnostic
-            if (actualLinePosition.Line > 0)
-            {
-                if (actualLinePosition.Line + 1 != expected.Line)
-                {
-                    message =
-                            $@"Expected diagnostic to be on line ""{expected.Line}"" was actually on line ""{actualLinePosition.Line + 1}""
-
-Diagnostic:
-    {FormatDiagnostics(analyzer, diagnostic)}
-";
-                    Execute.Assertion.FailWith(message);
-                }
-            }
-
-            // Only check column position if there is an actual column position in the real diagnostic
-            if (actualLinePosition.Character > 0)
-            {
-                if (actualLinePosition.Character + 1 != expected.Column)
-                {
-                    message =
-                            $@"Expected diagnostic to start at column ""{expected.Column}"" was actually at column ""{actualLinePosition.Character + 1}""
-
-Diagnostic:
-    {FormatDiagnostics(analyzer, diagnostic)}
-";
-                    Execute.Assertion.FailWith(message);
-                }
-            }
+            VerifyFileLinePositionSpan(actualLocation.GetLineSpan(), expectedLocation.GetLineSpan());
         }
 
-        private static string FormatDiagnostics(DiagnosticAnalyzer analyzer, params Diagnostic[] diagnostics)
+        private static void VerifyFileLinePositionSpan(
+            FileLinePositionSpan actual,
+            FileLinePositionSpan expected)
         {
-            var builder = new StringBuilder();
-            for (int i = 0; i < diagnostics.Length; ++i)
-            {
-                builder.AppendLine("// " + diagnostics[i]);
+            actual.Path.Should().Be(expected.Path);
+            VerifyLinePosition(actual.StartLinePosition, expected.StartLinePosition, "start");
 
-                var analyzerType = analyzer.GetType();
-                var rules = analyzer.SupportedDiagnostics;
-
-                foreach (var rule in rules)
-                {
-                    if (rule != null && rule.Id == diagnostics[i].Id)
-                    {
-                        var location = diagnostics[i].Location;
-                        if (location == Location.None)
-                        {
-                            builder.Append($"GetGlobalResult({analyzerType.Name}.{rule.Id})");
-                        }
-                        else
-                        {
-                            location.IsInSource.Should()
-                                .BeTrue(
-                                    $"Test base does not currently handle diagnostics in metadata locations. Diagnostic in metadata: {diagnostics[i]}\r\n");
-
-                            string resultMethodName = diagnostics[i].Location.SourceTree.FilePath.EndsWith(".cs", StringComparison.OrdinalIgnoreCase) ? "GetCSharpResultAt" : "GetBasicResultAt";
-                            var linePosition = diagnostics[i].Location.GetLineSpan().StartLinePosition;
-
-                            builder.Append(
-                                    $"{resultMethodName}({linePosition.Line + 1}, {linePosition.Character + 1}, {analyzerType.Name}.{rule.Id})");
-                        }
-
-                        if (i != diagnostics.Length - 1)
-                        {
-                            builder.Append(',');
-                        }
-
-                        builder.AppendLine();
-                        break;
-                    }
-                }
-            }
-
-            return builder.ToString();
+            VerifyLinePosition(actual.EndLinePosition, expected.EndLinePosition, "end");
         }
 
-        private async Task VerifyDiagnostic(string[] sources, string language, DiagnosticAnalyzer analyzer, DiagnosticResult[] expected, bool allowCompilationErrors)
+        private static void VerifyLinePosition(
+            LinePosition actual,
+            LinePosition expected,
+            string startOrEnd)
         {
-            var diagnostics = await GetSortedDiagnostics(sources, language, analyzer, allowCompilationErrors);
+            actual.Should().Be(expected, $"because diagnostic should ${startOrEnd} on expected line");
+
+            actual.Character.Should().Be(expected.Character, $"because diagnostic should ${startOrEnd} at expected column");
+        }
+
+        private static string FormatDiagnostics(params Diagnostic[] diagnostics)
+        {
+            var formattedName = diagnostics.Length == 0 ? "no diagnostic" : string.Join(Environment.NewLine, diagnostics.Select(d => d.ToString()));
+
+            return $"{Environment.NewLine}Diagnostics:{Environment.NewLine}{formattedName}";
+        }
+
+        private async Task VerifyDiagnostics(string[] sources, DiagnosticAnalyzer analyzer, Diagnostic[] expected, bool allowCompilationErrors)
+        {
+            var diagnostics = await GetSortedDiagnostics(sources, analyzer, allowCompilationErrors);
             VerifyDiagnosticResults(diagnostics, analyzer, expected);
         }
 
-        private Document[] GetDocuments(string[] sources, string language)
+        private Document[] GetDocuments(string[] sources)
         {
-            if (language != LanguageNames.CSharp && language != LanguageNames.VisualBasic)
-            {
-                throw new ArgumentException("Unsupported Language");
-            }
-
-            var project = CreateProject(sources, language);
+            var project = CreateProject(sources);
             var documents = project.Documents.ToArray();
 
             if (sources.Length != documents.Length)
@@ -398,9 +308,9 @@ Diagnostic:
             }
         }
 
-        private async Task<Diagnostic[]> GetSortedDiagnostics(string[] sources, string language, DiagnosticAnalyzer analyzer, bool allowCompilationErrors)
+        private async Task<Diagnostic[]> GetSortedDiagnostics(string[] sources, DiagnosticAnalyzer analyzer, bool allowCompilationErrors)
         {
-            return await GetSortedDiagnosticsFromDocuments(analyzer, GetDocuments(sources, language), allowCompilationErrors);
+            return await GetSortedDiagnosticsFromDocuments(analyzer, GetDocuments(sources), allowCompilationErrors);
         }
 
         private Diagnostic[] SortDiagnostics(IEnumerable<Diagnostic> diagnostics)
@@ -408,7 +318,7 @@ Diagnostic:
             return diagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();
         }
 
-        private MetadataReference GetAssemblyReference(IEnumerable<AssemblyName> assemblies, string name)
+        private static MetadataReference GetAssemblyReference(IEnumerable<AssemblyName> assemblies, string name)
         {
             return MetadataReference.CreateFromFile(Assembly.Load(assemblies.First(n => n.Name == name)).Location);
         }

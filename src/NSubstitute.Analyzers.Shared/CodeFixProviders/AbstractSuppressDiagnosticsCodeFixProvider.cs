@@ -154,7 +154,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 
         private static string CreateSuppressionTarget(ISymbol symbol)
         {
-            ISymbol actualSymbol = symbol;
+            var actualSymbol = symbol;
             if (actualSymbol is IMethodSymbol methodSymbol && methodSymbol.ReducedFrom != null)
             {
                 actualSymbol = methodSymbol.ReducedFrom;

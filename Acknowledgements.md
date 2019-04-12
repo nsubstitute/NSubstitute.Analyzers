@@ -25,3 +25,7 @@ NSubstitute.Analyzers is coded in C# and compiled using Microsoft .NET.
 ## TinyJson [https://github.com/gering/Tiny-JSON]
 TinyJson is used for serialization of settings file. Due to its small size it was incorporated directly into NSubstitute.Analyzers which solved our issues with NuGet references to Newtonsoft.Json.
 TinyJson is distributed under MIT license [https://github.com/gering/Tiny-JSON/blob/master/LICENSE]
+
+## Roslynator [https://github.com/JosefPihrt/Roslynator]
+Rosynator testing suite was an inspiration for reworking NSubstitute.Analyzers testing approach, resulting in a significant decrease of code duplication in tests.
+Roslynator is distributed under Apache license [https://github.com/JosefPihrt/Roslynator/blob/master/LICENSE.txt]

@@ -16,9 +16,11 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests
 
         protected override string Language { get; } = LanguageNames.VisualBasic;
 
+        protected override string FileExtension { get; } = "vb";
+
         protected override CompilationOptions GetCompilationOptions()
         {
-            return new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optionStrict: OptionStrict.On);
+            return new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optionStrict: OptionStrict.Off);
         }
 
         protected override IEnumerable<MetadataReference> GetAdditionalMetadataReferences()

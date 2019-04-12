@@ -1,167 +1,194 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using NSubstitute.Analyzers.Shared;
-using NSubstitute.Analyzers.Tests.Shared;
-using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.UnusedReceivedAnalyzerTests
 {
+    [CombinatoryData(
+        "SubstituteExtensions.Received",
+        "SubstituteExtensions.Received<Foo>",
+        "SubstituteExtensions.ReceivedWithAnyArgs",
+        "SubstituteExtensions.ReceivedWithAnyArgs<Foo>",
+        "SubstituteExtensions.DidNotReceive",
+        "SubstituteExtensions.DidNotReceive<Foo>",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo>")]
     public class ReceivedAsOrdinaryMethodTests : UnusedReceivedDiagnosticVerifier
     {
-        public override async Task ReportDiagnostics_WhenUsedWithoutMemberCall()
+        public override async Task ReportDiagnostics_WhenUsedWithoutMemberCall(string method)
         {
-            var source = @"using NSubstitute;
+            var plainMethodName = method.Replace("<Foo>", string.Empty);
+            var planMethodNameWithoutNamespace = plainMethodName.Replace("SubstituteExtensions.", string.Empty);
+
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
-    public interface IFoo
-    {
-    }
+{{
+    public interface Foo
+    {{
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
-            var substitute = NSubstitute.Substitute.For<IFoo>();
-            SubstituteExtensions.Received(substitute);
-        }
-    }
-}";
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.UnusedReceived,
-                Severity = DiagnosticSeverity.Warning,
-                Message = @"Unused received check. To fix, make sure there is a call after ""Received"". Correct: ""SubstituteExtensions.Received(sub).SomeCall();"". Incorrect: ""SubstituteExtensions.Received(sub);""",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(14, 13)
-                }
-            };
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            [|{method}(substitute)|];
+        }}
+    }}
+}}";
 
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, Descriptor, $@"Unused received check. To fix, make sure there is a call after ""{planMethodNameWithoutNamespace}"". Correct: ""{plainMethodName}(sub).SomeCall();"". Incorrect: ""{plainMethodName}(sub);""");
         }
 
-        public override async Task ReportNoDiagnostics_WhenUsedWithMethodMemberAccess()
+        public override async Task ReportNoDiagnostics_WhenUsedWithMethodMemberAccess(string method)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public class FooBar
-    {
-    }
+    {{
+    }}
 
-    public interface IFoo
-    {
+    public interface Foo
+    {{
         FooBar Bar();
-    }
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
-            var substitute = NSubstitute.Substitute.For<IFoo>();
-            SubstituteExtensions.Received(substitute).Bar();
-        }
-    }
-}";
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            {method}(substitute).Bar();
+        }}
+    }}
+}}";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportNoDiagnostics_WhenUsedWithPropertyMemberAccess()
+        public override async Task ReportNoDiagnostics_WhenUsedWithPropertyMemberAccess(string method)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
 
-    public interface IFoo
-    {
-        int Bar { get; set; }
-    }
+    public interface Foo
+    {{
+        int Bar {{ get; set; }}
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
-            var substitute = NSubstitute.Substitute.For<IFoo>();
-            var bar = SubstituteExtensions.Received(substitute).Bar;
-        }
-    }
-}";
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            var bar = {method}(substitute).Bar;
+        }}
+    }}
+}}";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportNoDiagnostics_WhenUsedWithIndexerMemberAccess()
+        public override async Task ReportNoDiagnostics_WhenUsedWithIndexerMemberAccess(string method)
         {
-            var source = @"using NSubstitute;
+            var source = $@"using NSubstitute;
 
 namespace MyNamespace
-{
+{{
 
-    public interface IFoo
-    {
-        int this[int x] { get; }
-    }
+    public interface Foo
+    {{
+        int this[int x] {{ get; }}
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
-            var substitute = NSubstitute.Substitute.For<IFoo>();
-            var bar = SubstituteExtensions.Received(substitute)[0];
-        }
-    }
-}";
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            var bar = {method}(substitute)[0];
+        }}
+    }}
+}}";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportNoDiagnostics_WhenUsedWithInvokingDelegate()
+        [CombinatoryData(
+            "SubstituteExtensions.Received",
+            "SubstituteExtensions.Received<Func<int>>",
+            "SubstituteExtensions.ReceivedWithAnyArgs",
+            "SubstituteExtensions.ReceivedWithAnyArgs<Func<int>>",
+            "SubstituteExtensions.DidNotReceive",
+            "SubstituteExtensions.DidNotReceive<Func<int>>",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs<Func<int>>")]
+        public override async Task ReportNoDiagnostics_WhenUsedWithInvokingDelegate(string method)
         {
-            var source = @"using System;
+            var source = $@"using System;
 using NSubstitute;
 
 namespace MyNamespace
-{
+{{
     public class FooTests
-    {
+    {{
         public void Test()
-        {
+        {{
             var substitute = NSubstitute.Substitute.For<Func<int>>();
-            SubstituteExtensions.Received(substitute)();
-        }
-    }
-}";
-            await VerifyDiagnostic(source);
+            {method}(substitute)();
+        }}
+    }}
+}}";
+            await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod()
+        public override async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod(string method)
         {
-            var source = @"using System;
+            var source = $@"using System;
 
 namespace NSubstitute
-{
+{{
+    public class Foo
+    {{
+    }}
+
     public static class SubstituteExtensions
-    {
+    {{
         public static T Received<T>(this T substitute, decimal x) where T : class
-        {
+        {{
             return null;
-        }
-    }
+        }}
+
+        public static T ReceivedWithAnyArgs<T>(this T substitute, decimal x) where T : class
+        {{
+            return null;
+        }}
+
+        public static T DidNotReceive<T>(this T substitute, decimal x) where T : class
+        {{
+            return null;
+        }}
+
+        public static T DidNotReceiveWithAnyArgs<T>(this T substitute, decimal x) where T : class
+        {{
+            return null;
+        }}
+    }}
 
     public class FooTests
-    {
+    {{
         public void Test()
-        {
-            object substitute = null;
-            SubstituteExtensions.Received(substitute, 1m);
-        }
-    }
-}";
-            await VerifyDiagnostic(source);
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            {method}(substitute, 1m);
+        }}
+    }}
+}}";
+            await VerifyNoDiagnostic(source);
         }
     }
 }

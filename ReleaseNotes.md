@@ -1,3 +1,39 @@
+### 1.0.8 (08 April 2019)
+
+ - [#89](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/89) NS1002 doesn't detect non-virtual calls from base class
+ - [#87](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/87) NS1002 highlights wrong member
+ - [#78](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/78) Update documentation so as it includes information about min supported Visual Studio version
+ - [#76](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/76) Analyze callInfo usages for Do method
+ - [#62](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/62) Detecting conflicting out/ref arguments
+
+### 1.0.7 (15 March 2019)
+
+ - [#79](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/79) - NS2003 triggers a warning when InternalsVisibleTo using strong name
+ - [#73](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/73) - NS1001 highlights wrong member
+ - [#70](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/70) - Implement code fix providers for substituting for internal member
+ - [#66](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/66) - Detect substituting for `internal` members without `InternalsVisibleTo`
+
+### 1.0.6 (21 February 2019)
+
+ - [#71](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/71) - Incorrect NS4000 when using typeof expression
+
+### 1.0.5 (09 February 2019)
+
+ - [#61](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/61) - CallInfo analysis for AndDoes method
+
+### 1.0.4 (03 January 2019)
+
+ - [#57](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/57) - Incorrect NS3004 for derived types
+ - [#56](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/56) - Analyzer 'NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers.ReEntrantSetupAnalyzer' threw an exception of type 'System.ArgumentException' with message 'SyntaxTree is not part of the compilation'
+
+### 1.0.3 (22 November 2018)
+
+ - [#54](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/54) - Rule NS2003 does not detect InternalsVisibleTo correctly
+
+### 1.0.2 (07 November 2018)
+
+ - [#52](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/52) - Detect substitution for non-virtual members for ReturnsNull like methods
+
 ### 1.0.1 (29 October 2018)
 
  - [#50](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/50) - Enforce release notes update during package publish
@@ -38,3 +74,4 @@
 
 ### 0.1.0-beta1 (01 August 2018)
  - Initial release
+

@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.CSharp.Extensions;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
@@ -12,33 +13,15 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
     internal class CallInfoAnalyzer : AbstractCallInfoAnalyzer<SyntaxKind, InvocationExpressionSyntax, ExpressionSyntax, ElementAccessExpressionSyntax>
     {
         public CallInfoAnalyzer()
-            : base(new DiagnosticDescriptorsProvider())
+            : base(new DiagnosticDescriptorsProvider(), new CallInfoCallFinder(), new SubstitutionNodeFinder())
         {
         }
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
-        protected override SyntaxNode GetSubstituteCall(IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax)
-        {
-            switch (methodSymbol.MethodKind)
-            {
-                case MethodKind.ReducedExtension:
-                    return invocationExpressionSyntax.Expression.DescendantNodes().First();
-                case MethodKind.Ordinary:
-                    return invocationExpressionSyntax.ArgumentList.Arguments.First().Expression;
-                default:
-                    return null;
-            }
-        }
-
         protected override IEnumerable<ExpressionSyntax> GetArgumentExpressions(InvocationExpressionSyntax invocationExpressionSyntax)
         {
             return invocationExpressionSyntax.ArgumentList.Arguments.Select(arg => arg.Expression);
-        }
-
-        protected override AbstractCallInfoFinder<InvocationExpressionSyntax, ElementAccessExpressionSyntax> GetCallInfoFinder()
-        {
-            return new CallInfoCallFinder();
         }
 
         protected override SyntaxNode GetCastTypeExpression(ElementAccessExpressionSyntax indexerExpressionSyntax)
@@ -85,6 +68,12 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
         protected override bool CanCast(Compilation compilation, ITypeSymbol sourceSymbol, ITypeSymbol destinationSymbol)
         {
             return compilation.ClassifyConversion(sourceSymbol, destinationSymbol).Exists;
+        }
+
+        protected override bool IsAssignableTo(Compilation compilation, ITypeSymbol fromSymbol, ITypeSymbol toSymbol)
+        {
+            var conversion = compilation.ClassifyConversion(fromSymbol, toSymbol);
+            return conversion.Exists && conversion.IsExplicit == false && conversion.IsNumeric == false;
         }
     }
 }

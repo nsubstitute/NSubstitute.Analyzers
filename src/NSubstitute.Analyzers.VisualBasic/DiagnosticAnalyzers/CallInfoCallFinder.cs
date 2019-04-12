@@ -7,9 +7,9 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
-    internal class CallInfoCallFinder : AbstractCallInfoFinder<InvocationExpressionSyntax, InvocationExpressionSyntax>
+    internal class CallInfoCallFinder : ICallInfoFinder<InvocationExpressionSyntax, InvocationExpressionSyntax>
     {
-        public override CallInfoContext<InvocationExpressionSyntax, InvocationExpressionSyntax> GetCallInfoContext(SemanticModel semanticModel, SyntaxNode syntaxNode)
+        public CallInfoContext<InvocationExpressionSyntax, InvocationExpressionSyntax> GetCallInfoContext(SemanticModel semanticModel, SyntaxNode syntaxNode)
         {
             var visitor = new CallInfoVisitor(semanticModel);
             visitor.Visit(syntaxNode);
@@ -39,7 +39,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
             {
                 var symbol = _semanticModel.GetSymbolInfo(node).Symbol;
 
-                if (symbol != null && symbol.ContainingType.ToString().Equals(MetadataNames.NSubstituteCoreFullTypeName))
+                if (symbol != null && symbol.ContainingType.ToString().Equals(MetadataNames.NSubstituteCallInfoFullTypeName))
                 {
                     switch (symbol.Name)
                     {
@@ -59,7 +59,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
                 {
                     var expressionSymbol = _semanticModel.GetSymbolInfo(node.Expression).Symbol;
 
-                    if (expressionSymbol != null && expressionSymbol.ContainingType.ToString().Equals(MetadataNames.NSubstituteCoreFullTypeName))
+                    if (expressionSymbol != null && expressionSymbol.ContainingType.ToString().Equals(MetadataNames.NSubstituteCallInfoFullTypeName))
                     {
                         DirectIndexerAccesses.Add(node);
                     }

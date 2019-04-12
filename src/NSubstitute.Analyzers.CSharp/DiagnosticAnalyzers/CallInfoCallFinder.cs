@@ -7,9 +7,9 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 {
-    internal class CallInfoCallFinder : AbstractCallInfoFinder<InvocationExpressionSyntax, ElementAccessExpressionSyntax>
+    internal class CallInfoCallFinder : ICallInfoFinder<InvocationExpressionSyntax, ElementAccessExpressionSyntax>
     {
-        public override CallInfoContext<InvocationExpressionSyntax, ElementAccessExpressionSyntax> GetCallInfoContext(SemanticModel semanticModel, SyntaxNode syntaxNode)
+        public CallInfoContext<InvocationExpressionSyntax, ElementAccessExpressionSyntax> GetCallInfoContext(SemanticModel semanticModel, SyntaxNode syntaxNode)
         {
             var visitor = new CallInfoVisitor(semanticModel);
             visitor.Visit(syntaxNode);
@@ -39,7 +39,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
             {
                 var symbolInfo = _semanticModel.GetSymbolInfo(node);
 
-                if (symbolInfo.Symbol != null && symbolInfo.Symbol.ContainingType.ToString().Equals(MetadataNames.NSubstituteCoreFullTypeName))
+                if (symbolInfo.Symbol != null && symbolInfo.Symbol.ContainingType.ToString().Equals(MetadataNames.NSubstituteCallInfoFullTypeName))
                 {
                     switch (symbolInfo.Symbol.Name)
                     {
@@ -58,7 +58,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
             public override void VisitElementAccessExpression(ElementAccessExpressionSyntax node)
             {
                 var symbolInfo = ModelExtensions.GetSymbolInfo(_semanticModel, node).Symbol ?? ModelExtensions.GetSymbolInfo(_semanticModel, node.Expression).Symbol;
-                if (symbolInfo != null && symbolInfo.ContainingType.ToString().Equals(MetadataNames.NSubstituteCoreFullTypeName))
+                if (symbolInfo != null && symbolInfo.ContainingType.ToString().Equals(MetadataNames.NSubstituteCallInfoFullTypeName))
                 {
                     DirectIndexerAccesses.Add(node);
                 }
