@@ -5,7 +5,7 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMatcherAnalyzerTests
 {
-    public class ReceivedAsExtensionMethodWithGenericTypeSpecifiedTests : CSharpDiagnosticVerifier
+    public class ReceivedAsExtensionMethodWithGenericTypeSpecifiedTests : ArgumentMatcherMisuseDiagnosticVerifier
     {
         [Theory]
         [InlineData("Arg.Any<int>()")]
@@ -31,7 +31,7 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         [Theory]
@@ -58,12 +58,7 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source);
-        }
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new ArgumentMatcherAnalyzer();
+            await VerifyNoDiagnostic(source);
         }
     }
 }

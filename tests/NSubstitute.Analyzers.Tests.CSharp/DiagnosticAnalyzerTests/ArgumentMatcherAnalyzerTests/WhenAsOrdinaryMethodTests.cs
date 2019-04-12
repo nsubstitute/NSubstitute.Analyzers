@@ -8,7 +8,7 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMatcherAnalyzerTests
 {
-    public class WhenAsOrdinaryMethodTests : CSharpDiagnosticVerifier
+    public class WhenAsOrdinaryMethodTests : ArgumentMatcherMisuseDiagnosticVerifier
     {
         [Theory]
         [InlineData("Arg.Any<int>()")]
@@ -44,12 +44,12 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         [Theory]
-        [InlineData("Arg.Any<int>()")]
-        [InlineData("Arg.Is(1)")]
+        [InlineData("[|Arg.Any<int>()|]")]
+        [InlineData("[|Arg.Is(1)|]")]
         public async Task ReportsDiagnostics_WhenUsedWithoutSetupMethod(string arg)
         {
             var source = $@"using NSubstitute;
@@ -70,19 +70,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.ArgumentMatcherUsedOutsideOfCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Arg matcher used outside of context",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(15, 28)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
+            await VerifyDiagnostic(source, ArgumentMatcherUsedOutsideOfCallDescriptor);
         }
 
         [Theory]
@@ -111,12 +99,12 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source);
+            await VerifyNoDiagnostic(source);
         }
 
         [Theory]
-        [InlineData("Arg.Any<int>()")]
-        [InlineData("Arg.Is(1)")]
+        [InlineData("[|Arg.Any<int>()|]")]
+        [InlineData("[|Arg.Is(1)|]")]
         public async Task ReportsDiagnostics_WhenUsedWithoutSetupMethod_Indexer(string arg)
         {
             var source = $@"using NSubstitute;
@@ -138,23 +126,7 @@ namespace MyNamespace
     }}
 }}";
 
-            var expectedDiagnostic = new DiagnosticResult
-            {
-                Id = DiagnosticIdentifiers.ArgumentMatcherUsedOutsideOfCall,
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Arg matcher used outside of context",
-                Locations = new[]
-                {
-                    new DiagnosticResultLocation(15, 32)
-                }
-            };
-
-            await VerifyDiagnostic(source, expectedDiagnostic);
-        }
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new ArgumentMatcherAnalyzer();
+            await VerifyDiagnostic(source, ArgumentMatcherUsedOutsideOfCallDescriptor);
         }
     }
 }
