@@ -486,5 +486,33 @@ End Namespace";
 
             await VerifyNoDiagnostic(source);
         }
+
+        public override async Task ReportsNoDiagnostics_WhenReturnsValueIsSet_InForEachLoop(string method)
+        {
+            var source = $@"Imports NSubstitute
+Imports NSubstitute.Core
+
+Namespace MyNamespace
+    Public Interface IFoo
+        Function Bar() As Integer
+    End Interface
+
+    Public Class FooBar
+        Public Property Value As Integer
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
+
+            For Each fooBar In New FooBar(-1) {{}}
+                substitute.Bar().{method}(fooBar.Value)
+            Next
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifyNoDiagnostic(source);
+        }
     }
 }
