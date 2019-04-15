@@ -5,6 +5,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
     internal interface IReEntrantCallFinder
     {
-        ImmutableList<ISymbol> GetReEntrantCalls(Compilation compilation, SyntaxNode rootNode);
+        ImmutableList<ISymbol> GetReEntrantCalls(Compilation compilation, SyntaxNode originatingExpression, SyntaxNode rootNode);
     }
 }

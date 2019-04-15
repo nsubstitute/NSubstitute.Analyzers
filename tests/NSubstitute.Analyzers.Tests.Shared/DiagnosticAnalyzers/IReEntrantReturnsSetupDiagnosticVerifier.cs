@@ -25,5 +25,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
         Task ReportsDiagnostic_WhenUsingReEntrantReturns_AcrossMultipleFiles(string method);
 
         Task ReportsNoDiagnostic_WhenUsed_WithTypeofExpression(string method, string type);
+
+        Task ReportsNoDiagnostics_WhenReturnsValueIsSet_InForEachLoop(string method);
     }
 }
