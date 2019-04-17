@@ -15,27 +15,6 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
     /// </summary>
     internal class SubstitutionNodeFinder : AbstractSubstitutionNodeFinder<InvocationExpressionSyntax>
     {
-        public override IEnumerable<SyntaxNode> FindForWhenExpression(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax whenInvocationExpression, IMethodSymbol whenInvocationSymbol = null)
-        {
-            if (whenInvocationExpression == null)
-            {
-                return Enumerable.Empty<SyntaxNode>();
-            }
-
-            whenInvocationSymbol = whenInvocationSymbol ?? syntaxNodeContext.SemanticModel.GetSymbolInfo(whenInvocationExpression).Symbol as IMethodSymbol;
-
-            if (whenInvocationSymbol == null)
-            {
-                return Enumerable.Empty<SyntaxNode>();
-            }
-
-            var argumentExpression = whenInvocationSymbol.MethodKind == MethodKind.ReducedExtension
-                ? whenInvocationExpression.ArgumentList.Arguments.First().Expression
-                : whenInvocationExpression.ArgumentList.Arguments.Skip(1).First().Expression;
-
-            return FindForWhenExpression(syntaxNodeContext, argumentExpression);
-        }
-
         public override SyntaxNode FindForAndDoesExpression(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax invocationExpression, IMethodSymbol invocationExpressionSymbol)
         {
             var parentInvocationExpression = invocationExpression?.GetParentInvocationExpression();
@@ -67,6 +46,15 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
         protected override InvocationExpressionSyntax GetParentInvocationExpression(InvocationExpressionSyntax invocationExpressionSyntax)
         {
             return invocationExpressionSyntax.GetParentInvocationExpression();
+        }
+
+        protected override IEnumerable<SyntaxNode> FindForWhenExpressionInternal(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax whenInvocationExpression, IMethodSymbol whenInvocationSymbol)
+        {
+            var argumentExpression = whenInvocationSymbol.MethodKind == MethodKind.ReducedExtension
+                ? whenInvocationExpression.ArgumentList.Arguments.First().Expression
+                : whenInvocationExpression.ArgumentList.Arguments.Skip(1).First().Expression;
+
+            return FindForWhenExpression(syntaxNodeContext, argumentExpression);
         }
 
         private IEnumerable<SyntaxNode> FindForWhenExpression(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode argumentSyntax)

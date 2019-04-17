@@ -17,27 +17,27 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitu
         protected DiagnosticDescriptor InternalSetupSpecificationDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.InternalSetupSpecification;
 
         [CombinatoryTheory]
-        [InlineData("sub => [|sub.Bar()|]")]
-        [InlineData("delegate(Foo sub) { [|sub.Bar()|]; }")]
-        [InlineData("sub => { [|sub.Bar()|]; }")]
+        [InlineData("sub => [|sub.Bar(Arg.Any<int>())|]")]
+        [InlineData("delegate(Foo sub) { [|sub.Bar(Arg.Any<int>())|]; }")]
+        [InlineData("sub => { [|sub.Bar(Arg.Any<int>())|]; }")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method, string whenAction);
 
         [CombinatoryTheory]
-        [InlineData("sub => [|sub.Bar()|]")]
-        [InlineData("delegate(Foo sub) { [|sub.Bar()|]; }")]
-        [InlineData("sub => { [|sub.Bar()|]; }")]
+        [InlineData("sub => [|sub.Bar(Arg.Any<int>())|]")]
+        [InlineData("delegate(Foo sub) { [|sub.Bar(Arg.Any<int>())|]; }")]
+        [InlineData("sub => { [|sub.Bar(Arg.Any<int>())|]; }")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMemberFromBaseClass(string method, string whenAction);
 
         [CombinatoryTheory]
-        [InlineData("sub => sub.Bar()")]
-        [InlineData("delegate(Foo sub) { sub.Bar(); }")]
-        [InlineData("sub => { sub.Bar(); }")]
+        [InlineData("sub => sub.Bar(Arg.Any<int>())")]
+        [InlineData("delegate(Foo sub) { sub.Bar(Arg.Any<int>()); }")]
+        [InlineData("sub => { sub.Bar(Arg.Any<int>()); }")]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string method, string whenAction);
 
         [CombinatoryTheory]
-        [InlineData("sub => sub.Bar()")]
-        [InlineData("delegate(Foo sub) { sub.Bar(); }")]
-        [InlineData("sub => { sub.Bar(); }")]
+        [InlineData("sub => sub.Bar(Arg.Any<int>())")]
+        [InlineData("delegate(Foo sub) { sub.Bar(Arg.Any<int>()); }")]
+        [InlineData("sub => { sub.Bar(Arg.Any<int>()); }")]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string method, string whenAction);
 
         [CombinatoryTheory]
@@ -47,21 +47,21 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitu
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string method, string whenAction);
 
         [CombinatoryTheory]
-        [InlineData("sub => [|sub.Bar()|]")]
-        [InlineData("delegate(Foo sub) { [|sub.Bar()|]; }")]
-        [InlineData("sub => { [|sub.Bar()|]; }")]
+        [InlineData("sub => [|sub.Bar(Arg.Any<int>())|]")]
+        [InlineData("delegate(Foo sub) { [|sub.Bar(Arg.Any<int>())|]; }")]
+        [InlineData("sub => { [|sub.Bar(Arg.Any<int>())|]; }")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string method, string whenAction);
 
         [CombinatoryTheory]
-        [InlineData("sub => sub.Bar()")]
-        [InlineData("delegate(Foo sub) { sub.Bar(); }")]
-        [InlineData("sub => { sub.Bar(); }")]
+        [InlineData("sub => sub.Bar(Arg.Any<int>())")]
+        [InlineData("delegate(Foo sub) { sub.Bar(Arg.Any<int>()); }")]
+        [InlineData("sub => { sub.Bar(Arg.Any<int>()); }")]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string method, string whenAction);
 
         [CombinatoryTheory]
-        [InlineData("sub => sub.Bar()")]
-        [InlineData("delegate(Foo sub) { sub.Bar(); }")]
-        [InlineData("sub => { sub.Bar(); }")]
+        [InlineData("sub => sub.Bar(Arg.Any<int>())")]
+        [InlineData("delegate(Foo sub) { sub.Bar(Arg.Any<int>()); }")]
+        [InlineData("sub => { sub.Bar(Arg.Any<int>()); }")]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod(string method, string whenAction);
 
         [CombinatoryTheory]
@@ -71,9 +71,9 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitu
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string method, string whenAction);
 
         [CombinatoryTheory]
-        [InlineData("sub => sub.Bar<int>()")]
-        [InlineData("delegate(Foo<int> sub) { sub.Bar<int>(); }")]
-        [InlineData("sub => { sub.Bar<int>(); }")]
+        [InlineData("sub => sub.Bar<int>(Arg.Any<int>())")]
+        [InlineData("delegate(Foo<int> sub) { sub.Bar<int>(Arg.Any<int>()); }")]
+        [InlineData("sub => { sub.Bar<int>(Arg.Any<int>()); }")]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod(string method, string whenAction);
 
         [CombinatoryTheory]
@@ -83,14 +83,14 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitu
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string method, string whenAction);
 
         [CombinatoryTheory]
-        [InlineData("delegate(Foo sub) { var x = sub[1]; }")]
-        [InlineData("sub => { var x = sub[1]; }")]
+        [InlineData("delegate(Foo sub) { var x = sub[Arg.Any<int>()]; }")]
+        [InlineData("sub => { var x = sub[Arg.Any<int>()]; }")]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer(string method, string whenAction);
 
         [CombinatoryTheory]
-        [InlineData("sub => sub.Bar()")]
-        [InlineData("delegate(Foo sub) { sub.Bar(); }")]
-        [InlineData("sub => { sub.Bar(); }")]
+        [InlineData("sub => sub.Bar(Arg.Any<int>())")]
+        [InlineData("delegate(Foo sub) { sub.Bar(Arg.Any<int>()); }")]
+        [InlineData("sub => { sub.Bar(Arg.Any<int>()); }")]
         public abstract Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method, string whenAction);
 
         [CombinatoryTheory]
@@ -106,8 +106,8 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitu
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string method, string whenAction);
 
         [CombinatoryTheory]
-        [InlineData("sub => { var x = [|sub[1]|]; }")]
-        [InlineData("delegate(Foo sub) { var x = [|sub[1]|]; }")]
+        [InlineData("sub => { var x = [|sub[Arg.Any<int>()]|]; }")]
+        [InlineData("delegate(Foo sub) { var x = [|sub[Arg.Any<int>()]|]; }")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string method, string whenAction);
 
         [CombinatoryTheory]
@@ -144,26 +144,26 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitu
 
         [CombinatoryTheory]
         [InlineData("sub => { var x = [|sub.Bar|]; }", "Internal member Bar can not be intercepted without InternalsVisibleToAttribute.")]
-        [InlineData("sub => [|sub.FooBar()|]", "Internal member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
-        [InlineData("sub => { var x = [|sub[0]|]; }", "Internal member this[] can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData("sub => [|sub.FooBar(Arg.Any<int>())|]", "Internal member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData("sub => { var x = [|sub[Arg.Any<int>()]|]; }", "Internal member this[] can not be intercepted without InternalsVisibleToAttribute.")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message);
 
         [CombinatoryTheory]
         [InlineData("sub => { var x = sub.Bar; }")]
-        [InlineData("sub => sub.FooBar()")]
-        [InlineData("sub => { var x = sub[0]; }")]
+        [InlineData("sub => sub.FooBar(Arg.Any<int>())")]
+        [InlineData("sub => { var x = sub[Arg.Any<int>()]; }")]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call);
 
         [CombinatoryTheory]
         [InlineData("sub => { var x = [|sub.Bar|]; }", "Internal member Bar can not be intercepted without InternalsVisibleToAttribute.")]
-        [InlineData("sub => [|sub.FooBar()|]", "Internal member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
-        [InlineData("sub => { var x = [|sub[0]|]; }", "Internal member this[] can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData("sub => [|sub.FooBar(Arg.Any<int>())|]", "Internal member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
+        [InlineData("sub => { var x = [|sub[Arg.Any<int>()]|]; }", "Internal member this[] can not be intercepted without InternalsVisibleToAttribute.")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message);
 
         [CombinatoryTheory]
         [InlineData("sub => { var x = sub.Bar; }")]
-        [InlineData("sub => sub.FooBar()")]
-        [InlineData("sub => { var x = sub[0]; }")]
+        [InlineData("sub => sub.FooBar(Arg.Any<int>())")]
+        [InlineData("sub => { var x = sub[Arg.Any<int>()]; }")]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call);
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()

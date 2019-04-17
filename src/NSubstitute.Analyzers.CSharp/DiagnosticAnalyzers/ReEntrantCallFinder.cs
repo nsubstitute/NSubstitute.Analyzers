@@ -10,9 +10,9 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 {
     internal class ReEntrantCallFinder : AbstractReEntrantCallFinder
     {
-        protected override ImmutableList<ISymbol> GetReEntrantSymbols(Compilation compilation, SyntaxNode rootNode)
+        protected override ImmutableList<ISymbol> GetReEntrantSymbols(Compilation compilation, SyntaxNode originatingExpression, SyntaxNode rootNode)
         {
-            var visitor = new ReEntrantCallVisitor(this, compilation);
+            var visitor = new ReEntrantCallVisitor(this, compilation, originatingExpression);
             visitor.Visit(rootNode);
             return visitor.InvocationSymbols;
         }
@@ -26,15 +26,16 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 
             public ImmutableList<ISymbol> InvocationSymbols => _invocationSymbols.ToImmutableList();
 
-            public ReEntrantCallVisitor(ReEntrantCallFinder reEntrantCallFinder, Compilation compilation)
+            public ReEntrantCallVisitor(ReEntrantCallFinder reEntrantCallFinder, Compilation compilation, SyntaxNode originatingExpression)
             {
                 _reEntrantCallFinder = reEntrantCallFinder;
                 _compilation = compilation;
+                _visitedNodes.Add(originatingExpression);
             }
 
             public override void VisitInvocationExpression(InvocationExpressionSyntax node)
             {
-                if (_compilation.ContainsSyntaxTree(node.SyntaxTree))
+                if (_visitedNodes.Contains(node) == false && _compilation.ContainsSyntaxTree(node.SyntaxTree))
                 {
                     var semanticModel = _compilation.GetSemanticModel(node.SyntaxTree);
                     var symbolInfo = semanticModel.GetSymbolInfo(node);
@@ -69,7 +70,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
                     syntaxNode.IsKind(SyntaxKind.SimpleMemberAccessExpression)))
                 {
                     _visitedNodes.Add(syntaxNode);
-                    foreach (var relatedNode in _reEntrantCallFinder.GetRelatedNodes(_compilation, syntaxNode))
+                    foreach (var relatedNode in _reEntrantCallFinder.GetRelatedNodes(_compilation, syntaxNode).Where(node => _visitedNodes.Contains(node) == false))
                     {
                         Visit(relatedNode);
                     }

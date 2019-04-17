@@ -16,7 +16,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             [MetadataNames.NSubstituteDoMethod] = MetadataNames.NSubstituteWhenCalledType
         }.ToImmutableDictionary();
 
-        public ImmutableList<ISymbol> GetReEntrantCalls(Compilation compilation, SyntaxNode rootNode)
+        public ImmutableList<ISymbol> GetReEntrantCalls(Compilation compilation, SyntaxNode originatingExpression, SyntaxNode rootNode)
         {
             var semanticModel = compilation.GetSemanticModel(rootNode.SyntaxTree);
             var symbolInfo = semanticModel.GetSymbolInfo(rootNode);
@@ -26,10 +26,10 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return ImmutableList<ISymbol>.Empty;
             }
 
-            return GetReEntrantSymbols(compilation, rootNode);
+            return GetReEntrantSymbols(compilation, originatingExpression, rootNode);
         }
 
-        protected abstract ImmutableList<ISymbol> GetReEntrantSymbols(Compilation compilation, SyntaxNode rootNode);
+        protected abstract ImmutableList<ISymbol> GetReEntrantSymbols(Compilation compilation, SyntaxNode originatingExpression, SyntaxNode rootNode);
 
         protected IEnumerable<SyntaxNode> GetRelatedNodes(Compilation compilation, SyntaxNode syntaxNode)
         {

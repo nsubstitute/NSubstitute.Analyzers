@@ -574,5 +574,37 @@ namespace MyNamespace
 }}";
             await VerifyNoDiagnostic(source);
         }
+
+        public override async Task ReportsNoDiagnostics_WhenReturnsValueIsSet_InForEachLoop(string method)
+        {
+            var source = $@"using NSubstitute;
+using NSubstitute.Core;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        int Bar();
+    }}
+
+    public class FooBar
+    {{
+        public int Value {{ get; set; }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = Substitute.For<IFoo>();
+            foreach (var fooBar in new FooBar[0])
+            {{
+                substitute.Bar().{method}(fooBar.Value);
+            }}
+        }}
+    }}
+}}";
+            await VerifyNoDiagnostic(source);
+        }
     }
 }

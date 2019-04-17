@@ -57,7 +57,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             foreach (var argument in argumentsForAnalysis)
             {
-                var reentrantSymbol = _reEntrantCallFinder.GetReEntrantCalls(syntaxNodeContext.Compilation, argument).FirstOrDefault();
+                var reentrantSymbol = _reEntrantCallFinder.GetReEntrantCalls(syntaxNodeContext.Compilation, invocationExpression, argument).FirstOrDefault();
                 if (reentrantSymbol != null)
                 {
                     var diagnostic = Diagnostic.Create(
