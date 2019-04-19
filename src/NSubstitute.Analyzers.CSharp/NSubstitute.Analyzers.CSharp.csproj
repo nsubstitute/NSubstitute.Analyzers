@@ -13,13 +13,13 @@
     <PackageId>NSubstitute.Analyzers.CSharp</PackageId>
     <PackageVersion>$(VersionSuffix)</PackageVersion>
     <Authors>Tomasz Podolak, NSubstitute.Analyzers contributors</Authors>
-    <PackageLicenseUrl>https://github.com/nsubstitute/NSubstitute.Analyzers/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/nsubstitute/NSubstitute.Analyzers</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/nsubstitute/NSubstitute.Analyzers/master/images/nsubstitute-analyser%400%2C25x.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/nsubstitute/NSubstitute.Analyzers</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>Provides diagnostic analyzers to warn about incorrect usage of NSubstitute in C#.</Description>
-    <PackageTags>$(PackageTags);csharp;c#</PackageTags>
+    <PackageTags>$(PackageTags);nsubstitute,nsubstitute.analyzers,analyzers,roslyn,csharp;c#</PackageTags>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <PackageReleaseNotes>https://github.com/nsubstitute/NSubstitute.Analyzers/blob/master/ReleaseNotes.md</PackageReleaseNotes>
   </PropertyGroup>
@@ -45,5 +45,8 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\LICENSE.md" Pack="true" PackagePath="$(PackageLicenseFile)"/>
   </ItemGroup>
 </Project>
