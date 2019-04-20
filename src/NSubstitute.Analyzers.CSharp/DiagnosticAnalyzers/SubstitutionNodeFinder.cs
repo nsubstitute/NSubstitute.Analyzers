@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -41,6 +42,13 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
                 default:
                     return null;
             }
+        }
+
+        public override IEnumerable<SyntaxNode> FindForReceivedInOrderExpression(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax receivedInOrderExpression, IMethodSymbol whenInvocationSymbol = null)
+        {
+            var argumentExpression = receivedInOrderExpression.ArgumentList.Arguments.First();
+
+            return FindForWhenExpression(syntaxNodeContext, argumentExpression.Expression);
         }
 
         protected override InvocationExpressionSyntax GetParentInvocationExpression(InvocationExpressionSyntax invocationExpressionSyntax)

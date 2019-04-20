@@ -52,6 +52,7 @@ namespace MyNamespace
     public abstract class Foo
     {{
         public abstract int Bar(int x);
+        public abstract int Bar(int x, int y);
     }}
 
     public class FooTests
@@ -60,6 +61,7 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             substitute.Bar({arg});
+            substitute.Bar({arg}, {arg});
         }}
     }}
 }}";

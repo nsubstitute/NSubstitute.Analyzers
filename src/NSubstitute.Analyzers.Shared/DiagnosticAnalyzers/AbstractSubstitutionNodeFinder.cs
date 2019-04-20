@@ -69,6 +69,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         public abstract SyntaxNode FindForAndDoesExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpression, IMethodSymbol invocationExpressionSymbol = null);
 
         public abstract SyntaxNode FindForStandardExpression(TInvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol invocationExpressionSymbol = null);
+        
+        public abstract IEnumerable<SyntaxNode> FindForReceivedInOrderExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax receivedInOrderExpression, IMethodSymbol receivedInOrderSymbol = null);
 
         protected abstract TInvocationExpressionSyntax GetParentInvocationExpression(TInvocationExpressionSyntax invocationExpressionSyntax);
 

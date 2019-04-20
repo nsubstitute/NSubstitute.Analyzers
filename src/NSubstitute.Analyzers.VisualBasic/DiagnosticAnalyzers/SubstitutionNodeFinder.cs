@@ -39,6 +39,13 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
             }
         }
 
+        public override IEnumerable<SyntaxNode> FindForReceivedInOrderExpression(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax receivedInOrderExpression, IMethodSymbol receivedInOrderSymbol = null)
+        {
+            var argumentExpression = receivedInOrderExpression.ArgumentList.Arguments.First();
+
+            return FindForWhenExpression(syntaxNodeContext, argumentExpression.GetExpression());
+        }
+        
         protected override InvocationExpressionSyntax GetParentInvocationExpression(InvocationExpressionSyntax invocationExpressionSyntax)
         {
             return invocationExpressionSyntax.GetParentInvocationExpression();
