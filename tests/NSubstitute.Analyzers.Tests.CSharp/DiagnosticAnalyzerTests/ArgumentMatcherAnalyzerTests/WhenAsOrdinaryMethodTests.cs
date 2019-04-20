@@ -16,6 +16,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMat
         public async Task ReportsNoDiagnostics_WhenUsedWithSetupMethod(string arg)
         {
             var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 
 namespace MyNamespace
@@ -37,9 +38,10 @@ namespace MyNamespace
             SubstituteExtensions.When(substitute, SubstituteCall).Do(x => {{ throw new NullReferenceException(); }});
         }}
 
-        private void SubstituteCall(Foo obj)
+        private Task SubstituteCall(Foo obj)
         {{
             obj.Bar(Arg.Any<int>());
+            return Task.CompletedTask;
         }}
     }}
 }}";
