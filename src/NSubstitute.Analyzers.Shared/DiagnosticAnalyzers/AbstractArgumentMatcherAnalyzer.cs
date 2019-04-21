@@ -13,10 +13,10 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         where TMemberAccessExpression : SyntaxNode
         where TSyntaxKind : struct
     {
-        private static readonly ImmutableDictionary<string, string> ArgMethodNames = new Dictionary<string, string>
+        private static readonly ImmutableDictionary<string, HashSet<string>> ArgMethodNames = new Dictionary<string, HashSet<string>>
         {
-            [MetadataNames.ArgIsMethodName] = MetadataNames.NSubstituteArgFullTypeName,
-            [MetadataNames.ArgAnyMethodName] = MetadataNames.NSubstituteArgFullTypeName
+            [MetadataNames.ArgIsMethodName] = new HashSet<string> { MetadataNames.NSubstituteArgFullTypeName, MetadataNames.NSubstituteArgCompatFullTypeName },
+            [MetadataNames.ArgAnyMethodName] = new HashSet<string> { MetadataNames.NSubstituteArgFullTypeName, MetadataNames.NSubstituteArgCompatFullTypeName}
         }.ToImmutableDictionary();
 
         private static readonly ImmutableDictionary<string, string> MockSetupNamesMap = new Dictionary<string, string>
@@ -67,8 +67,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
                 compilationContext.RegisterCompilationEndAction(analyzer.EndAction);
             });
-
-            // context.RegisterSyntaxNodeAction(AnalyzeInvocation, InvocationExpressionKind);
         }
 
         protected abstract MatcherAnalyzer GetMatcher();
@@ -240,8 +238,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
                 return symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName,
                            StringComparison.OrdinalIgnoreCase) == true &&
-                       symbol.Symbol?.ContainingType?.ToString()
-                           .Equals(containingType, StringComparison.OrdinalIgnoreCase) == true;
+                       containingType.Contains(symbol.Symbol?.ContainingType?.ToString() ?? string.Empty);
             }
 
             public void EndAction(CompilationAnalysisContext obj)

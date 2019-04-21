@@ -4,6 +4,7 @@
     {
         public const string NSubstituteAssemblyName = "NSubstitute";
         public const string NSubstituteArgFullTypeName = "NSubstitute.Arg";
+        public const string NSubstituteArgCompatFullTypeName = "NSubstitute.Arg.Compat";
         public const string NSubstituteSubstituteExtensionsFullTypeName = "NSubstitute.SubstituteExtensions";
         public const string NSubstituteReceivedFullTypeName = "NSubstitute.Received";
         public const string NSubstituteReturnsExtensionsFullTypeName = "NSubstitute.ReturnsExtensions.ReturnsExtensions";

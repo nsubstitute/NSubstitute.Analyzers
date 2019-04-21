@@ -13,12 +13,16 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMat
     {
         [CombinatoryTheory]
         [InlineData("Arg.Any<int>()")]
+        [InlineData("Arg.Compat.Any<int>()")]
         [InlineData("Arg.Is(1)")]
+        [InlineData("Arg.Compat.Is(1)")]
         public abstract Task ReportsNoDiagnostics_WhenUsedWithSubstituteMethod_ForMethodCall(string method, string arg);
         
         [CombinatoryTheory]
         [InlineData("Arg.Any<int>()")]
+        [InlineData("Arg.Compat.Any<int>()")]
         [InlineData("Arg.Is(1)")]
+        [InlineData("Arg.Compat.Is(1)")]
         public abstract Task ReportsNoDiagnostics_WhenUsedWithSubstituteMethod_ForIndexerCall(string method, string arg);
         
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
