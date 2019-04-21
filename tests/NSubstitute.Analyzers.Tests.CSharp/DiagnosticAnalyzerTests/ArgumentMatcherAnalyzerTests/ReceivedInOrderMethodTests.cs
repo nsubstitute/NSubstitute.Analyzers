@@ -1,16 +1,12 @@
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.Diagnostics;
-using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
-using Xunit;
+using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMatcherAnalyzerTests
 {
-    public class ReceivedInOrderMethodTests : ArgumentMatcherMisuseDiagnosticVerifier
+    [CombinatoryData("Received.InOrder")]
+    public class ReceivedInOrderMethodTests : ArgumentMatcherDiagnosticVerifier
     {
-        [Theory]
-        [InlineData("Arg.Any<int>()")]
-        [InlineData("Arg.Is(1)")]
-        public async Task ReportsNoDiagnostic_WhenUsedWithinReceivedInOrderMethod(string arg)
+        public override async Task ReportsNoDiagnostics_WhenUsedWithSubstituteMethod_ForMethodCall(string method, string arg)
         {
             var source = $@"using NSubstitute;
 
@@ -26,9 +22,9 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            Received.InOrder(() => substitute.Bar({arg}) );
-            Received.InOrder(() => {{ substitute.Bar({arg}); }} );
-            Received.InOrder(delegate {{ substitute.Bar(Arg.Any<int>()); }});
+            {method}(() => substitute.Bar({arg}) );
+            {method}(() => {{ substitute.Bar({arg}); }} );
+            {method}(delegate {{ substitute.Bar(Arg.Any<int>()); }});
         }}
     }}
 }}";
@@ -36,10 +32,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("Arg.Any<int>()")]
-        [InlineData("Arg.Is(1)")]
-        public async Task ReportsNoDiagnostic_WhenIndexer_UsedWithinReceivedInOrderMethod(string arg)
+        public override async Task ReportsNoDiagnostics_WhenUsedWithSubstituteMethod_ForIndexerCall(string method, string arg)
         {
             var source = $@"using NSubstitute;
 
@@ -56,8 +49,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            Received.InOrder(() => {{ var x = substitute[{arg}]; }});
-            Received.InOrder(delegate {{ var x = substitute[{arg}]; }});
+            {method}(() => {{ var x = substitute[{arg}]; }});
+            {method}(delegate {{ var x = substitute[{arg}]; }});
         }}
     }}
 }}";

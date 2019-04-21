@@ -1,16 +1,23 @@
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMatcherAnalyzerTests
 {
-    public class ReceivedAsOrdinaryMethodTests : ArgumentMatcherMisuseDiagnosticVerifier
+    [CombinatoryData(
+        "SubstituteExtensions.Received",
+        "SubstituteExtensions.Received<Foo>",
+        "SubstituteExtensions.ReceivedWithAnyArgs",
+        "SubstituteExtensions.ReceivedWithAnyArgs<Foo>",
+        "SubstituteExtensions.DidNotReceive",
+        "SubstituteExtensions.DidNotReceive<Foo>",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo>")]
+    public class ReceivedAsOrdinaryMethodTests : ArgumentMatcherDiagnosticVerifier
     {
-        [Theory]
-        [InlineData("Arg.Any<int>()")]
-        [InlineData("Arg.Is(1)")]
-        public async Task ReportsNoDiagnostics_WhenUsedWithReceivedCallsAssertionMethod(string arg)
+        public override async Task ReportsNoDiagnostics_WhenUsedWithSubstituteMethod_ForMethodCall(string method, string arg)
         {
             var source = $@"using NSubstitute;
 
@@ -26,7 +33,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            SubstituteExtensions.Received(substitute, 1).Bar({arg});
+            {method}(substitute).Bar({arg});
         }}
     }}
 }}";
@@ -34,10 +41,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        [Theory]
-        [InlineData("Arg.Any<int>()")]
-        [InlineData("Arg.Is(1)")]
-        public async Task ReportsNoDiagnostics_WhenUsedWithReceivedCallsAssertionMethod_Indexer(string arg)
+        public override async Task ReportsNoDiagnostics_WhenUsedWithSubstituteMethod_ForIndexerCall(string method, string arg)
         {
             var source = $@"using NSubstitute;
 
@@ -53,7 +57,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            _ = SubstituteExtensions.Received(substitute, 1)[{arg}];
+            _ = {method}(substitute)[{arg}];
         }}
     }}
 }}";
