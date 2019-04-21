@@ -4,12 +4,14 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.CSharp;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Shared;
+using NSubstitute.Analyzers.Tests.Shared;
+using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMatcherAnalyzerTests
 {
-    public abstract class ArgumentMatcherDiagnosticVerifier : CSharpDiagnosticVerifier
+    public abstract class ArgumentMatcherDiagnosticVerifier : CSharpDiagnosticVerifier, IArgumentMatcherDiagnosticVerifier
     {
         [CombinatoryTheory]
         [InlineData("Arg.Any<int>()")]

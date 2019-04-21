@@ -45,6 +45,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             [MetadataNames.NSubstituteWhenMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
             [MetadataNames.NSubstituteWhenForAnyArgsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName
         }.ToImmutableDictionary();
+
+        private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
         
         private readonly IDiagnosticDescriptorsProvider _diagnosticDescriptorsProvider;
 
@@ -54,8 +56,9 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private Dictionary<SyntaxNode, List<SyntaxNode>> PotentialMissusedNodes { get; } = new Dictionary<SyntaxNode, List<SyntaxNode>>();
 
-        public AbstractArgumentMatcherCompilationAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
+        protected AbstractArgumentMatcherCompilationAnalyzer(ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder, IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
         {
+            _substitutionNodeFinder = substitutionNodeFinder;
             _diagnosticDescriptorsProvider = diagnosticDescriptorsProvider;
         }
 
@@ -154,9 +157,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             {
                 if (IsWhenLikeMethod(syntaxNodeContext, methodSymbol))
                 {
-                    var substitutionNodeFinder = GetFinder();
-                    foreach (var syntaxNode in substitutionNodeFinder.FindForWhenExpression(syntaxNodeContext,
-                        invocationExpression))
+                    foreach (var syntaxNode in _substitutionNodeFinder.FindForWhenExpression(syntaxNodeContext, invocationExpression))
                     {
                         var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode).Symbol;
                         var actualNode = syntaxNode is TMemberAccessExpression && symbol is IMethodSymbol _
@@ -168,8 +169,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
                 if (IsReceivedInOrderMethod(syntaxNodeContext, methodSymbol))
                 {
-                    var substitutionNodeFinder = GetFinder();
-                    foreach (var syntaxNode in substitutionNodeFinder
+                    foreach (var syntaxNode in _substitutionNodeFinder
                         .FindForReceivedInOrderExpression(syntaxNodeContext, invocationExpression).ToList())
                     {
                         var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode).Symbol;
@@ -234,7 +234,5 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 }
             }
         }
-
-        protected abstract ISubstitutionNodeFinder<TInvocationExpressionSyntax> GetFinder();
     }
 }

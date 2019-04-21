@@ -9,6 +9,8 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     internal class ArgumentMatcherAnalyzer : AbstractArgumentMatcherAnalyzer<SyntaxKind, InvocationExpressionSyntax, MemberAccessExpressionSyntax>
     {
+        private readonly ISubstitutionNodeFinder<InvocationExpressionSyntax> _substitutionNodeFinder = new SubstitutionNodeFinder();
+        
         public ArgumentMatcherAnalyzer()
             : base(new DiagnosticDescriptorsProvider())
         {
@@ -18,7 +20,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
         
         protected override AbstractArgumentMatcherCompilationAnalyzer<InvocationExpressionSyntax, MemberAccessExpressionSyntax> CreateArgumentMatcherCompilationAnalyzer()
         {
-            return new ArgumentMatcherCompilationAnalyzer(DiagnosticDescriptorsProvider);
+            return new ArgumentMatcherCompilationAnalyzer(_substitutionNodeFinder, DiagnosticDescriptorsProvider);
         }
     }
 }

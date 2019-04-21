@@ -22,16 +22,11 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
                 (int)SyntaxKind.BracketedArgumentList,
                 (int)SyntaxKind.ElementAccessExpression));
         
-        public ArgumentMatcherCompilationAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
-            : base(diagnosticDescriptorsProvider)
+        public ArgumentMatcherCompilationAnalyzer(ISubstitutionNodeFinder<InvocationExpressionSyntax> substitutionNodeFinder, IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
+            : base(substitutionNodeFinder, diagnosticDescriptorsProvider)
         {
         }
-
-        protected override ISubstitutionNodeFinder<InvocationExpressionSyntax> GetFinder()
-        {
-            return new SubstitutionNodeFinder();
-        }
-        
+ 
         protected override SyntaxNode FindEnclosingExpression(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, InvocationExpressionSyntax invocationExpression)
         {
             return GetEnclosingSyntaxNode(syntaxNodeAnalysisContext, invocationExpression);
