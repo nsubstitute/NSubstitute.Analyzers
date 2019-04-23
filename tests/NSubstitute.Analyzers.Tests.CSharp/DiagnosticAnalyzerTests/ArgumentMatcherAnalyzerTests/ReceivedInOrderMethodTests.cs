@@ -57,5 +57,39 @@ namespace MyNamespace
 
             await VerifyNoDiagnostic(source);
         }
+
+        public override async Task ReportsDiagnostics_WhenUsedWithUnfortunatelyNamedMethod(string method, string arg)
+        {
+            var source = $@"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public abstract class Foo
+    {{
+        public abstract int this[int x] {{ get; }}
+
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            {method}(() => {{ var x = substitute[{arg}]; }}, 1);
+            {method}(delegate {{ var x = substitute[{arg}]; }}, 1);
+        }}
+    }}
+
+    public class Received
+    {{
+        public static void InOrder(Action calls, int x)
+        {{
+        }}
+    }}
+}}";
+
+            await VerifyDiagnostic(source, ArgumentMatcherUsedOutsideOfCallDescriptor);
+        }
     }
 }

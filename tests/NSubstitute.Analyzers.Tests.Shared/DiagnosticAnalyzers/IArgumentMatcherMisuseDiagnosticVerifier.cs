@@ -7,5 +7,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
         Task ReportsDiagnostics_WhenUsedWithoutSubstituteMethod_ForMethodCall(string arg);
 
         Task ReportsDiagnostics_WhenUsedWithoutSubstituteMethod_ForIndexerCall(string arg);
+        
+        Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedArgMethod(string arg);
     }
 }

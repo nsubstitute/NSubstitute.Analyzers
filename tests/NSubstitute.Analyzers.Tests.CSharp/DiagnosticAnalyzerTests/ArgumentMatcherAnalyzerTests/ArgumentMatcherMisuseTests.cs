@@ -67,5 +67,65 @@ namespace MyNamespace
 }}";
             await VerifyDiagnostic(source, ArgumentMatcherUsedOutsideOfCallDescriptor);
         }
+
+        public override async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedArgMethod(string arg)
+        {
+            var source = $@"using NSubstitute;
+
+namespace MyNamespace
+{{
+    public abstract class Foo
+    {{
+        public abstract int Bar(int x, int y);
+    }}
+
+    public class Bar
+    {{
+        public int FooBar(int x, int y)
+        {{
+            return 1;
+        }}
+    }}
+
+    public class Arg
+    {{
+        public static T Any<T>()
+        {{
+            return default(T);
+        }}
+      
+        public static T Is<T>(T value)
+        {{
+            return default(T);
+        }}
+
+        public static class Compat
+        {{
+            public static T Any<T>()
+            {{
+                return default(T);
+            }}
+
+            public static T Is<T>(T value)
+            {{
+                return default(T);
+            }}
+        }}  
+    }}
+    
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            substitute.Bar({arg}, {arg});
+            var bar = substitute.Bar({arg}, {arg});
+            new Bar().FooBar({arg}, {arg});
+            substitute.When(x => {{ new Bar().FooBar({arg}, {arg});}});
+        }}
+    }}
+}}";
+            await VerifyNoDiagnostic(source);
+        }
     }
 }

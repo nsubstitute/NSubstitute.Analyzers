@@ -26,14 +26,12 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute, delegate(Foo x) {{ x.Bar({arg}); }}).Do(x => throw new NullReferenceException());
             {method}(substitute, x => x.Bar({arg})).Do(x => throw new NullReferenceException());
-            {method}(substitute, x => x.Bar({arg})).Do(x => {{ throw new NullReferenceException(); }});
-            {method}(substitute, x => x.Bar({arg})).Do(x => {{ throw new NullReferenceException(); }});
             {method}(substitute, SubstituteCall).Do(x => {{ throw new NullReferenceException(); }});
         }}
 
         private Task SubstituteCall(Foo obj)
         {{
-            obj.Bar(Arg.Any<int>());
+            obj.Bar({arg});
             return Task.CompletedTask;
         }}
     }}
@@ -66,6 +64,46 @@ namespace MyNamespace
 }}";
 
             await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsDiagnostics_WhenUsedWithUnfortunatelyNamedMethod(string method, string arg)
+        {
+            var source = $@"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public abstract class Foo
+    {{
+        public abstract int Bar(int x);
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            {method}(substitute, delegate(Foo x) {{ x.Bar({arg}); }}, 1);
+            {method}(substitute, x => x.Bar({arg}), 1);
+            {method}(substitute, x => x.Bar({arg}), 1);
+        }}
+    }}
+
+    public static class SubstituteExtensions
+    {{
+        public static T When<T>(this T substitute, System.Action<T> substituteCall, int x)
+        {{
+            return default(T);
+        }}
+
+        public static T WhenForAnyArgs<T>(this T substitute, System.Action<T> substituteCall, int x)
+        {{
+            return default(T);
+        }}
+    }}
+}}";
+
+            await VerifyDiagnostic(source, ArgumentMatcherUsedOutsideOfCallDescriptor);
         }
     }
 }
