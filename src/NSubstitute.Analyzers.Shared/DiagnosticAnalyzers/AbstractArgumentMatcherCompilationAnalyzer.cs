@@ -1,9 +1,8 @@
-using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
@@ -11,41 +10,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         where TInvocationExpressionSyntax : SyntaxNode
         where TMemberAccessExpression : SyntaxNode
     {
-        private static readonly ImmutableDictionary<string, HashSet<string>> ArgMethodNames = new Dictionary<string, HashSet<string>>
-        {
-            [MetadataNames.ArgIsMethodName] = new HashSet<string> { MetadataNames.NSubstituteArgFullTypeName, MetadataNames.NSubstituteArgCompatFullTypeName },
-            [MetadataNames.ArgAnyMethodName] = new HashSet<string> { MetadataNames.NSubstituteArgFullTypeName, MetadataNames.NSubstituteArgCompatFullTypeName}
-        }.ToImmutableDictionary();
-
-        private static readonly ImmutableDictionary<string, string> MockSetupNamesMap = new Dictionary<string, string>
-        {
-            [MetadataNames.NSubstituteReturnsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-            [MetadataNames.NSubstituteReturnsForAnyArgsMethod] =
-                MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-            [MetadataNames.NSubstituteThrowsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName,
-            [MetadataNames.NSubstituteThrowsForAnyArgsMethod] =
-                MetadataNames.NSubstituteExceptionExtensionsFullTypeName,
-            [MetadataNames.NSubstituteReturnsNullMethod] = MetadataNames.NSubstituteReturnsExtensionsFullTypeName,
-            [MetadataNames.NSubstituteReturnsNullForAnyArgsMethod] =
-                MetadataNames.NSubstituteReturnsExtensionsFullTypeName
-        }.ToImmutableDictionary();
-
-        private static readonly ImmutableDictionary<string, string> ReceivedMethodNames = new Dictionary<string, string>
-        {
-            [MetadataNames.NSubstituteReceivedMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-            [MetadataNames.NSubstituteReceivedWithAnyArgsMethod] =
-                MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-            [MetadataNames.NSubstituteDidNotReceiveMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-            [MetadataNames.NSubstituteDidNotReceiveWithAnyArgsMethod] =
-                MetadataNames.NSubstituteSubstituteExtensionsFullTypeName
-        }.ToImmutableDictionary();
-
-        private static readonly ImmutableDictionary<string, string> WhenMethodNames = new Dictionary<string, string>
-        {
-            [MetadataNames.NSubstituteWhenMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-            [MetadataNames.NSubstituteWhenForAnyArgsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName
-        }.ToImmutableDictionary();
-
         private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
         
         private readonly IDiagnosticDescriptorsProvider _diagnosticDescriptorsProvider;
@@ -64,76 +28,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected bool IsSetupLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, ISymbol symbol)
         {
-            if (symbol == null)
-            {
-                return false;
-            }
-
-            if (MockSetupNamesMap.TryGetValue(symbol.Name, out var containingType) == false)
-            {
-                return false;
-            }
-
-            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName,
-                       StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.ContainingType?.ToString().Equals(containingType, StringComparison.OrdinalIgnoreCase) ==
-                   true;
+            return symbol.IsReturnLikeMethod() || symbol.IsThrowLikeMethod();
         }
-
-        protected bool IsReceivedLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, ISymbol symbol)
-        {
-            if (symbol == null)
-            {
-                return false;
-            }
-
-            if (ReceivedMethodNames.TryGetValue(symbol.Name, out var containingType) == false)
-            {
-                return false;
-            }
-
-            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName,
-                       StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.ContainingType?.ToString().Equals(containingType, StringComparison.OrdinalIgnoreCase) ==
-                   true;
-        }
-
-        protected bool IsWhenLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, ISymbol symbol)
-        {
-            if (symbol == null)
-            {
-                return false;
-            }
-
-            if (WhenMethodNames.TryGetValue(symbol.Name, out var containingType) == false)
-            {
-                return false;
-            }
-
-            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName,
-                       StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.ContainingType?.ToString().Equals(containingType, StringComparison.OrdinalIgnoreCase) ==
-                   true;
-        }
-
-        protected bool IsReceivedInOrderMethod(SyntaxNodeAnalysisContext syntaxNodeContext, ISymbol symbol)
-        {
-            if (symbol == null)
-            {
-                return false;
-            }
-
-            if (symbol.Name != MetadataNames.NSubstituteInOrderMethod)
-            {
-                return false;
-            }
-
-            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName,
-                       StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.ContainingType?.ToString().Equals(MetadataNames.NSubstituteReceivedFullTypeName,
-                       StringComparison.OrdinalIgnoreCase) == true;
-        }
-
 
         protected abstract SyntaxNode FindEnclosingExpression(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TInvocationExpressionSyntax invocationExpression);
 
@@ -153,9 +49,9 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var methodSymbol = (IMethodSymbol) methodSymbolInfo.Symbol;
 
-            if (IsArgLikeMethod(syntaxNodeContext, invocationExpression, methodSymbol.Name) == false)
+            if (methodSymbol.IsArgLikeMethod() == false)
             {
-                if (IsWhenLikeMethod(syntaxNodeContext, methodSymbol))
+                if (methodSymbol.IsWhenLikeMethod())
                 {
                     foreach (var syntaxNode in _substitutionNodeFinder.FindForWhenExpression(syntaxNodeContext, invocationExpression))
                     {
@@ -167,7 +63,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     }
                 }
 
-                if (IsReceivedInOrderMethod(syntaxNodeContext, methodSymbol))
+                if (methodSymbol.IsReceivedInOrderMethod())
                 {
                     foreach (var syntaxNode in _substitutionNodeFinder
                         .FindForReceivedInOrderExpression(syntaxNodeContext, invocationExpression).ToList())
@@ -195,28 +91,12 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     }
                     else
                     {
-                        PotentialMissusedNodes.Add(enclosingExpression, new List<SyntaxNode> {invocationExpression});
+                        PotentialMissusedNodes.Add(enclosingExpression, new List<SyntaxNode> { invocationExpression });
                     }
                 }
             }
         }
-
-        // TODO unify across all analyzers
-        private bool IsArgLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntax,
-            string memberName)
-        {
-            if (ArgMethodNames.TryGetValue(memberName, out var containingType) == false)
-            {
-                return false;
-            }
-
-            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax);
-
-            return symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName,
-                       StringComparison.OrdinalIgnoreCase) == true &&
-                   containingType.Contains(symbol.Symbol?.ContainingType?.ToString() ?? string.Empty);
-        }
-
+        
         public void FinishAnalyzeArgMatchers(CompilationAnalysisContext compilationAnalysisContext)
         {
             foreach (var potential in PotentialMissusedNodes)

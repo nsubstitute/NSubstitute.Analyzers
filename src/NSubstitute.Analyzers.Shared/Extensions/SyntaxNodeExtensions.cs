@@ -22,7 +22,7 @@ namespace NSubstitute.Analyzers.Shared.Extensions
 
             return actualNode.GetLocation();
         }
-
+        
         private static SyntaxNode GetNodeInHierarchy(IEnumerable<SyntaxNode> nodes, IEnumerable<int> hierarchyKindPath)
         {
             using (var descendantNodesEnumerator = nodes.GetEnumerator())

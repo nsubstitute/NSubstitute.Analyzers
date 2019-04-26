@@ -40,8 +40,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
             {
                 var child = parentNote.ChildNodes().Except(new[] {invocationExpressionSyntax}).FirstOrDefault();
 
-                return child != null && IsSetupLikeMethod(syntaxNodeContext,
-                           syntaxNodeContext.SemanticModel.GetSymbolInfo(child).Symbol);
+                return child != null && IsSetupLikeMethod(syntaxNodeContext, syntaxNodeContext.SemanticModel.GetSymbolInfo(child).Symbol);
             }
 
             if (parentNote is ArgumentSyntax)
@@ -62,8 +61,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
             if (index >= 0 && index + 1 < syntaxNodes.Count - 1)
             {
                 var syntaxNode = syntaxNodes[index + 1];
-                return IsReceivedLikeMethod(syntaxNodeContext,
-                    syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode).Symbol);
+                return syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode).Symbol.IsReceivedLikeMethod();
             }
 
             return false;
