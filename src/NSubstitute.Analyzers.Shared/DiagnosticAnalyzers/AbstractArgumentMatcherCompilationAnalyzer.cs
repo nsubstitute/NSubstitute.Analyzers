@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -10,6 +11,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         where TInvocationExpressionSyntax : SyntaxNode
         where TMemberAccessExpression : SyntaxNode
     {
+        protected abstract ImmutableArray<ImmutableArray<int>> PossibleAncestorPaths { get; }
+
         private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
 
         private readonly IDiagnosticDescriptorsProvider _diagnosticDescriptorsProvider;
@@ -75,11 +78,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             return symbol.IsReturnLikeMethod() || symbol.IsThrowLikeMethod();
         }
 
-        protected abstract SyntaxNode FindEnclosingExpression(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TInvocationExpressionSyntax invocationExpression);
-
         protected abstract bool IsFollowedBySetupInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax);
-
-        protected abstract bool IsPrecededByReceivedInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax);
 
         private void BeginAnalyzeWhenLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpression)
         {
@@ -126,6 +125,37 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     PotentialMissusedNodes.Add(enclosingExpression, new List<SyntaxNode> { invocationExpression });
                 }
             }
+        }
+
+        private bool IsPrecededByReceivedInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax)
+        {
+            var syntaxNodes = invocationExpressionSyntax.Parent.DescendantNodes().ToList();
+            var index = syntaxNodes.IndexOf(invocationExpressionSyntax.DescendantNodes().First());
+
+            if (index >= 0 && index + 1 < syntaxNodes.Count - 1)
+            {
+                var syntaxNode = syntaxNodes[index + 1];
+                return syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode).Symbol.IsReceivedLikeMethod();
+            }
+
+            return false;
+        }
+
+        private SyntaxNode FindEnclosingExpression(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TInvocationExpressionSyntax invocationExpression)
+        {
+            // finding usage of Arg like method in element access expressions and method invocation
+            // deliberately skipping odd usages like var x = Arg.Any<int>() in order not to report false positives
+            foreach (var possibleAncestorPath in PossibleAncestorPaths)
+            {
+                var node = invocationExpression.GetAncestorNode(possibleAncestorPath);
+
+                if (node != null)
+                {
+                    return node;
+                }
+            }
+
+            return null;
         }
     }
 }

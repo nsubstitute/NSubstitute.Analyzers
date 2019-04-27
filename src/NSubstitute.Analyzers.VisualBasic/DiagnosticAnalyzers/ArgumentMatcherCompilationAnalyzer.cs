@@ -1,25 +1,21 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.VisualBasic;
+using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
+namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
     internal class ArgumentMatcherCompilationAnalyzer : AbstractArgumentMatcherCompilationAnalyzer<InvocationExpressionSyntax, MemberAccessExpressionSyntax>
     {
         private static ImmutableArray<ImmutableArray<int>> AncestorPaths { get; } = ImmutableArray.Create(
             ImmutableArray.Create(
-                (int)SyntaxKind.Argument,
+                (int)SyntaxKind.SimpleArgument,
                 (int)SyntaxKind.ArgumentList,
-                (int)SyntaxKind.InvocationExpression),
-            ImmutableArray.Create(
-                (int)SyntaxKind.Argument,
-                (int)SyntaxKind.BracketedArgumentList,
-                (int)SyntaxKind.ElementAccessExpression));
+                (int)SyntaxKind.InvocationExpression));
 
         public ArgumentMatcherCompilationAnalyzer(ISubstitutionNodeFinder<InvocationExpressionSyntax> substitutionNodeFinder, IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
             : base(substitutionNodeFinder, diagnosticDescriptorsProvider)
