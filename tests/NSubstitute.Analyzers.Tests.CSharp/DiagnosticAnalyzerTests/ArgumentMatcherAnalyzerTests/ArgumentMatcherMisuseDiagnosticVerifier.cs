@@ -33,7 +33,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMat
         [InlineData("Arg.Is(1)")]
         [InlineData("Arg.Compat.Is(1)")]
         public abstract Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedArgMethod(string arg);
-        
+
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
             return new ArgumentMatcherAnalyzer();

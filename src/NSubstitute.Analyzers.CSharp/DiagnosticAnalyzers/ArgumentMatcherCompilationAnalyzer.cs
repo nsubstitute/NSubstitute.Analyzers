@@ -21,15 +21,15 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
                 (int)SyntaxKind.Argument,
                 (int)SyntaxKind.BracketedArgumentList,
                 (int)SyntaxKind.ElementAccessExpression));
-        
+
         public ArgumentMatcherCompilationAnalyzer(ISubstitutionNodeFinder<InvocationExpressionSyntax> substitutionNodeFinder, IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
             : base(substitutionNodeFinder, diagnosticDescriptorsProvider)
         {
         }
- 
+
         protected override SyntaxNode FindEnclosingExpression(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, InvocationExpressionSyntax invocationExpression)
         {
-            return GetEnclosingSyntaxNode(syntaxNodeAnalysisContext, invocationExpression);
+            return GetEnclosingSyntaxNode(invocationExpression);
         }
 
         protected override bool IsFollowedBySetupInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax)
@@ -38,16 +38,15 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 
             if (parentNote is MemberAccessExpressionSyntax)
             {
-                var child = parentNote.ChildNodes().Except(new[] {invocationExpressionSyntax}).FirstOrDefault();
+                var child = parentNote.ChildNodes().Except(new[] { invocationExpressionSyntax }).FirstOrDefault();
 
-                return child != null && IsSetupLikeMethod(syntaxNodeContext, syntaxNodeContext.SemanticModel.GetSymbolInfo(child).Symbol);
+                return child != null && IsSetupLikeMethod(syntaxNodeContext.SemanticModel.GetSymbolInfo(child).Symbol);
             }
 
             if (parentNote is ArgumentSyntax)
             {
                 var operation = syntaxNodeContext.SemanticModel.GetOperation(parentNote);
-                return IsSetupLikeMethod(syntaxNodeContext,
-                    syntaxNodeContext.SemanticModel.GetSymbolInfo(operation.Parent.Syntax).Symbol);
+                return IsSetupLikeMethod(syntaxNodeContext.SemanticModel.GetSymbolInfo(operation.Parent.Syntax).Symbol);
             }
 
             return false;
@@ -66,8 +65,8 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 
             return false;
         }
-        
-        private SyntaxNode GetEnclosingSyntaxNode(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, SyntaxNode receivedSyntaxNode)
+
+        private SyntaxNode GetEnclosingSyntaxNode(SyntaxNode receivedSyntaxNode)
         {
             // finding usage of Arg like method in element access expressions and method invocation
             // deliberately skipping odd usages like var x = Arg.Any<int>() in order not to report false positives

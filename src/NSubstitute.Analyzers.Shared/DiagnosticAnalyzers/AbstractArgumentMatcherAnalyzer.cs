@@ -24,7 +24,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             context.RegisterCompilationStartAction(compilationContext =>
             {
                 var compilationAnalyzer = CreateArgumentMatcherCompilationAnalyzer();
-                
+
                 compilationContext.RegisterSyntaxNodeAction(compilationAnalyzer.BeginAnalyzeArgMatchers, InvocationExpressionKind);
 
                 compilationContext.RegisterCompilationEndAction(compilationAnalyzer.FinishAnalyzeArgMatchers);

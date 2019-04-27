@@ -45,7 +45,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
             return FindForWhenExpression(syntaxNodeContext, argumentExpression.GetExpression());
         }
-        
+
         protected override InvocationExpressionSyntax GetParentInvocationExpression(InvocationExpressionSyntax invocationExpressionSyntax)
         {
             return invocationExpressionSyntax.GetParentInvocationExpression();

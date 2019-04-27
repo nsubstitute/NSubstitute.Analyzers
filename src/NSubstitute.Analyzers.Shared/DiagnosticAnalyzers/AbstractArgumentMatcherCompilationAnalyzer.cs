@@ -11,7 +11,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         where TMemberAccessExpression : SyntaxNode
     {
         private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
-        
+
         private readonly IDiagnosticDescriptorsProvider _diagnosticDescriptorsProvider;
 
         private HashSet<SyntaxNode> ReceivedInOrderNodes { get; } = new HashSet<SyntaxNode>();
@@ -26,20 +26,9 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             _diagnosticDescriptorsProvider = diagnosticDescriptorsProvider;
         }
 
-        protected bool IsSetupLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, ISymbol symbol)
-        {
-            return symbol.IsReturnLikeMethod() || symbol.IsThrowLikeMethod();
-        }
-
-        protected abstract SyntaxNode FindEnclosingExpression(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TInvocationExpressionSyntax invocationExpression);
-
-        protected abstract bool IsFollowedBySetupInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax);
-
-        protected abstract bool IsPrecededByReceivedInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax);
-
         public void BeginAnalyzeArgMatchers(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
-            var invocationExpression = (TInvocationExpressionSyntax) syntaxNodeContext.Node;
+            var invocationExpression = (TInvocationExpressionSyntax)syntaxNodeContext.Node;
             var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
 
             if (methodSymbolInfo.Symbol?.Kind != SymbolKind.Method)
@@ -47,56 +36,22 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            var methodSymbol = (IMethodSymbol) methodSymbolInfo.Symbol;
+            var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
 
-            if (methodSymbol.IsArgLikeMethod() == false)
+            switch (methodSymbol)
             {
-                if (methodSymbol.IsWhenLikeMethod())
-                {
-                    foreach (var syntaxNode in _substitutionNodeFinder.FindForWhenExpression(syntaxNodeContext, invocationExpression))
-                    {
-                        var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode).Symbol;
-                        var actualNode = syntaxNode is TMemberAccessExpression && symbol is IMethodSymbol _
-                            ? syntaxNode.Parent
-                            : syntaxNode;
-                        WhenNodes.Add(actualNode);
-                    }
-                }
-
-                if (methodSymbol.IsReceivedInOrderMethod())
-                {
-                    foreach (var syntaxNode in _substitutionNodeFinder
-                        .FindForReceivedInOrderExpression(syntaxNodeContext, invocationExpression).ToList())
-                    {
-                        var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode).Symbol;
-                        var actualNode = syntaxNode is TMemberAccessExpression && symbol is IMethodSymbol _
-                            ? syntaxNode.Parent
-                            : syntaxNode;
-                        ReceivedInOrderNodes.Add(actualNode);
-                    }
-                }
-            }
-            else
-            {
-                // find enclosing type
-                var enclosingExpression = FindEnclosingExpression(syntaxNodeContext, invocationExpression);
-
-                if (enclosingExpression != null &&
-                    IsFollowedBySetupInvocation(syntaxNodeContext, enclosingExpression) == false &&
-                    IsPrecededByReceivedInvocation(syntaxNodeContext, enclosingExpression) == false)
-                {
-                    if (PotentialMissusedNodes.TryGetValue(enclosingExpression, out var nodes))
-                    {
-                        nodes.Add(invocationExpression);
-                    }
-                    else
-                    {
-                        PotentialMissusedNodes.Add(enclosingExpression, new List<SyntaxNode> { invocationExpression });
-                    }
-                }
+                case ISymbol symbol when symbol.IsArgLikeMethod():
+                    BeginAnalyzeArgLikeMethod(syntaxNodeContext, invocationExpression);
+                    break;
+                case ISymbol symbol when symbol.IsWhenLikeMethod():
+                    BeginAnalyzeWhenLikeMethod(syntaxNodeContext, invocationExpression);
+                    break;
+                case ISymbol symbol when symbol.IsReceivedInOrderMethod():
+                    BeginAnalyzeReceivedInOrderMethod(syntaxNodeContext, invocationExpression);
+                    break;
             }
         }
-        
+
         public void FinishAnalyzeArgMatchers(CompilationAnalysisContext compilationAnalysisContext)
         {
             foreach (var potential in PotentialMissusedNodes)
@@ -111,6 +66,64 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
                         compilationAnalysisContext.ReportDiagnostic(diagnostic);
                     }
+                }
+            }
+        }
+
+        protected bool IsSetupLikeMethod(ISymbol symbol)
+        {
+            return symbol.IsReturnLikeMethod() || symbol.IsThrowLikeMethod();
+        }
+
+        protected abstract SyntaxNode FindEnclosingExpression(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TInvocationExpressionSyntax invocationExpression);
+
+        protected abstract bool IsFollowedBySetupInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax);
+
+        protected abstract bool IsPrecededByReceivedInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax);
+
+        private void BeginAnalyzeWhenLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpression)
+        {
+            foreach (var syntaxNode in _substitutionNodeFinder.FindForWhenExpression(syntaxNodeContext, invocationExpression))
+            {
+                var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode).Symbol;
+                var actualNode = syntaxNode is TMemberAccessExpression && symbol is IMethodSymbol _
+                    ? syntaxNode.Parent
+                    : syntaxNode;
+
+                WhenNodes.Add(actualNode);
+            }
+        }
+
+        private void BeginAnalyzeReceivedInOrderMethod(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpression)
+        {
+            foreach (var syntaxNode in _substitutionNodeFinder
+                .FindForReceivedInOrderExpression(syntaxNodeContext, invocationExpression).ToList())
+            {
+                var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode).Symbol;
+                var actualNode = syntaxNode is TMemberAccessExpression && symbol is IMethodSymbol _
+                    ? syntaxNode.Parent
+                    : syntaxNode;
+
+                ReceivedInOrderNodes.Add(actualNode);
+            }
+        }
+
+        private void BeginAnalyzeArgLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpression)
+        {
+            // find enclosing type
+            var enclosingExpression = FindEnclosingExpression(syntaxNodeContext, invocationExpression);
+
+            if (enclosingExpression != null &&
+                IsFollowedBySetupInvocation(syntaxNodeContext, enclosingExpression) == false &&
+                IsPrecededByReceivedInvocation(syntaxNodeContext, enclosingExpression) == false)
+            {
+                if (PotentialMissusedNodes.TryGetValue(enclosingExpression, out var nodes))
+                {
+                    nodes.Add(invocationExpression);
+                }
+                else
+                {
+                    PotentialMissusedNodes.Add(enclosingExpression, new List<SyntaxNode> { invocationExpression });
                 }
             }
         }

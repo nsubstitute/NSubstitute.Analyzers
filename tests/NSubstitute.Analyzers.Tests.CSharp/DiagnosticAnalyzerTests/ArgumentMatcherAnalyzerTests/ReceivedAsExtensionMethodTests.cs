@@ -26,7 +26,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-            
+
             await VerifyNoDiagnostic(source);
         }
 
@@ -96,7 +96,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-            
+
             await VerifyDiagnostic(source, ArgumentMatcherUsedOutsideOfCallDescriptor);
         }
     }

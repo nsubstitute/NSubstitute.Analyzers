@@ -10,14 +10,14 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
     internal class ArgumentMatcherAnalyzer : AbstractArgumentMatcherAnalyzer<SyntaxKind, InvocationExpressionSyntax, MemberAccessExpressionSyntax>
     {
         private readonly ISubstitutionNodeFinder<InvocationExpressionSyntax> _substitutionNodeFinder = new SubstitutionNodeFinder();
-        
+
         public ArgumentMatcherAnalyzer()
             : base(new DiagnosticDescriptorsProvider())
         {
         }
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
-        
+
         protected override AbstractArgumentMatcherCompilationAnalyzer<InvocationExpressionSyntax, MemberAccessExpressionSyntax> CreateArgumentMatcherCompilationAnalyzer()
         {
             return new ArgumentMatcherCompilationAnalyzer(_substitutionNodeFinder, DiagnosticDescriptorsProvider);
