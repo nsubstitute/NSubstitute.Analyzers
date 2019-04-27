@@ -8,86 +8,75 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Argum
     {
         public override async Task ReportsNoDiagnostics_WhenUsedWithSubstituteMethod_ForMethodCall(string method, string arg)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"Imports NSubstitute
 
-namespace MyNamespace
-{{
-    public abstract class Foo
-    {{
-        public abstract int Bar(int x);
-    }}
+Namespace MyNamespace
+    Public MustInherit Class Foo
+        Public MustOverride Function Bar(ByVal x As Integer) As Integer
+    End Class
 
-    public class FooTests
-    {{
-        public void Test()
-        {{
-            var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute.Bar({arg}).{method}(1);
-        }}
-    }}
-}}";
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            substitute.Bar({arg}).{method}(1)
+        End Sub
+    End Class
+End Namespace
+";
 
             await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenUsedWithSubstituteMethod_ForIndexerCall(string method, string arg)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"Imports NSubstitute
 
-namespace MyNamespace
-{{
-    public abstract class Foo
-    {{
-        public abstract int this[int x] {{ get; }}
-    }}
+Namespace MyNamespace
+    Public MustInherit Class Foo
+        Default Public MustOverride ReadOnly Property Item(ByVal x As Integer) As Integer
+    End Class
 
-    public class FooTests
-    {{
-        public void Test()
-        {{
-            var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute[{arg}].{method}(1);
-        }}
-    }}
-}}";
-
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            substitute({arg}).{method}(1)
+        End Sub
+    End Class
+End Namespace
+";
             await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsDiagnostics_WhenUsedWithUnfortunatelyNamedMethod(string method, string arg)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"Imports NSubstitute
+Imports System.Runtime.CompilerServices
 
-namespace MyNamespace
-{{
-    public abstract class Foo
-    {{
-        public abstract int Bar(int x);
-    }}
+Namespace MyNamespace
+    Public MustInherit Class Foo
+        Public MustOverride Function Bar(ByVal x As Integer) As Integer
+    End Class
 
-    public class FooTests
-    {{
-        public void Test()
-        {{
-            var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute.Bar({arg}).{method}(1);
-        }}
-    }}
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim x = substitute.Bar({arg}).{method}(1)
+        End Sub
+    End Class
 
-    public static class SubstituteExtensions
-    {{
-        public static T Returns<T>(this T returnValue, T returnThis)
-        {{
-            return default(T);
-        }}
+    Module SubstituteExtensions
+        <Extension()>
+        Function Returns(Of T)(ByVal returnValue As T, ByVal returnThis As T) As T
+            Return Nothing
+        End Function
 
-        public static T ReturnsForAnyArgs<T>(this T returnValue, T returnThis)
-        {{
-            return default(T);
-        }}
-    }}
-
-}}";
+        <Extension()>
+        Function ReturnsForAnyArgs(Of T)(ByVal returnValue As T, ByVal returnThis As T) As T
+            Return Nothing
+        End Function
+    End Module
+End Namespace
+";
 
             await VerifyDiagnostic(source, ArgumentMatcherUsedOutsideOfCallDescriptor);
         }

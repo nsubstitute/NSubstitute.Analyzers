@@ -24,7 +24,7 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(() => substitute.Bar({arg}) );
             {method}(() => {{ substitute.Bar({arg}); }} );
-            {method}(delegate {{ substitute.Bar(Arg.Any<int>()); }});
+            {method}(delegate {{ substitute.Bar({arg}); }});
         }}
     }}
 }}";

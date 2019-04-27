@@ -6,125 +6,115 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Argum
     {
         public override async Task ReportsDiagnostics_WhenUsedWithoutSubstituteMethod_ForMethodCall(string arg)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"Imports NSubstitute
 
-namespace MyNamespace
-{{
-    public abstract class Foo
-    {{
-        public abstract int Bar(int x, int y);
-    }}
+Namespace MyNamespace
+    Public MustInherit Class Foo
+        Public MustOverride Function Bar(ByVal x As Integer, ByVal y As Integer) As Integer
+    End Class
 
-    public class Bar
-    {{
-        public int FooBar(int x, int y)
-        {{
-            return 1;
-        }}
-    }}
+    Public Class Bar
+        Public Function FooBar(ByVal x As Integer, ByVal y As Integer) As Integer
+            Return 1
+        End Function
+    End Class
 
-    public class FooTests
-    {{
-        public void Test()
-        {{
-            var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar({arg}, {arg});
-            var bar = substitute.Bar({arg}, {arg});
-            new Bar().FooBar({arg}, {arg});
-            substitute.When(x => {{ new Bar().FooBar({arg}, {arg});}});
-        }}
-    }}
-}}";
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            substitute.Bar({arg}, {arg})
+            Dim bar = substitute.Bar({arg}, {arg})
+            Dim newBar = New Bar().FooBar({arg}, {arg})
+            substitute.[When](Function(x)
+                                  Dim innerNewBar = New Bar().FooBar({arg}, {arg})
+                              End Function)
+        End Sub
+    End Class
+End Namespace";
+
             await VerifyDiagnostic(source, ArgumentMatcherUsedOutsideOfCallDescriptor);
         }
 
         public override async Task ReportsDiagnostics_WhenUsedWithoutSubstituteMethod_ForIndexerCall(string arg)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"Imports NSubstitute
 
-namespace MyNamespace
-{{
-    public abstract class Foo
-    {{
-        public abstract int this[int x, int y] {{ get; }}
-    }}
+Namespace MyNamespace
+    Public MustInherit Class Foo
+        Default Public MustOverride ReadOnly Property Item(ByVal x As Integer, ByVal y As Integer) As Integer
+    End Class
 
-    public class Bar
-    {{
-        public int this[int x, int y] => 1;
-    }}
+    Public Class Bar
+        Default Public ReadOnly Property Item(ByVal x As Integer, ByVal y As Integer) As Integer
+            Get
+                Return 1
+            End Get
+        End Property
+    End Class
 
-    public class FooTests
-    {{
-        public void Test()
-        {{
-            var substitute = NSubstitute.Substitute.For<Foo>();
-            _ = substitute[{arg}, {arg}];
-            _ = new Bar()[{arg}, {arg}];
-            substitute.When(x => {{ _ = new Bar()[{arg}, {arg}];}});
-        }}
-    }}
-}}";
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim indexer = substitute({arg}, {arg})
+            Dim newBar = (New Bar())({arg}, {arg})
+            substitute.[When](Function(x)
+                Dim innerNewBar = (New Bar())({arg}, {arg})
+            End Function)
+        End Sub
+    End Class
+End Namespace";
+
             await VerifyDiagnostic(source, ArgumentMatcherUsedOutsideOfCallDescriptor);
         }
 
         public override async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedArgMethod(string arg)
         {
-            var source = $@"using NSubstitute;
+            var source = $@"Imports NSubstitute
 
-namespace MyNamespace
-{{
-    public abstract class Foo
-    {{
-        public abstract int Bar(int x, int y);
-    }}
+Namespace MyNamespace
+    Public MustInherit Class Foo
+        Public MustOverride Function Bar(ByVal x As Integer, ByVal y As Integer) As Integer
+    End Class
 
-    public class Bar
-    {{
-        public int FooBar(int x, int y)
-        {{
-            return 1;
-        }}
-    }}
+    Public Class Bar
+        Public Function FooBar(ByVal x As Integer, ByVal y As Integer) As Integer
+            Return 1
+        End Function
+    End Class
 
-    public class Arg
-    {{
-        public static T Any<T>()
-        {{
-            return default(T);
-        }}
-      
-        public static T Is<T>(T value)
-        {{
-            return default(T);
-        }}
+    Public Class Arg
+        Public Shared Function Any(Of T)() As T
+            Return Nothing
+        End Function
 
-        public static class Compat
-        {{
-            public static T Any<T>()
-            {{
-                return default(T);
-            }}
+        Public Shared Function [Is](Of T)(ByVal value As T) As T
+            Return Nothing
+        End Function
 
-            public static T Is<T>(T value)
-            {{
-                return default(T);
-            }}
-        }}  
-    }}
-    
-    public class FooTests
-    {{
-        public void Test()
-        {{
-            var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.Bar({arg}, {arg});
-            var bar = substitute.Bar({arg}, {arg});
-            new Bar().FooBar({arg}, {arg});
-            substitute.When(x => {{ new Bar().FooBar({arg}, {arg});}});
-        }}
-    }}
-}}";
+        Class Compat
+            Public Shared Function Any(Of T)() As T
+                Return Nothing
+            End Function
+
+            Public Shared Function [Is](Of T)(ByVal value As T) As T
+                Return Nothing
+            End Function
+        End Class
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            substitute.Bar({arg}, {arg})
+            Dim bar = substitute.Bar({arg}, {arg})
+            Dim newBar = (New Bar()).FooBar({arg}, {arg})
+            substitute.[When](Function(x)
+                Dim innerBar = (New Bar()).FooBar({arg}, {arg})
+            End Function)
+        End Sub
+    End Class
+End Namespace
+";
             await VerifyNoDiagnostic(source);
         }
     }

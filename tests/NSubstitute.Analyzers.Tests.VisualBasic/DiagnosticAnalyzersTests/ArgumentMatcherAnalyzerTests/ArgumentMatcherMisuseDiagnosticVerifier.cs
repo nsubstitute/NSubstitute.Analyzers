@@ -14,22 +14,22 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Argum
         protected DiagnosticDescriptor ArgumentMatcherUsedOutsideOfCallDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ArgumentMatcherUsedOutsideOfCall;
 
         [Theory]
-        [InlineData("[|Arg.Any<int>()|]")]
-        [InlineData("[|Arg.Compat.Any<int>()|]")]
+        [InlineData("[|Arg.Any(Of Integer)()|]")]
+        [InlineData("[|Arg.Compat.Any(Of Integer)()|]")]
         [InlineData("[|Arg.Is(1)|]")]
         [InlineData("[|Arg.Compat.Is(1)|]")]
         public abstract Task ReportsDiagnostics_WhenUsedWithoutSubstituteMethod_ForMethodCall(string arg);
 
         [Theory]
-        [InlineData("[|Arg.Any<int>()|]")]
-        [InlineData("[|Arg.Compat.Any<int>()|]")]
+        [InlineData("[|Arg.Any(Of Integer)()|]")]
+        [InlineData("[|Arg.Compat.Any(Of Integer)()|]")]
         [InlineData("[|Arg.Is(1)|]")]
         [InlineData("[|Arg.Compat.Is(1)|]")]
         public abstract Task ReportsDiagnostics_WhenUsedWithoutSubstituteMethod_ForIndexerCall(string arg);
 
         [Theory]
-        [InlineData("Arg.Any<int>()")]
-        [InlineData("Arg.Compat.Any<int>()")]
+        [InlineData("Arg.Any(Of Integer)()")]
+        [InlineData("Arg.Compat.Any(Of Integer)()")]
         [InlineData("Arg.Is(1)")]
         [InlineData("Arg.Compat.Is(1)")]
         public abstract Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedArgMethod(string arg);

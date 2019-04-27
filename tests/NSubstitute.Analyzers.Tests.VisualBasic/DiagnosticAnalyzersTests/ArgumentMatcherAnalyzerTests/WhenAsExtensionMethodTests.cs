@@ -8,114 +8,113 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Argum
     {
         public override async Task ReportsNoDiagnostics_WhenUsedWithSubstituteMethod_ForMethodCall(string method, string arg)
         {
-            var source = $@"using System;
-using System.Threading.Tasks;
-using NSubstitute;
+            var source = $@"Imports System
+Imports System.Threading.Tasks
+Imports NSubstitute
 
-namespace MyNamespace
-{{
-    public abstract class Foo
-    {{
-        public abstract int Bar(int x);
-    }}
+Namespace MyNamespace
+    Public MustInherit Class Foo
+        Public MustOverride Function Bar(ByVal x As Integer) As Integer
+    End Class
 
-    public class FooTests
-    {{
-        public void Test()
-        {{
-            var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.{method}(delegate(Foo x) {{ x.Bar({arg}); }}).Do(x => throw new NullReferenceException());
-            substitute.{method}(x => x.Bar({arg})).Do(x => throw new NullReferenceException());
-            substitute.{method}(SubstituteCall).Do(x => {{ throw new NullReferenceException(); }});
-        }}
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            substitute.{method}(Function(ByVal x As Foo)
+                x.Bar({arg})
+            End Function).[Do](Function(x)
+                Throw New NullReferenceException()
+            End Function)
+            substitute.{method}(AddressOf SubstituteCall).[Do](Function(x)
+                Throw New NullReferenceException()
+            End Function)
+        End Sub
 
-        private Task SubstituteCall(Foo obj)
-        {{
-            obj.Bar({arg});
-            return Task.CompletedTask;
-        }}
-    }}
-}}";
+        Private Function SubstituteCall(ByVal obj As Foo) As Task
+            obj.Bar({arg})
+            Return Task.CompletedTask
+        End Function
+    End Class
+End Namespace
+";
 
             await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsNoDiagnostics_WhenUsedWithSubstituteMethod_ForIndexerCall(string method, string arg)
         {
-            var source = $@"using System;
-using System.Threading.Tasks;
-using NSubstitute;
+            var source = $@"Imports System
+Imports System.Threading.Tasks
+Imports NSubstitute
 
-namespace MyNamespace
-{{
-    public abstract class Foo
-    {{
-        public abstract int this[int x] {{ get; }}
-    }}
+Namespace MyNamespace
+    Public MustInherit Class Foo
+        Default Public MustOverride ReadOnly Property Item(ByVal x As Integer) As Integer
+    End Class
 
-    public class FooTests
-    {{
-        public void Test()
-        {{
-            var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.{method}(delegate(Foo x) {{ var y = x[{arg}]; }}).Do(x => throw new NullReferenceException());
-            substitute.{method}(x => {{ var y = x[{arg}]; }}).Do(x => throw new NullReferenceException());
-            substitute.{method}(SubstituteCall).Do(x => {{ throw new NullReferenceException(); }});
-        }}
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            substitute.{method}(Function(ByVal x As Foo)
+                Dim y = x({arg})
+            End Function).[Do](Function(x)
+                Throw New NullReferenceException()
+            End Function)
+            substitute.{method}(AddressOf SubstituteCall).[Do](Function(x)
+                Throw New NullReferenceException()
+            End Function)
+        End Sub
 
-        private Task SubstituteCall(Foo obj)
-        {{
-            _ = obj[{arg}];
-            return Task.CompletedTask;
-        }}
-    }}
-}}";
+        Private Function SubstituteCall(ByVal obj As Foo) As Task
+            Dim x = obj({arg})
+            Return Task.CompletedTask
+        End Function
+    End Class
+End Namespace";
 
             await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReportsDiagnostics_WhenUsedWithUnfortunatelyNamedMethod(string method, string arg)
         {
-            var source = $@"using System;
-using System.Threading.Tasks;
-using NSubstitute;
+            var source = $@"Imports System
+Imports System.Threading.Tasks
+Imports NSubstitute
+Imports System.Runtime.CompilerServices
 
-namespace MyNamespace
-{{
-    public abstract class Foo
-    {{
-        public abstract int Bar(int x);
-    }}
+Namespace MyNamespace
+    Public MustInherit Class Foo
+        Public MustOverride Function Bar(ByVal x As Integer) As Integer
+    End Class
 
-    public class FooTests
-    {{
-        public void Test()
-        {{
-            var substitute = NSubstitute.Substitute.For<Foo>();
-            substitute.{method}(delegate(Foo x) {{ x.Bar({arg}); }}, 1);
-            substitute.{method}(x => x.Bar({arg}), 1);
-        }}
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            substitute.{method}(Function(ByVal x As Foo)
+                x.Bar({arg})
+            End Function, 1)
+            substitute.{method}(Function(x) x.Bar({arg}), 1)
+        End Sub
 
-        private Task SubstituteCall(Foo obj)
-        {{
-            obj.Bar({arg});
-            return Task.CompletedTask;
-        }}
-    }}
+        Private Function SubstituteCall(ByVal obj As Foo) As Task
+            obj.Bar({arg})
+            Return Task.CompletedTask
+        End Function
+    End Class
 
-    public static class SubstituteExtensions
-    {{
-        public static T When<T>(this T substitute, System.Action<T> substituteCall, int x)
-        {{
-            return default(T);
-        }}
+    Module SubstituteExtensions
+        <Extension()>
+        Function [When](Of T)(ByVal substitute As T, ByVal substituteCall As System.Action(Of T), ByVal x As Integer) As T
+            Return Nothing
+        End Function
 
-        public static T WhenForAnyArgs<T>(this T substitute, System.Action<T> substituteCall, int x)
-        {{
-            return default(T);
-        }}
-    }}
-}}";
+        <Extension()>
+        Function [WhenForAnyArgs](Of T)(ByVal substitute As T, ByVal substituteCall As System.Action(Of T), ByVal x As Integer) As T
+            Return Nothing
+        End Function
+    End Module
+End Namespace";
+
             await VerifyDiagnostic(source, ArgumentMatcherUsedOutsideOfCallDescriptor);
         }
     }
