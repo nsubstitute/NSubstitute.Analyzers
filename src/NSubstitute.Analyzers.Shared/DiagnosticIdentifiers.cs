@@ -28,6 +28,6 @@
 
         public const string UnusedReceived = "NS5000";
 
-        public const string ArgumentMatcherUsedOutsideOfCall = "NS5001";
+        public const string ArgumentMatcherUsedWithoutSpecifyingCall = "NS5001";
     }
 }

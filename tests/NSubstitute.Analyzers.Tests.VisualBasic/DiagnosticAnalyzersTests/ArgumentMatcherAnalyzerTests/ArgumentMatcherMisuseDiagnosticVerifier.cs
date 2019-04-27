@@ -11,7 +11,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Argum
 {
     public abstract class ArgumentMatcherMisuseDiagnosticVerifier : VisualBasicDiagnosticVerifier, IArgumentMatcherMisuseDiagnosticVerifier
     {
-        protected DiagnosticDescriptor ArgumentMatcherUsedOutsideOfCallDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ArgumentMatcherUsedOutsideOfCall;
+        protected DiagnosticDescriptor ArgumentMatcherUsedWithoutSpecifyingCall { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ArgumentMatcherUsedWithoutSpecifyingCall;
 
         [Theory]
         [InlineData("[|Arg.Any(Of Integer)()|]")]

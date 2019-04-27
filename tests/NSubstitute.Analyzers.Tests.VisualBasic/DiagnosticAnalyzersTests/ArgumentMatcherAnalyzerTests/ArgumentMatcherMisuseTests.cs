@@ -32,7 +32,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source, ArgumentMatcherUsedOutsideOfCallDescriptor);
+            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
         }
 
         public override async Task ReportsDiagnostics_WhenUsedWithoutSubstituteMethod_ForIndexerCall(string arg)
@@ -64,7 +64,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source, ArgumentMatcherUsedOutsideOfCallDescriptor);
+            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
         }
 
         public override async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedArgMethod(string arg)

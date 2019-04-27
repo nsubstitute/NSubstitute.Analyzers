@@ -11,7 +11,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMat
 {
     public abstract class ArgumentMatcherMisuseDiagnosticVerifier : CSharpDiagnosticVerifier, IArgumentMatcherMisuseDiagnosticVerifier
     {
-        protected DiagnosticDescriptor ArgumentMatcherUsedOutsideOfCallDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ArgumentMatcherUsedOutsideOfCall;
+        protected DiagnosticDescriptor ArgumentMatcherUsedWithoutSpecifyingCall { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ArgumentMatcherUsedWithoutSpecifyingCall;
 
         [Theory]
         [InlineData("[|Arg.Any<int>()|]")]

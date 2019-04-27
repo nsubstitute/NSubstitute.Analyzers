@@ -12,7 +12,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Argum
 {
     public abstract class ArgumentMatcherDiagnosticVerifier : VisualBasicDiagnosticVerifier, IArgumentMatcherDiagnosticVerifier
     {
-        protected DiagnosticDescriptor ArgumentMatcherUsedOutsideOfCallDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ArgumentMatcherUsedOutsideOfCall;
+        protected DiagnosticDescriptor ArgumentMatcherUsedWithoutSpecifyingCall { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ArgumentMatcherUsedWithoutSpecifyingCall;
 
         [CombinatoryTheory]
         [InlineData("Arg.Any(Of Integer)()")]

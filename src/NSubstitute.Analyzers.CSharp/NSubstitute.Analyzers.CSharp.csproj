@@ -11,7 +11,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>NSubstitute.Analyzers.CSharp</PackageId>
-    <PackageVersion>1.1.0-arg-matcher-v2</PackageVersion>
+    <PackageVersion>$(VersionSuffix)</PackageVersion>
     <Authors>Tomasz Podolak, NSubstitute.Analyzers contributors</Authors>
     <PackageLicenseUrl>https://github.com/nsubstitute/NSubstitute.Analyzers/blob/master/LICENSE.md</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/nsubstitute/NSubstitute.Analyzers</PackageProjectUrl>

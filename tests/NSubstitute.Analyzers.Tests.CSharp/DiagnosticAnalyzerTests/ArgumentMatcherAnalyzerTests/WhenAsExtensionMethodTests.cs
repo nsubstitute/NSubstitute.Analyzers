@@ -116,7 +116,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyDiagnostic(source, ArgumentMatcherUsedOutsideOfCallDescriptor);
+            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
         }
     }
 }

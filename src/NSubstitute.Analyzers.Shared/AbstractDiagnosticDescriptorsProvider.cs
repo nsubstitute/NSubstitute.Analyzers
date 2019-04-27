@@ -48,6 +48,6 @@ namespace NSubstitute.Analyzers.Shared
 
         public DiagnosticDescriptor ConflictingArgumentAssignments { get; } = DiagnosticDescriptors<T>.ConflictingArgumentAssignments;
 
-        public DiagnosticDescriptor ArgumentMatcherUsedOutsideOfCall { get; } = DiagnosticDescriptors<T>.ArgumentMatcherUsedOutsideOfCall;
+        public DiagnosticDescriptor ArgumentMatcherUsedWithoutSpecifyingCall { get; } = DiagnosticDescriptors<T>.ArgumentMatcherUsedWithoutSpecifyingCall;
     }
 }

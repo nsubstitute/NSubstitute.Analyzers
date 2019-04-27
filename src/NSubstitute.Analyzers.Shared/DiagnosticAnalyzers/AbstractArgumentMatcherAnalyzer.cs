@@ -14,7 +14,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         protected AbstractArgumentMatcherAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
             : base(diagnosticDescriptorsProvider)
         {
-            SupportedDiagnostics = ImmutableArray.Create(DiagnosticDescriptorsProvider.ArgumentMatcherUsedOutsideOfCall);
+            SupportedDiagnostics = ImmutableArray.Create(DiagnosticDescriptorsProvider.ArgumentMatcherUsedWithoutSpecifyingCall);
         }
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }

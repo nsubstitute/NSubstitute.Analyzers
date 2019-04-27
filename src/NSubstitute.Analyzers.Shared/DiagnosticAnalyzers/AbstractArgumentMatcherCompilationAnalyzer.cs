@@ -64,7 +64,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     foreach (var arg in potential.Value)
                     {
                         var diagnostic = Diagnostic.Create(
-                            _diagnosticDescriptorsProvider.ArgumentMatcherUsedOutsideOfCall,
+                            _diagnosticDescriptorsProvider.ArgumentMatcherUsedWithoutSpecifyingCall,
                             arg.GetLocation());
 
                         compilationAnalysisContext.ReportDiagnostic(diagnostic);

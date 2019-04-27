@@ -83,7 +83,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source, ArgumentMatcherUsedOutsideOfCallDescriptor);
+            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
         }
     }
 }

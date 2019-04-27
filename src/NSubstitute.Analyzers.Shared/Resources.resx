@@ -363,16 +363,16 @@
         <comment>The title of the diagnostic.</comment>
   </data>
 
-    <data name="ArgumentMatcherUsedOutsideOfCallDescription" xml:space="preserve">
-    <value>Arg matcher used outside of context</value>
+    <data name="ArgumentMatcherUsedWithoutSpecifyingCallDescription" xml:space="preserve">
+    <value>Argument matcher used without specifying a call.</value>
         <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
-    <data name="ArgumentMatcherUsedOutsideOfCallMessageFormat" xml:space="preserve">
-    <value>Arg matcher used outside of context</value>
+    <data name="ArgumentMatcherUsedWithoutSpecifyingCallMessageFormat" xml:space="preserve">
+    <value>Argument matcher used without specifying a call.</value>
         <comment>The format-able message the diagnostic displays.</comment>
   </data>
-    <data name="ArgumentMatcherUsedOutsideOfCallTitle" xml:space="preserve">
-    <value>Could not set argument.</value>
+    <data name="ArgumentMatcherUsedWithoutSpecifyingCallTitle" xml:space="preserve">
+    <value>Argument matcher used without specifying a call.</value>
         <comment>The title of the diagnostic.</comment>
   </data>
 </root>
