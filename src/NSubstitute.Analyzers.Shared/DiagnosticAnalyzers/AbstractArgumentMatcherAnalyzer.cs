@@ -4,10 +4,11 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractArgumentMatcherAnalyzer<TSyntaxKind, TInvocationExpressionSyntax, TMemberAccessExpression> : AbstractDiagnosticAnalyzer
+    internal abstract class AbstractArgumentMatcherAnalyzer<TSyntaxKind, TInvocationExpressionSyntax, TMemberAccessExpressionSyntax, TArgumentSyntax> : AbstractDiagnosticAnalyzer
         where TSyntaxKind : struct
         where TInvocationExpressionSyntax : SyntaxNode
-        where TMemberAccessExpression : SyntaxNode
+        where TMemberAccessExpressionSyntax : SyntaxNode
+        where TArgumentSyntax : SyntaxNode
     {
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
@@ -31,6 +32,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             });
         }
 
-        protected abstract AbstractArgumentMatcherCompilationAnalyzer<TInvocationExpressionSyntax, TMemberAccessExpression> CreateArgumentMatcherCompilationAnalyzer();
+        protected abstract AbstractArgumentMatcherCompilationAnalyzer<TInvocationExpressionSyntax, TMemberAccessExpressionSyntax, TArgumentSyntax> CreateArgumentMatcherCompilationAnalyzer();
     }
 }

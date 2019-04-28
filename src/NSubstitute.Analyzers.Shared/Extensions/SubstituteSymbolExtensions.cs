@@ -6,70 +6,29 @@ namespace NSubstitute.Analyzers.Shared.Extensions
 {
     internal static class SubstituteSymbolExtensions
     {
-        private static readonly IReadOnlyDictionary<string, string> ReturnsMethodNames = new Dictionary<string, string>
-        {
-            [MetadataNames.NSubstituteReturnsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-            [MetadataNames.NSubstituteReturnsForAnyArgsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-            [MetadataNames.NSubstituteReturnsNullMethod] = MetadataNames.NSubstituteReturnsExtensionsFullTypeName,
-            [MetadataNames.NSubstituteReturnsNullForAnyArgsMethod] = MetadataNames.NSubstituteReturnsExtensionsFullTypeName
-        };
-
-        private static readonly IReadOnlyDictionary<string, string> ThrowsMethodNames = new Dictionary<string, string>
-        {
-            [MetadataNames.NSubstituteThrowsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName,
-            [MetadataNames.NSubstituteThrowsForAnyArgsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName
-        };
-
-        private static readonly IReadOnlyDictionary<string, string> ReceivedMethodNames = new Dictionary<string, string>
-        {
-            [MetadataNames.NSubstituteReceivedMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-            [MetadataNames.NSubstituteReceivedWithAnyArgsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-            [MetadataNames.NSubstituteDidNotReceiveMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-            [MetadataNames.NSubstituteDidNotReceiveWithAnyArgsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName
-        };
-
-        private static readonly IReadOnlyDictionary<string, string> WhenMethodNames = new Dictionary<string, string>
-        {
-            [MetadataNames.NSubstituteWhenMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-            [MetadataNames.NSubstituteWhenForAnyArgsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName
-        };
-
-        private static readonly IReadOnlyDictionary<string, string> ArgMethodNames = new Dictionary<string, string>
-        {
-            [MetadataNames.ArgIsMethodName] = MetadataNames.NSubstituteArgFullTypeName,
-            [MetadataNames.ArgAnyMethodName] = MetadataNames.NSubstituteArgFullTypeName
-        };
-
-        private static readonly IReadOnlyDictionary<string, string> ArgCompatMethodNames = new Dictionary<string, string>
-        {
-            [MetadataNames.ArgIsMethodName] = MetadataNames.NSubstituteArgCompatFullTypeName,
-            [MetadataNames.ArgAnyMethodName] = MetadataNames.NSubstituteArgCompatFullTypeName
-        };
-
         public static bool IsReturnLikeMethod(this ISymbol symbol)
         {
-            return IsMember(symbol, ReturnsMethodNames);
+            return IsMember(symbol, MetadataNames.ReturnsMethodNames);
         }
 
         public static bool IsThrowLikeMethod(this ISymbol symbol)
         {
-            return IsMember(symbol, ThrowsMethodNames);
+            return IsMember(symbol, MetadataNames.ThrowsMethodNames);
         }
 
         public static bool IsReceivedLikeMethod(this ISymbol symbol)
         {
-            return IsMember(symbol, ReceivedMethodNames);
+            return IsMember(symbol, MetadataNames.ReceivedMethodNames);
         }
 
         public static bool IsWhenLikeMethod(this ISymbol symbol)
         {
-            return IsMember(symbol, WhenMethodNames);
+            return IsMember(symbol, MetadataNames.WhenMethodNames);
         }
 
-        // TODO better name
-        public static bool IsArgLikeMethod(this ISymbol symbol)
+        public static bool IsArgMatcherLikeMethod(this ISymbol symbol)
         {
-            return IsMember(symbol, ArgMethodNames) || IsMember(symbol, ArgCompatMethodNames);
+            return IsMember(symbol, MetadataNames.ArgMethodNames) || IsMember(symbol, MetadataNames.ArgCompatMethodNames);
         }
 
         public static bool IsReceivedInOrderMethod(this ISymbol symbol)

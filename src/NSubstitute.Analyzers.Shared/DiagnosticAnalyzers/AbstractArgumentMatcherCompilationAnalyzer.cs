@@ -7,11 +7,12 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractArgumentMatcherCompilationAnalyzer<TInvocationExpressionSyntax, TMemberAccessExpression>
+    internal abstract class AbstractArgumentMatcherCompilationAnalyzer<TInvocationExpressionSyntax, TMemberAccessExpressionSyntax, TArgumentSyntax>
         where TInvocationExpressionSyntax : SyntaxNode
-        where TMemberAccessExpression : SyntaxNode
+        where TMemberAccessExpressionSyntax : SyntaxNode
+        where TArgumentSyntax : SyntaxNode
     {
-        protected abstract ImmutableArray<ImmutableArray<int>> PossibleAncestorPaths { get; }
+        protected abstract ImmutableArray<ImmutableArray<int>> PossibleAncestorPathsForArgument { get; }
 
         private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
 
@@ -21,7 +22,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private HashSet<SyntaxNode> WhenNodes { get; } = new HashSet<SyntaxNode>();
 
-        private Dictionary<SyntaxNode, List<SyntaxNode>> PotentialMissusedNodes { get; } = new Dictionary<SyntaxNode, List<SyntaxNode>>();
+        private Dictionary<SyntaxNode, List<SyntaxNode>> PotentialMisusedNodes { get; } = new Dictionary<SyntaxNode, List<SyntaxNode>>();
 
         protected AbstractArgumentMatcherCompilationAnalyzer(ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder, IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
         {
@@ -43,7 +44,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             switch (methodSymbol)
             {
-                case ISymbol symbol when symbol.IsArgLikeMethod():
+                case ISymbol symbol when symbol.IsArgMatcherLikeMethod():
                     BeginAnalyzeArgLikeMethod(syntaxNodeContext, invocationExpression);
                     break;
                 case ISymbol symbol when symbol.IsWhenLikeMethod():
@@ -57,7 +58,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         public void FinishAnalyzeArgMatchers(CompilationAnalysisContext compilationAnalysisContext)
         {
-            foreach (var potential in PotentialMissusedNodes)
+            foreach (var potential in PotentialMisusedNodes)
             {
                 if (WhenNodes.Contains(potential.Key) == false && ReceivedInOrderNodes.Contains(potential.Key) == false)
                 {
@@ -73,19 +74,34 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
         }
 
-        protected bool IsSetupLikeMethod(ISymbol symbol)
-        {
-            return symbol.IsReturnLikeMethod() || symbol.IsThrowLikeMethod();
-        }
+        protected abstract SyntaxNode GetOperationSyntax(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TArgumentSyntax argumentExpression);
 
-        protected abstract bool IsFollowedBySetupInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax);
+        private bool IsFollowedBySetupInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax)
+        {
+            var parentNote = invocationExpressionSyntax.Parent;
+
+            if (parentNote is TMemberAccessExpressionSyntax)
+            {
+                var child = parentNote.ChildNodes().Except(new[] { invocationExpressionSyntax }).FirstOrDefault();
+
+                return child != null && IsSetupLikeMethod(syntaxNodeContext.SemanticModel.GetSymbolInfo(child).Symbol);
+            }
+
+            if (parentNote is TArgumentSyntax argumentExpression)
+            {
+                var operationSyntax = GetOperationSyntax(syntaxNodeContext, argumentExpression);
+                return operationSyntax != null && IsSetupLikeMethod(syntaxNodeContext.SemanticModel.GetSymbolInfo(operationSyntax).Symbol);
+            }
+
+            return false;
+        }
 
         private void BeginAnalyzeWhenLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpression)
         {
             foreach (var syntaxNode in _substitutionNodeFinder.FindForWhenExpression(syntaxNodeContext, invocationExpression))
             {
                 var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode).Symbol;
-                var actualNode = syntaxNode is TMemberAccessExpression && symbol is IMethodSymbol _
+                var actualNode = syntaxNode is TMemberAccessExpressionSyntax && symbol is IMethodSymbol _
                     ? syntaxNode.Parent
                     : syntaxNode;
 
@@ -99,7 +115,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 .FindForReceivedInOrderExpression(syntaxNodeContext, invocationExpression).ToList())
             {
                 var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode).Symbol;
-                var actualNode = syntaxNode is TMemberAccessExpression && symbol is IMethodSymbol _
+                var actualNode = syntaxNode is TMemberAccessExpressionSyntax && symbol is IMethodSymbol _
                     ? syntaxNode.Parent
                     : syntaxNode;
 
@@ -116,13 +132,13 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 IsFollowedBySetupInvocation(syntaxNodeContext, enclosingExpression) == false &&
                 IsPrecededByReceivedInvocation(syntaxNodeContext, enclosingExpression) == false)
             {
-                if (PotentialMissusedNodes.TryGetValue(enclosingExpression, out var nodes))
+                if (PotentialMisusedNodes.TryGetValue(enclosingExpression, out var nodes))
                 {
                     nodes.Add(invocationExpression);
                 }
                 else
                 {
-                    PotentialMissusedNodes.Add(enclosingExpression, new List<SyntaxNode> { invocationExpression });
+                    PotentialMisusedNodes.Add(enclosingExpression, new List<SyntaxNode> { invocationExpression });
                 }
             }
         }
@@ -145,7 +161,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         {
             // finding usage of Arg like method in element access expressions and method invocation
             // deliberately skipping odd usages like var x = Arg.Any<int>() in order not to report false positives
-            foreach (var possibleAncestorPath in PossibleAncestorPaths)
+            foreach (var possibleAncestorPath in PossibleAncestorPathsForArgument)
             {
                 var node = invocationExpression.GetAncestorNode(possibleAncestorPath);
 
@@ -156,6 +172,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
 
             return null;
+        }
+
+        private bool IsSetupLikeMethod(ISymbol symbol)
+        {
+            return symbol.IsReturnLikeMethod() || symbol.IsThrowLikeMethod();
         }
     }
 }

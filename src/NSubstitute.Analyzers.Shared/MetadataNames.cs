@@ -1,4 +1,6 @@
-﻿namespace NSubstitute.Analyzers.Shared
+﻿using System.Collections.Generic;
+
+namespace NSubstitute.Analyzers.Shared
 {
     internal class MetadataNames
     {
@@ -41,5 +43,45 @@
         public const string CallInfoArgTypesMethod = "ArgTypes";
         public const string ArgIsMethodName = "Is";
         public const string ArgAnyMethodName = "Any";
+
+        public static readonly IReadOnlyDictionary<string, string> ReturnsMethodNames = new Dictionary<string, string>
+        {
+            [NSubstituteReturnsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+            [NSubstituteReturnsForAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+            [NSubstituteReturnsNullMethod] = NSubstituteReturnsExtensionsFullTypeName,
+            [NSubstituteReturnsNullForAnyArgsMethod] = NSubstituteReturnsExtensionsFullTypeName
+        };
+
+        public static readonly IReadOnlyDictionary<string, string> ThrowsMethodNames = new Dictionary<string, string>
+        {
+            [NSubstituteThrowsMethod] = NSubstituteExceptionExtensionsFullTypeName,
+            [NSubstituteThrowsForAnyArgsMethod] = NSubstituteExceptionExtensionsFullTypeName
+        };
+
+        public static readonly IReadOnlyDictionary<string, string> ReceivedMethodNames = new Dictionary<string, string>
+        {
+            [NSubstituteReceivedMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+            [NSubstituteReceivedWithAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+            [NSubstituteDidNotReceiveMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+            [NSubstituteDidNotReceiveWithAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName
+        };
+
+        public static readonly IReadOnlyDictionary<string, string> WhenMethodNames = new Dictionary<string, string>
+        {
+            [NSubstituteWhenMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+            [NSubstituteWhenForAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName
+        };
+
+        public static readonly IReadOnlyDictionary<string, string> ArgMethodNames = new Dictionary<string, string>
+        {
+            [ArgIsMethodName] = NSubstituteArgFullTypeName,
+            [ArgAnyMethodName] = NSubstituteArgFullTypeName
+        };
+
+        public static readonly IReadOnlyDictionary<string, string> ArgCompatMethodNames = new Dictionary<string, string>
+        {
+            [ArgIsMethodName] = NSubstituteArgCompatFullTypeName,
+            [ArgAnyMethodName] = NSubstituteArgCompatFullTypeName
+        };
     }
 }

@@ -9,7 +9,7 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
-    internal class ArgumentMatcherCompilationAnalyzer : AbstractArgumentMatcherCompilationAnalyzer<InvocationExpressionSyntax, MemberAccessExpressionSyntax>
+    internal class ArgumentMatcherCompilationAnalyzer : AbstractArgumentMatcherCompilationAnalyzer<InvocationExpressionSyntax, MemberAccessExpressionSyntax, ArgumentSyntax>
     {
         private static ImmutableArray<ImmutableArray<int>> AncestorPaths { get; } = ImmutableArray.Create(
             ImmutableArray.Create(
@@ -22,26 +22,12 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
         {
         }
 
-        protected override ImmutableArray<ImmutableArray<int>> PossibleAncestorPaths { get; } = AncestorPaths;
+        protected override ImmutableArray<ImmutableArray<int>> PossibleAncestorPathsForArgument { get; } = AncestorPaths;
 
-        protected override bool IsFollowedBySetupInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax)
+        protected override SyntaxNode GetOperationSyntax(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, ArgumentSyntax argumentExpression)
         {
-            var parentNote = invocationExpressionSyntax.Parent;
-
-            if (parentNote is MemberAccessExpressionSyntax)
-            {
-                var child = parentNote.ChildNodes().Except(new[] { invocationExpressionSyntax }).FirstOrDefault();
-
-                return child != null && IsSetupLikeMethod(syntaxNodeContext.SemanticModel.GetSymbolInfo(child).Symbol);
-            }
-
-            if (parentNote is ArgumentSyntax)
-            {
-                var operation = syntaxNodeContext.SemanticModel.GetOperation(parentNote);
-                return IsSetupLikeMethod(syntaxNodeContext.SemanticModel.GetSymbolInfo(operation.Parent.Syntax).Symbol);
-            }
-
-            return false;
+            var operation = syntaxNodeAnalysisContext.SemanticModel.GetOperation(argumentExpression);
+            return operation?.Parent?.Syntax;
         }
     }
 }
