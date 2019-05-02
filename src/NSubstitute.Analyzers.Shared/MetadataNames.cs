@@ -43,6 +43,9 @@ namespace NSubstitute.Analyzers.Shared
         public const string CallInfoArgTypesMethod = "ArgTypes";
         public const string ArgIsMethodName = "Is";
         public const string ArgAnyMethodName = "Any";
+        public const string ArgDoMethodName = "Do";
+        public const string ArgInvokeMethodName = "Invoke";
+        public const string ArgInvokeDelegateMethodName = "InvokeDelegate";
 
         public static readonly IReadOnlyDictionary<string, string> ReturnsMethodNames = new Dictionary<string, string>
         {
@@ -72,16 +75,30 @@ namespace NSubstitute.Analyzers.Shared
             [NSubstituteWhenForAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName
         };
 
-        public static readonly IReadOnlyDictionary<string, string> ArgMethodNames = new Dictionary<string, string>
+        public static readonly IReadOnlyDictionary<string, string> ArgMatchersMethodNames = new Dictionary<string, string>
         {
             [ArgIsMethodName] = NSubstituteArgFullTypeName,
             [ArgAnyMethodName] = NSubstituteArgFullTypeName
         };
 
-        public static readonly IReadOnlyDictionary<string, string> ArgCompatMethodNames = new Dictionary<string, string>
+        public static readonly IReadOnlyDictionary<string, string> ArgMatchersCompatMethodNames = new Dictionary<string, string>
         {
             [ArgIsMethodName] = NSubstituteArgCompatFullTypeName,
             [ArgAnyMethodName] = NSubstituteArgCompatFullTypeName
+        };
+
+        public static readonly IReadOnlyDictionary<string, string> ArgInvokersMethodNames = new Dictionary<string, string>
+        {
+            [ArgInvokeMethodName] = NSubstituteArgFullTypeName,
+            [ArgDoMethodName] = NSubstituteArgFullTypeName,
+            [ArgInvokeDelegateMethodName] = NSubstituteArgFullTypeName
+        };
+
+        public static readonly IReadOnlyDictionary<string, string> ArgInvokersCompatMethodNames = new Dictionary<string, string>
+        {
+            [ArgInvokeMethodName] = NSubstituteArgCompatFullTypeName,
+            [ArgDoMethodName] = NSubstituteArgCompatFullTypeName,
+            [ArgInvokeDelegateMethodName] = NSubstituteArgCompatFullTypeName
         };
     }
 }

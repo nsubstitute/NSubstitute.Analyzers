@@ -28,7 +28,12 @@ namespace NSubstitute.Analyzers.Shared.Extensions
 
         public static bool IsArgMatcherLikeMethod(this ISymbol symbol)
         {
-            return IsMember(symbol, MetadataNames.ArgMethodNames) || IsMember(symbol, MetadataNames.ArgCompatMethodNames);
+            return IsMember(symbol, MetadataNames.ArgMatchersMethodNames) || IsMember(symbol, MetadataNames.ArgMatchersCompatMethodNames);
+        }
+
+        public static bool IsArgInvokerLikeMethod(this ISymbol symbol)
+        {
+            return IsMember(symbol, MetadataNames.ArgInvokersMethodNames) || IsMember(symbol, MetadataNames.ArgInvokersCompatMethodNames);
         }
 
         public static bool IsReceivedInOrderMethod(this ISymbol symbol)

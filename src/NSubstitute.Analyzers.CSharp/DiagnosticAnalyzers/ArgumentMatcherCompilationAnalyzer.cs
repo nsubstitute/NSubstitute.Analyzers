@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -32,6 +33,22 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
         {
             var operation = syntaxNodeAnalysisContext.SemanticModel.GetOperation(argumentExpression);
             return operation?.Parent?.Syntax;
+        }
+
+        protected override List<SyntaxNode> TryGetArgumentExpressions(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, SyntaxNode syntaxNode)
+        {
+            SeparatedSyntaxList<ArgumentSyntax> argumentList = default;
+            switch (syntaxNode)
+            {
+                case InvocationExpressionSyntax invocation:
+                    argumentList = invocation.ArgumentList.Arguments;
+                    break;
+                case ElementAccessExpressionSyntax elementAccessExpression:
+                    argumentList = elementAccessExpression.ArgumentList.Arguments;
+                    break;
+            }
+
+            return argumentList.Select<ArgumentSyntax, SyntaxNode>(node => node.Expression).ToList();
         }
     }
 }

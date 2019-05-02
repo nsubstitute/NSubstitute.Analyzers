@@ -76,6 +76,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract SyntaxNode GetOperationSyntax(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TArgumentSyntax argumentExpression);
 
+        protected abstract List<SyntaxNode> TryGetArgumentExpressions(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, SyntaxNode syntaxNode);
+
         private bool IsFollowedBySetupInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax)
         {
             var parentNote = invocationExpressionSyntax.Parent;
@@ -126,11 +128,12 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         private void BeginAnalyzeArgLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpression)
         {
             // find enclosing type
-            var enclosingExpression = FindEnclosingExpression(syntaxNodeContext, invocationExpression);
+            var enclosingExpression = FindEnclosingExpression(invocationExpression);
 
             if (enclosingExpression != null &&
                 IsFollowedBySetupInvocation(syntaxNodeContext, enclosingExpression) == false &&
-                IsPrecededByReceivedInvocation(syntaxNodeContext, enclosingExpression) == false)
+                IsPrecededByReceivedInvocation(syntaxNodeContext, enclosingExpression) == false &&
+                IsUsedAlongWithArgInvokers(syntaxNodeContext, enclosingExpression) == false)
             {
                 if (PotentialMisusedNodes.TryGetValue(enclosingExpression, out var nodes))
                 {
@@ -157,7 +160,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             return false;
         }
 
-        private SyntaxNode FindEnclosingExpression(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TInvocationExpressionSyntax invocationExpression)
+        private SyntaxNode FindEnclosingExpression(TInvocationExpressionSyntax invocationExpression)
         {
             // finding usage of Arg like method in element access expressions and method invocation
             // deliberately skipping odd usages like var x = Arg.Any<int>() in order not to report false positives
@@ -172,6 +175,13 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
 
             return null;
+        }
+
+        private bool IsUsedAlongWithArgInvokers(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax)
+        {
+            return TryGetArgumentExpressions(syntaxNodeContext, invocationExpressionSyntax)
+                .OfType<TInvocationExpressionSyntax>()
+                .Select(syntaxNode => syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode).Symbol).Any(symbol => symbol.IsArgInvokerLikeMethod());
         }
 
         private bool IsSetupLikeMethod(ISymbol symbol)
