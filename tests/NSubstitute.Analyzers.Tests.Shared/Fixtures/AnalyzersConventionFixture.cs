@@ -5,6 +5,7 @@ using System.Reflection;
 using FluentAssertions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.Tests.Shared.Fixtures
 {
@@ -13,6 +14,19 @@ namespace NSubstitute.Analyzers.Tests.Shared.Fixtures
         public void AssertDiagnosticAnalyzerAttributeUsageFromAssemblyContaining<T>(string expectedLanguage)
         {
             AssertDiagnosticAnalyzerAttributeUsageFromAssemblyContaining(typeof(T), expectedLanguage);
+        }
+
+        public void AssertDiagnosticAnalyzerInheritanceFromAssemblyContaining<T>()
+        {
+            AssertDiagnosticAnalyzerInheritanceFromAssemblyContaining(typeof(T));
+        }
+
+        public void AssertDiagnosticAnalyzerInheritanceFromAssemblyContaining(Type type)
+        {
+            var diagnosticAnalyzerTypes = GetTypesAssignableTo<DiagnosticAnalyzer>(type.Assembly).ToList();
+            var abstractDiagnosticAnalyzerTypes = GetTypesAssignableTo<AbstractDiagnosticAnalyzer>(type.Assembly).ToList();
+
+            abstractDiagnosticAnalyzerTypes.Should().BeEquivalentTo(diagnosticAnalyzerTypes);
         }
 
         public void AssertExportCodeFixProviderAttributeUsageFromAssemblyContaining<T>(string expectedLanguage)

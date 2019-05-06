@@ -28,7 +28,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
-        public sealed override void Initialize(AnalysisContext context)
+        protected override void InitializeAnalyzer(AnalysisContext context)
         {
             context.RegisterSyntaxNodeAction(AnalyzeInvocation, InvocationExpressionKind);
         }

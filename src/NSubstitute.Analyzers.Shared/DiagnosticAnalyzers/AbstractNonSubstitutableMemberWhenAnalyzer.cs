@@ -31,7 +31,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             _substitutionNodeFinder = substitutionNodeFinder;
         }
 
-        public override void Initialize(AnalysisContext context)
+        protected override void InitializeAnalyzer(AnalysisContext context)
         {
             context.RegisterSyntaxNodeAction(AnalyzeInvocation, InvocationExpressionKind);
         }
