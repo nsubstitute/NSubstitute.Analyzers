@@ -45,7 +45,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             DiagnosticDescriptorsProvider.CallInfoArgumentSetWithIncompatibleValue,
             DiagnosticDescriptorsProvider.CallInfoArgumentIsNotOutOrRef);
 
-        public override void Initialize(AnalysisContext context)
+        protected override void InitializeAnalyzer(AnalysisContext context)
         {
             context.RegisterSyntaxNodeAction(AnalyzeInvocation, InvocationExpressionKind);
         }
