@@ -35,7 +35,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         private static readonly MetadataReference NetStandard = MetadataReference.CreateFromFile(Assembly.Load("netstandard, Version=2.0.0.0").Location);
 
-        private static readonly MetadataReference[] MetadataReferences;
+        public static readonly MetadataReference[] MetadataReferences;
 
         public static string DefaultFilePathPrefix { get; } = "Test";
 
