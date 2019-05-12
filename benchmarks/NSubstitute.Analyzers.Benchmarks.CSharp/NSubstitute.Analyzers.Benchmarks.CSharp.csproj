@@ -3,18 +3,32 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp2.1</TargetFramework>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BenchmarkDotNet" Version="0.10.2" />
+        <PackageReference Include="BenchmarkDotNet" Version="0.11.1" />
         <PackageReference Include="Gu.Roslyn.Asserts" Version="2.6.3" />
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.8.2" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.8.2" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\NSubstitute.Analyzers.CSharp\NSubstitute.Analyzers.CSharp.csproj" />
       <ProjectReference Include="..\..\src\NSubstitute.Analyzers.Shared\NSubstitute.Analyzers.Shared.csproj" />
       <ProjectReference Include="..\NSubstitute.Analyzers.Benchmarks.CSharp.Source\NSubstitute.Analyzers.Benchmarks.CSharp.Source.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="BenchmarkDotNet.Artifacts\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="BenchmarkDotNet.Artifacts\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="BenchmarkDotNet.Artifacts\**" />
     </ItemGroup>
     
 </Project>

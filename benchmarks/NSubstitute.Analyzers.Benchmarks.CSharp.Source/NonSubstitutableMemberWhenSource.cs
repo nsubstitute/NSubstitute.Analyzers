@@ -3,7 +3,7 @@ using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 
 namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source
 {
-    public class NonSubstitutableMemberWhen
+    public class NonSubstitutableMemberWhenSource
     {
         public void Test()
         {
