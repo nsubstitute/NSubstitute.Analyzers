@@ -8,4 +8,12 @@
       <PackageReference Include="NSubstitute" Version="4.1.0" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Remove="nsubstitute.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AdditionalFiles Include="nsubstitute.json" />
+    </ItemGroup>
+    
 </Project>

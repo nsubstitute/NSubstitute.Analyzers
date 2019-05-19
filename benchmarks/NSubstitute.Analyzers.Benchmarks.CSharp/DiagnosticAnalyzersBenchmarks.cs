@@ -6,6 +6,7 @@ using BenchmarkDotNet.Attributes;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Benchmarks.CSharp.Source;
+using NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.Benchmarks.CSharp
@@ -14,59 +15,61 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp
     [MemoryDiagnoser]
     public class DiagnosticAnalyzersBenchmarks
     {
-        private Solution _solution;
+        private static readonly Solution Solution;
         
-        private Benchmark _callInfoAnalyzerBenchmark;
+        private readonly Benchmark _callInfoAnalyzerBenchmark;
 
-        private Benchmark _conflictingArgumentAssignmentsAnalyzerBenchmark;
+        private readonly Benchmark _conflictingArgumentAssignmentsAnalyzerBenchmark;
 
-        private Benchmark _nonSubstitutableMemberAnalyzerBenchmark;
+        private readonly Benchmark _nonSubstitutableMemberAnalyzerBenchmark;
 
-        private Benchmark _nonSubstitutableMemberReceivedAnalyzerBenchmark;
+        private readonly Benchmark _nonSubstitutableMemberReceivedAnalyzerBenchmark;
         
-        private Benchmark _nonSubstitutableMemberWhenAnalyzerBenchmark;
+        private readonly Benchmark _nonSubstitutableMemberWhenAnalyzerBenchmark;
 
-        private Benchmark _reEntrantSetupAnalyzerBenchmark;
+        private readonly Benchmark _reEntrantSetupAnalyzerBenchmark;
 
-        private Benchmark _substituteAnalyzerBenchmark;
+        private readonly Benchmark _substituteAnalyzerBenchmark;
 
-        private Benchmark _unusedReceivedAnalyzerBenchmark;
-        
-        [GlobalSetup]
-        public void GlobalSetup()
+        private readonly Benchmark _unusedReceivedAnalyzerBenchmark;
+
+        static DiagnosticAnalyzersBenchmarks()
         {
-            var assembly = typeof(NonSubstitutableMemberWhenSource).Assembly;
+            var assembly = typeof(NonSubstitutableMemberWhenDiagnosticsSource).Assembly;
             var excludedMetaAssemblyName = $"{assembly.GetName().Name}.dll";
             var metadataReferences = MetadataReferences.Transitive(assembly)
                 .Where(meta => meta.Display.EndsWith(excludedMetaAssemblyName) == false).ToArray();
 
             var benchmarkSourceProjectPath = GetBenchmarkSourceProjectPath();
-            _solution = CodeFactory.CreateSolution(
+            Solution = CodeFactory.CreateSolution(
                 new FileInfo(benchmarkSourceProjectPath),
                 metadataReferences);
 
-            var projectGraph = _solution.GetProjectDependencyGraph();
+            var projectGraph = Solution.GetProjectDependencyGraph();
             foreach (var projectId in projectGraph.GetTopologicallySortedProjects())
             {
-                var projectCompilation = _solution.GetProject(projectId).GetCompilationAsync().Result;
+                var projectCompilation = Solution.GetProject(projectId).GetCompilationAsync().Result;
                 using (var stream = new MemoryStream())
                 {
                     var result = projectCompilation.Emit(stream);
                     if (result.Success == false)
                     {
-                        throw new InvalidOperationException("Compilation for benchmark source failed");
+                        throw new InvalidOperationException($"Compilation for benchmark source failed {Environment.NewLine} {string.Join(Environment.NewLine, result.Diagnostics.Select(diag => diag.ToString()))}");
                     }
                 }
             }
-
-            _callInfoAnalyzerBenchmark = Benchmark.Create(_solution, new CallInfoAnalyzer());
-            _conflictingArgumentAssignmentsAnalyzerBenchmark = Benchmark.Create(_solution, new ConflictingArgumentAssignmentsAnalyzer());
-            _nonSubstitutableMemberAnalyzerBenchmark = Benchmark.Create(_solution, new NonSubstitutableMemberAnalyzer());
-            _nonSubstitutableMemberReceivedAnalyzerBenchmark = Benchmark.Create(_solution, new NonSubstitutableMemberReceivedAnalyzer());
-            _nonSubstitutableMemberWhenAnalyzerBenchmark = Benchmark.Create(_solution, new NonSubstitutableMemberWhenAnalyzer());
-            _reEntrantSetupAnalyzerBenchmark = Benchmark.Create(_solution, new ReEntrantSetupAnalyzer());
-            _substituteAnalyzerBenchmark = Benchmark.Create(_solution, new SubstituteAnalyzer());
-            _unusedReceivedAnalyzerBenchmark = Benchmark.Create(_solution, new UnusedReceivedAnalyzer());
+        }
+        
+        public DiagnosticAnalyzersBenchmarks()
+        {
+            _callInfoAnalyzerBenchmark = Benchmark.Create(Solution, new CallInfoAnalyzer());
+            _conflictingArgumentAssignmentsAnalyzerBenchmark = Benchmark.Create(Solution, new ConflictingArgumentAssignmentsAnalyzer());
+            _nonSubstitutableMemberAnalyzerBenchmark = Benchmark.Create(Solution, new NonSubstitutableMemberAnalyzer());
+            _nonSubstitutableMemberReceivedAnalyzerBenchmark = Benchmark.Create(Solution, new NonSubstitutableMemberReceivedAnalyzer());
+            _nonSubstitutableMemberWhenAnalyzerBenchmark = Benchmark.Create(Solution, new NonSubstitutableMemberWhenAnalyzer());
+            _reEntrantSetupAnalyzerBenchmark = Benchmark.Create(Solution, new ReEntrantSetupAnalyzer());
+            _substituteAnalyzerBenchmark = Benchmark.Create(Solution, new SubstituteAnalyzer());
+            _unusedReceivedAnalyzerBenchmark = Benchmark.Create(Solution, new UnusedReceivedAnalyzer());
         }
 
         [Benchmark]
