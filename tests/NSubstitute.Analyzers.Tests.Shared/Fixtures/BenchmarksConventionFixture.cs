@@ -29,10 +29,10 @@ namespace NSubstitute.Analyzers.Tests.Shared.Fixtures
                 .OrderBy(diag => diag)
                 .ToList();
 
-
             // TODO introduce sort of interface
             var producedDiagnostics = benchmarkAnalyzers.SelectMany(benchmark =>
-                    Analyze.GetDiagnostics(benchmark.Field.DeclaringType
+                    Analyze.GetDiagnostics(
+                        benchmark.Field.DeclaringType
                         .GetField("Solution", BindingFlags.NonPublic | BindingFlags.Static)
                         .GetValue(benchmark.Field.DeclaringType) as Solution, benchmark.Benchmark.Analyzer))
                 .SelectMany(diag => diag.Select(x => x.Id))
@@ -42,7 +42,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.Fixtures
 
             producedDiagnostics.Should().BeEquivalentTo(allDiagnostics);
         }
-        
+
         private static List<BenchmarkDescriptor> GetAnalyzerBenchmarks(Assembly benchmarksAssembly)
         {
             var benchmarkFields = benchmarksAssembly.GetTypes()
@@ -56,14 +56,14 @@ namespace NSubstitute.Analyzers.Tests.Shared.Fixtures
             var benchmarkAnalyzers = benchmarkFields
                 .Select(benchmark => new BenchmarkDescriptor(benchmark, (Benchmark)benchmark.GetValue(declaringInstances[benchmark.DeclaringType])))
                 .ToList();
-            
+
             return benchmarkAnalyzers;
         }
-        
+
         private class BenchmarkDescriptor
         {
             public FieldInfo Field { get; }
-            
+
             public Benchmark Benchmark { get; }
 
             public BenchmarkDescriptor(FieldInfo field, Benchmark benchmark)

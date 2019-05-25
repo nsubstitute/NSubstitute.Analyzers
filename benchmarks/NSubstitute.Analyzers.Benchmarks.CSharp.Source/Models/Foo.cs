@@ -11,7 +11,7 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.Models
         public virtual void VoidReturningVirtualMethod()
         {
         }
-        
+
         public void VoidReturningMethodWithArguments(int x, int y, decimal z)
         {
         }
@@ -21,7 +21,7 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.Models
         public object ObjectReturningMethodWithRefArguments(ref int x, ref int y, ref decimal z) => null;
 
         public int Property { get; }
-        
+
         public object ObjectReturningProperty { get; }
 
         public int this[int i] => 1;
@@ -31,7 +31,7 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.Models
         internal virtual object InternalObjectReturningMethod() => null;
 
         internal virtual object InternalObjectReturningProperty => null;
-        
+
         internal virtual object this[int x, int y, int z] => null;
     }
 }

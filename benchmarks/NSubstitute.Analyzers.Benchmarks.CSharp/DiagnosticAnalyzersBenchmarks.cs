@@ -16,7 +16,7 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp
     public class DiagnosticAnalyzersBenchmarks
     {
         private static readonly Solution Solution;
-        
+
         private readonly Benchmark _callInfoAnalyzerBenchmark;
 
         private readonly Benchmark _conflictingArgumentAssignmentsAnalyzerBenchmark;
@@ -24,7 +24,7 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp
         private readonly Benchmark _nonSubstitutableMemberAnalyzerBenchmark;
 
         private readonly Benchmark _nonSubstitutableMemberReceivedAnalyzerBenchmark;
-        
+
         private readonly Benchmark _nonSubstitutableMemberWhenAnalyzerBenchmark;
 
         private readonly Benchmark _reEntrantSetupAnalyzerBenchmark;
@@ -59,7 +59,7 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp
                 }
             }
         }
-        
+
         public DiagnosticAnalyzersBenchmarks()
         {
             _callInfoAnalyzerBenchmark = Benchmark.Create(Solution, new CallInfoAnalyzer());
@@ -95,7 +95,7 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp
         {
             _nonSubstitutableMemberReceivedAnalyzerBenchmark.Run();
         }
-        
+
         [Benchmark]
         public void NonSubstitutableMemberWhenAnalyzer()
         {
@@ -119,12 +119,13 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp
         {
             _unusedReceivedAnalyzerBenchmark.Run();
         }
-        
+
         private static string GetBenchmarkSourceProjectPath()
         {
             var rootDirectory = FindRootDirectory();
 
-            return Path.Combine(rootDirectory,
+            return Path.Combine(
+                rootDirectory,
                 "benchmarks",
                 "NSubstitute.Analyzers.Benchmarks.CSharp.Source",
                 "NSubstitute.Analyzers.Benchmarks.CSharp.Source.csproj");
@@ -147,7 +148,8 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp
                 }
 
                 directoryInfo = directoryInfo.Parent;
-            } while (directoryInfo != null);
+            }
+            while (directoryInfo != null);
 
             throw new InvalidOperationException("Could not find root directory for NSubstitute.Analyzers");
         }

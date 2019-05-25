@@ -15,7 +15,7 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
             substitute.ObjectReturningMethod().Returns(ReEntrantReturn());
             substitute.ObjectReturningProperty.Returns(ReEntrantReturn());
             substitute[0, 0].Returns(ReEntrantReturn());
-            
+
             SubstituteExtensions.Returns(substitute.ObjectReturningMethod(), Substitute.For<IFoo>().ObjectReturningMethod().Returns(1));
             SubstituteExtensions.Returns(substitute.ObjectReturningProperty, Substitute.For<IFoo>().ObjectReturningMethod().Returns(1));
             SubstituteExtensions.Returns(substitute[0, 0], Substitute.For<IFoo>().ObjectReturningMethod().Returns(1));

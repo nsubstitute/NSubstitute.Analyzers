@@ -12,7 +12,7 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
             substitute.Property.Returns(1);
             substitute[0].Returns(1);
             1.Returns(1);
-            
+
             SubstituteExtensions.Returns(substitute.ObjectReturningMethod(), 1);
             SubstituteExtensions.Returns(substitute.Property, 1);
             SubstituteExtensions.Returns(substitute[0], 1);
@@ -26,7 +26,7 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
             substitute.InternalObjectReturningMethod().Returns(1);
             substitute.InternalObjectReturningProperty.Returns(1);
             substitute[0, 0, 0].Returns(1);
-            
+
             SubstituteExtensions.Returns(substitute.InternalObjectReturningMethod(), 1);
             SubstituteExtensions.Returns(substitute.InternalObjectReturningProperty, 1);
             SubstituteExtensions.Returns(substitute[0, 0, 0], 1);

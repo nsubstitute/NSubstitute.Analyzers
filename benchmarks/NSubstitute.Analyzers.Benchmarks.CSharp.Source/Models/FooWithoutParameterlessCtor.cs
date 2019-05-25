@@ -4,7 +4,6 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.Models
     {
         public FooWithoutParameterlessCtor(int x, decimal y, object z)
         {
-            
         }
     }
 }

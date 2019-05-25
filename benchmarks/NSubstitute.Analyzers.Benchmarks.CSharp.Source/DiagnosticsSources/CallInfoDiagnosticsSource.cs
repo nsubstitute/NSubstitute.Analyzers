@@ -1,4 +1,3 @@
-
 using NSubstitute.Analyzers.Benchmarks.CSharp.Source.Models;
 
 namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
@@ -8,12 +7,13 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
         public void NS3000_UnableToFindMatchingArgument()
         {
             var substitute = Substitute.For<IFoo>();
-            
+
             substitute.ObjectReturningMethodWithArguments(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<decimal>())
                 .Returns(callInfo => callInfo.ArgAt<int>(10));
-            
-            SubstituteExtensions.Returns(substitute.ObjectReturningMethodWithArguments(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<decimal>()),
-                callInfo => callInfo.ArgAt<int>(10)); 
+
+            SubstituteExtensions.Returns(
+                substitute.ObjectReturningMethodWithArguments(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<decimal>()),
+                callInfo => callInfo.ArgAt<int>(10));
         }
 
         public void NS3001_CouldNotConvertParameter()
@@ -35,27 +35,28 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
                 return callInfo.ArgAt<decimal>(1);
             });
         }
-        
+
         public void NS3002_CouldNotFindArgumentOfTypeToThisCall()
         {
             var substitute = Substitute.For<IFoo>();
 
             substitute.ObjectReturningMethod().Returns(callInfo => callInfo.Arg<object>());
-            
+
             SubstituteExtensions.Returns(substitute.ObjectReturningMethod(), callInfo => callInfo.Arg<object>());
         }
 
         public void NS3003_ThereIsMoreThanOneArgumentOfGivenTypeToThisCall()
         {
             var substitute = Substitute.For<IFoo>();
-            
+
             substitute.ObjectReturningMethodWithArguments(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<decimal>())
                 .Returns(callInfo => callInfo.Arg<int>());
-            
-            SubstituteExtensions.Returns(substitute.ObjectReturningMethodWithArguments(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<decimal>()),
+
+            SubstituteExtensions.Returns(
+                substitute.ObjectReturningMethodWithArguments(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<decimal>()),
                 callInfo => callInfo.Arg<int>());
         }
-        
+
         public void NS3004_CouldNotSetValueOfTypeToArgumentBecauseTypesAreIncompatible()
         {
             var substitute = Substitute.For<IFoo>();
@@ -63,27 +64,29 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
             substitute.ObjectReturningMethodWithRefArguments(ref Arg.Any<int>(), ref Arg.Any<int>(), ref Arg.Any<decimal>())
                 .Returns(callInfo => callInfo[0] = "invalid");
         }
-        
+
         public void NS3005_CouldNotSetArgumentAsItIsNotRefOrOutArgument()
         {
             var substitute = Substitute.For<IFoo>();
 
             substitute.ObjectReturningMethodWithArguments(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<decimal>())
                 .Returns(callInfo => callInfo[0] = 1);
-            
-            SubstituteExtensions.Returns(substitute.ObjectReturningMethodWithArguments(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<decimal>()),
+
+            SubstituteExtensions.Returns(
+                substitute.ObjectReturningMethodWithArguments(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<decimal>()),
                 callInfo => callInfo[0] = 1);
         }
 
         public void NS3006_ConflictingArgumentAssignments()
         {
             var substitute = Substitute.For<IFoo>();
-            
+
             substitute.ObjectReturningMethodWithRefArguments(ref Arg.Any<int>(), ref Arg.Any<int>(), ref Arg.Any<decimal>())
                 .Returns(callInfo => callInfo[0] = 1)
                 .AndDoes(callInfo => callInfo[0] = 2);
-            
-            SubstituteExtensions.Returns(substitute.ObjectReturningMethodWithRefArguments(ref Arg.Any<int>(), ref Arg.Any<int>(), ref Arg.Any<decimal>()),
+
+            SubstituteExtensions.Returns(
+                    substitute.ObjectReturningMethodWithRefArguments(ref Arg.Any<int>(), ref Arg.Any<int>(), ref Arg.Any<decimal>()),
                     callInfo => callInfo[0] = 1)
                 .AndDoes(callInfo => callInfo[0] = 2);
         }
