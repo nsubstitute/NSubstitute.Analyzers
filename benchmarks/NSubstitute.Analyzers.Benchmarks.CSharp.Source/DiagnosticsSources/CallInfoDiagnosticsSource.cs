@@ -1,4 +1,4 @@
-using NSubstitute.Analyzers.Benchmarks.CSharp.Source.Models;
+using NSubstitute.Analyzers.Benchmarks.Shared.Models;
 
 namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
 {
@@ -9,11 +9,19 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
             var substitute = Substitute.For<IFoo>();
 
             substitute.ObjectReturningMethodWithArguments(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<decimal>())
-                .Returns(callInfo => callInfo.ArgAt<int>(10));
+                .Returns(callInfo =>
+                {
+                    callInfo.ArgAt<int>(10);
+                    return null;
+                });
 
             SubstituteExtensions.Returns(
                 substitute.ObjectReturningMethodWithArguments(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<decimal>()),
-                callInfo => callInfo.ArgAt<int>(10));
+                callInfo =>
+                {
+                    callInfo.ArgAt<int>(10);
+                    return null;
+                });
         }
 
         public void NS3001_CouldNotConvertParameter()
@@ -25,14 +33,16 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
                 {
                     _ = (decimal)callInfo[1];
                     _ = (decimal)callInfo.Args()[1];
-                    return callInfo.ArgAt<decimal>(1);
+                    callInfo.ArgAt<decimal>(1);
+                    return null;
                 });
 
             SubstituteExtensions.Returns(substitute.ObjectReturningMethodWithArguments(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<decimal>()), callInfo =>
             {
                 _ = (decimal)callInfo[1];
                 _ = (decimal)callInfo.Args()[1];
-                return callInfo.ArgAt<decimal>(1);
+                callInfo.ArgAt<decimal>(1);
+                return null;
             });
         }
 
@@ -50,11 +60,19 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
             var substitute = Substitute.For<IFoo>();
 
             substitute.ObjectReturningMethodWithArguments(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<decimal>())
-                .Returns(callInfo => callInfo.Arg<int>());
+                .Returns(callInfo =>
+                {
+                    callInfo.Arg<int>();
+                    return null;
+                });
 
             SubstituteExtensions.Returns(
                 substitute.ObjectReturningMethodWithArguments(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<decimal>()),
-                callInfo => callInfo.Arg<int>());
+                callInfo =>
+                {
+                    callInfo.Arg<int>();
+                    return null;
+                });
         }
 
         public void NS3004_CouldNotSetValueOfTypeToArgumentBecauseTypesAreIncompatible()
@@ -63,6 +81,9 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
 
             substitute.ObjectReturningMethodWithRefArguments(ref Arg.Any<int>(), ref Arg.Any<int>(), ref Arg.Any<decimal>())
                 .Returns(callInfo => callInfo[0] = "invalid");
+            SubstituteExtensions.Returns(
+                substitute.ObjectReturningMethodWithRefArguments(ref Arg.Any<int>(), ref Arg.Any<int>(), ref Arg.Any<decimal>()),
+                callInfo => callInfo[0] = "invalid");
         }
 
         public void NS3005_CouldNotSetArgumentAsItIsNotRefOrOutArgument()

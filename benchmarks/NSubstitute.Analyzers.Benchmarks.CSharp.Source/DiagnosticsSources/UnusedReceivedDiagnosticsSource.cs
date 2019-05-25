@@ -1,4 +1,4 @@
-using NSubstitute.Analyzers.Benchmarks.CSharp.Source.Models;
+using NSubstitute.Analyzers.Benchmarks.Shared.Models;
 
 namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
 {

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>NonSubstitutableMemberWhenAnalyzerBenchmark</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.10.1, OS=Linux
+Processor=?, ProcessorCount=8
+Frequency=1000000000 Hz, Resolution=1.0000 ns, Timer=UNKNOWN
+dotnet cli version=2.2.203
+  [Host] : .NET Core 4.6.27514.02, 64bit RyuJITDEBUG
+</code></pre>
+<pre><code>Allocated=N/A  
+</code></pre>
+
+<table>
+<thead><tr><th>                                  Method</th><th>Job</th><th>Runtime</th><th>Mean</th>
+</tr>
+</thead><tbody><tr><td>RunNonSubstitutableMemberWhenAnalyzerBenchmark</td><td>Clr</td><td>Clr</td><td>NA</td>
+</tr><tr><td>RunNonSubstitutableMemberWhenAnalyzerBenchmark</td><td>Core</td><td>Core</td><td>NA</td>
+</tr></tbody></table>
+</body>
+</html>

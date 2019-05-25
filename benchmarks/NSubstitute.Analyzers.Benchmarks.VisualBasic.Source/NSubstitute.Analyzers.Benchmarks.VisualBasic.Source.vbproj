@@ -1,23 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <RootNamespace>NSubstitute.Analyzers.Benchmarks.VisualBasic.Source</RootNamespace>
         <TargetFramework>netstandard1.3</TargetFramework>
     </PropertyGroup>
-
+    
+    <ItemGroup>
+      <AdditionalFiles Include="nsubstitute.json" />
+    </ItemGroup>
+    
     <ItemGroup>
       <PackageReference Include="NSubstitute" Version="4.1.0" />
+      <PackageReference Include="NSubstitute.Analyzers.VisualBasic" Version="1.0.9" />
     </ItemGroup>
-
-    <ItemGroup>
-        <None Remove="nsubstitute.json" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <AdditionalFiles Include="nsubstitute.json" />
-    </ItemGroup>
-
+    
     <ItemGroup>
       <ProjectReference Include="..\NSubstitute.Analyzers.Benchmarks.Shared\NSubstitute.Analyzers.Benchmarks.Shared.csproj" />
     </ItemGroup>
-    
+
 </Project>

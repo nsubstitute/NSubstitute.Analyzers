@@ -1,4 +1,4 @@
-using NSubstitute.Analyzers.Benchmarks.CSharp.Source.Models;
+using NSubstitute.Analyzers.Benchmarks.Shared.Models;
 
 namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
 {
@@ -8,12 +8,12 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
         {
             var substitute = Substitute.For<Foo>();
 
-            substitute.ObjectReturningMethod().Returns(1);
+            substitute.ObjectReturningMethod().Returns((IFoo)null);
             substitute.Property.Returns(1);
             substitute[0].Returns(1);
             1.Returns(1);
 
-            SubstituteExtensions.Returns(substitute.ObjectReturningMethod(), 1);
+            SubstituteExtensions.Returns(substitute.ObjectReturningMethod(), (IFoo)null);
             SubstituteExtensions.Returns(substitute.Property, 1);
             SubstituteExtensions.Returns(substitute[0], 1);
             SubstituteExtensions.Returns(1, 1);
@@ -23,13 +23,13 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
         {
             var substitute = Substitute.For<Foo>();
 
-            substitute.InternalObjectReturningMethod().Returns(1);
-            substitute.InternalObjectReturningProperty.Returns(1);
-            substitute[0, 0, 0].Returns(1);
+            substitute.InternalObjectReturningMethod().Returns((IFoo)null);
+            substitute.InternalObjectReturningProperty.Returns((IFoo)null);
+            substitute[0, 0, 0].Returns((IFoo)null);
 
-            SubstituteExtensions.Returns(substitute.InternalObjectReturningMethod(), 1);
-            SubstituteExtensions.Returns(substitute.InternalObjectReturningProperty, 1);
-            SubstituteExtensions.Returns(substitute[0, 0, 0], 1);
+            SubstituteExtensions.Returns(substitute.InternalObjectReturningMethod(), (IFoo)null);
+            SubstituteExtensions.Returns(substitute.InternalObjectReturningProperty, (IFoo)null);
+            SubstituteExtensions.Returns(substitute[0, 0, 0], (IFoo)null);
         }
     }
 }
