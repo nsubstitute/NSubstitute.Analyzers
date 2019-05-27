@@ -5,8 +5,9 @@ using System.Reflection;
 using BenchmarkDotNet.Attributes;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
-using NSubstitute.Analyzers.Benchmarks.CSharp.Source;
+using Microsoft.CodeAnalysis.CSharp;
 using NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources;
+using NSubstitute.Analyzers.Benchmarks.Shared;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.Benchmarks.CSharp
@@ -17,21 +18,21 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp
     {
         private static readonly Solution Solution;
 
-        private readonly Benchmark _callInfoAnalyzerBenchmark;
+        private readonly AnalyzerBenchmark _callInfoAnalyzerAnalyzerBenchmark;
 
-        private readonly Benchmark _conflictingArgumentAssignmentsAnalyzerBenchmark;
+        private readonly AnalyzerBenchmark _conflictingArgumentAssignmentsAnalyzerAnalyzerBenchmark;
 
-        private readonly Benchmark _nonSubstitutableMemberAnalyzerBenchmark;
+        private readonly AnalyzerBenchmark _nonSubstitutableMemberAnalyzerAnalyzerBenchmark;
 
-        private readonly Benchmark _nonSubstitutableMemberReceivedAnalyzerBenchmark;
+        private readonly AnalyzerBenchmark _nonSubstitutableMemberReceivedAnalyzerAnalyzerBenchmark;
 
-        private readonly Benchmark _nonSubstitutableMemberWhenAnalyzerBenchmark;
+        private readonly AnalyzerBenchmark _nonSubstitutableMemberWhenAnalyzerAnalyzerBenchmark;
 
-        private readonly Benchmark _reEntrantSetupAnalyzerBenchmark;
+        private readonly AnalyzerBenchmark _reEntrantSetupAnalyzerAnalyzerBenchmark;
 
-        private readonly Benchmark _substituteAnalyzerBenchmark;
+        private readonly AnalyzerBenchmark _substituteAnalyzerAnalyzerBenchmark;
 
-        private readonly Benchmark _unusedReceivedAnalyzerBenchmark;
+        private readonly AnalyzerBenchmark _unusedReceivedAnalyzerAnalyzerBenchmark;
 
         static DiagnosticAnalyzersBenchmarks()
         {
@@ -40,10 +41,10 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp
             var metadataReferences = MetadataReferences.Transitive(assembly)
                 .Where(meta => meta.Display.EndsWith(excludedMetaAssemblyName) == false).ToArray();
 
-            var benchmarkSourceProjectPath = GetBenchmarkSourceProjectPath();
-            Solution = CodeFactory.CreateSolution(
-                new FileInfo(benchmarkSourceProjectPath),
-                metadataReferences);
+            var benchmarkSourceProjectPath = GetBenchmarkSourceProjectDirectoryPath();
+
+            var loader = new SolutionLoader();
+            Solution = loader.CreateSolution(benchmarkSourceProjectPath, metadataReferences);
 
             var projectGraph = Solution.GetProjectDependencyGraph();
             foreach (var projectId in projectGraph.GetTopologicallySortedProjects())
@@ -62,73 +63,72 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp
 
         public DiagnosticAnalyzersBenchmarks()
         {
-            _callInfoAnalyzerBenchmark = Benchmark.Create(Solution, new CallInfoAnalyzer());
-            _conflictingArgumentAssignmentsAnalyzerBenchmark = Benchmark.Create(Solution, new ConflictingArgumentAssignmentsAnalyzer());
-            _nonSubstitutableMemberAnalyzerBenchmark = Benchmark.Create(Solution, new NonSubstitutableMemberAnalyzer());
-            _nonSubstitutableMemberReceivedAnalyzerBenchmark = Benchmark.Create(Solution, new NonSubstitutableMemberReceivedAnalyzer());
-            _nonSubstitutableMemberWhenAnalyzerBenchmark = Benchmark.Create(Solution, new NonSubstitutableMemberWhenAnalyzer());
-            _reEntrantSetupAnalyzerBenchmark = Benchmark.Create(Solution, new ReEntrantSetupAnalyzer());
-            _substituteAnalyzerBenchmark = Benchmark.Create(Solution, new SubstituteAnalyzer());
-            _unusedReceivedAnalyzerBenchmark = Benchmark.Create(Solution, new UnusedReceivedAnalyzer());
+            _callInfoAnalyzerAnalyzerBenchmark = AnalyzerBenchmark.CreateCSharpBenchmark(Solution, new CallInfoAnalyzer());
+            _conflictingArgumentAssignmentsAnalyzerAnalyzerBenchmark = AnalyzerBenchmark.CreateCSharpBenchmark(Solution, new ConflictingArgumentAssignmentsAnalyzer());
+            _nonSubstitutableMemberAnalyzerAnalyzerBenchmark = AnalyzerBenchmark.CreateCSharpBenchmark(Solution, new NonSubstitutableMemberAnalyzer());
+            _nonSubstitutableMemberReceivedAnalyzerAnalyzerBenchmark = AnalyzerBenchmark.CreateCSharpBenchmark(Solution, new NonSubstitutableMemberReceivedAnalyzer());
+            _nonSubstitutableMemberWhenAnalyzerAnalyzerBenchmark = AnalyzerBenchmark.CreateCSharpBenchmark(Solution, new NonSubstitutableMemberWhenAnalyzer());
+            _reEntrantSetupAnalyzerAnalyzerBenchmark = AnalyzerBenchmark.CreateCSharpBenchmark(Solution, new ReEntrantSetupAnalyzer());
+            _substituteAnalyzerAnalyzerBenchmark = AnalyzerBenchmark.CreateCSharpBenchmark(Solution, new SubstituteAnalyzer());
+            _unusedReceivedAnalyzerAnalyzerBenchmark = AnalyzerBenchmark.CreateCSharpBenchmark(Solution, new UnusedReceivedAnalyzer());
         }
 
         [Benchmark]
         public void CallInfoAnalyzer()
         {
-            _callInfoAnalyzerBenchmark.Run();
+            _callInfoAnalyzerAnalyzerBenchmark.Run();
         }
 
         [Benchmark]
         public void ConflictingArgumentAssignmentsAnalyzer()
         {
-            _conflictingArgumentAssignmentsAnalyzerBenchmark.Run();
+            _conflictingArgumentAssignmentsAnalyzerAnalyzerBenchmark.Run();
         }
 
         [Benchmark]
         public void NonSubstitutableMemberAnalyzer()
         {
-            _nonSubstitutableMemberAnalyzerBenchmark.Run();
+            _nonSubstitutableMemberAnalyzerAnalyzerBenchmark.Run();
         }
 
         [Benchmark]
         public void NonSubstitutableMemberReceivedAnalyzer()
         {
-            _nonSubstitutableMemberReceivedAnalyzerBenchmark.Run();
+            _nonSubstitutableMemberReceivedAnalyzerAnalyzerBenchmark.Run();
         }
 
         [Benchmark]
         public void NonSubstitutableMemberWhenAnalyzer()
         {
-            _nonSubstitutableMemberWhenAnalyzerBenchmark.Run();
+            _nonSubstitutableMemberWhenAnalyzerAnalyzerBenchmark.Run();
         }
 
         [Benchmark]
         public void ReEntrantSetupAnalyzer()
         {
-            _reEntrantSetupAnalyzerBenchmark.Run();
+            _reEntrantSetupAnalyzerAnalyzerBenchmark.Run();
         }
 
         [Benchmark]
         public void SubstituteAnalyzer()
         {
-            _substituteAnalyzerBenchmark.Run();
+            _substituteAnalyzerAnalyzerBenchmark.Run();
         }
 
         [Benchmark]
         public void UnusedReceivedAnalyzer()
         {
-            _unusedReceivedAnalyzerBenchmark.Run();
+            _unusedReceivedAnalyzerAnalyzerBenchmark.Run();
         }
 
-        private static string GetBenchmarkSourceProjectPath()
+        private static string GetBenchmarkSourceProjectDirectoryPath()
         {
             var rootDirectory = FindRootDirectory();
 
             return Path.Combine(
                 rootDirectory,
                 "benchmarks",
-                "NSubstitute.Analyzers.Benchmarks.CSharp.Source",
-                "NSubstitute.Analyzers.Benchmarks.CSharp.Source.csproj");
+                "NSubstitute.Analyzers.Benchmarks.CSharp.Source");
         }
 
         private static string FindRootDirectory()
@@ -152,6 +152,43 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp
             while (directoryInfo != null);
 
             throw new InvalidOperationException("Could not find root directory for NSubstitute.Analyzers");
+        }
+
+        private static Solution CreateSolution(string projrectDirectory, MetadataReference[] metadataReferences)
+        {
+            using (var adhocWorkspace = new AdhocWorkspace())
+            {
+                var projectId = ProjectId.CreateNewId();
+                var solution = adhocWorkspace
+                    .CurrentSolution
+                    .AddProject(projectId, "AnalyzerBenchmark", "AnalyzerBenchmark", LanguageNames.CSharp);
+
+                foreach (var file in Directory.EnumerateFiles(projrectDirectory, "*.*", SearchOption.TopDirectoryOnly))
+                {
+                    switch (Path.GetExtension(file))
+                    {
+                        case ".json":
+                            solution = solution.AddAdditionalDocument(DocumentId.CreateNewId(projectId),
+                                Path.GetFileName(file), File.ReadAllText(file));
+                            break;
+                        case ".cs":
+                            solution = solution.AddDocument(DocumentId.CreateNewId(projectId), Path.GetFileName(file), File.ReadAllText(file));
+                            break;
+                    }
+                }
+                
+                /*
+                var settings = GetSettings();
+                if (!string.IsNullOrEmpty(settings))
+                {
+                    var documentId = DocumentId.CreateNewId(projectId);
+                    solution = solution.AddAdditionalDocument(documentId, AnalyzersSettings.AnalyzerFileName, settings);
+                }
+                */
+
+                return solution.AddMetadataReferences(projectId, metadataReferences)
+                    .WithProjectCompilationOptions(projectId, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            }
         }
     }
 }

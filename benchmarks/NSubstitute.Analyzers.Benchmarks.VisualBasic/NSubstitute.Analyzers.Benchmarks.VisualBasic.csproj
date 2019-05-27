@@ -11,11 +11,13 @@
         <PackageReference Include="BenchmarkDotNet" Version="0.11.1" />
         <PackageReference Include="Gu.Roslyn.Asserts" Version="2.6.3" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.8.2" />
+        <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Workspaces" Version="2.8.2" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\NSubstitute.Analyzers.Shared\NSubstitute.Analyzers.Shared.csproj" />
       <ProjectReference Include="..\..\src\NSubstitute.Analyzers.VisualBasic\NSubstitute.Analyzers.VisualBasic.csproj" />
+      <ProjectReference Include="..\NSubstitute.Analyzers.Benchmarks.Shared\NSubstitute.Analyzers.Benchmarks.Shared.csproj" />
       <ProjectReference Include="..\NSubstitute.Analyzers.Benchmarks.VisualBasic.Source\NSubstitute.Analyzers.Benchmarks.VisualBasic.Source.vbproj" />
     </ItemGroup>
 

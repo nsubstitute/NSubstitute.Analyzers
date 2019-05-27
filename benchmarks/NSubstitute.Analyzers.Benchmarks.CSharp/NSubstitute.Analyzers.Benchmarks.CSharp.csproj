@@ -17,6 +17,7 @@
       <ProjectReference Include="..\..\src\NSubstitute.Analyzers.CSharp\NSubstitute.Analyzers.CSharp.csproj" />
       <ProjectReference Include="..\..\src\NSubstitute.Analyzers.Shared\NSubstitute.Analyzers.Shared.csproj" />
       <ProjectReference Include="..\NSubstitute.Analyzers.Benchmarks.CSharp.Source\NSubstitute.Analyzers.Benchmarks.CSharp.Source.csproj" />
+      <ProjectReference Include="..\NSubstitute.Analyzers.Benchmarks.Shared\NSubstitute.Analyzers.Benchmarks.Shared.csproj" />
     </ItemGroup>
 
     <ItemGroup>

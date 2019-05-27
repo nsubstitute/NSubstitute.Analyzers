@@ -1,7 +1,6 @@
-using System.Dynamic;
 using NSubstitute.Core;
 
-namespace NSubstitute.Analyzers.Benchmarks.Shared.Models
+namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.Models
 {
     public interface IFoo
     {

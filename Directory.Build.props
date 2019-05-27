@@ -7,6 +7,6 @@
         <AdditionalFiles Include="../../StyleCop.json" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta009" PrivateAssets="all" />
+<!--        <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta009" PrivateAssets="all" />-->
     </ItemGroup>
 </Project>

@@ -40,9 +40,7 @@ namespace NSubstitute.Analyzers.Benchmarks.VisualBasic
                 .Where(meta => meta.Display.EndsWith(excludedMetaAssemblyName) == false).ToArray();
 
             var benchmarkSourceProjectPath = GetBenchmarkSourceProjectPath();
-            Solution = CodeFactory.CreateSolution(
-                new FileInfo(benchmarkSourceProjectPath),
-                metadataReferences);
+            Solution = new SolutionLoader().CreateSolution(benchmarkSourceProjectPath, metadataReferences);
 
             var projectGraph = Solution.GetProjectDependencyGraph();
             foreach (var projectId in projectGraph.GetTopologicallySortedProjects())
@@ -126,8 +124,7 @@ namespace NSubstitute.Analyzers.Benchmarks.VisualBasic
             return Path.Combine(
                 rootDirectory,
                 "benchmarks",
-                "NSubstitute.Analyzers.Benchmarks.CSharp.Source",
-                "NSubstitute.Analyzers.Benchmarks.CSharp.Source.csproj");
+                "NSubstitute.Analyzers.Benchmarks.VisualBasic.Source");
         }
 
         private static string FindRootDirectory()

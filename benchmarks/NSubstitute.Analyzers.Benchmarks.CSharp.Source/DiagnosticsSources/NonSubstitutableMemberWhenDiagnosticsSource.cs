@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using NSubstitute.Analyzers.Benchmarks.Shared.Models;
+using NSubstitute.Analyzers.Benchmarks.CSharp.Source.Models;
 
 namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
 {

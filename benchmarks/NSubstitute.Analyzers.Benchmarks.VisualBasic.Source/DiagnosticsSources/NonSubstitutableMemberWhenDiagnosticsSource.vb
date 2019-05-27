@@ -1,5 +1,5 @@
 Imports System.Threading.Tasks
-Imports NSubstitute.Analyzers.Benchmarks.Shared.Models
+Imports NSubstitute.Analyzers.Benchmarks.VisualBasic.Source.Models
 
 Namespace DiagnosticsSources
     Public Class NonSubstitutableMemberWhenDiagnosticsSource

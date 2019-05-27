@@ -15,9 +15,5 @@
     <ItemGroup>
         <AdditionalFiles Include="nsubstitute.json" />
     </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\NSubstitute.Analyzers.Benchmarks.Shared\NSubstitute.Analyzers.Benchmarks.Shared.csproj" />
-    </ItemGroup>
     
 </Project>
