@@ -18,12 +18,13 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
         
         public Solution CreateSolution(string projectDirectory, MetadataReference[] metadataReferences)
         {
+            var projectName = Path.GetFileName(projectDirectory);
             using (var adhocWorkspace = new AdhocWorkspace())
             {
                 var projectId = ProjectId.CreateNewId();
                 var solution = adhocWorkspace
                     .CurrentSolution
-                    .AddProject(projectId, "AnalyzerBenchmark", "AnalyzerBenchmark", Language);
+                    .AddProject(projectId, projectName, projectName, Language);
 
                 foreach (var fileInfo in GetFiles(projectDirectory).Where(fileInfo => fileInfo.Extension != ProjectFileExtension))
                 {
@@ -39,7 +40,7 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
                 }
                 
                 return solution.AddMetadataReferences(projectId, metadataReferences)
-                    .WithProjectCompilationOptions(projectId, GetCompilationOptions());
+                    .WithProjectCompilationOptions(projectId, GetCompilationOptions(projectName));
             }
         }
 
@@ -63,6 +64,6 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
             }
         }
         
-        protected abstract CompilationOptions GetCompilationOptions();
+        protected abstract CompilationOptions GetCompilationOptions(string rootNamespace);
     }
 }

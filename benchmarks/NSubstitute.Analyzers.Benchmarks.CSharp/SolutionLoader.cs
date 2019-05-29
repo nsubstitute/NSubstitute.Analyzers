@@ -12,7 +12,7 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp
         
         protected override string Language { get; } = LanguageNames.CSharp;
         
-        protected override CompilationOptions GetCompilationOptions()
+        protected override CompilationOptions GetCompilationOptions(string rootNamespace)
         {
             return new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
         }

@@ -12,9 +12,9 @@ namespace NSubstitute.Analyzers.Benchmarks.VisualBasic
         
         protected override string Language { get; } = LanguageNames.VisualBasic;
         
-        protected override CompilationOptions GetCompilationOptions()
+        protected override CompilationOptions GetCompilationOptions(string rootNamespace)
         {
-            return new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
+            return new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary, rootNamespace: rootNamespace, embedVbCoreRuntime: true);
         }
     }
 }
