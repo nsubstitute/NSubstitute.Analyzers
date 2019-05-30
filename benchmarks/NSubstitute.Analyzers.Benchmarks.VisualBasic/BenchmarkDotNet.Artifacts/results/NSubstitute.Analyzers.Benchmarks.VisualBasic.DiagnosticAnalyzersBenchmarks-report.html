@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>NSubstitute.Analyzers.Benchmarks.VisualBasic.DiagnosticAnalyzersBenchmarks-20190531-120231</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.11.5, OS=ubuntu 18.04
+Intel Core i7-7700HQ CPU 2.80GHz (Kaby Lake), 1 CPU, 8 logical and 4 physical cores
+.NET Core SDK=2.2.203
+  [Host] : .NET Core 2.1.10 (CoreCLR 4.6.27514.02, CoreFX 4.6.27514.02), 64bit RyuJIT
+  Core   : .NET Core 2.1.10 (CoreCLR 4.6.27514.02, CoreFX 4.6.27514.02), 64bit RyuJIT
+</code></pre>
+<pre><code>Job=Core  Runtime=Core  
+</code></pre>
+
+<table>
+<thead><tr><th>                          Method</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Gen 0</th><th>Gen 1</th><th>Gen 2</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>CallInfoAnalyzer</td><td>3.798 ms</td><td>0.0778 ms</td><td>0.1879 ms</td><td>218.7500</td><td>11.7188</td><td>-</td><td>673.15 KB</td>
+</tr><tr><td>ConflictingArgumentAssignmentsAnalyzer</td><td>1.201 ms</td><td>0.0094 ms</td><td>0.0088 ms</td><td>21.4844</td><td>1.9531</td><td>-</td><td>69.15 KB</td>
+</tr><tr><td>NonSubstitutableMemberAnalyzer</td><td>1.944 ms</td><td>0.0153 ms</td><td>0.0135 ms</td><td>35.1563</td><td>7.8125</td><td>-</td><td>108.01 KB</td>
+</tr><tr><td>NonSubstitutableMemberReceivedAnalyzer</td><td>1.245 ms</td><td>0.0093 ms</td><td>0.0077 ms</td><td>13.6719</td><td>1.9531</td><td>-</td><td>47.46 KB</td>
+</tr><tr><td>NonSubstitutableMemberWhenAnalyzer</td><td>1.498 ms</td><td>0.0114 ms</td><td>0.0101 ms</td><td>25.3906</td><td>5.8594</td><td>-</td><td>81.98 KB</td>
+</tr><tr><td>ReEntrantSetupAnalyzer</td><td>51.968 ms</td><td>0.2944 ms</td><td>0.2610 ms</td><td>3700.0000</td><td>-</td><td>-</td><td>11375.53 KB</td>
+</tr><tr><td>SubstituteAnalyzer</td><td>3.953 ms</td><td>0.0778 ms</td><td>0.0896 ms</td><td>105.4688</td><td>23.4375</td><td>-</td><td>393.13 KB</td>
+</tr><tr><td>UnusedReceivedAnalyzer</td><td>1.139 ms</td><td>0.0276 ms</td><td>0.0422 ms</td><td>13.6719</td><td>1.9531</td><td>-</td><td>43.3 KB</td>
+</tr></tbody></table>
+</body>
+</html>

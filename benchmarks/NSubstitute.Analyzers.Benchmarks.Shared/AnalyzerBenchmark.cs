@@ -9,9 +9,6 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace NSubstitute.Analyzers.Benchmarks.Shared
 {
-    /// <summary>
-    /// A benchmark runner for a <see cref="DiagnosticAnalyzer"/>.
-    /// </summary>
     public class AnalyzerBenchmark
     {
         private AnalyzerBenchmark(
@@ -28,101 +25,53 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
             IReadOnlyList<ContextAndAction<OperationBlockAnalysisContext>> operationBlockActions,
             IReadOnlyList<ContextAndAction<OperationBlockStartAnalysisContext>> operationBlockStartActions)
         {
-            this.Analyzer = analyzer;
-            this.SyntaxNodeActions = syntaxNodeActions;
-            this.CompilationStartActions = compilationStartActions;
-            this.CompilationActions = compilationActions;
-            this.SemanticModelActions = semanticModelActions;
-            this.SymbolActions = symbolActions;
-            this.CodeBlockStartActions = codeBlockStartActions;
-            this.CodeBlockActions = codeBlockActions;
-            this.SyntaxTreeActions = syntaxTreeActions;
-            this.OperationActions = operationActions;
-            this.OperationBlockActions = operationBlockActions;
-            this.OperationBlockStartActions = operationBlockStartActions;
+            Analyzer = analyzer;
+            SyntaxNodeActions = syntaxNodeActions;
+            CompilationStartActions = compilationStartActions;
+            CompilationActions = compilationActions;
+            SemanticModelActions = semanticModelActions;
+            SymbolActions = symbolActions;
+            CodeBlockStartActions = codeBlockStartActions;
+            CodeBlockActions = codeBlockActions;
+            SyntaxTreeActions = syntaxTreeActions;
+            OperationActions = operationActions;
+            OperationBlockActions = operationBlockActions;
+            OperationBlockStartActions = operationBlockStartActions;
         }
-
-        /// <summary>
-        /// A context and corresponding action recorded for the analyzer.
-        /// </summary>
+        
         public interface IContextAndAction
         {
-            /// <summary>
-            /// Calls this.Action(this.Context);.
-            /// </summary>
             void Run();
         }
-
-        /// <summary>
-        /// Gets the analyzer to run benchmarks for.
-        /// </summary>
+        
         public DiagnosticAnalyzer Analyzer { get; }
-
-        /// <summary>
-        /// Gets the <see cref="SyntaxNodeAnalysisContext"/> to invoke actions registered by the analyzer on.
-        /// </summary>
+        
         public IReadOnlyList<ContextAndAction<SyntaxNodeAnalysisContext>> SyntaxNodeActions { get; }
-
-        /// <summary>
-        /// Gets the <see cref="CompilationStartAnalysisContext"/> to invoke actions registered by the analyzer on.
-        /// </summary>
+        
         public IReadOnlyList<ContextAndAction<CompilationStartAnalysisContext>> CompilationStartActions { get; }
-
-        /// <summary>
-        /// Gets the <see cref="CompilationAnalysisContext"/> to invoke actions registered by the analyzer on.
-        /// </summary>
+        
         public IReadOnlyList<ContextAndAction<CompilationAnalysisContext>> CompilationActions { get; }
-
-        /// <summary>
-        /// Gets the <see cref="SemanticModelAnalysisContext"/> to invoke actions registered by the analyzer on.
-        /// </summary>
+        
         public IReadOnlyList<ContextAndAction<SemanticModelAnalysisContext>> SemanticModelActions { get; }
-
-        /// <summary>
-        /// Gets the <see cref="SymbolAnalysisContext"/> to invoke actions registered by the analyzer on.
-        /// </summary>
+        
         public IReadOnlyList<ContextAndAction<SymbolAnalysisContext>> SymbolActions { get; }
-
-        /// <summary>
-        /// Gets the <see cref="CodeBlockStartAnalysisContext{TLanguageKindEnum}"/> to invoke actions registered by the analyzer on.
-        /// </summary>
+        
         public IReadOnlyList<IContextAndAction> CodeBlockStartActions { get; }
-
-        /// <summary>
-        /// Gets the <see cref="CodeBlockAnalysisContext"/> to invoke actions registered by the analyzer on.
-        /// </summary>
+        
         public IReadOnlyList<ContextAndAction<CodeBlockAnalysisContext>> CodeBlockActions { get; }
-
-        /// <summary>
-        /// Gets the <see cref="SyntaxTreeAnalysisContext"/> to invoke actions registered by the analyzer on.
-        /// </summary>
+        
         public IReadOnlyList<ContextAndAction<SyntaxTreeAnalysisContext>> SyntaxTreeActions { get; }
-
-        /// <summary>
-        /// Gets the <see cref="OperationAnalysisContext"/> to invoke actions registered by the analyzer on.
-        /// </summary>
+        
         public IReadOnlyList<ContextAndAction<OperationAnalysisContext>> OperationActions { get; }
-
-        /// <summary>
-        /// Gets the <see cref="OperationBlockAnalysisContext"/> to invoke actions registered by the analyzer on.
-        /// </summary>
+        
         public IReadOnlyList<ContextAndAction<OperationBlockAnalysisContext>> OperationBlockActions { get; }
-
-        /// <summary>
-        /// Gets the <see cref="OperationBlockStartAnalysisContext"/> to invoke actions registered by the analyzer on.
-        /// </summary>
+        
         public IReadOnlyList<ContextAndAction<OperationBlockStartAnalysisContext>> OperationBlockStartActions { get; }
-
-        /// <summary>
-        /// Creates a new instance of the <see cref="AnalyzerBenchmark"/> class.
-        /// </summary>
+        
         public static AnalyzerBenchmark CreateCSharpBenchmark(Solution solution, DiagnosticAnalyzer analyzer) => CreateCSharpBenchmarkAsync(solution, analyzer).GetAwaiter().GetResult();
         
         public static AnalyzerBenchmark CreateVisualBasicBenchmark(Solution solution, DiagnosticAnalyzer analyzer) => CreateVisualBasicBenchmarkAsync(solution, analyzer).GetAwaiter().GetResult();
         
-        /// <summary>
-        /// Creates a new instance of the <see cref="AnalyzerBenchmark"/> class.
-        /// </summary>
         public static async Task<AnalyzerBenchmark> CreateCSharpBenchmarkAsync(Solution solution, DiagnosticAnalyzer analyzer)
         {
             var benchmarkAnalyzer = new CombinedBenchmarkAnalyzer(analyzer);
@@ -141,11 +90,7 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
                 benchmarkAnalyzer.OperationBlockActions,
                 benchmarkAnalyzer.OperationBlockStartActions);
         }
-
         
-        /// <summary>
-        /// Creates a new instance of the <see cref="AnalyzerBenchmark"/> class.
-        /// </summary>
         public static async Task<AnalyzerBenchmark> CreateVisualBasicBenchmarkAsync(Solution solution, DiagnosticAnalyzer analyzer)
         {
             var benchmarkAnalyzer = new CombinedBenchmarkAnalyzer(analyzer);
@@ -165,74 +110,64 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
                 benchmarkAnalyzer.OperationBlockStartActions);
         }
         
-        /// <summary>
-        /// Run the benchmark.
-        /// This invokes all actions recorded for <see cref="Analyzer"/>.
-        /// </summary>
         public void Run()
         {
-            foreach (var contextAndAction in this.SyntaxNodeActions)
+            foreach (var contextAndAction in SyntaxNodeActions)
             {
                 contextAndAction.Run();
             }
 
-            foreach (var contextAndAction in this.CompilationStartActions)
+            foreach (var contextAndAction in CompilationStartActions)
             {
                 contextAndAction.Run();
             }
 
-            foreach (var contextAndAction in this.CompilationActions)
+            foreach (var contextAndAction in CompilationActions)
             {
                 contextAndAction.Run();
             }
 
-            foreach (var contextAndAction in this.SemanticModelActions)
+            foreach (var contextAndAction in SemanticModelActions)
             {
                 contextAndAction.Run();
             }
 
-            foreach (var contextAndAction in this.SymbolActions)
+            foreach (var contextAndAction in SymbolActions)
             {
                 contextAndAction.Run();
             }
 
-            foreach (var contextAndAction in this.CodeBlockStartActions)
+            foreach (var contextAndAction in CodeBlockStartActions)
             {
                 contextAndAction.Run();
             }
 
-            foreach (var contextAndAction in this.CodeBlockActions)
+            foreach (var contextAndAction in CodeBlockActions)
             {
                 contextAndAction.Run();
             }
 
-            foreach (var contextAndAction in this.SyntaxTreeActions)
+            foreach (var contextAndAction in SyntaxTreeActions)
             {
                 contextAndAction.Run();
             }
 
-            foreach (var contextAndAction in this.OperationActions)
+            foreach (var contextAndAction in OperationActions)
             {
                 contextAndAction.Run();
             }
 
-            foreach (var contextAndAction in this.OperationBlockActions)
+            foreach (var contextAndAction in OperationBlockActions)
             {
                 contextAndAction.Run();
             }
 
-            foreach (var contextAndAction in this.OperationBlockStartActions)
+            foreach (var contextAndAction in OperationBlockStartActions)
             {
                 contextAndAction.Run();
             }
         }
 
-        /// <summary>
-        /// Creates a solution, compiles it and returns the diagnostics.
-        /// </summary>
-        /// <param name="solution">The solution.</param>
-        /// <param name="analyzer">The analyzer.</param>
-        /// <returns>A list with diagnostics per document.</returns>
         public static async Task<IReadOnlyList<ImmutableArray<Diagnostic>>> GetDiagnosticsAsync(Solution solution, DiagnosticAnalyzer analyzer)
         {
             var results = new List<ImmutableArray<Diagnostic>>();
@@ -251,89 +186,63 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
 
             return results;
         }
-
-
-        /// <inheritdoc/>
-        public override string ToString()
-        {
-            return $"{nameof(this.Analyzer)}: {this.Analyzer.GetType().Name}";
-        }
-
-        /// <summary>
-        /// An instance where the analyzer registered and action.
-        /// </summary>
-        /// <typeparam name="TContext">The type of the analysis context.</typeparam>
-        [DebuggerDisplay("{Context}")]
+        
         public class ContextAndAction<TContext> : IContextAndAction
         {
-            /// <summary>
-            /// Initializes a new instance of the <see cref="ContextAndAction{T}"/> class.
-            /// </summary>
             public ContextAndAction(TContext context, Action<TContext> action)
             {
-                this.Context = context;
-                this.Action = action;
+                Context = context;
+                Action = action;
             }
 
-            /// <summary>
-            /// Gets the <see cref="SyntaxNodeAnalysisContext"/> to pass in when invoking <see cref="Action"/>.
-            /// </summary>
             public TContext Context { get; }
 
-            /// <summary>
-            /// Gets the action registered for <see cref="Context"/> by BenchmarkAnalysisContext.RegisterSyntaxNodeAction(action, syntaxKinds)"/>.
-            /// </summary>
             public Action<TContext> Action { get; }
 
-            /// <summary>
-            /// Calls this.Action(this.Context);.
-            /// </summary>
             public void Run()
             {
-                this.Action(this.Context);
+                Action(Context);
             }
         }
 
         private abstract class AbstractBenchmarkAnalyzer : DiagnosticAnalyzer
         {
-#pragma warning disable SA1401 // Fields must be private
-            internal readonly List<ContextAndAction<SyntaxNodeAnalysisContext>> SyntaxNodeActions = new List<ContextAndAction<SyntaxNodeAnalysisContext>>();
-            internal readonly List<ContextAndAction<CompilationStartAnalysisContext>> CompilationStartActions = new List<ContextAndAction<CompilationStartAnalysisContext>>();
-            internal readonly List<ContextAndAction<CompilationAnalysisContext>> CompilationActions = new List<ContextAndAction<CompilationAnalysisContext>>();
-            internal readonly List<ContextAndAction<SemanticModelAnalysisContext>> SemanticModelActions = new List<ContextAndAction<SemanticModelAnalysisContext>>();
-            internal readonly List<ContextAndAction<SymbolAnalysisContext>> SymbolActions = new List<ContextAndAction<SymbolAnalysisContext>>();
-            internal readonly List<IContextAndAction> CodeBlockStartActions = new List<IContextAndAction>();
-            internal readonly List<ContextAndAction<CodeBlockAnalysisContext>> CodeBlockActions = new List<ContextAndAction<CodeBlockAnalysisContext>>();
-            internal readonly List<ContextAndAction<SyntaxTreeAnalysisContext>> SyntaxTreeActions = new List<ContextAndAction<SyntaxTreeAnalysisContext>>();
-            internal readonly List<ContextAndAction<OperationAnalysisContext>> OperationActions = new List<ContextAndAction<OperationAnalysisContext>>();
-            internal readonly List<ContextAndAction<OperationBlockAnalysisContext>> OperationBlockActions = new List<ContextAndAction<OperationBlockAnalysisContext>>();
-            internal readonly List<ContextAndAction<OperationBlockStartAnalysisContext>> OperationBlockStartActions = new List<ContextAndAction<OperationBlockStartAnalysisContext>>();
-#pragma warning restore SA1401 // Fields must be private
+            internal List<ContextAndAction<SyntaxNodeAnalysisContext>> SyntaxNodeActions { get; } = new List<ContextAndAction<SyntaxNodeAnalysisContext>>();
+            internal List<ContextAndAction<CompilationStartAnalysisContext>> CompilationStartActions { get; } = new List<ContextAndAction<CompilationStartAnalysisContext>>();
+            internal List<ContextAndAction<CompilationAnalysisContext>> CompilationActions { get; } = new List<ContextAndAction<CompilationAnalysisContext>>();
+            internal List<ContextAndAction<SemanticModelAnalysisContext>> SemanticModelActions { get; } = new List<ContextAndAction<SemanticModelAnalysisContext>>();
+            internal List<ContextAndAction<SymbolAnalysisContext>> SymbolActions { get; } = new List<ContextAndAction<SymbolAnalysisContext>>();
+            internal List<IContextAndAction> CodeBlockStartActions { get; } = new List<IContextAndAction>();
+            internal List<ContextAndAction<CodeBlockAnalysisContext>> CodeBlockActions { get; } = new List<ContextAndAction<CodeBlockAnalysisContext>>();
+            internal List<ContextAndAction<SyntaxTreeAnalysisContext>> SyntaxTreeActions { get; } = new List<ContextAndAction<SyntaxTreeAnalysisContext>>();
+            internal List<ContextAndAction<OperationAnalysisContext>> OperationActions { get; } = new List<ContextAndAction<OperationAnalysisContext>>();
+            internal List<ContextAndAction<OperationBlockAnalysisContext>> OperationBlockActions { get; } = new List<ContextAndAction<OperationBlockAnalysisContext>>();
+            internal List<ContextAndAction<OperationBlockStartAnalysisContext>> OperationBlockStartActions { get; } = new List<ContextAndAction<OperationBlockStartAnalysisContext>>();
 
-            private readonly DiagnosticAnalyzer inner;
+            private readonly DiagnosticAnalyzer _inner;
 
-            public AbstractBenchmarkAnalyzer(DiagnosticAnalyzer inner)
+            protected AbstractBenchmarkAnalyzer(DiagnosticAnalyzer inner)
             {
-                this.inner = inner;
+                _inner = inner;
             }
 
-            public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => this.inner.SupportedDiagnostics;
+            public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => _inner.SupportedDiagnostics;
 
             public override void Initialize(AnalysisContext context)
             {
                 var benchmarkContext = new BenchmarkAnalysisContext(this, context);
-                this.inner.Initialize(benchmarkContext);
+                _inner.Initialize(benchmarkContext);
             }
 
             private class BenchmarkAnalysisContext : AnalysisContext
             {
-                private readonly AbstractBenchmarkAnalyzer analyzer;
-                private readonly AnalysisContext context;
+                private readonly AbstractBenchmarkAnalyzer _analyzer;
+                private readonly AnalysisContext _context;
 
                 public BenchmarkAnalysisContext(AbstractBenchmarkAnalyzer analyzer, AnalysisContext context)
                 {
-                    this.analyzer = analyzer;
-                    this.context = context;
+                    _analyzer = analyzer;
+                    _context = context;
                 }
 
                 public override void EnableConcurrentExecution()
@@ -346,71 +255,71 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
 
                 public override void RegisterSyntaxNodeAction<TLanguageKindEnum>(Action<SyntaxNodeAnalysisContext> action, ImmutableArray<TLanguageKindEnum> syntaxKinds)
                 {
-                    this.context.RegisterSyntaxNodeAction(
-                        x => this.analyzer.SyntaxNodeActions.Add(new ContextAndAction<SyntaxNodeAnalysisContext>(x, action)),
+                    _context.RegisterSyntaxNodeAction(
+                        x => _analyzer.SyntaxNodeActions.Add(new ContextAndAction<SyntaxNodeAnalysisContext>(x, action)),
                         syntaxKinds);
                 }
 
                 public override void RegisterCompilationStartAction(Action<CompilationStartAnalysisContext> action)
                 {
-                    this.context.RegisterCompilationStartAction(
-                        x => this.analyzer.CompilationStartActions.Add(new ContextAndAction<CompilationStartAnalysisContext>(x, action)));
+                    _context.RegisterCompilationStartAction(
+                        x => _analyzer.CompilationStartActions.Add(new ContextAndAction<CompilationStartAnalysisContext>(x, action)));
                 }
 
                 public override void RegisterCompilationAction(Action<CompilationAnalysisContext> action)
                 {
-                    this.context.RegisterCompilationAction(
-                        x => this.analyzer.CompilationActions.Add(new ContextAndAction<CompilationAnalysisContext>(x, action)));
+                    _context.RegisterCompilationAction(
+                        x => _analyzer.CompilationActions.Add(new ContextAndAction<CompilationAnalysisContext>(x, action)));
                 }
 
                 public override void RegisterSemanticModelAction(Action<SemanticModelAnalysisContext> action)
                 {
-                    this.context.RegisterSemanticModelAction(
-                        x => this.analyzer.SemanticModelActions.Add(new ContextAndAction<SemanticModelAnalysisContext>(x, action)));
+                    _context.RegisterSemanticModelAction(
+                        x => _analyzer.SemanticModelActions.Add(new ContextAndAction<SemanticModelAnalysisContext>(x, action)));
                 }
 
                 public override void RegisterSymbolAction(Action<SymbolAnalysisContext> action, ImmutableArray<SymbolKind> symbolKinds)
                 {
-                    this.context.RegisterSymbolAction(
-                        x => this.analyzer.SymbolActions.Add(new ContextAndAction<SymbolAnalysisContext>(x, action)),
+                    _context.RegisterSymbolAction(
+                        x => _analyzer.SymbolActions.Add(new ContextAndAction<SymbolAnalysisContext>(x, action)),
                         symbolKinds);
                 }
 
                 public override void RegisterCodeBlockStartAction<TLanguageKindEnum>(Action<CodeBlockStartAnalysisContext<TLanguageKindEnum>> action)
                 {
-                    this.context.RegisterCodeBlockStartAction<TLanguageKindEnum>(
-                        x => this.analyzer.CodeBlockStartActions.Add(new ContextAndAction<CodeBlockStartAnalysisContext<TLanguageKindEnum>>(x, action)));
+                    _context.RegisterCodeBlockStartAction<TLanguageKindEnum>(
+                        x => _analyzer.CodeBlockStartActions.Add(new ContextAndAction<CodeBlockStartAnalysisContext<TLanguageKindEnum>>(x, action)));
                 }
 
                 public override void RegisterCodeBlockAction(Action<CodeBlockAnalysisContext> action)
                 {
-                    this.context.RegisterCodeBlockAction(
-                        x => this.analyzer.CodeBlockActions.Add(new ContextAndAction<CodeBlockAnalysisContext>(x, action)));
+                    _context.RegisterCodeBlockAction(
+                        x => _analyzer.CodeBlockActions.Add(new ContextAndAction<CodeBlockAnalysisContext>(x, action)));
                 }
 
                 public override void RegisterSyntaxTreeAction(Action<SyntaxTreeAnalysisContext> action)
                 {
-                    this.context.RegisterSyntaxTreeAction(
-                        x => this.analyzer.SyntaxTreeActions.Add(new ContextAndAction<SyntaxTreeAnalysisContext>(x, action)));
+                    _context.RegisterSyntaxTreeAction(
+                        x => _analyzer.SyntaxTreeActions.Add(new ContextAndAction<SyntaxTreeAnalysisContext>(x, action)));
                 }
 
                 public override void RegisterOperationAction(Action<OperationAnalysisContext> action, ImmutableArray<OperationKind> operationKinds)
                 {
-                    this.context.RegisterOperationAction(
-                        x => this.analyzer.OperationActions.Add(new ContextAndAction<OperationAnalysisContext>(x, action)),
+                    _context.RegisterOperationAction(
+                        x => _analyzer.OperationActions.Add(new ContextAndAction<OperationAnalysisContext>(x, action)),
                         operationKinds);
                 }
 
                 public override void RegisterOperationBlockAction(Action<OperationBlockAnalysisContext> action)
                 {
-                    this.context.RegisterOperationBlockAction(
-                        x => this.analyzer.OperationBlockActions.Add(new ContextAndAction<OperationBlockAnalysisContext>(x, action)));
+                    _context.RegisterOperationBlockAction(
+                        x => _analyzer.OperationBlockActions.Add(new ContextAndAction<OperationBlockAnalysisContext>(x, action)));
                 }
 
                 public override void RegisterOperationBlockStartAction(Action<OperationBlockStartAnalysisContext> action)
                 {
-                    this.context.RegisterOperationBlockStartAction(
-                        x => this.analyzer.OperationBlockStartActions.Add(new ContextAndAction<OperationBlockStartAnalysisContext>(x, action)));
+                    _context.RegisterOperationBlockStartAction(
+                        x => _analyzer.OperationBlockStartActions.Add(new ContextAndAction<OperationBlockStartAnalysisContext>(x, action)));
                 }
             }
         }

@@ -44,7 +44,9 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
             }
         }
 
-        static IEnumerable<FileInfo> GetFiles(string path)
+        protected abstract CompilationOptions GetCompilationOptions(string rootNamespace);
+        
+        private static IEnumerable<FileInfo> GetFiles(string path)
         {
             var queue = new Queue<DirectoryInfo>();
             queue.Enqueue(new DirectoryInfo(path));
@@ -63,7 +65,5 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
                 }
             }
         }
-        
-        protected abstract CompilationOptions GetCompilationOptions(string rootNamespace);
     }
 }

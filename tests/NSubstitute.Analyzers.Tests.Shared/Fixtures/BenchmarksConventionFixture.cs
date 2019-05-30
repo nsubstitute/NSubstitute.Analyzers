@@ -6,6 +6,7 @@ using FluentAssertions;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.Benchmarks.Shared;
 using NSubstitute.Analyzers.Tests.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Tests.Shared.Fixtures
@@ -45,16 +46,18 @@ namespace NSubstitute.Analyzers.Tests.Shared.Fixtures
 
         private static List<BenchmarkDescriptor> GetAnalyzerBenchmarks(Assembly benchmarksAssembly)
         {
+            var benchmarksBaseType = typeof(AbstractDiagnosticAnalyzersBenchmarks);
             var benchmarkFields = benchmarksAssembly.GetTypes()
+                .Where(type => benchmarksBaseType.IsAssignableFrom(type))
                 .SelectMany(type => type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance))
-                .Where(fieldInfo => fieldInfo.FieldType == typeof(Benchmark))
+                .Where(fieldInfo => fieldInfo.FieldType == typeof(AnalyzerBenchmark))
                 .ToList();
 
             var declaringInstances = benchmarkFields.GroupBy(fieldInfo => fieldInfo.DeclaringType)
                 .ToDictionary(grouping => grouping.Key, grouping => Activator.CreateInstance(grouping.Key));
 
             var benchmarkAnalyzers = benchmarkFields
-                .Select(benchmark => new BenchmarkDescriptor(benchmark, (Benchmark)benchmark.GetValue(declaringInstances[benchmark.DeclaringType])))
+                .Select(benchmark => new BenchmarkDescriptor(benchmark, (AnalyzerBenchmark)benchmark.GetValue(declaringInstances[benchmark.DeclaringType])))
                 .ToList();
 
             return benchmarkAnalyzers;
@@ -64,9 +67,9 @@ namespace NSubstitute.Analyzers.Tests.Shared.Fixtures
         {
             public FieldInfo Field { get; }
 
-            public Benchmark Benchmark { get; }
+            public AnalyzerBenchmark Benchmark { get; }
 
-            public BenchmarkDescriptor(FieldInfo field, Benchmark benchmark)
+            public BenchmarkDescriptor(FieldInfo field, AnalyzerBenchmark benchmark)
             {
                 Field = field;
                 Benchmark = benchmark;

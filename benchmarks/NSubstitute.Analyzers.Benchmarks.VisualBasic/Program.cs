@@ -7,7 +7,9 @@ namespace NSubstitute.Analyzers.Benchmarks.VisualBasic
     {
         public static void Main(string[] args)
         {
-           var x = new DiagnosticAnalyzersBenchmarks();
+            BenchmarkSwitcher
+                .FromAssembly(typeof(Program).GetTypeInfo().Assembly)
+                .Run(args);
         }
     }
 }

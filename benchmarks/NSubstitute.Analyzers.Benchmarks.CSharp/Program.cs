@@ -7,12 +7,9 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp
     {
         public static void Main(string[] args)
         {
-            var x = new DiagnosticAnalyzersBenchmarks();
-            /*
             BenchmarkSwitcher
-                .FromAssembly(typeof(Program).GetTypeInfo().Assembly)
+                .FromAssemblies(new [] { typeof(Program).GetTypeInfo().Assembly, typeof(NSubstitute.Analyzers.Benchmarks.VisualBasic.Program).Assembly })
                 .Run(args);
-                */
         }
     }
 }
