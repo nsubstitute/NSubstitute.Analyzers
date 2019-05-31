@@ -38,40 +38,40 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
             OperationBlockActions = operationBlockActions;
             OperationBlockStartActions = operationBlockStartActions;
         }
-        
+
         public interface IContextAndAction
         {
             void Run();
         }
-        
+
         public DiagnosticAnalyzer Analyzer { get; }
-        
+
         public IReadOnlyList<ContextAndAction<SyntaxNodeAnalysisContext>> SyntaxNodeActions { get; }
-        
+
         public IReadOnlyList<ContextAndAction<CompilationStartAnalysisContext>> CompilationStartActions { get; }
-        
+
         public IReadOnlyList<ContextAndAction<CompilationAnalysisContext>> CompilationActions { get; }
-        
+
         public IReadOnlyList<ContextAndAction<SemanticModelAnalysisContext>> SemanticModelActions { get; }
-        
+
         public IReadOnlyList<ContextAndAction<SymbolAnalysisContext>> SymbolActions { get; }
-        
+
         public IReadOnlyList<IContextAndAction> CodeBlockStartActions { get; }
-        
+
         public IReadOnlyList<ContextAndAction<CodeBlockAnalysisContext>> CodeBlockActions { get; }
-        
+
         public IReadOnlyList<ContextAndAction<SyntaxTreeAnalysisContext>> SyntaxTreeActions { get; }
-        
+
         public IReadOnlyList<ContextAndAction<OperationAnalysisContext>> OperationActions { get; }
-        
+
         public IReadOnlyList<ContextAndAction<OperationBlockAnalysisContext>> OperationBlockActions { get; }
-        
+
         public IReadOnlyList<ContextAndAction<OperationBlockStartAnalysisContext>> OperationBlockStartActions { get; }
-        
+
         public static AnalyzerBenchmark CreateCSharpBenchmark(Solution solution, DiagnosticAnalyzer analyzer) => CreateCSharpBenchmarkAsync(solution, analyzer).GetAwaiter().GetResult();
-        
+
         public static AnalyzerBenchmark CreateVisualBasicBenchmark(Solution solution, DiagnosticAnalyzer analyzer) => CreateVisualBasicBenchmarkAsync(solution, analyzer).GetAwaiter().GetResult();
-        
+
         public static async Task<AnalyzerBenchmark> CreateCSharpBenchmarkAsync(Solution solution, DiagnosticAnalyzer analyzer)
         {
             var benchmarkAnalyzer = new CombinedBenchmarkAnalyzer(analyzer);
@@ -90,7 +90,7 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
                 benchmarkAnalyzer.OperationBlockActions,
                 benchmarkAnalyzer.OperationBlockStartActions);
         }
-        
+
         public static async Task<AnalyzerBenchmark> CreateVisualBasicBenchmarkAsync(Solution solution, DiagnosticAnalyzer analyzer)
         {
             var benchmarkAnalyzer = new CombinedBenchmarkAnalyzer(analyzer);
@@ -109,7 +109,7 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
                 benchmarkAnalyzer.OperationBlockActions,
                 benchmarkAnalyzer.OperationBlockStartActions);
         }
-        
+
         public void Run()
         {
             foreach (var contextAndAction in SyntaxNodeActions)
@@ -175,18 +175,17 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
             {
                 var compilation = await project.GetCompilationAsync(CancellationToken.None)
                     .ConfigureAwait(false);
-               
-                    var withAnalyzers = compilation.WithAnalyzers(
-                        ImmutableArray.Create(analyzer),
-                        project.AnalyzerOptions,
-                        CancellationToken.None);
-                    results.Add(await withAnalyzers.GetAnalyzerDiagnosticsAsync(CancellationToken.None)
-                        .ConfigureAwait(false));
+
+                var withAnalyzers = compilation.WithAnalyzers(
+                    ImmutableArray.Create(analyzer),
+                    project.AnalyzerOptions);
+                results.Add(await withAnalyzers.GetAnalyzerDiagnosticsAsync(CancellationToken.None)
+                    .ConfigureAwait(false));
             }
 
             return results;
         }
-        
+
         public class ContextAndAction<TContext> : IContextAndAction
         {
             public ContextAndAction(TContext context, Action<TContext> action)
@@ -208,15 +207,25 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
         private abstract class AbstractBenchmarkAnalyzer : DiagnosticAnalyzer
         {
             internal List<ContextAndAction<SyntaxNodeAnalysisContext>> SyntaxNodeActions { get; } = new List<ContextAndAction<SyntaxNodeAnalysisContext>>();
+
             internal List<ContextAndAction<CompilationStartAnalysisContext>> CompilationStartActions { get; } = new List<ContextAndAction<CompilationStartAnalysisContext>>();
+
             internal List<ContextAndAction<CompilationAnalysisContext>> CompilationActions { get; } = new List<ContextAndAction<CompilationAnalysisContext>>();
+
             internal List<ContextAndAction<SemanticModelAnalysisContext>> SemanticModelActions { get; } = new List<ContextAndAction<SemanticModelAnalysisContext>>();
+
             internal List<ContextAndAction<SymbolAnalysisContext>> SymbolActions { get; } = new List<ContextAndAction<SymbolAnalysisContext>>();
+
             internal List<IContextAndAction> CodeBlockStartActions { get; } = new List<IContextAndAction>();
+
             internal List<ContextAndAction<CodeBlockAnalysisContext>> CodeBlockActions { get; } = new List<ContextAndAction<CodeBlockAnalysisContext>>();
+
             internal List<ContextAndAction<SyntaxTreeAnalysisContext>> SyntaxTreeActions { get; } = new List<ContextAndAction<SyntaxTreeAnalysisContext>>();
+
             internal List<ContextAndAction<OperationAnalysisContext>> OperationActions { get; } = new List<ContextAndAction<OperationAnalysisContext>>();
+
             internal List<ContextAndAction<OperationBlockAnalysisContext>> OperationBlockActions { get; } = new List<ContextAndAction<OperationBlockAnalysisContext>>();
+
             internal List<ContextAndAction<OperationBlockStartAnalysisContext>> OperationBlockStartActions { get; } = new List<ContextAndAction<OperationBlockStartAnalysisContext>>();
 
             private readonly DiagnosticAnalyzer _inner;
@@ -323,11 +332,12 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
                 }
             }
         }
-        
+
         [DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
         private class CombinedBenchmarkAnalyzer : AbstractBenchmarkAnalyzer
         {
-            public CombinedBenchmarkAnalyzer(DiagnosticAnalyzer inner) : base(inner)
+            public CombinedBenchmarkAnalyzer(DiagnosticAnalyzer inner)
+                : base(inner)
             {
             }
         }

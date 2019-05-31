@@ -1,12 +1,12 @@
 <Project>
     <PropertyGroup>
         <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-        <CodeAnalysisRuleSet>../../Analyzers.ruleset</CodeAnalysisRuleSet>
+        <CodeAnalysisRuleSet>$(SolutionDir)/Analyzers.ruleset</CodeAnalysisRuleSet>
     </PropertyGroup>
     <ItemGroup>
-        <AdditionalFiles Include="../../StyleCop.json" />
+        <AdditionalFiles Include="$(SolutionDir)/StyleCop.json" />
     </ItemGroup>
     <ItemGroup>
-<!--        <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta009" PrivateAssets="all" />-->
+        <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta009" PrivateAssets="all" />
     </ItemGroup>
 </Project>

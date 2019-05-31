@@ -8,15 +8,25 @@ namespace NSubstitute.Analyzers.Benchmarks.VisualBasic
     public class VisualBasicDiagnosticAnalyzersBenchmarks : AbstractDiagnosticAnalyzersBenchmarks
     {
         protected override AnalyzerBenchmark CallInfoAnalyzerBenchmark { get; }
+
         protected override AnalyzerBenchmark ConflictingArgumentAssignmentsAnalyzerBenchmark { get; }
+
         protected override AnalyzerBenchmark NonSubstitutableMemberAnalyzerBenchmark { get; }
+
         protected override AnalyzerBenchmark NonSubstitutableMemberReceivedAnalyzerBenchmark { get; }
+
         protected override AnalyzerBenchmark NonSubstitutableMemberWhenAnalyzerBenchmark { get; }
+
         protected override AnalyzerBenchmark ReEntrantSetupAnalyzerBenchmark { get; }
+
         protected override AnalyzerBenchmark SubstituteAnalyzerBenchmark { get; }
+
         protected override AnalyzerBenchmark UnusedReceivedAnalyzerBenchmark { get; }
+
         protected override AbstractSolutionLoader SolutionLoader { get; }
+
         protected override string SourceProjectFolderName { get; }
+
         protected override Assembly BenchmarkSourceAssembly { get; }
 
         public VisualBasicDiagnosticAnalyzersBenchmarks()
@@ -24,7 +34,7 @@ namespace NSubstitute.Analyzers.Benchmarks.VisualBasic
             SolutionLoader = new VisualBasicSolutionLoader();
             SourceProjectFolderName = "NSubstitute.Analyzers.Benchmarks.VisualBasic.Source";
             BenchmarkSourceAssembly = typeof(NonSubstitutableMemberDiagnosticSource).Assembly;
-                
+
             CallInfoAnalyzerBenchmark = AnalyzerBenchmark.CreateVisualBasicBenchmark(Solution, new CallInfoAnalyzer());
             ConflictingArgumentAssignmentsAnalyzerBenchmark = AnalyzerBenchmark.CreateVisualBasicBenchmark(Solution, new ConflictingArgumentAssignmentsAnalyzer());
             NonSubstitutableMemberAnalyzerBenchmark = AnalyzerBenchmark.CreateVisualBasicBenchmark(Solution, new NonSubstitutableMemberAnalyzer());

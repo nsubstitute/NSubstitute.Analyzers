@@ -42,33 +42,7 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
         {
             _solutionProxy = new Lazy<Solution>(CreateSolution);
         }
-        
-        private Solution CreateSolution()
-        {
-            var excludedMetaAssemblyName = $"{BenchmarkSourceAssembly.GetName().Name}.dll";
-            var metadataReferences = GetMetadataReferences(BenchmarkSourceAssembly)
-                .Where(meta => meta.Display.EndsWith(excludedMetaAssemblyName) == false).ToArray();
 
-            var benchmarkSourceProjectPath = GetBenchmarkSourceProjectPath();
-            var solution = SolutionLoader.CreateSolution(benchmarkSourceProjectPath, metadataReferences);
-
-            var projectGraph = solution.GetProjectDependencyGraph();
-            foreach (var projectId in projectGraph.GetTopologicallySortedProjects())
-            {
-                var projectCompilation = solution.GetProject(projectId).GetCompilationAsync().Result;
-                using (var stream = new MemoryStream())
-                {
-                    var result = projectCompilation.Emit(stream);
-                    if (result.Success == false)
-                    {
-                        throw new InvalidOperationException($"Compilation for benchmark source failed {Environment.NewLine} {string.Join(Environment.NewLine, result.Diagnostics.Select(diag => diag.ToString()))}");
-                    }
-                }
-            }
-
-            return solution;
-        }
-        
         [Benchmark]
         public void CallInfoAnalyzer()
         {
@@ -154,7 +128,7 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
         {
             var portableExecutableReferences = RecursiveReferencedAssemblies(assembly).Select(referencedAssembly => MetadataReference.CreateFromFile(referencedAssembly.Location))
                 .ToArray();
-            
+
             return portableExecutableReferences;
         }
 
@@ -176,7 +150,32 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
             return recursiveAssemblies;
         }
 
-        
+        private Solution CreateSolution()
+        {
+            var excludedMetaAssemblyName = $"{BenchmarkSourceAssembly.GetName().Name}.dll";
+            var metadataReferences = GetMetadataReferences(BenchmarkSourceAssembly)
+                .Where(meta => meta.Display.EndsWith(excludedMetaAssemblyName) == false).ToArray();
+
+            var benchmarkSourceProjectPath = GetBenchmarkSourceProjectPath();
+            var solution = SolutionLoader.CreateSolution(benchmarkSourceProjectPath, metadataReferences);
+
+            var projectGraph = solution.GetProjectDependencyGraph();
+            foreach (var projectId in projectGraph.GetTopologicallySortedProjects())
+            {
+                var projectCompilation = solution.GetProject(projectId).GetCompilationAsync().Result;
+                using (var stream = new MemoryStream())
+                {
+                    var result = projectCompilation.Emit(stream);
+                    if (result.Success == false)
+                    {
+                        throw new InvalidOperationException($"Compilation for benchmark source failed {Environment.NewLine} {string.Join(Environment.NewLine, result.Diagnostics.Select(diag => diag.ToString()))}");
+                    }
+                }
+            }
+
+            return solution;
+        }
+
         private static bool TryGetOrLoad(AssemblyName name, out Assembly result)
         {
             try

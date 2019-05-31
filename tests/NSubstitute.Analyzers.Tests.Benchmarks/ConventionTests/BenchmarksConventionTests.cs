@@ -19,14 +19,14 @@ namespace NSubstitute.Analyzers.Tests.Benchmarks.ConventionTests
     {
         private static readonly Assembly[] AnalyzersAssemblies;
         private static readonly BenchmarkDescriptor[] BenchmarkDescriptors;
-        
+
         static BenchmarksConventionTests()
         {
             var benchmarksAssembly = typeof(Program).Assembly;
-            AnalyzersAssemblies = new [] { typeof(CallInfoAnalyzer).Assembly, typeof(NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers.CallInfoAnalyzer).Assembly};
+            AnalyzersAssemblies = new[] { typeof(CallInfoAnalyzer).Assembly, typeof(NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers.CallInfoAnalyzer).Assembly };
             BenchmarkDescriptors = GetAnalyzerBenchmarks(benchmarksAssembly).ToArray();
         }
-        
+
         [Fact]
         public void BenchmarksShouldBeDefinedForAllAnalyzers()
         {
@@ -50,12 +50,11 @@ namespace NSubstitute.Analyzers.Tests.Benchmarks.ConventionTests
                 var propertyInfo = benchmark.Property.DeclaringType.GetProperty(
                     nameof(AbstractDiagnosticAnalyzersBenchmarks.Solution),
                     BindingFlags.Instance | BindingFlags.NonPublic);
-                
+
                 var solution = propertyInfo.GetValue(benchmark.DeclaringTypeInstance) as Solution;
                 return await GetDiagnostics(solution, benchmark.Benchmark.Analyzer);
             }).SelectMany(task => task.Result).ToList();
-            
-            
+
             var producedDiagnosticIds = producedDiagnostics
                 .SelectMany(diag => diag.Select(x => x.Id))
                 .Distinct()
@@ -96,7 +95,7 @@ namespace NSubstitute.Analyzers.Tests.Benchmarks.ConventionTests
 
             return benchmarkAnalyzers;
         }
-        
+
         private class BenchmarkDescriptor
         {
             public FieldInfo Property { get; }
@@ -104,7 +103,7 @@ namespace NSubstitute.Analyzers.Tests.Benchmarks.ConventionTests
             public AnalyzerBenchmark Benchmark { get; }
 
             public AbstractDiagnosticAnalyzersBenchmarks DeclaringTypeInstance { get; }
-            
+
             public BenchmarkDescriptor(FieldInfo property, AnalyzerBenchmark benchmark, AbstractDiagnosticAnalyzersBenchmarks declaringTypeInstance)
             {
                 Property = property;
@@ -112,7 +111,5 @@ namespace NSubstitute.Analyzers.Tests.Benchmarks.ConventionTests
                 DeclaringTypeInstance = declaringTypeInstance;
             }
         }
-        
-        
     }
 }
