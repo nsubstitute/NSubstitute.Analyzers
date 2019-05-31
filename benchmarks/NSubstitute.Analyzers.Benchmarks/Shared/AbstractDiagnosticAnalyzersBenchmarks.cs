@@ -8,9 +8,11 @@ using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers.Benchmarks.Shared
 {
+    [CoreJob]
+    [MemoryDiagnoser]
     public abstract class AbstractDiagnosticAnalyzersBenchmarks
     {
-        protected Solution Solution => _solutionProxy.Value;
+        internal Solution Solution => _solutionProxy.Value;
 
         protected abstract AnalyzerBenchmark CallInfoAnalyzerBenchmark { get; }
 

@@ -6,9 +6,7 @@ using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.Benchmarks.CSharp
 {
-    [CoreJob]
-    [BenchmarkCategory("VisualBasic")]
-    public class DiagnosticAnalyzersBenchmarks : AbstractDiagnosticAnalyzersBenchmarks
+    public class CSharpDiagnosticAnalyzersBenchmarks : AbstractDiagnosticAnalyzersBenchmarks
     {
         protected override AnalyzerBenchmark CallInfoAnalyzerBenchmark { get; }
         protected override AnalyzerBenchmark ConflictingArgumentAssignmentsAnalyzerBenchmark { get; }
@@ -22,9 +20,9 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp
         protected override string SourceProjectFolderName { get; }
         protected override Assembly BenchmarkSourceAssembly { get; }
 
-        public DiagnosticAnalyzersBenchmarks()
+        public CSharpDiagnosticAnalyzersBenchmarks()
         {
-            SolutionLoader = new SolutionLoader();
+            SolutionLoader = new CSharpSolutionLoader();
             SourceProjectFolderName = "NSubstitute.Analyzers.Benchmarks.CSharp.Source";
             BenchmarkSourceAssembly = typeof(NonSubstitutableMemberDiagnosticSource).Assembly;
                 

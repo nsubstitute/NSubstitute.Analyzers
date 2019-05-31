@@ -1,15 +1,11 @@
 using System.Reflection;
-using BenchmarkDotNet.Attributes;
 using NSubstitute.Analyzers.Benchmarks.Shared;
 using NSubstitute.Analyzers.Benchmarks.VisualBasic.Source.DiagnosticsSources;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.Benchmarks.VisualBasic
 {
-    [CoreJob]
-    [MemoryDiagnoser]
-    [BenchmarkCategory("VisualBasic")]
-    public class DiagnosticAnalyzersBenchmarks : AbstractDiagnosticAnalyzersBenchmarks
+    public class VisualBasicDiagnosticAnalyzersBenchmarks : AbstractDiagnosticAnalyzersBenchmarks
     {
         protected override AnalyzerBenchmark CallInfoAnalyzerBenchmark { get; }
         protected override AnalyzerBenchmark ConflictingArgumentAssignmentsAnalyzerBenchmark { get; }
@@ -23,9 +19,9 @@ namespace NSubstitute.Analyzers.Benchmarks.VisualBasic
         protected override string SourceProjectFolderName { get; }
         protected override Assembly BenchmarkSourceAssembly { get; }
 
-        public DiagnosticAnalyzersBenchmarks()
+        public VisualBasicDiagnosticAnalyzersBenchmarks()
         {
-            SolutionLoader = new SolutionLoader();
+            SolutionLoader = new VisualBasicSolutionLoader();
             SourceProjectFolderName = "NSubstitute.Analyzers.Benchmarks.VisualBasic.Source";
             BenchmarkSourceAssembly = typeof(NonSubstitutableMemberDiagnosticSource).Assembly;
                 
