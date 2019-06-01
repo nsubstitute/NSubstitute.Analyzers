@@ -1,5 +1,5 @@
 Imports System
-Imports NSubstitute.Analyzers.Benchmarks.VisualBasic.Source.Models
+Imports NSubstitute.Analyzers.Benchmarks.Source.VisualBasic.Models
 Imports NSubstitute.Core
 
 Namespace DiagnosticsSources

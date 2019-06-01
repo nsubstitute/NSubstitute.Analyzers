@@ -1,14 +1,14 @@
-Imports NSubstitute.Analyzers.Benchmarks.VisualBasic.Source.Models
+Imports NSubstitute.Analyzers.Benchmarks.Source.VisualBasic.Models
 
 Namespace DiagnosticsSources
     Public Class NonSubstitutableMemberDiagnosticSource
         Public Sub NS1000_NonVirtualSetupSpecification()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.ObjectReturningMethod().Returns(CType(Nothing, IFoo))
-            substitute.[Property].Returns(1)
+            substitute.IntReturningProperty.Returns(1)
             substitute(0).Returns(1)
             SubstituteExtensions.Returns(substitute.ObjectReturningMethod(), CType(Nothing, IFoo))
-            SubstituteExtensions.Returns(substitute.[Property], 1)
+            SubstituteExtensions.Returns(substitute.IntReturningProperty, 1)
             SubstituteExtensions.Returns(substitute(0), 1)
             SubstituteExtensions.Returns(1, 1)
         End Sub

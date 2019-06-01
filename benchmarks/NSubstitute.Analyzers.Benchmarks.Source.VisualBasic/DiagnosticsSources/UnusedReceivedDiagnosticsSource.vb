@@ -1,4 +1,4 @@
-Imports NSubstitute.Analyzers.Benchmarks.VisualBasic.Source.Models
+Imports NSubstitute.Analyzers.Benchmarks.Source.VisualBasic.Models
 
 Namespace DiagnosticsSources
     Public Class UnusedReceivedDiagnosticsSource

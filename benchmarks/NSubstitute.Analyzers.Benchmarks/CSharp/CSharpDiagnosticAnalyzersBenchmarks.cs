@@ -1,7 +1,7 @@
 using System.Reflection;
 using BenchmarkDotNet.Attributes;
-using NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources;
 using NSubstitute.Analyzers.Benchmarks.Shared;
+using NSubstitute.Analyzers.Benchmarks.Source.CSharp.DiagnosticsSources;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.Benchmarks.CSharp
@@ -33,7 +33,7 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp
         public CSharpDiagnosticAnalyzersBenchmarks()
         {
             SolutionLoader = new CSharpSolutionLoader();
-            SourceProjectFolderName = "NSubstitute.Analyzers.Benchmarks.CSharp.Source";
+            SourceProjectFolderName = "NSubstitute.Analyzers.Benchmarks.Source.CSharp";
             BenchmarkSourceAssembly = typeof(NonSubstitutableMemberDiagnosticSource).Assembly;
 
             CallInfoAnalyzerBenchmark = AnalyzerBenchmark.CreateCSharpBenchmark(Solution, new CallInfoAnalyzer());

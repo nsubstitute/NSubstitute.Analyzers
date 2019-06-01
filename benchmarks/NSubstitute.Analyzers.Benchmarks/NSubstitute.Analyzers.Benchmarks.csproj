@@ -17,8 +17,8 @@
       <ProjectReference Include="..\..\src\NSubstitute.Analyzers.CSharp\NSubstitute.Analyzers.CSharp.csproj" />
       <ProjectReference Include="..\..\src\NSubstitute.Analyzers.Shared\NSubstitute.Analyzers.Shared.csproj" />
       <ProjectReference Include="..\..\src\NSubstitute.Analyzers.VisualBasic\NSubstitute.Analyzers.VisualBasic.csproj" />
-      <ProjectReference Include="..\NSubstitute.Analyzers.Benchmarks.CSharp.Source\NSubstitute.Analyzers.Benchmarks.CSharp.Source.csproj" />
-      <ProjectReference Include="..\NSubstitute.Analyzers.Benchmarks.VisualBasic.Source\NSubstitute.Analyzers.Benchmarks.VisualBasic.Source.vbproj" />
+      <ProjectReference Include="..\NSubstitute.Analyzers.Benchmarks.Source.CSharp\NSubstitute.Analyzers.Benchmarks.Source.CSharp.csproj" />
+      <ProjectReference Include="..\NSubstitute.Analyzers.Benchmarks.Source.VisualBasic\NSubstitute.Analyzers.Benchmarks.Source.VisualBasic.vbproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -48,9 +48,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchmarks", "benchmarks", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSubstitute.Analyzers.Benchmarks", "benchmarks\NSubstitute.Analyzers.Benchmarks\NSubstitute.Analyzers.Benchmarks.csproj", "{8274503E-E63F-49D3-AF70-475EDE4BEF4D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSubstitute.Analyzers.Benchmarks.CSharp.Source", "benchmarks\NSubstitute.Analyzers.Benchmarks.CSharp.Source\NSubstitute.Analyzers.Benchmarks.CSharp.Source.csproj", "{906BBC68-5466-4299-871C-48DFB7720063}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSubstitute.Analyzers.Benchmarks.Source.CSharp", "benchmarks\NSubstitute.Analyzers.Benchmarks.Source.CSharp\NSubstitute.Analyzers.Benchmarks.Source.CSharp.csproj", "{906BBC68-5466-4299-871C-48DFB7720063}"
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "NSubstitute.Analyzers.Benchmarks.VisualBasic.Source", "benchmarks\NSubstitute.Analyzers.Benchmarks.VisualBasic.Source\NSubstitute.Analyzers.Benchmarks.VisualBasic.Source.vbproj", "{47A94B66-D989-4308-AD4D-71D115E30902}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "NSubstitute.Analyzers.Benchmarks.Source.VisualBasic", "benchmarks\NSubstitute.Analyzers.Benchmarks.Source.VisualBasic\NSubstitute.Analyzers.Benchmarks.Source.VisualBasic.vbproj", "{47A94B66-D989-4308-AD4D-71D115E30902}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSubstitute.Analyzers.Tests.Benchmarks", "tests\NSubstitute.Analyzers.Tests.Benchmarks\NSubstitute.Analyzers.Tests.Benchmarks.csproj", "{88C71C2F-1752-492A-A44E-921C79AA8576}"
 EndProject

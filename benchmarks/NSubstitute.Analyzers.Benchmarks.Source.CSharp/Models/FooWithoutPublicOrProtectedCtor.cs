@@ -1,4 +1,4 @@
-namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.Models
+namespace NSubstitute.Analyzers.Benchmarks.Source.CSharp.Models
 {
     public class FooWithoutPublicOrProtectedCtor
     {

@@ -1,6 +1,6 @@
-using NSubstitute.Analyzers.Benchmarks.CSharp.Source.Models;
+using NSubstitute.Analyzers.Benchmarks.Source.CSharp.Models;
 
-namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
+namespace NSubstitute.Analyzers.Benchmarks.Source.CSharp.DiagnosticsSources
 {
     public class UnusedReceivedDiagnosticsSource
     {

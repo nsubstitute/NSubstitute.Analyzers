@@ -1,6 +1,6 @@
 using System.Reflection;
 using NSubstitute.Analyzers.Benchmarks.Shared;
-using NSubstitute.Analyzers.Benchmarks.VisualBasic.Source.DiagnosticsSources;
+using NSubstitute.Analyzers.Benchmarks.Source.VisualBasic.DiagnosticsSources;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.Benchmarks.VisualBasic
@@ -32,7 +32,7 @@ namespace NSubstitute.Analyzers.Benchmarks.VisualBasic
         public VisualBasicDiagnosticAnalyzersBenchmarks()
         {
             SolutionLoader = new VisualBasicSolutionLoader();
-            SourceProjectFolderName = "NSubstitute.Analyzers.Benchmarks.VisualBasic.Source";
+            SourceProjectFolderName = "NSubstitute.Analyzers.Benchmarks.Source.VisualBasic";
             BenchmarkSourceAssembly = typeof(NonSubstitutableMemberDiagnosticSource).Assembly;
 
             CallInfoAnalyzerBenchmark = AnalyzerBenchmark.CreateVisualBasicBenchmark(Solution, new CallInfoAnalyzer());

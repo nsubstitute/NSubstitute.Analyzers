@@ -1,6 +1,6 @@
-using NSubstitute.Analyzers.Benchmarks.CSharp.Source.Models;
+using NSubstitute.Analyzers.Benchmarks.Source.CSharp.Models;
 
-namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
+namespace NSubstitute.Analyzers.Benchmarks.Source.CSharp.DiagnosticsSources
 {
     public class NonSubstitutableMemberDiagnosticSource
     {
@@ -9,12 +9,12 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
             var substitute = Substitute.For<Foo>();
 
             substitute.ObjectReturningMethod().Returns((IFoo)null);
-            substitute.Property.Returns(1);
+            substitute.IntReturningProperty.Returns(1);
             substitute[0].Returns(1);
             1.Returns(1);
 
             SubstituteExtensions.Returns(substitute.ObjectReturningMethod(), (IFoo)null);
-            SubstituteExtensions.Returns(substitute.Property, 1);
+            SubstituteExtensions.Returns(substitute.IntReturningProperty, 1);
             SubstituteExtensions.Returns(substitute[0], 1);
             SubstituteExtensions.Returns(1, 1);
         }

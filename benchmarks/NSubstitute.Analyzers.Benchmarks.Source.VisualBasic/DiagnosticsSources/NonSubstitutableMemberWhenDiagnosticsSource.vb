@@ -1,5 +1,5 @@
 Imports System.Threading.Tasks
-Imports NSubstitute.Analyzers.Benchmarks.VisualBasic.Source.Models
+Imports NSubstitute.Analyzers.Benchmarks.Source.VisualBasic.Models
 
 Namespace DiagnosticsSources
     Public Class NonSubstitutableMemberWhenDiagnosticsSource
@@ -7,7 +7,7 @@ Namespace DiagnosticsSources
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.[When](Function([sub]) [sub].ObjectReturningMethod())
             substitute.[When](Function([sub])
-                                  Dim a = [sub].[Property]
+                                  Dim a = [sub].IntReturningProperty
                                   Return Task.CompletedTask
                               End Function)
             substitute.[When](Function([sub])
@@ -17,7 +17,7 @@ Namespace DiagnosticsSources
             substitute.[When](AddressOf WhenDelegate)
             SubstituteExtensions.[When](substitute, Function([sub]) [sub].ObjectReturningMethod())
             SubstituteExtensions.[When](substitute, Function([sub])
-                                                        Dim a = [sub].[Property]
+                                                        Dim a = [sub].IntReturningProperty
                                                         Return Task.CompletedTask
                                                     End Function)
             SubstituteExtensions.[When](substitute, Function([sub])

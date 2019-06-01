@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <RootNamespace>NSubstitute.Analyzers.Benchmarks.VisualBasic.Source</RootNamespace>
         <TargetFramework>netstandard1.3</TargetFramework>
     </PropertyGroup>
     

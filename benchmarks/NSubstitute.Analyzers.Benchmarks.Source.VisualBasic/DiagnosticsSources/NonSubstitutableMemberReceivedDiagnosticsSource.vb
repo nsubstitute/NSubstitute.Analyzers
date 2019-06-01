@@ -1,14 +1,14 @@
-Imports NSubstitute.Analyzers.Benchmarks.VisualBasic.Source.Models
+Imports NSubstitute.Analyzers.Benchmarks.Source.VisualBasic.Models
 
 Namespace DiagnosticsSources
     Public Class NonSubstitutableMemberReceivedDiagnosticsSource
         Public Sub NS1001_NonVirtualSetupSpecification()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.Received(1).ObjectReturningMethod()
-            Dim a = substitute.Received(1).[Property]
+            Dim a = substitute.Received(1).IntReturningProperty
             Dim b = substitute.Received(1)(0)
             SubstituteExtensions.Received(substitute, 1).ObjectReturningMethod()
-            Dim c  = SubstituteExtensions.Received(substitute, 1).[Property]
+            Dim c  = SubstituteExtensions.Received(substitute, 1).IntReturningProperty
             Dim d = SubstituteExtensions.Received(substitute, 1)(0)
         End Sub
 

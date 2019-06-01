@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using NSubstitute.Analyzers.Benchmarks.CSharp.Source.Models;
+using NSubstitute.Analyzers.Benchmarks.Source.CSharp.Models;
 
-namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
+namespace NSubstitute.Analyzers.Benchmarks.Source.CSharp.DiagnosticsSources
 {
     public class NonSubstitutableMemberWhenDiagnosticsSource
     {
@@ -12,7 +12,7 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
             substitute.When(sub => sub.ObjectReturningMethod());
             substitute.When(sub =>
             {
-                _ = sub.Property;
+                _ = sub.IntReturningProperty;
             });
             substitute.When(sub =>
             {
@@ -23,7 +23,7 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp.Source.DiagnosticsSources
             SubstituteExtensions.When(substitute, sub => sub.ObjectReturningMethod());
             SubstituteExtensions.When(substitute, sub =>
             {
-                _ = sub.Property;
+                _ = sub.IntReturningProperty;
             });
             SubstituteExtensions.When(substitute, sub =>
             {
