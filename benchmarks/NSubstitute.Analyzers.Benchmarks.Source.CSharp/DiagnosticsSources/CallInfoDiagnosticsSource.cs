@@ -79,10 +79,12 @@ namespace NSubstitute.Analyzers.Benchmarks.Source.CSharp.DiagnosticsSources
         {
             var substitute = Substitute.For<IFoo>();
 
-            substitute.ObjectReturningMethodWithRefArguments(ref Arg.Any<int>(), ref Arg.Any<int>(), ref Arg.Any<decimal>())
+            var anyInt = 1;
+            var anyDecimal = 1m;
+            substitute.ObjectReturningMethodWithRefArguments(ref anyInt, ref anyInt, ref anyDecimal)
                 .Returns(callInfo => callInfo[0] = "invalid");
             SubstituteExtensions.Returns(
-                substitute.ObjectReturningMethodWithRefArguments(ref Arg.Any<int>(), ref Arg.Any<int>(), ref Arg.Any<decimal>()),
+                substitute.ObjectReturningMethodWithRefArguments(ref anyInt, ref anyInt, ref anyDecimal),
                 callInfo => callInfo[0] = "invalid");
         }
 
@@ -102,12 +104,14 @@ namespace NSubstitute.Analyzers.Benchmarks.Source.CSharp.DiagnosticsSources
         {
             var substitute = Substitute.For<IFoo>();
 
-            substitute.ObjectReturningMethodWithRefArguments(ref Arg.Any<int>(), ref Arg.Any<int>(), ref Arg.Any<decimal>())
+            var anyInt = 1;
+            var anyDecimal = 1m;
+            substitute.ObjectReturningMethodWithRefArguments(ref anyInt, ref anyInt, ref anyDecimal)
                 .Returns(callInfo => callInfo[0] = 1)
                 .AndDoes(callInfo => callInfo[0] = 2);
 
             SubstituteExtensions.Returns(
-                    substitute.ObjectReturningMethodWithRefArguments(ref Arg.Any<int>(), ref Arg.Any<int>(), ref Arg.Any<decimal>()),
+                    substitute.ObjectReturningMethodWithRefArguments(ref anyInt, ref anyInt, ref anyDecimal),
                     callInfo => callInfo[0] = 1)
                 .AndDoes(callInfo => callInfo[0] = 2);
         }

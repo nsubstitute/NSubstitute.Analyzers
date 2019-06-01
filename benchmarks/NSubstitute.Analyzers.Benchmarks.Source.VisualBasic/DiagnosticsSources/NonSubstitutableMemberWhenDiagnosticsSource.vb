@@ -8,21 +8,21 @@ Namespace DiagnosticsSources
             substitute.[When](Function([sub]) [sub].ObjectReturningMethod())
             substitute.[When](Function([sub])
                                   Dim a = [sub].IntReturningProperty
-                                  Return Task.CompletedTask
+                                  Return Nothing
                               End Function)
             substitute.[When](Function([sub])
                                   Dim a = [sub](0)
-                                  Return Task.CompletedTask
+                                  Return Nothing
                               End Function)
             substitute.[When](AddressOf WhenDelegate)
             SubstituteExtensions.[When](substitute, Function([sub]) [sub].ObjectReturningMethod())
             SubstituteExtensions.[When](substitute, Function([sub])
                                                         Dim a = [sub].IntReturningProperty
-                                                        Return Task.CompletedTask
+                                                        Return Nothing
                                                     End Function)
             SubstituteExtensions.[When](substitute, Function([sub])
                                                         Dim a = [sub](0)
-                                                        Return Task.CompletedTask
+                                                        Return Nothing
                                                     End Function)
             SubstituteExtensions.[When](substitute, AddressOf WhenDelegate)
         End Sub
@@ -32,21 +32,24 @@ Namespace DiagnosticsSources
             substitute.[When](Function([sub]) [sub].InternalObjectReturningMethod())
             substitute.[When](Function([sub])
                                   Dim a = [sub].InternalObjectReturningProperty
-                                  Return Task.CompletedTask
+                                  Return Nothing
                               End Function)
             substitute.[When](Function([sub])
                                   Dim a = [sub](0, 0, 0)
-                                  Return Task.CompletedTask
+                                  Return Nothing
                               End Function)
             substitute.[When](AddressOf WhenDelegateWithInternal)
-            SubstituteExtensions.[When](substitute, Function([sub]) [sub].InternalObjectReturningMethod())
+            SubstituteExtensions.[When](substitute, Function([sub])
+                                                        [sub].InternalObjectReturningMethod()
+                                                        Return Nothing
+                                                    End Function)
             SubstituteExtensions.[When](substitute, Function([sub])
                                                         Dim a = [sub].InternalObjectReturningProperty
-                                                        Return Task.CompletedTask
+                                                        Return Nothing
                                                     End Function)
             SubstituteExtensions.[When](substitute, Function([sub])
                                                         Dim a = [sub](0, 0, 0)
-                                                        Return Task.CompletedTask
+                                                        Return Nothing
                                                     End Function)
             SubstituteExtensions.[When](substitute, AddressOf WhenDelegateWithInternal)
         End Sub
