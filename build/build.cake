@@ -90,7 +90,7 @@ Task("Run-Tests")
                                                        .AppendSwitch("/p:MergeWith", "=", $@"""{paths.Files.TestCoverageOutputWithoutExtension.ToString()}.json""")
                                                        .AppendSwitch("/p:CoverletOutput", "=", $@"""{paths.Files.TestCoverageOutputWithoutExtension.ToString()}""")
                                                        .AppendSwitch("/p:ExcludeByAttribute", "=", @"\""GeneratedCodeAttribute,ExcludeFromCodeCoverage\""")
-                                                       .AppendSwitch("/p:Exclude", "=", @"\""[xunit.*]*,[NSubstitute.Analyzers.Test*]*,[NSubstitute.Analyzers.Test*]*,[NSubstitute.Analyzers.Source*]*\""")
+                                                       .AppendSwitch("/p:Exclude", "=", @"\""[xunit.*]*,[NSubstitute.Analyzers.Test*]*,[NSubstitute.Analyzers.Test*]*,[NSubstitute.Analyzers.Benchmark*]*\""")
                                                        .AppendSwitch("/p:Include", "=", "[NSubstitute.Analyzers*]*")
                                                        .Append("-- RunConfiguration.NoAutoReporters=true");
     }
