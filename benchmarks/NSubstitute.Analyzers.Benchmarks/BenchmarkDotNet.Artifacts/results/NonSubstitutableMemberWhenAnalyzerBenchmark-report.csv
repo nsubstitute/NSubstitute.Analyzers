@@ -1,3 +1,0 @@
-Method,Job,AnalyzeLaunchVariance,EvaluateOverhead,MaxStdErrRelative,MinInvokeCount,MinIterationTime,RemoveOutliers,Affinity,Jit,Platform,Runtime,AllowVeryLargeObjects,Concurrent,CpuGroups,Force,Server,Clock,EngineFactory,Toolchain,InvocationCount,IterationTime,LaunchCount,RunStrategy,TargetCount,UnrollFactor,WarmupCount,Mean,Allocated
-RunNonSubstitutableMemberWhenAnalyzerBenchmark,Clr,False,Default,Default,Default,Default,Default,255,RyuJit,X64,Clr,False,True,False,True,False,Default,Default,Default,1,Default,Default,Default,Default,16,Default,NA,N/A
-RunNonSubstitutableMemberWhenAnalyzerBenchmark,Core,False,Default,Default,Default,Default,Default,255,RyuJit,X64,Core,False,True,False,True,False,Default,Default,Default,1,Default,Default,Default,Default,16,Default,NA,N/A
