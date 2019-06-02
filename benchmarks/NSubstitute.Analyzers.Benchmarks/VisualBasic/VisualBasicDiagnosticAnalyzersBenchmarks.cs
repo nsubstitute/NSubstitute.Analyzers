@@ -35,14 +35,14 @@ namespace NSubstitute.Analyzers.Benchmarks.VisualBasic
             SourceProjectFolderName = "NSubstitute.Analyzers.Benchmarks.Source.VisualBasic";
             BenchmarkSourceAssembly = typeof(NonSubstitutableMemberDiagnosticSource).Assembly;
 
-            CallInfoAnalyzerBenchmark = AnalyzerBenchmark.CreateVisualBasicBenchmark(Solution, new CallInfoAnalyzer());
-            ConflictingArgumentAssignmentsAnalyzerBenchmark = AnalyzerBenchmark.CreateVisualBasicBenchmark(Solution, new ConflictingArgumentAssignmentsAnalyzer());
-            NonSubstitutableMemberAnalyzerBenchmark = AnalyzerBenchmark.CreateVisualBasicBenchmark(Solution, new NonSubstitutableMemberAnalyzer());
-            NonSubstitutableMemberReceivedAnalyzerBenchmark = AnalyzerBenchmark.CreateVisualBasicBenchmark(Solution, new NonSubstitutableMemberReceivedAnalyzer());
-            NonSubstitutableMemberWhenAnalyzerBenchmark = AnalyzerBenchmark.CreateVisualBasicBenchmark(Solution, new NonSubstitutableMemberWhenAnalyzer());
-            ReEntrantSetupAnalyzerBenchmark = AnalyzerBenchmark.CreateVisualBasicBenchmark(Solution, new ReEntrantSetupAnalyzer());
-            SubstituteAnalyzerBenchmark = AnalyzerBenchmark.CreateVisualBasicBenchmark(Solution, new SubstituteAnalyzer());
-            UnusedReceivedAnalyzerBenchmark = AnalyzerBenchmark.CreateVisualBasicBenchmark(Solution, new UnusedReceivedAnalyzer());
+            CallInfoAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new CallInfoAnalyzer());
+            ConflictingArgumentAssignmentsAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new ConflictingArgumentAssignmentsAnalyzer());
+            NonSubstitutableMemberAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new NonSubstitutableMemberAnalyzer());
+            NonSubstitutableMemberReceivedAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new NonSubstitutableMemberReceivedAnalyzer());
+            NonSubstitutableMemberWhenAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new NonSubstitutableMemberWhenAnalyzer());
+            ReEntrantSetupAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new ReEntrantSetupAnalyzer());
+            SubstituteAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new SubstituteAnalyzer());
+            UnusedReceivedAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new UnusedReceivedAnalyzer());
         }
     }
 }

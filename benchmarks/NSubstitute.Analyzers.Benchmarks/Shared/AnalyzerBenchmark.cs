@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -68,32 +67,11 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
 
         public IReadOnlyList<ContextAndAction<OperationBlockStartAnalysisContext>> OperationBlockStartActions { get; }
 
-        public static AnalyzerBenchmark CreateCSharpBenchmark(Solution solution, DiagnosticAnalyzer analyzer) => CreateCSharpBenchmarkAsync(solution, analyzer).GetAwaiter().GetResult();
+        public static AnalyzerBenchmark CreateBenchmark(Solution solution, DiagnosticAnalyzer analyzer) => CreateBenchmarkAsync(solution, analyzer).GetAwaiter().GetResult();
 
-        public static AnalyzerBenchmark CreateVisualBasicBenchmark(Solution solution, DiagnosticAnalyzer analyzer) => CreateVisualBasicBenchmarkAsync(solution, analyzer).GetAwaiter().GetResult();
-
-        public static async Task<AnalyzerBenchmark> CreateCSharpBenchmarkAsync(Solution solution, DiagnosticAnalyzer analyzer)
+        public static async Task<AnalyzerBenchmark> CreateBenchmarkAsync(Solution solution, DiagnosticAnalyzer analyzer)
         {
-            var benchmarkAnalyzer = new CombinedBenchmarkAnalyzer(analyzer);
-            await GetDiagnosticsAsync(solution, benchmarkAnalyzer).ConfigureAwait(false);
-            return new AnalyzerBenchmark(
-                analyzer,
-                benchmarkAnalyzer.SyntaxNodeActions,
-                benchmarkAnalyzer.CompilationStartActions,
-                benchmarkAnalyzer.CompilationActions,
-                benchmarkAnalyzer.SemanticModelActions,
-                benchmarkAnalyzer.SymbolActions,
-                benchmarkAnalyzer.CodeBlockStartActions,
-                benchmarkAnalyzer.CodeBlockActions,
-                benchmarkAnalyzer.SyntaxTreeActions,
-                benchmarkAnalyzer.OperationActions,
-                benchmarkAnalyzer.OperationBlockActions,
-                benchmarkAnalyzer.OperationBlockStartActions);
-        }
-
-        public static async Task<AnalyzerBenchmark> CreateVisualBasicBenchmarkAsync(Solution solution, DiagnosticAnalyzer analyzer)
-        {
-            var benchmarkAnalyzer = new CombinedBenchmarkAnalyzer(analyzer);
+            var benchmarkAnalyzer = new BenchmarkAnalyzer(analyzer);
             await GetDiagnosticsAsync(solution, benchmarkAnalyzer).ConfigureAwait(false);
             return new AnalyzerBenchmark(
                 analyzer,
@@ -204,7 +182,8 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
             }
         }
 
-        private abstract class AbstractBenchmarkAnalyzer : DiagnosticAnalyzer
+        [DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
+        private class BenchmarkAnalyzer : DiagnosticAnalyzer
         {
             internal List<ContextAndAction<SyntaxNodeAnalysisContext>> SyntaxNodeActions { get; } = new List<ContextAndAction<SyntaxNodeAnalysisContext>>();
 
@@ -230,7 +209,7 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
 
             private readonly DiagnosticAnalyzer _inner;
 
-            protected AbstractBenchmarkAnalyzer(DiagnosticAnalyzer inner)
+            public BenchmarkAnalyzer(DiagnosticAnalyzer inner)
             {
                 _inner = inner;
             }
@@ -245,10 +224,10 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
 
             private class BenchmarkAnalysisContext : AnalysisContext
             {
-                private readonly AbstractBenchmarkAnalyzer _analyzer;
+                private readonly BenchmarkAnalyzer _analyzer;
                 private readonly AnalysisContext _context;
 
-                public BenchmarkAnalysisContext(AbstractBenchmarkAnalyzer analyzer, AnalysisContext context)
+                public BenchmarkAnalysisContext(BenchmarkAnalyzer analyzer, AnalysisContext context)
                 {
                     _analyzer = analyzer;
                     _context = context;
@@ -330,15 +309,6 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
                     _context.RegisterOperationBlockStartAction(
                         x => _analyzer.OperationBlockStartActions.Add(new ContextAndAction<OperationBlockStartAnalysisContext>(x, action)));
                 }
-            }
-        }
-
-        [DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
-        private class CombinedBenchmarkAnalyzer : AbstractBenchmarkAnalyzer
-        {
-            public CombinedBenchmarkAnalyzer(DiagnosticAnalyzer inner)
-                : base(inner)
-            {
             }
         }
     }
