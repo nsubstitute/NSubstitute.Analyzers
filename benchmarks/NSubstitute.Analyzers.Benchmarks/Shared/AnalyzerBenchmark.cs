@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Src: https://github.com/GuOrg/Gu.Roslyn.Asserts/blob/aac107d0f73332cf7c692f05e31470f3bd1104f6/Gu.Roslyn.Asserts/Benchmark.cs
+// Copyright (c) Johan Larsson. All rights reserved. Licensed under the MIT License. See License at at https://github.com/GuOrg/Gu.Roslyn.Asserts/blob/master/LICENSE for license information.
+// Some modifications made (such as namespace and support for VisualBasic) for NSubstitute.Analyzers project.
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
