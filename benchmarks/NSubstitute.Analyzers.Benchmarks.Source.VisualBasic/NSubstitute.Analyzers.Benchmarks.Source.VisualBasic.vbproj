@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard1.3</TargetFramework>
+    </PropertyGroup>
+    
+    <ItemGroup>
+      <AdditionalFiles Include="nsubstitute.json" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <PackageReference Include="NSubstitute" Version="3.1.0" />
+    </ItemGroup>
+    
+</Project>

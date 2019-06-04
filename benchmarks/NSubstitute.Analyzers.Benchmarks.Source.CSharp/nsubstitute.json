@@ -1,0 +1,6 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nsubstitute/NSubstitute.Analyzers/master/src/NSubstitute.Analyzers.Shared/Settings/nsubstitute.schema.json",
+  "Suppressions": [
+    
+  ]
+}
