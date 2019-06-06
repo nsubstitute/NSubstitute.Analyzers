@@ -605,5 +605,36 @@ namespace MyNamespace
 }}";
             await VerifyNoDiagnostic(source);
         }
+
+        public override async Task ReportsNoDiagnostics_WhenElementUsedTwice_InForEachLoop(string method)
+        {
+            var source = $@"using NSubstitute;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace MyNamespace
+{{
+    public class FooTests
+    {{
+        private IEnumerator<int> firstEnumerator = Substitute.For<IEnumerator<int>>();
+        private IEnumerator<int> secondEnumerator = Substitute.For<IEnumerator<int>>();
+        
+        public void Test()
+        {{
+            var thirdEnumerator = Substitute.For<IEnumerator<int>>();
+            var fourthEnumerator = Substitute.For<IEnumerator<int>>();
+            foreach (var value in Enumerable.Empty<int>())
+            {{
+                {method}(firstEnumerator.Current, value + 1);
+                {method}(firstEnumerator.Current, value + 1);
+                {method}(secondEnumerator.Current, value + 1);
+                {method}(thirdEnumerator.Current, value + 1);
+                {method}(fourthEnumerator.Current, value + 1);
+            }}
+        }}
+    }}
+}}";
+            await VerifyNoDiagnostic(source);
+        }
     }
 }
