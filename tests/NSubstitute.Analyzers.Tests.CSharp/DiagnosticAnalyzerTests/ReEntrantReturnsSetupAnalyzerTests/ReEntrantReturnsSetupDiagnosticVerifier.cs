@@ -109,6 +109,10 @@ bar = fooBar;")]
         [InlineData]
         public abstract Task ReportsNoDiagnostics_WhenReturnsValueIsSet_InForEachLoop(string method);
 
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostics_WhenElementUsedTwice_InForEachLoop(string method);
+
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
             return new ReEntrantSetupAnalyzer();

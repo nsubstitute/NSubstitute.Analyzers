@@ -39,7 +39,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
 
             var symbol = compilation.GetSemanticModel(syntaxNode.SyntaxTree).GetSymbolInfo(syntaxNode);
-            if (symbol.Symbol != null && symbol.Symbol.Locations.Any())
+            if (symbol.Symbol != null && IsLocalSymbol(symbol.Symbol) == false && symbol.Symbol.Locations.Any())
             {
                 foreach (var symbolLocation in symbol.Symbol.Locations.Where(location => location.SourceTree != null))
                 {
