@@ -94,6 +94,14 @@ barr = fooBar")]
         [InlineData("FooBar")]
         public abstract Task ReportsNoDiagnostic_WhenUsed_WithTypeofExpression(string method, string type);
 
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostics_WhenReturnsValueIsSet_InForEachLoop(string method);
+
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostics_WhenElementUsedTwice_InForEachLoop(string method);
+
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
             return new ReEntrantSetupAnalyzer();

@@ -495,5 +495,62 @@ End Namespace";
 
             await VerifyNoDiagnostic(source);
         }
+
+        public override async Task ReportsNoDiagnostics_WhenReturnsValueIsSet_InForEachLoop(string method)
+        {
+            var source = $@"Imports NSubstitute
+Imports NSubstitute.Core
+
+Namespace MyNamespace
+    Public Interface IFoo
+        Function Bar() As Integer
+    End Interface
+
+    Public Class FooBar
+        Public Property Value As Integer
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
+
+            For Each fooBar In New FooBar(-1) {{}}
+                {method}(substitute.Bar(), fooBar.Value)
+            Next
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsNoDiagnostics_WhenElementUsedTwice_InForEachLoop(string method)
+        {
+            var source = $@"Imports NSubstitute
+Imports System.Collections.Generic
+Imports System.Linq
+
+Namespace MyNamespace
+    Public Class FooTests
+        Private firstEnumerator As IEnumerator(Of Integer) = Substitute.[For](Of IEnumerator(Of Integer))()
+        Private secondEnumerator As IEnumerator(Of Integer) = Substitute.[For](Of IEnumerator(Of Integer))()
+
+        Public Sub Test()
+            Dim thirdEnumerator = Substitute.[For](Of IEnumerator(Of Integer))()
+            Dim fourthEnumerator = Substitute.[For](Of IEnumerator(Of Integer))()
+
+            For Each value In Enumerable.Empty(Of Integer)()
+                {method}(firstEnumerator.Current, value + 1)
+                {method}(firstEnumerator.Current, value + 1)
+                {method}(secondEnumerator.Current, value + 1)
+                {method}(thirdEnumerator.Current, value + 1)
+                {method}(fourthEnumerator.Current, value + 1)
+            Next
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifyNoDiagnostic(source);
+        }
     }
 }

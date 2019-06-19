@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.VisualBasic;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
@@ -9,7 +10,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
     internal class ReEntrantCallFinder : AbstractReEntrantCallFinder
     {
-        protected override ImmutableList<ISymbol> GetReEntrantSymbols(Compilation compilation, SyntaxNode rootNode)
+        protected override ImmutableList<ISymbol> GetReEntrantSymbols(Compilation compilation, SyntaxNode originatingExpression, SyntaxNode rootNode)
         {
             var visitor = new ReEntrantCallVisitor(this, compilation);
             visitor.Visit(rootNode);
@@ -33,7 +34,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
             public override void VisitInvocationExpression(InvocationExpressionSyntax node)
             {
-                if (_compilation.ContainsSyntaxTree(node.SyntaxTree))
+                if (_visitedNodes.Contains(node) == false && _compilation.ContainsSyntaxTree(node.SyntaxTree))
                 {
                     var semanticModel = _compilation.GetSemanticModel(node.SyntaxTree);
                     var symbolInfo = semanticModel.GetSymbolInfo(node);
@@ -67,7 +68,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
                     syntaxNode.IsKind(SyntaxKind.SimpleMemberAccessExpression)))
                 {
                     _visitedNodes.Add(syntaxNode);
-                    foreach (var relatedNode in _reEntrantCallFinder.GetRelatedNodes(_compilation, syntaxNode))
+                    foreach (var relatedNode in _reEntrantCallFinder.GetRelatedNodes(_compilation, syntaxNode).Where(node => _visitedNodes.Contains(node) == false))
                     {
                         var currentNode = relatedNode;
 

@@ -96,3 +96,6 @@ packages
 
 # Windows
 Thumbs.db
+
+#Benchmark.Net results
+**/BenchMarkDotNet.Artifacts/*

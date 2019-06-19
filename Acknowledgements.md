@@ -29,3 +29,7 @@ TinyJson is distributed under MIT license [https://github.com/gering/Tiny-JSON/b
 ## Roslynator [https://github.com/JosefPihrt/Roslynator]
 Rosynator testing suite was an inspiration for reworking NSubstitute.Analyzers testing approach, resulting in a significant decrease of code duplication in tests.
 Roslynator is distributed under Apache license [https://github.com/JosefPihrt/Roslynator/blob/master/LICENSE.txt]
+
+## Gu.Roslyn.Asserts [https://github.com/GuOrg/Gu.Roslyn.Asserts]
+Gu.Roslyn.Asserts benchmarking approach was used for measuring performance of NSubstitute.Analyzers
+Gu.Roslyn.Asserts is distributed under MIT license [https://github.com/GuOrg/Gu.Roslyn.Asserts/blob/master/LICENSE]

@@ -28,7 +28,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
-        public override void Initialize(AnalysisContext context)
+        protected override void InitializeAnalyzer(AnalysisContext context)
         {
             context.RegisterSyntaxNodeAction(AnalyzeInvocation, InvocationExpressionKind);
         }
@@ -57,7 +57,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             foreach (var argument in argumentsForAnalysis)
             {
-                var reentrantSymbol = _reEntrantCallFinder.GetReEntrantCalls(syntaxNodeContext.Compilation, argument).FirstOrDefault();
+                var reentrantSymbol = _reEntrantCallFinder.GetReEntrantCalls(syntaxNodeContext.Compilation, invocationExpression, argument).FirstOrDefault();
                 if (reentrantSymbol != null)
                 {
                     var diagnostic = Diagnostic.Create(

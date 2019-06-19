@@ -574,5 +574,68 @@ namespace MyNamespace
 }}";
             await VerifyNoDiagnostic(source);
         }
+
+        public override async Task ReportsNoDiagnostics_WhenReturnsValueIsSet_InForEachLoop(string method)
+        {
+            var source = $@"using NSubstitute;
+using NSubstitute.Core;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        int Bar();
+    }}
+
+    public class FooBar
+    {{
+        public int Value {{ get; set; }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = Substitute.For<IFoo>();
+            foreach (var fooBar in new FooBar[0])
+            {{
+                substitute.Bar().{method}(fooBar.Value);
+            }}
+        }}
+    }}
+}}";
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsNoDiagnostics_WhenElementUsedTwice_InForEachLoop(string method)
+        {
+            var source = $@"using NSubstitute;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace MyNamespace
+{{
+    public class FooTests
+    {{
+        private IEnumerator<int> firstEnumerator = Substitute.For<IEnumerator<int>>();
+        private IEnumerator<int> secondEnumerator = Substitute.For<IEnumerator<int>>();        
+
+        public void Test()
+        {{
+            var thirdEnumerator = Substitute.For<IEnumerator<int>>();
+            var fourthEnumerator = Substitute.For<IEnumerator<int>>();
+            foreach (var value in Enumerable.Empty<int>())
+            {{
+                firstEnumerator.Current.{method}(value + 1);
+                firstEnumerator.Current.{method}(value + 1);
+                secondEnumerator.Current.{method}(value + 1);
+                thirdEnumerator.Current.{method}(value + 1);
+                fourthEnumerator.Current.{method}(value + 1);
+            }}
+        }}
+    }}
+}}";
+            await VerifyNoDiagnostic(source);
+        }
     }
 }

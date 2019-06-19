@@ -16,6 +16,14 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             DiagnosticDescriptorsProvider = diagnosticDescriptorsProvider;
         }
 
+        public sealed override void Initialize(AnalysisContext context)
+        {
+            context.EnableConcurrentExecution();
+            InitializeAnalyzer(context);
+        }
+
+        protected abstract void InitializeAnalyzer(AnalysisContext context);
+
         protected void TryReportDiagnostic(SyntaxNodeAnalysisContext syntaxNodeContext, Diagnostic diagnostic, ISymbol symbol)
         {
             if (IsSuppressed(syntaxNodeContext, diagnostic, symbol))

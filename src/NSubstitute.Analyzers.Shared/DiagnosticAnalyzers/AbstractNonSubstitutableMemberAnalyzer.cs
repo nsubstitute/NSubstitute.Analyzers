@@ -39,7 +39,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         {
         }
 
-        public sealed override void Initialize(AnalysisContext context)
+        protected override void InitializeAnalyzer(AnalysisContext context)
         {
             context.RegisterSyntaxNodeAction(AnalyzeMemberAccess, SimpleMemberAccessExpressionKind);
             context.RegisterSyntaxNodeAction(AnalyzeInvocation, InvocationExpressionKind);
