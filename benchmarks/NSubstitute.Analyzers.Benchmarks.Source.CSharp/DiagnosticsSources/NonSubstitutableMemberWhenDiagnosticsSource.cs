@@ -60,14 +60,16 @@ namespace NSubstitute.Analyzers.Benchmarks.Source.CSharp.DiagnosticsSources
             SubstituteExtensions.When(substitute, WhenDelegateWithInternal);
         }
 
-        public void WhenDelegate(Foo foo)
+        public Task WhenDelegate(Foo foo)
         {
             foo.ObjectReturningMethod();
+            return Task.CompletedTask;
         }
 
-        public void WhenDelegateWithInternal(Foo foo)
+        public Task WhenDelegateWithInternal(Foo foo)
         {
             foo.InternalObjectReturningMethod();
+            return Task.CompletedTask;
         }
     }
 }

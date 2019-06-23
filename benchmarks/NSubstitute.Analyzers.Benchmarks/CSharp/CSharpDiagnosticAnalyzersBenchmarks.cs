@@ -23,6 +23,8 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp
 
         protected override AnalyzerBenchmark UnusedReceivedAnalyzerBenchmark { get; }
 
+        protected override AnalyzerBenchmark ArgumentMatcherAnalyzerBenchmark { get; }
+
         protected override AbstractSolutionLoader SolutionLoader { get; }
 
         protected override string SourceProjectFolderName { get; }
@@ -43,6 +45,7 @@ namespace NSubstitute.Analyzers.Benchmarks.CSharp
             ReEntrantSetupAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new ReEntrantSetupAnalyzer());
             SubstituteAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new SubstituteAnalyzer());
             UnusedReceivedAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new UnusedReceivedAnalyzer());
+            ArgumentMatcherAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new ArgumentMatcherAnalyzer());
         }
     }
 }

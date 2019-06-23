@@ -30,6 +30,8 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
 
         protected abstract AnalyzerBenchmark UnusedReceivedAnalyzerBenchmark { get; }
 
+        protected abstract AnalyzerBenchmark ArgumentMatcherAnalyzerBenchmark { get; }
+
         protected abstract AbstractSolutionLoader SolutionLoader { get; }
 
         protected abstract string SourceProjectFolderName { get; }
@@ -89,6 +91,12 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
         public void UnusedReceivedAnalyzer()
         {
             UnusedReceivedAnalyzerBenchmark.Run();
+        }
+
+        [Benchmark]
+        public void ArgumentMatcherAnalyzer()
+        {
+            ArgumentMatcherAnalyzerBenchmark.Run();
         }
 
         private string GetBenchmarkSourceProjectPath()

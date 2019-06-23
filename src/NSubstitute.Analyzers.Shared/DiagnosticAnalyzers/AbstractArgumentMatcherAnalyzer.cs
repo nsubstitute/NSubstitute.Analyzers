@@ -20,7 +20,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
-        public override void Initialize(AnalysisContext context)
+        protected override void InitializeAnalyzer(AnalysisContext context)
         {
             context.RegisterCompilationStartAction(compilationContext =>
             {

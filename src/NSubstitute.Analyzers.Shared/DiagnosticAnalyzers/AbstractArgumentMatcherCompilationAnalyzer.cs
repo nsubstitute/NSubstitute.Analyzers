@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -18,11 +19,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private readonly IDiagnosticDescriptorsProvider _diagnosticDescriptorsProvider;
 
-        private HashSet<SyntaxNode> ReceivedInOrderNodes { get; } = new HashSet<SyntaxNode>();
+        private ConcurrentBag<SyntaxNode> ReceivedInOrderNodes { get; } = new ConcurrentBag<SyntaxNode>();
 
-        private HashSet<SyntaxNode> WhenNodes { get; } = new HashSet<SyntaxNode>();
+        private ConcurrentBag<SyntaxNode> WhenNodes { get; } = new ConcurrentBag<SyntaxNode>();
 
-        private Dictionary<SyntaxNode, List<SyntaxNode>> PotentialMisusedNodes { get; } = new Dictionary<SyntaxNode, List<SyntaxNode>>();
+        private ConcurrentDictionary<SyntaxNode, List<SyntaxNode>> PotentialMisusedNodes { get; } = new ConcurrentDictionary<SyntaxNode, List<SyntaxNode>>();
 
         protected AbstractArgumentMatcherCompilationAnalyzer(ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder, IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
         {
@@ -58,9 +59,13 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         public void FinishAnalyzeArgMatchers(CompilationAnalysisContext compilationAnalysisContext)
         {
+            // we dont need thread safety anymore - changing for hashset for faster lookup
+            var whenNodes = WhenNodes.ToImmutableHashSet();
+            var receivedInOrderNodes = ReceivedInOrderNodes.ToImmutableHashSet();
+
             foreach (var potential in PotentialMisusedNodes)
             {
-                if (WhenNodes.Contains(potential.Key) == false && ReceivedInOrderNodes.Contains(potential.Key) == false)
+                if (whenNodes.Contains(potential.Key) == false && receivedInOrderNodes.Contains(potential.Key) == false)
                 {
                     foreach (var arg in potential.Value)
                     {
@@ -135,14 +140,14 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 IsPrecededByReceivedInvocation(syntaxNodeContext, enclosingExpression) == false &&
                 IsUsedAlongWithArgInvokers(syntaxNodeContext, enclosingExpression) == false)
             {
-                if (PotentialMisusedNodes.TryGetValue(enclosingExpression, out var nodes))
-                {
-                    nodes.Add(invocationExpression);
-                }
-                else
-                {
-                    PotentialMisusedNodes.Add(enclosingExpression, new List<SyntaxNode> { invocationExpression });
-                }
+                PotentialMisusedNodes.AddOrUpdate(
+                    enclosingExpression,
+                    node => new List<SyntaxNode> { invocationExpression },
+                    (node, list) =>
+                    {
+                        list.Add(invocationExpression);
+                        return list;
+                    });
             }
         }
 
