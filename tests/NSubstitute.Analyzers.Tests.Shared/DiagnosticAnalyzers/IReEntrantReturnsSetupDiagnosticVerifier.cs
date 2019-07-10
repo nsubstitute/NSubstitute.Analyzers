@@ -27,5 +27,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
         Task ReportsNoDiagnostic_WhenUsed_WithTypeofExpression(string method, string type);
 
         Task ReportsNoDiagnostics_WhenReturnsValueIsSet_InForEachLoop(string method);
+
+        Task ReportsNoDiagnostics_WhenElementUsedTwice_InForEachLoop(string method);
     }
 }
