@@ -12,6 +12,7 @@
 #tool "nuget:https://www.nuget.org/api/v2?package=ReportGenerator&version=4.0.4"
 #addin "nuget:https://www.nuget.org/api/v2?package=Cake.Incubator&version=4.0.1"
 #addin "nuget:https://www.nuget.org/api/v2?package=Newtonsoft.Json&version=9.0.1"
+#addin "nuget:https://www.nuget.org/api/v2?package=semver.core&version=2.0.0"
 
 using Newtonsoft.Json.Linq;
 using System.Net.Http;

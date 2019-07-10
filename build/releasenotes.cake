@@ -30,7 +30,7 @@ public class ReleaseNotes
     {
         var releaseNotes = context.ParseAllReleaseNotes(paths.Files.AllReleaseNotes);
         return releaseNotes.Select(note => new ReleaseNotes(note))
-                           .OrderByDescending(note => note.SemVersion)
+                           .OrderByDescending(note => Semver.SemVersion.Parse(note.SemVersion))
                            .ToList();
     }
 }

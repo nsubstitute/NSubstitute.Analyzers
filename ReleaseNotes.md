@@ -1,10 +1,19 @@
+### 1.0.10 (5 June 2019)
+
+ - [#103](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/103) - Enable concurrent execution for every analyzer
+ - [#93](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/93) - NS4000 Unexpected warning in foreach loop
+ 
+### 1.0.9 (12 April 2019)
+
+ - [#91](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/91) - Erroneous NS1002 errors for Arg.Any calls
+
 ### 1.0.8 (08 April 2019)
 
- - [#89](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/89) NS1002 doesn't detect non-virtual calls from base class
- - [#87](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/87) NS1002 highlights wrong member
- - [#78](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/78) Update documentation so as it includes information about min supported Visual Studio version
- - [#76](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/76) Analyze callInfo usages for Do method
- - [#62](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/62) Detecting conflicting out/ref arguments
+ - [#89](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/89) - NS1002 doesn't detect non-virtual calls from base class
+ - [#87](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/87) - NS1002 highlights wrong member
+ - [#78](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/78) - Update documentation so as it includes information about min supported Visual Studio version
+ - [#76](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/76) - Analyze callInfo usages for Do method
+ - [#62](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/62) - Detecting conflicting out/ref arguments
 
 ### 1.0.7 (15 March 2019)
 
