@@ -11,11 +11,11 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace NSubstitute.Analyzers.CSharp.CodeFixProviders
 {
     [ExportCodeFixProvider(LanguageNames.CSharp)]
-    internal class SubstituteForInternalMemberCodeFixProvider : AbstractSubstituteForInternalMemberCodeFixProvider<InvocationExpressionSyntax, ExpressionSyntax, CompilationUnitSyntax>
+    internal sealed class SubstituteForInternalMemberCodeFixProvider : AbstractSubstituteForInternalMemberCodeFixProvider<InvocationExpressionSyntax, ExpressionSyntax, CompilationUnitSyntax>
     {
-        protected override AbstractSubstituteProxyAnalysis<InvocationExpressionSyntax, ExpressionSyntax> GetSubstituteProxyAnalysis()
+        public SubstituteForInternalMemberCodeFixProvider()
+            : base(SubstituteProxyAnalysis.Instance)
         {
-            return new SubstituteProxyAnalysis();
         }
 
         protected override void RegisterCodeFix(CodeFixContext context, Diagnostic diagnostic, CompilationUnitSyntax compilationUnitSyntax)

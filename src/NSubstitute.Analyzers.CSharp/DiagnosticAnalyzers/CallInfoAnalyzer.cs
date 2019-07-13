@@ -10,10 +10,10 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    internal class CallInfoAnalyzer : AbstractCallInfoAnalyzer<SyntaxKind, InvocationExpressionSyntax, ExpressionSyntax, ElementAccessExpressionSyntax>
+    internal sealed class CallInfoAnalyzer : AbstractCallInfoAnalyzer<SyntaxKind, InvocationExpressionSyntax, ExpressionSyntax, ElementAccessExpressionSyntax>
     {
         public CallInfoAnalyzer()
-            : base(new DiagnosticDescriptorsProvider(), new CallInfoCallFinder(), new SubstitutionNodeFinder())
+            : base(NSubstitute.Analyzers.CSharp.DiagnosticDescriptorsProvider.Instance, CallInfoCallFinder.Instance, SubstitutionNodeFinder.Instance)
         {
         }
 

@@ -1,23 +1,22 @@
-﻿using System.Collections.Generic;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
     internal struct ConstructorContext
     {
-        public IList<IMethodSymbol> AccessibleConstructors { get; }
+        public IMethodSymbol[] AccessibleConstructors { get; }
 
-        public IList<IMethodSymbol> PossibleConstructors { get; }
+        public IMethodSymbol[] PossibleConstructors { get; }
 
-        public IList<ITypeSymbol> InvocationParameters { get; }
+        public ITypeSymbol[] InvocationParameters { get; }
 
         public ITypeSymbol ConstructorType { get; }
 
         public ConstructorContext(
             ITypeSymbol constructorType,
-            IList<IMethodSymbol> accessibleConstructors,
-            IList<IMethodSymbol> possibleConstructors,
-            IList<ITypeSymbol> invocationParameters)
+            IMethodSymbol[] accessibleConstructors,
+            IMethodSymbol[] possibleConstructors,
+            ITypeSymbol[] invocationParameters)
         {
             ConstructorType = constructorType;
             InvocationParameters = invocationParameters;

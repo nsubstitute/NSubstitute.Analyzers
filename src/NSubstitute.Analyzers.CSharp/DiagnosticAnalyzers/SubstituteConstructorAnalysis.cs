@@ -9,6 +9,12 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 {
     internal class SubstituteConstructorAnalysis : AbstractSubstituteConstructorAnalysis<InvocationExpressionSyntax, ArgumentSyntax>
     {
+        public static SubstituteConstructorAnalysis Instance { get; } = new SubstituteConstructorAnalysis();
+
+        private SubstituteConstructorAnalysis()
+        {
+        }
+
         protected override IList<ArgumentSyntax> GetInvocationArguments(InvocationExpressionSyntax invocationExpression)
         {
             return invocationExpression.ArgumentList?.Arguments.ToList();

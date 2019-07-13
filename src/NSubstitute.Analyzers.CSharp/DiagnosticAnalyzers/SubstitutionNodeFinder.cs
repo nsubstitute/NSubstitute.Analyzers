@@ -15,6 +15,12 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
     /// </summary>
     internal class SubstitutionNodeFinder : AbstractSubstitutionNodeFinder<InvocationExpressionSyntax>
     {
+        public static SubstitutionNodeFinder Instance { get; } = new SubstitutionNodeFinder();
+
+        private SubstitutionNodeFinder()
+        {
+        }
+
         public override SyntaxNode FindForAndDoesExpression(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax invocationExpression, IMethodSymbol invocationExpressionSymbol)
         {
             var parentInvocationExpression = invocationExpression?.GetParentInvocationExpression();

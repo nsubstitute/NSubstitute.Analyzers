@@ -15,9 +15,9 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
     {
         private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
-            DiagnosticDescriptorsProvider.NonVirtualWhenSetupSpecification,
-            DiagnosticDescriptorsProvider.InternalSetupSpecification);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+
+        private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
 
         private static readonly ImmutableHashSet<string> MethodNames = ImmutableHashSet.Create(
             MetadataNames.NSubstituteWhenMethod,
@@ -29,11 +29,15 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             : base(diagnosticDescriptorsProvider)
         {
             _substitutionNodeFinder = substitutionNodeFinder;
+            _analyzeInvocationAction = AnalyzeInvocation;
+            SupportedDiagnostics = ImmutableArray.Create(
+                DiagnosticDescriptorsProvider.NonVirtualWhenSetupSpecification,
+                DiagnosticDescriptorsProvider.InternalSetupSpecification);
         }
 
         protected override void InitializeAnalyzer(AnalysisContext context)
         {
-            context.RegisterSyntaxNodeAction(AnalyzeInvocation, InvocationExpressionKind);
+            context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
         }
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
@@ -41,18 +45,14 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             var invocationExpression = (TInvocationExpressionSyntax)syntaxNodeContext.Node;
             var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
 
-            if (methodSymbolInfo.Symbol?.Kind != SymbolKind.Method)
+            if (methodSymbolInfo.Symbol == null || methodSymbolInfo.Symbol.Kind != SymbolKind.Method)
             {
                 return;
             }
 
             var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
-            if (methodSymbol == null)
-            {
-                return;
-            }
 
-            if (IsWhenLikeMethod(syntaxNodeContext, invocationExpression, methodSymbol.Name) == false)
+            if (IsWhenLikeMethod(methodSymbol) == false)
             {
                 return;
             }
@@ -87,17 +87,15 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
         }
 
-        private bool IsWhenLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntax, string memberName)
+        private bool IsWhenLikeMethod(ISymbol symbol)
         {
-            if (MethodNames.Contains(memberName) == false)
+            if (MethodNames.Contains(symbol.Name) == false)
             {
                 return false;
             }
 
-            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax);
-
-            return symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.Symbol?.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteExtensionsFullTypeName, StringComparison.OrdinalIgnoreCase) == true;
+            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
+                   symbol.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteExtensionsFullTypeName, StringComparison.OrdinalIgnoreCase) == true;
         }
 
         private static Location GetSubstitutionNodeActualLocation(SyntaxNode analysedSyntax, SymbolInfo symbolInfo)

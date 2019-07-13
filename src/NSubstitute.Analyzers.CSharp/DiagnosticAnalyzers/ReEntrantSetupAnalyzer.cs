@@ -10,10 +10,10 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    internal class ReEntrantSetupAnalyzer : AbstractReEntrantSetupAnalyzer<SyntaxKind, InvocationExpressionSyntax>
+    internal sealed class ReEntrantSetupAnalyzer : AbstractReEntrantSetupAnalyzer<SyntaxKind, InvocationExpressionSyntax>
     {
         public ReEntrantSetupAnalyzer()
-            : base(new DiagnosticDescriptorsProvider(), new ReEntrantCallFinder())
+            : base(NSubstitute.Analyzers.CSharp.DiagnosticDescriptorsProvider.Instance, ReEntrantCallFinder.Instance)
         {
         }
 

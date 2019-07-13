@@ -22,12 +22,25 @@ namespace NSubstitute.Analyzers.Tests.Shared.Fixtures
             AssertDiagnosticAnalyzerInheritanceFromAssemblyContaining(typeof(T));
         }
 
+        public void AssertCodeFixProviderInheritanceFromAssemblyContaining<T>()
+        {
+            AssertCodeFixProviderInheritanceFromAssemblyContaining(typeof(T));
+        }
+
         public void AssertDiagnosticAnalyzerInheritanceFromAssemblyContaining(Type type)
         {
-            var diagnosticAnalyzerTypes = type.Assembly.GetTypesAssignableTo<DiagnosticAnalyzer>().ToList();
-            var abstractDiagnosticAnalyzerTypes = type.Assembly.GetTypesAssignableTo<AbstractDiagnosticAnalyzer>().ToList();
+            var assembly = type.Assembly;
+            var analyzers = GetDiagnosticAnalyzers(assembly).ToList();
+            var abstractDiagnosticAnalyzerTypes = assembly.GetTypesAssignableTo<AbstractDiagnosticAnalyzer>().ToList();
 
-            abstractDiagnosticAnalyzerTypes.Should().BeEquivalentTo(diagnosticAnalyzerTypes);
+            abstractDiagnosticAnalyzerTypes.Should().BeEquivalentTo(analyzers);
+            analyzers.Should().OnlyContain(analyzer => analyzer.IsSealed);
+        }
+
+        public void AssertCodeFixProviderInheritanceFromAssemblyContaining(Type type)
+        {
+            var codeFixProviders = GetCodeFixProviders(type.Assembly);
+            codeFixProviders.Should().OnlyContain(analyzer => analyzer.IsSealed);
         }
 
         public void AssertExportCodeFixProviderAttributeUsageFromAssemblyContaining<T>(string expectedLanguage)
@@ -37,10 +50,10 @@ namespace NSubstitute.Analyzers.Tests.Shared.Fixtures
 
         public void AssertExportCodeFixProviderAttributeUsageFromAssemblyContaining(Type type, string expectedLanguage)
         {
-            var types = type.Assembly.GetTypesAssignableTo<CodeFixProvider>().ToList();
+            var codeFixProviders = GetCodeFixProviders(type.Assembly).ToList();
 
-            types.Should().OnlyContain(innerType => innerType.GetCustomAttributes<ExportCodeFixProviderAttribute>(false).Count() == 1, "because each code fix provider should be marked with only one attribute ExportCodeFixProviderAttribute");
-            types.SelectMany(innerType => innerType.GetCustomAttributes<ExportCodeFixProviderAttribute>(false)).Should()
+            codeFixProviders.Should().OnlyContain(innerType => innerType.GetCustomAttributes<ExportCodeFixProviderAttribute>(false).Count() == 1, "because each code fix provider should be marked with only one attribute ExportCodeFixProviderAttribute");
+            codeFixProviders.SelectMany(innerType => innerType.GetCustomAttributes<ExportCodeFixProviderAttribute>(false)).Should()
                 .OnlyContain(
                     attr => attr.Languages.Length == 1 && attr.Languages.Count(lang => lang == expectedLanguage) == 1,
                     $"because each code fix provider should support only selected language ${expectedLanguage}");
@@ -48,13 +61,23 @@ namespace NSubstitute.Analyzers.Tests.Shared.Fixtures
 
         public void AssertDiagnosticAnalyzerAttributeUsageFromAssemblyContaining(Type type, string expectedLanguage)
         {
-            var types = type.Assembly.GetTypesAssignableTo<DiagnosticAnalyzer>().ToList();
+            var analyzers = GetDiagnosticAnalyzers(type.Assembly).ToList();
 
-            types.Should().OnlyContain(innerType => innerType.GetCustomAttributes<DiagnosticAnalyzerAttribute>(false).Count() == 1, "because each analyzer should be marked with only one attribute DiagnosticAnalyzerAttribute");
-            types.SelectMany(innerType => innerType.GetCustomAttributes<DiagnosticAnalyzerAttribute>(false)).Should()
+            analyzers.Should().OnlyContain(innerType => innerType.GetCustomAttributes<DiagnosticAnalyzerAttribute>(false).Count() == 1, "because each analyzer should be marked with only one attribute DiagnosticAnalyzerAttribute");
+            analyzers.SelectMany(innerType => innerType.GetCustomAttributes<DiagnosticAnalyzerAttribute>(false)).Should()
                 .OnlyContain(
                     attr => attr.Languages.Length == 1 && attr.Languages.Count(lang => lang == expectedLanguage) == 1,
                     $"because each analyzer should support only selected language ${expectedLanguage}");
+        }
+
+        private IEnumerable<Type> GetDiagnosticAnalyzers(Assembly assembly)
+        {
+            return assembly.GetTypesAssignableTo<DiagnosticAnalyzer>();
+        }
+
+        private IEnumerable<Type> GetCodeFixProviders(Assembly assembly)
+        {
+            return assembly.GetTypesAssignableTo<CodeFixProvider>();
         }
     }
 }

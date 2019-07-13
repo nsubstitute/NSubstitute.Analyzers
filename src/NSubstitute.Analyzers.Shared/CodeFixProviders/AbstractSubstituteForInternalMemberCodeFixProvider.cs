@@ -14,7 +14,14 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
         where TExpressionSyntax : SyntaxNode
         where TCompilationUnitSyntax : SyntaxNode
     {
+        private readonly ISubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> _substituteProxyAnalysis;
+
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.SubstituteForInternalMember);
+
+        protected AbstractSubstituteForInternalMemberCodeFixProvider(ISubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> substituteProxyAnalysis)
+        {
+            _substituteProxyAnalysis = substituteProxyAnalysis;
+        }
 
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
@@ -50,16 +57,13 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             RegisterCodeFix(context, diagnostic, compilationUnitSyntax);
         }
 
-        protected abstract AbstractSubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> GetSubstituteProxyAnalysis();
-
         protected abstract void RegisterCodeFix(CodeFixContext context, Diagnostic diagnostic, TCompilationUnitSyntax compilationUnitSyntax);
 
         private async Task<SyntaxReference> GetDeclaringSyntaxReference(CodeFixContext context, TInvocationExpressionSyntax invocationExpression)
         {
             var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
             var methodSymbol = semanticModel.GetSymbolInfo(invocationExpression).Symbol as IMethodSymbol;
-            var proxyAnalysis = GetSubstituteProxyAnalysis();
-            var actualProxyTypeSymbol = proxyAnalysis.GetActualProxyTypeSymbol(semanticModel, invocationExpression, methodSymbol);
+            var actualProxyTypeSymbol = _substituteProxyAnalysis.GetActualProxyTypeSymbol(semanticModel, invocationExpression, methodSymbol);
             var syntaxReference = actualProxyTypeSymbol.DeclaringSyntaxReferences.FirstOrDefault();
             return syntaxReference;
         }

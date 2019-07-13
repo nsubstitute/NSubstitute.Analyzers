@@ -10,13 +10,16 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
     internal abstract class AbstractUnusedReceivedAnalyzer<TSyntaxKind> : AbstractDiagnosticAnalyzer
         where TSyntaxKind : struct
     {
+        private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
+
         protected AbstractUnusedReceivedAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
             : base(diagnosticDescriptorsProvider)
         {
+            _analyzeInvocationAction = AnalyzeInvocation;
+            SupportedDiagnostics = ImmutableArray.Create(DiagnosticDescriptorsProvider.UnusedReceived);
         }
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(DiagnosticDescriptorsProvider.UnusedReceived);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
         private static readonly ImmutableHashSet<string> MethodNames = ImmutableHashSet.Create(
             MetadataNames.NSubstituteReceivedMethod,
@@ -24,13 +27,13 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             MetadataNames.NSubstituteDidNotReceiveMethod,
             MetadataNames.NSubstituteDidNotReceiveWithAnyArgsMethod);
 
-        protected abstract ImmutableArray<Parent> PossibleParents { get; }
+        protected abstract ImmutableHashSet<int> PossibleParentsRawKinds { get; }
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
         protected override void InitializeAnalyzer(AnalysisContext context)
         {
-            context.RegisterSyntaxNodeAction(AnalyzeInvocation, InvocationExpressionKind);
+            context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
         }
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
@@ -44,12 +47,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
 
             var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
-            if (methodSymbol == null)
-            {
-                return;
-            }
 
-            if (IsReceivedLikeMethod(syntaxNodeContext, invocationExpression, methodSymbol.Name) == false)
+            if (IsReceivedLikeMethod(methodSymbol) == false)
             {
                 return;
             }
@@ -73,39 +72,20 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             syntaxNodeContext.ReportDiagnostic(diagnostic);
         }
 
-        private static bool IsReceivedLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntax, string memberName)
+        private static bool IsReceivedLikeMethod(IMethodSymbol symbol)
         {
-            if (MethodNames.Contains(memberName) == false)
+            if (MethodNames.Contains(symbol.Name) == false)
             {
                 return false;
             }
 
-            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax);
-
-            return symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.Ordinal) == true &&
-                   symbol.Symbol?.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteExtensionsFullTypeName, StringComparison.Ordinal) == true;
+            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.Ordinal) == true &&
+                   symbol.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteExtensionsFullTypeName, StringComparison.Ordinal) == true;
         }
 
         private bool IsConsideredAsUsed(SyntaxNode receivedSyntaxNode)
         {
-            var typeInfo = receivedSyntaxNode.Parent.GetType().GetTypeInfo();
-
-            return PossibleParents.Any(parent => parent.Type.GetTypeInfo().IsAssignableFrom(typeInfo));
-        }
-    }
-
-    internal struct Parent
-    {
-        public Type Type { get; }
-
-        private Parent(Type type)
-        {
-            Type = type;
-        }
-
-        public static Parent Create<T>()
-        {
-            return new Parent(typeof(T));
+            return PossibleParentsRawKinds.Contains(receivedSyntaxNode.Parent.RawKind);
         }
     }
 }

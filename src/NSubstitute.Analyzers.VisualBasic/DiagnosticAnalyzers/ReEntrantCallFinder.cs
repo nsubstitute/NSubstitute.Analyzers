@@ -10,9 +10,15 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
     internal class ReEntrantCallFinder : AbstractReEntrantCallFinder
     {
-        protected override ImmutableList<ISymbol> GetReEntrantSymbols(Compilation compilation, SyntaxNode originatingExpression, SyntaxNode rootNode)
+        public static ReEntrantCallFinder Instance { get; } = new ReEntrantCallFinder();
+
+        private ReEntrantCallFinder()
         {
-            var visitor = new ReEntrantCallVisitor(this, compilation);
+        }
+
+        protected override ImmutableList<ISymbol> GetReEntrantSymbols(Compilation compilation, SemanticModel semanticModel, SyntaxNode originatingExpression, SyntaxNode rootNode)
+        {
+            var visitor = new ReEntrantCallVisitor(this, compilation, semanticModel);
             visitor.Visit(rootNode);
             return visitor.InvocationSymbols;
         }
@@ -21,22 +27,24 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
         {
             private readonly ReEntrantCallFinder _reEntrantCallFinder;
             private readonly Compilation _compilation;
+            private readonly SemanticModel _semanticModel;
             private readonly HashSet<SyntaxNode> _visitedNodes = new HashSet<SyntaxNode>();
             private readonly List<ISymbol> _invocationSymbols = new List<ISymbol>();
 
             public ImmutableList<ISymbol> InvocationSymbols => _invocationSymbols.ToImmutableList();
 
-            public ReEntrantCallVisitor(ReEntrantCallFinder reEntrantCallFinder, Compilation compilation)
+            public ReEntrantCallVisitor(ReEntrantCallFinder reEntrantCallFinder, Compilation compilation, SemanticModel semanticModel)
             {
                 _reEntrantCallFinder = reEntrantCallFinder;
                 _compilation = compilation;
+                _semanticModel = semanticModel;
             }
 
             public override void VisitInvocationExpression(InvocationExpressionSyntax node)
             {
                 if (_visitedNodes.Contains(node) == false && _compilation.ContainsSyntaxTree(node.SyntaxTree))
                 {
-                    var semanticModel = _compilation.GetSemanticModel(node.SyntaxTree);
+                    var semanticModel = _reEntrantCallFinder.GetSemanticModel(_compilation, _semanticModel, node);
                     var symbolInfo = semanticModel.GetSymbolInfo(node);
                     if (_reEntrantCallFinder.IsReturnsLikeMethod(semanticModel, symbolInfo.Symbol))
                     {
@@ -55,6 +63,74 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
             {
             }
 
+            public override void VisitTrivia(SyntaxTrivia trivia)
+            {
+            }
+
+            public override void VisitLeadingTrivia(SyntaxToken token)
+            {
+            }
+
+            public override void VisitTrailingTrivia(SyntaxToken token)
+            {
+            }
+
+            public override void VisitAttribute(AttributeSyntax node)
+            {
+            }
+
+            public override void VisitAttributesStatement(AttributesStatementSyntax node)
+            {
+            }
+
+            public override void VisitAttributeList(AttributeListSyntax node)
+            {
+            }
+
+            public override void VisitAttributeTarget(AttributeTargetSyntax node)
+            {
+            }
+
+            public override void VisitImportsStatement(ImportsStatementSyntax node)
+            {
+            }
+
+            public override void VisitEnumBlock(EnumBlockSyntax node)
+            {
+            }
+
+            public override void VisitEnumStatement(EnumStatementSyntax node)
+            {
+            }
+
+            public override void VisitLiteralExpression(LiteralExpressionSyntax node)
+            {
+            }
+
+            public override void VisitDocumentationCommentTrivia(DocumentationCommentTriviaSyntax node)
+            {
+            }
+
+            public override void VisitTypeArgumentList(TypeArgumentListSyntax node)
+            {
+            }
+
+            public override void VisitTypeParameter(TypeParameterSyntax node)
+            {
+            }
+
+            public override void VisitTypeParameterList(TypeParameterListSyntax node)
+            {
+            }
+
+            public override void VisitTypeParameterMultipleConstraintClause(TypeParameterMultipleConstraintClauseSyntax node)
+            {
+            }
+
+            public override void VisitTypeParameterSingleConstraintClause(TypeParameterSingleConstraintClauseSyntax node)
+            {
+            }
+
             public override void DefaultVisit(SyntaxNode node)
             {
                 VisitRelatedSymbols(node);
@@ -63,12 +139,11 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
             private void VisitRelatedSymbols(SyntaxNode syntaxNode)
             {
-                if (_visitedNodes.Contains(syntaxNode) == false &&
-                    (syntaxNode.IsKind(SyntaxKind.IdentifierName) ||
-                    syntaxNode.IsKind(SyntaxKind.SimpleMemberAccessExpression)))
+                if ((syntaxNode.IsKind(SyntaxKind.IdentifierName) ||
+                     syntaxNode.IsKind(SyntaxKind.SimpleMemberAccessExpression)) && _visitedNodes.Contains(syntaxNode) == false)
                 {
                     _visitedNodes.Add(syntaxNode);
-                    foreach (var relatedNode in _reEntrantCallFinder.GetRelatedNodes(_compilation, syntaxNode).Where(node => _visitedNodes.Contains(node) == false))
+                    foreach (var relatedNode in _reEntrantCallFinder.GetRelatedNodes(_compilation, _semanticModel, syntaxNode).Where(node => _visitedNodes.Contains(node) == false))
                     {
                         var currentNode = relatedNode;
 

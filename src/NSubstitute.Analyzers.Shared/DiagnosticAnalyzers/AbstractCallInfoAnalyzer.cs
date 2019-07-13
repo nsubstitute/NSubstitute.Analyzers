@@ -16,6 +16,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
     {
         private readonly ICallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> _callInfoFinder;
         private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
+        private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
 
         protected AbstractCallInfoAnalyzer(
             IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
@@ -25,6 +26,15 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         {
             _callInfoFinder = callInfoFinder;
             _substitutionNodeFinder = substitutionNodeFinder;
+            _analyzeInvocationAction = AnalyzeInvocation;
+
+            SupportedDiagnostics = ImmutableArray.Create(
+                DiagnosticDescriptorsProvider.CallInfoArgumentOutOfRange,
+                DiagnosticDescriptorsProvider.CallInfoCouldNotConvertParameterAtPosition,
+                DiagnosticDescriptorsProvider.CallInfoCouldNotFindArgumentToThisCall,
+                DiagnosticDescriptorsProvider.CallInfoMoreThanOneArgumentOfType,
+                DiagnosticDescriptorsProvider.CallInfoArgumentSetWithIncompatibleValue,
+                DiagnosticDescriptorsProvider.CallInfoArgumentIsNotOutOrRef);
         }
 
         private static readonly ImmutableDictionary<string, string> MethodNames = new Dictionary<string, string>()
@@ -37,17 +47,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             [MetadataNames.NSubstituteDoMethod] = MetadataNames.NSubstituteWhenCalledType
         }.ToImmutableDictionary();
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
-            DiagnosticDescriptorsProvider.CallInfoArgumentOutOfRange,
-            DiagnosticDescriptorsProvider.CallInfoCouldNotConvertParameterAtPosition,
-            DiagnosticDescriptorsProvider.CallInfoCouldNotFindArgumentToThisCall,
-            DiagnosticDescriptorsProvider.CallInfoMoreThanOneArgumentOfType,
-            DiagnosticDescriptorsProvider.CallInfoArgumentSetWithIncompatibleValue,
-            DiagnosticDescriptorsProvider.CallInfoArgumentIsNotOutOrRef);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
         protected override void InitializeAnalyzer(AnalysisContext context)
         {
-            context.RegisterSyntaxNodeAction(AnalyzeInvocation, InvocationExpressionKind);
+            context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
         }
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
@@ -75,12 +79,10 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return false;
             }
 
-            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax);
-
             var supportsCallInfo =
-                symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                (symbol.Symbol?.ContainingType?.ToString().Equals(typeName, StringComparison.OrdinalIgnoreCase) == true ||
-                 (symbol.Symbol.ContainingType?.ConstructedFrom.Name)?.Equals(typeName, StringComparison.OrdinalIgnoreCase) == true);
+                methodSymbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
+                (methodSymbol.ContainingType?.ToString().Equals(typeName, StringComparison.OrdinalIgnoreCase) == true ||
+                 (methodSymbol.ContainingType?.ConstructedFrom.Name)?.Equals(typeName, StringComparison.OrdinalIgnoreCase) == true);
 
             if (supportsCallInfo == false)
             {
@@ -96,7 +98,16 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             else
                 argumentsForAnalysis = allArguments;
 
-            return argumentsForAnalysis.Any(arg => syntaxNodeContext.SemanticModel.GetTypeInfo(arg).IsCallInfoDelegate(syntaxNodeContext.SemanticModel));
+            // perf - dont use linq in hotpath
+            foreach (var arg in argumentsForAnalysis)
+            {
+                if (syntaxNodeContext.SemanticModel.GetTypeInfo(arg).IsCallInfoDelegate(syntaxNodeContext.SemanticModel))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
@@ -240,7 +251,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             return false;
         }
 
-        private bool AnalyzeCast(SyntaxNodeAnalysisContext syntaxNodeContext, IList<IParameterSymbol> substituteCallParameters, TIndexerExpressionSyntax indexer, IndexerInfo indexerInfo, int? position)
+        private bool AnalyzeCast(SyntaxNodeAnalysisContext syntaxNodeContext, IList<IParameterSymbol> substituteCallParameters, TIndexerExpressionSyntax indexer, in IndexerInfo indexerInfo, int? position)
         {
             var castTypeExpression = GetCastTypeExpression(indexer);
             if (position.HasValue && indexerInfo.VerifyIndexerCast && castTypeExpression != null)
@@ -261,7 +272,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             return false;
         }
 
-        private bool AnalyzeAssignment(SyntaxNodeAnalysisContext syntaxNodeContext, IList<IParameterSymbol> substituteCallParameters, TIndexerExpressionSyntax indexer, IndexerInfo indexerInfo, int? position)
+        private bool AnalyzeAssignment(SyntaxNodeAnalysisContext syntaxNodeContext, IList<IParameterSymbol> substituteCallParameters, TIndexerExpressionSyntax indexer, in IndexerInfo indexerInfo, int? position)
         {
             var assignmentExpressionSyntax = GetAssignmentExpression(indexer);
             if (indexerInfo.VerifyAssignment && assignmentExpressionSyntax != null && position.HasValue && position.Value < substituteCallParameters.Count)

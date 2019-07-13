@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractSubstituteConstructorAnalysis<TInvocationExpression, TArgumentSyntax>
-        where TInvocationExpression : SyntaxNode
+    internal abstract class AbstractSubstituteConstructorAnalysis<TInvocationExpression, TArgumentSyntax> : ISubstituteConstructorAnalysis<TInvocationExpression> where TInvocationExpression : SyntaxNode
         where TArgumentSyntax : SyntaxNode
     {
         public ConstructorContext CollectConstructorContext(SubstituteContext<TInvocationExpression> substituteContext, ITypeSymbol proxyTypeSymbol)
@@ -19,8 +19,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             var accessibleConstructors = GetAccessibleConstructors(proxyTypeSymbol);
             var invocationParameterTypes = GetInvocationInfo(substituteContext);
             var possibleConstructors = invocationParameterTypes != null && accessibleConstructors != null
-                ? accessibleConstructors.Where(ctor => ctor.Parameters.Length == invocationParameterTypes.Count)
-                    .ToList()
+                ? accessibleConstructors.Where(ctor => ctor.Parameters.Length == invocationParameterTypes.Length)
+                    .ToArray()
                 : null;
 
             return new ConstructorContext(
@@ -34,7 +34,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract IList<SyntaxNode> GetParameterExpressionsFromArrayArgument(TArgumentSyntax syntaxNode);
 
-        private IList<ITypeSymbol> GetInvocationInfo(SubstituteContext<TInvocationExpression> substituteContext)
+        private ITypeSymbol[] GetInvocationInfo(SubstituteContext<TInvocationExpression> substituteContext)
         {
             var infos = substituteContext.MethodSymbol.IsGenericMethod
                 ? GetGenericInvocationArgumentTypes(substituteContext)
@@ -43,7 +43,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             return infos;
         }
 
-        private IList<ITypeSymbol> GetGenericInvocationArgumentTypes(SubstituteContext<TInvocationExpression> substituteContext)
+        private ITypeSymbol[] GetGenericInvocationArgumentTypes(SubstituteContext<TInvocationExpression> substituteContext)
         {
             var arguments = GetInvocationArguments(substituteContext.InvocationExpression);
 
@@ -54,7 +54,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             if (arguments.Count == 0)
             {
-                return new List<ITypeSymbol>();
+                return Array.Empty<ITypeSymbol>();
             }
 
             var typeInfos = arguments.Select(arg => GetTypeInfo(substituteContext, arg.DescendantNodes().First()))
@@ -70,10 +70,10 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return GetArgumentTypeInfo(substituteContext, arguments.First());
             }
 
-            return typeInfos.Select(type => type.Type).ToList();
+            return typeInfos.Select(type => type.Type).ToArray();
         }
 
-        private IList<ITypeSymbol> GetNonGenericInvocationArgumentTypes(SubstituteContext<TInvocationExpression> substituteContext)
+        private ITypeSymbol[] GetNonGenericInvocationArgumentTypes(SubstituteContext<TInvocationExpression> substituteContext)
         {
             // Substitute.For(new [] { typeof(T) }, new object[] { 1, 2, 3}) // actual arguments reside in second arg
             var arrayArgument = GetInvocationArguments(substituteContext.InvocationExpression)?.Skip(1).FirstOrDefault();
@@ -85,7 +85,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             return GetArgumentTypeInfo(substituteContext, arrayArgument);
         }
 
-        private IList<ITypeSymbol> GetArgumentTypeInfo(SubstituteContext<TInvocationExpression> substituteContext, TArgumentSyntax arrayArgument)
+        private ITypeSymbol[] GetArgumentTypeInfo(SubstituteContext<TInvocationExpression> substituteContext, TArgumentSyntax arrayArgument)
         {
             var typeInfo = GetTypeInfo(substituteContext, arrayArgument.DescendantNodes().First());
 
@@ -106,12 +106,12 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             // new object[] { 1, 2, 3}); // means we pass arguments
             var types = parameterExpressionsFromArrayArgument
                 .Select(exp => GetTypeInfo(substituteContext, exp).Type)
-                .ToList();
+                .ToArray();
 
             return types;
         }
 
-        private IList<IMethodSymbol> GetAccessibleConstructors(ITypeSymbol genericArgument)
+        private IMethodSymbol[] GetAccessibleConstructors(ITypeSymbol genericArgument)
         {
             var internalsVisibleToProxy = genericArgument.InternalsVisibleToProxyGenerator();
 
@@ -120,7 +120,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 symbol.IsStatic == false &&
                 (symbol.DeclaredAccessibility == Accessibility.Protected ||
                  symbol.DeclaredAccessibility == Accessibility.Public ||
-                 (internalsVisibleToProxy && symbol.DeclaredAccessibility == Accessibility.Internal))).ToList();
+                 (internalsVisibleToProxy && symbol.DeclaredAccessibility == Accessibility.Internal))).ToArray();
         }
 
         private TypeInfo GetTypeInfo(SubstituteContext<TInvocationExpression> substituteContext, SyntaxNode syntax)

@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractSubstituteConstructorMatcher
+    internal abstract class AbstractSubstituteConstructorMatcher : ISubstituteConstructorMatcher
     {
         // even though conversion returns that key -> value is convertible it fails on the runtime when runninig through substitute creation
         protected virtual Dictionary<SpecialType, SpecialType> WellKnownUnsupportedConversions { get; } =

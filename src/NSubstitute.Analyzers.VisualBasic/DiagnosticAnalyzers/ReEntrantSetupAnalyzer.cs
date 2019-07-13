@@ -9,10 +9,10 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
     [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
-    internal class ReEntrantSetupAnalyzer : AbstractReEntrantSetupAnalyzer<SyntaxKind, InvocationExpressionSyntax>
+    internal sealed class ReEntrantSetupAnalyzer : AbstractReEntrantSetupAnalyzer<SyntaxKind, InvocationExpressionSyntax>
     {
         public ReEntrantSetupAnalyzer()
-            : base(new DiagnosticDescriptorsProvider(), new ReEntrantCallFinder())
+            : base(NSubstitute.Analyzers.VisualBasic.DiagnosticDescriptorsProvider.Instance, ReEntrantCallFinder.Instance)
         {
         }
 
