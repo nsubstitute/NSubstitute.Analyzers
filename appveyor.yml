@@ -1,5 +1,5 @@
 image:
-  - Ubuntu
+  - Previous Ubuntu
   - Visual Studio 2017
 # Build script
 init:
@@ -8,7 +8,7 @@ for:
   -
     matrix:
       only:
-        - image: Ubuntu
+        - image: Previous Ubuntu
     test: off      
     build_script:
       - cd build
