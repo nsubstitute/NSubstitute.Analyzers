@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
@@ -14,13 +15,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         private readonly IReEntrantCallFinder _reEntrantCallFinder;
         private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
 
-        private static readonly ImmutableHashSet<string> MethodNames = ImmutableHashSet.Create(
-            MetadataNames.NSubstituteReturnsMethod,
-            MetadataNames.NSubstituteReturnsForAnyArgsMethod);
-
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
-        protected AbstractReEntrantSetupAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider, IReEntrantCallFinder reEntrantCallFinder)
+        protected AbstractReEntrantSetupAnalyzer(
+            IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
+            IReEntrantCallFinder reEntrantCallFinder)
             : base(diagnosticDescriptorsProvider)
         {
             _reEntrantCallFinder = reEntrantCallFinder;
@@ -49,7 +48,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
 
-            if (IsReturnsLikeMethod(methodSymbol) == false)
+            if (methodSymbol.IsInitialReEntryLikeMethod() == false)
             {
                 return;
             }
@@ -72,17 +71,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     syntaxNodeContext.ReportDiagnostic(diagnostic);
                 }
             }
-        }
-
-        private bool IsReturnsLikeMethod(ISymbol symbol)
-        {
-            if (MethodNames.Contains(symbol.Name) == false)
-            {
-                return false;
-            }
-
-            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteExtensionsFullTypeName, StringComparison.OrdinalIgnoreCase) == true;
         }
     }
 }

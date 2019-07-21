@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
@@ -20,12 +21,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         }
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
-
-        private static readonly ImmutableHashSet<string> MethodNames = ImmutableHashSet.Create(
-            MetadataNames.NSubstituteReceivedMethod,
-            MetadataNames.NSubstituteReceivedWithAnyArgsMethod,
-            MetadataNames.NSubstituteDidNotReceiveMethod,
-            MetadataNames.NSubstituteDidNotReceiveWithAnyArgsMethod);
 
         protected abstract ImmutableHashSet<int> PossibleParentsRawKinds { get; }
 
@@ -48,7 +43,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
 
-            if (IsReceivedLikeMethod(methodSymbol) == false)
+            if (methodSymbol.IsReceivedLikeMethod() == false)
             {
                 return;
             }
@@ -70,17 +65,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 methodSymbol.Name);
 
             syntaxNodeContext.ReportDiagnostic(diagnostic);
-        }
-
-        private static bool IsReceivedLikeMethod(IMethodSymbol symbol)
-        {
-            if (MethodNames.Contains(symbol.Name) == false)
-            {
-                return false;
-            }
-
-            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.Ordinal) == true &&
-                   symbol.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteExtensionsFullTypeName, StringComparison.Ordinal) == true;
         }
 
         private bool IsConsideredAsUsed(SyntaxNode receivedSyntaxNode)

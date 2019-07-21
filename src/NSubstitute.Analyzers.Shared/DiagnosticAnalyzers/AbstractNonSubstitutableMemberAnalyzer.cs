@@ -14,16 +14,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
     {
         private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
 
-        private static readonly ImmutableDictionary<string, string> MethodNamesMap = new Dictionary<string, string>
-            {
-                [MetadataNames.NSubstituteReturnsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-                [MetadataNames.NSubstituteReturnsForAnyArgsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-                [MetadataNames.NSubstituteThrowsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName,
-                [MetadataNames.NSubstituteThrowsForAnyArgsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName,
-                [MetadataNames.NSubstituteReturnsNullMethod] = MetadataNames.NSubstituteReturnsExtensionsFullTypeName,
-                [MetadataNames.NSubstituteReturnsNullForAnyArgsMethod] = MetadataNames.NSubstituteReturnsExtensionsFullTypeName
-            }.ToImmutableDictionary();
-
         private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
@@ -34,7 +24,9 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
-        protected AbstractNonSubstitutableMemberAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider, ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder)
+        protected AbstractNonSubstitutableMemberAnalyzer(
+            IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
+            ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder)
             : base(diagnosticDescriptorsProvider)
         {
             _analyzeInvocationAction = AnalyzeInvocation;
@@ -69,23 +61,12 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
 
-            if (IsSetupLikeMethod(methodSymbol) == false)
+            if (methodSymbol.IsSetUpLikeMethod() == false)
             {
                 return;
             }
 
             AnalyzeMember(syntaxNodeContext, _substitutionNodeFinder.FindForStandardExpression((TInvocationExpressionSyntax)invocationExpression, methodSymbol));
-        }
-
-        private bool IsSetupLikeMethod(ISymbol symbol)
-        {
-            if (MethodNamesMap.TryGetValue(symbol.Name, out var containingType) == false)
-            {
-                return false;
-            }
-
-            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.ContainingType?.ToString().Equals(containingType, StringComparison.OrdinalIgnoreCase) == true;
         }
 
         private void AnalyzeMember(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode accessedMember)

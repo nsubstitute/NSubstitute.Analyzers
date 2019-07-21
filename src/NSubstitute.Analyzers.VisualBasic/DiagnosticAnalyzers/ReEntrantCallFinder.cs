@@ -46,7 +46,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
                 {
                     var semanticModel = _reEntrantCallFinder.GetSemanticModel(_compilation, _semanticModel, node);
                     var symbolInfo = semanticModel.GetSymbolInfo(node);
-                    if (_reEntrantCallFinder.IsReturnsLikeMethod(semanticModel, symbolInfo.Symbol))
+                    if (_reEntrantCallFinder.IsInnerReEntryLikeMethod(semanticModel, symbolInfo.Symbol))
                     {
                         _invocationSymbols.Add(symbolInfo.Symbol);
                     }

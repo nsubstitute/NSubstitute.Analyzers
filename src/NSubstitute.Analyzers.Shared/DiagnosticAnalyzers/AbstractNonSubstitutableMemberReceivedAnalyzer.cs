@@ -13,11 +13,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         where TMemberAccessExpressionSyntax : SyntaxNode
     {
         private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
-        private static readonly ImmutableHashSet<string> MethodNames = ImmutableHashSet.Create(
-            MetadataNames.NSubstituteReceivedMethod,
-            MetadataNames.NSubstituteReceivedWithAnyArgsMethod,
-            MetadataNames.NSubstituteDidNotReceiveMethod,
-            MetadataNames.NSubstituteDidNotReceiveWithAnyArgsMethod);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
@@ -51,7 +46,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
 
-            if (IsReceivedLikeMethod(methodSymbol) == false)
+            if (methodSymbol.IsReceivedLikeMethod() == false)
             {
                 return;
             }
@@ -91,17 +86,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
                 syntaxNodeContext.ReportDiagnostic(diagnostic);
             }
-        }
-
-        private static bool IsReceivedLikeMethod(ISymbol symbol)
-        {
-            if (MethodNames.Contains(symbol.Name) == false)
-            {
-                return false;
-            }
-
-            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.Ordinal) == true &&
-                   symbol.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteExtensionsFullTypeName, StringComparison.Ordinal) == true;
         }
 
         private SyntaxNode GetKnownParent(SyntaxNode receivedSyntaxNode)

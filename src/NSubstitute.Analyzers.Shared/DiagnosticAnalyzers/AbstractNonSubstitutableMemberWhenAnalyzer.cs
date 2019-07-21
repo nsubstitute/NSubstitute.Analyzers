@@ -19,13 +19,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
 
-        private static readonly ImmutableHashSet<string> MethodNames = ImmutableHashSet.Create(
-            MetadataNames.NSubstituteWhenMethod,
-            MetadataNames.NSubstituteWhenForAnyArgsMethod);
-
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
-        protected AbstractNonSubstitutableMemberWhenAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider, ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder)
+        protected AbstractNonSubstitutableMemberWhenAnalyzer(
+            IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
+            ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder)
             : base(diagnosticDescriptorsProvider)
         {
             _substitutionNodeFinder = substitutionNodeFinder;
@@ -52,7 +50,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
 
-            if (IsWhenLikeMethod(methodSymbol) == false)
+            if (methodSymbol.IsWhenLikeMethod() == false)
             {
                 return;
             }
@@ -85,17 +83,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     }
                 }
             }
-        }
-
-        private bool IsWhenLikeMethod(ISymbol symbol)
-        {
-            if (MethodNames.Contains(symbol.Name) == false)
-            {
-                return false;
-            }
-
-            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteExtensionsFullTypeName, StringComparison.OrdinalIgnoreCase) == true;
         }
 
         private static Location GetSubstitutionNodeActualLocation(SyntaxNode analysedSyntax, SymbolInfo symbolInfo)

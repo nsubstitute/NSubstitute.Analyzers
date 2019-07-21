@@ -20,15 +20,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
 
-        private static readonly ImmutableDictionary<string, string> MethodNamesMap =
-            new Dictionary<string, string>
-            {
-                [MetadataNames.NSubstituteForMethod] = MetadataNames.NSubstituteSubstituteFullTypeName,
-                [MetadataNames.NSubstituteForPartsOfMethod] = MetadataNames.NSubstituteSubstituteFullTypeName,
-                [MetadataNames.SubstituteFactoryCreate] = MetadataNames.NSubstituteFactoryFullTypeName,
-                [MetadataNames.SubstituteFactoryCreatePartial] = MetadataNames.NSubstituteFactoryFullTypeName
-            }.ToImmutableDictionary();
-
         protected AbstractSubstituteAnalyzer(
             IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
             ISubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> substituteProxyAnalysis,
@@ -80,7 +71,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            if (IsSubstituteMethod(methodSymbol) == false)
+            if (methodSymbol.IsSubstituteCreateLikeMethod() == false)
             {
                 return;
             }
@@ -306,17 +297,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
 
             return false;
-        }
-
-        private static bool IsSubstituteMethod(ISymbol symbol)
-        {
-            if (MethodNamesMap.TryGetValue(symbol.Name, out var containingType) == false)
-            {
-                return false;
-            }
-
-            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.Ordinal) == true &&
-                   symbol.ContainingType?.ToString().Equals(containingType, StringComparison.Ordinal) == true;
         }
 
         private string GetCorrespondingSubstituteMethod(TInvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol methodSymbol)

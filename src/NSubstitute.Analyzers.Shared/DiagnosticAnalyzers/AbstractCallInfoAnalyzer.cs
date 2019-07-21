@@ -37,16 +37,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 DiagnosticDescriptorsProvider.CallInfoArgumentIsNotOutOrRef);
         }
 
-        private static readonly ImmutableDictionary<string, string> MethodNames = new Dictionary<string, string>()
-        {
-            [MetadataNames.NSubstituteReturnsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-            [MetadataNames.NSubstituteReturnsForAnyArgsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-            [MetadataNames.NSubstituteThrowsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName,
-            [MetadataNames.NSubstituteThrowsForAnyArgsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName,
-            [MetadataNames.NSubstituteAndDoesMethod] = MetadataNames.NSubstituteConfiguredCallFullTypeName,
-            [MetadataNames.NSubstituteDoMethod] = MetadataNames.NSubstituteWhenCalledType
-        }.ToImmutableDictionary();
-
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
         protected override void InitializeAnalyzer(AnalysisContext context)
@@ -74,17 +64,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private bool SupportsCallInfo(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax syntax, IMethodSymbol methodSymbol)
         {
-            if (MethodNames.TryGetValue(methodSymbol.Name, out var typeName) == false)
-            {
-                return false;
-            }
-
-            var supportsCallInfo =
-                methodSymbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                (methodSymbol.ContainingType?.ToString().Equals(typeName, StringComparison.OrdinalIgnoreCase) == true ||
-                 (methodSymbol.ContainingType?.ConstructedFrom.Name)?.Equals(typeName, StringComparison.OrdinalIgnoreCase) == true);
-
-            if (supportsCallInfo == false)
+            if (methodSymbol.IsCallInfoSupportingMethod() == false)
             {
                 return false;
             }

@@ -17,7 +17,9 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         private readonly ICallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> _callInfoFinder;
         private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
 
-        protected AbstractConflictingArgumentAssignmentsAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider, ICallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> callInfoFinder)
+        protected AbstractConflictingArgumentAssignmentsAnalyzer(
+            IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
+            ICallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> callInfoFinder)
             : base(diagnosticDescriptorsProvider)
         {
             _callInfoFinder = callInfoFinder;
@@ -28,11 +30,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
-
-        private static readonly ImmutableDictionary<string, string> MethodNames = new Dictionary<string, string>()
-        {
-            [MetadataNames.NSubstituteAndDoesMethod] = MetadataNames.NSubstituteConfiguredCallFullTypeName
-        }.ToImmutableDictionary();
 
         protected override void InitializeAnalyzer(AnalysisContext context)
         {
@@ -61,7 +58,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
 
-            if (IsAndDoesLikeMethod(methodSymbol) == false)
+            if (methodSymbol.IsAndDoesLikeMethod() == false)
             {
                 return;
             }
@@ -95,17 +92,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                         indexerExpressionSyntax.GetLocation()));
                 }
             }
-        }
-
-        private bool IsAndDoesLikeMethod(ISymbol symbol)
-        {
-            if (MethodNames.TryGetValue(symbol.Name, out var containingType) == false)
-            {
-                return false;
-            }
-
-            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.ContainingType?.ToString().Equals(containingType, StringComparison.OrdinalIgnoreCase) == true;
         }
 
         private bool IsAssigned(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax)
