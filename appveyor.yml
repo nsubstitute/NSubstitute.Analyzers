@@ -1,5 +1,5 @@
 image:
-  - Previous Ubuntu
+  - Ubuntu
   - Visual Studio 2017
 # Build script
 init:
@@ -12,6 +12,7 @@ for:
     test: off      
     build_script:
       - cd build
+      - dotnet --info
       - chmod +xxx ./build.sh
       - ./build.sh --target="AppVeyor" --configuration=Release --UploadCoverageReport=False
   -
