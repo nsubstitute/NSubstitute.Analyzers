@@ -13,7 +13,12 @@ for:
     build_script:
       - cd build
       - dotnet --info
+      - cd /usr/share/dotnet/sdk
+      - ls -d * | grep -v ^2.1.4$ | sudo xargs rm -r
+      - ls -l
+      - cd -
       - chmod +xxx ./build.sh
+      - dotnet --info
       - ./build.sh --target="AppVeyor" --configuration=Release --UploadCoverageReport=False
   -
     matrix:
@@ -22,6 +27,7 @@ for:
     test: off
     build_script:
       - cd Build
+      - dotnet --info
       - ps: >-
           .\build.ps1 --target="AppVeyor" --configuration=Release --UploadCoverageReport=True
           
