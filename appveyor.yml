@@ -8,7 +8,7 @@ for:
   -
     matrix:
       only:
-        - image: Previous Ubuntu
+        - image: Ubuntu
     test: off      
     build_script:
       - cd build
