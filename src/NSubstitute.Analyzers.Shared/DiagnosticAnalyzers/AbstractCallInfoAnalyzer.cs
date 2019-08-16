@@ -138,7 +138,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     continue;
                 }
 
-                if (AnalyzeCast(syntaxNodeContext, substituteCallParameters, indexer, indexerInfo, position))
+                if (AnalyzeCast(syntaxNodeContext, substituteCallParameters, indexer, in indexerInfo, position))
                 {
                     continue;
                 }

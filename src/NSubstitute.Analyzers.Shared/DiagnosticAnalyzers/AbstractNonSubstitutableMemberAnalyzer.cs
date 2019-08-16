@@ -61,7 +61,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
 
-            if (methodSymbol.IsSetUpLikeMethod() == false)
+            if (methodSymbol.IsReturnOrThrowLikeMethod() == false)
             {
                 return;
             }

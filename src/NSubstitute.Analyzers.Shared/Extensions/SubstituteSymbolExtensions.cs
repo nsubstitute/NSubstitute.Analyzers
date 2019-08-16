@@ -27,8 +27,7 @@ namespace NSubstitute.Analyzers.Shared.Extensions
                    IsMember(symbol, MetadataNames.NSubstituteDoMethod, MetadataNames.NSubstituteWhenCalledType);
         }
 
-        // TODO better naming
-        public static bool IsSetUpLikeMethod(this ISymbol symbol)
+        public static bool IsReturnOrThrowLikeMethod(this ISymbol symbol)
         {
             return IsReturnLikeMethod(symbol) || IsThrowLikeMethod(symbol);
         }
@@ -85,7 +84,7 @@ namespace NSubstitute.Analyzers.Shared.Extensions
 
             return containingAssembly.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.Ordinal) &&
                    (symbolContainingType.ToString().Equals(containingType, StringComparison.Ordinal) ||
-                    symbolContainingType.ConstructedFrom?.Name.Equals(containingType, StringComparison.OrdinalIgnoreCase) == true);
+                    symbolContainingType.ConstructedFrom?.Name.Equals(containingType, StringComparison.Ordinal) == true);
         }
     }
 }
