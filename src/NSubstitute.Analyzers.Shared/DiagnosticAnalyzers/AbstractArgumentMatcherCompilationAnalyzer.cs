@@ -81,7 +81,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract SyntaxNode GetOperationSyntax(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TArgumentSyntax argumentExpression);
 
-        protected abstract List<SyntaxNode> TryGetArgumentExpressions(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, SyntaxNode syntaxNode);
+        protected abstract IEnumerable<SyntaxNode> TryGetArgumentExpressions(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, SyntaxNode syntaxNode);
 
         private bool IsFollowedBySetupInvocation(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax)
         {
@@ -119,7 +119,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         private void BeginAnalyzeReceivedInOrderMethod(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpression)
         {
             foreach (var syntaxNode in _substitutionNodeFinder
-                .FindForReceivedInOrderExpression(syntaxNodeContext, invocationExpression).ToList())
+                .FindForReceivedInOrderExpression(syntaxNodeContext, invocationExpression))
             {
                 var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode).Symbol;
                 var actualNode = syntaxNode is TMemberAccessExpressionSyntax && symbol is IMethodSymbol _

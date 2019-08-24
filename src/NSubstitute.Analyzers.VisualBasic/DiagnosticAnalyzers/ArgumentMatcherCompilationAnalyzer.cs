@@ -10,7 +10,7 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
-    internal class ArgumentMatcherCompilationAnalyzer : AbstractArgumentMatcherCompilationAnalyzer<InvocationExpressionSyntax, MemberAccessExpressionSyntax, ArgumentSyntax>
+    internal sealed class ArgumentMatcherCompilationAnalyzer : AbstractArgumentMatcherCompilationAnalyzer<InvocationExpressionSyntax, MemberAccessExpressionSyntax, ArgumentSyntax>
     {
         private static ImmutableArray<ImmutableArray<int>> AncestorPaths { get; } = ImmutableArray.Create(
             ImmutableArray.Create(
@@ -31,7 +31,8 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
             return operation?.Parent?.Syntax;
         }
 
-        protected override List<SyntaxNode> TryGetArgumentExpressions(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, SyntaxNode syntaxNode)
+        protected override IEnumerable<SyntaxNode> TryGetArgumentExpressions(
+            SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, SyntaxNode syntaxNode)
         {
             SeparatedSyntaxList<ArgumentSyntax> argumentList = default;
             switch (syntaxNode)
@@ -41,7 +42,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
                     break;
             }
 
-            return argumentList.Select<ArgumentSyntax, SyntaxNode>(node => node.GetExpression()).ToList();
+            return argumentList.Select<ArgumentSyntax, SyntaxNode>(node => node.GetExpression());
         }
     }
 }
