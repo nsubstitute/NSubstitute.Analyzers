@@ -1,4 +1,6 @@
-﻿namespace NSubstitute.Analyzers.Shared
+﻿using System.Collections.Generic;
+
+namespace NSubstitute.Analyzers.Shared
 {
     internal class MetadataNames
     {
@@ -35,5 +37,57 @@
         public const string CallInfoArgMethod = "Arg";
         public const string CallInfoArgsMethod = "Args";
         public const string CallInfoArgTypesMethod = "ArgTypes";
+
+        public static readonly IReadOnlyDictionary<string, string> InitialReEntryMethodNames = new Dictionary<string, string>
+        {
+            [NSubstituteReturnsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+            [NSubstituteReturnsForAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName
+        };
+
+        public static readonly IReadOnlyDictionary<string, string> ReturnsMethodNames = new Dictionary<string, string>
+        {
+            [NSubstituteReturnsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+            [NSubstituteReturnsForAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+            [NSubstituteReturnsNullMethod] = NSubstituteReturnsExtensionsFullTypeName,
+            [NSubstituteReturnsNullForAnyArgsMethod] = NSubstituteReturnsExtensionsFullTypeName
+        };
+
+        public static readonly IReadOnlyDictionary<string, string> ThrowsMethodNames = new Dictionary<string, string>
+        {
+            [NSubstituteThrowsMethod] = NSubstituteExceptionExtensionsFullTypeName,
+            [NSubstituteThrowsForAnyArgsMethod] = NSubstituteExceptionExtensionsFullTypeName
+        };
+
+        public static readonly IReadOnlyDictionary<string, string> ReceivedMethodNames = new Dictionary<string, string>
+        {
+            [NSubstituteReceivedMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+            [NSubstituteReceivedWithAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+            [NSubstituteDidNotReceiveMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+            [NSubstituteDidNotReceiveWithAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName
+        };
+
+        public static readonly IReadOnlyDictionary<string, string> WhenMethodNames = new Dictionary<string, string>
+        {
+            [NSubstituteWhenMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+            [NSubstituteWhenForAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName
+        };
+
+        public static readonly IReadOnlyDictionary<string, string> CreateSubstituteMethodNames = new Dictionary<string, string>
+        {
+            [NSubstituteForMethod] = NSubstituteSubstituteFullTypeName,
+            [NSubstituteForPartsOfMethod] = NSubstituteSubstituteFullTypeName,
+            [SubstituteFactoryCreate] = NSubstituteFactoryFullTypeName,
+            [SubstituteFactoryCreatePartial] = NSubstituteFactoryFullTypeName
+        };
+
+        public static readonly IReadOnlyDictionary<string, string> SupportingCallInfoMethodNames = new Dictionary<string, string>
+        {
+            [NSubstituteReturnsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+            [NSubstituteReturnsForAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+            [NSubstituteThrowsMethod] = NSubstituteExceptionExtensionsFullTypeName,
+            [NSubstituteThrowsForAnyArgsMethod] = NSubstituteExceptionExtensionsFullTypeName,
+            [NSubstituteAndDoesMethod] = NSubstituteConfiguredCallFullTypeName,
+            [NSubstituteDoMethod] = NSubstituteWhenCalledType
+        };
     }
 }

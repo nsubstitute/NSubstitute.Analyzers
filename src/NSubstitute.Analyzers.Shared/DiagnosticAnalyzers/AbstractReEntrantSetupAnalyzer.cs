@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
@@ -12,25 +13,25 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         where TSyntaxKind : struct
     {
         private readonly IReEntrantCallFinder _reEntrantCallFinder;
+        private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
 
-        private static readonly ImmutableHashSet<string> MethodNames = ImmutableHashSet.Create(
-            MetadataNames.NSubstituteReturnsMethod,
-            MetadataNames.NSubstituteReturnsForAnyArgsMethod);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(DiagnosticDescriptorsProvider.ReEntrantSubstituteCall);
-
-        protected AbstractReEntrantSetupAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider, IReEntrantCallFinder reEntrantCallFinder)
+        protected AbstractReEntrantSetupAnalyzer(
+            IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
+            IReEntrantCallFinder reEntrantCallFinder)
             : base(diagnosticDescriptorsProvider)
         {
             _reEntrantCallFinder = reEntrantCallFinder;
+            _analyzeInvocationAction = AnalyzeInvocation;
+            SupportedDiagnostics = ImmutableArray.Create(DiagnosticDescriptorsProvider.ReEntrantSubstituteCall);
         }
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
         protected override void InitializeAnalyzer(AnalysisContext context)
         {
-            context.RegisterSyntaxNodeAction(AnalyzeInvocation, InvocationExpressionKind);
+            context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
         }
 
         protected abstract IEnumerable<SyntaxNode> ExtractArguments(TInvocationExpressionSyntax invocationExpressionSyntax);
@@ -47,7 +48,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
 
-            if (IsReturnsLikeMethod(syntaxNodeContext, invocationExpression, methodSymbol.Name) == false)
+            if (methodSymbol.IsInitialReEntryLikeMethod() == false)
             {
                 return;
             }
@@ -57,7 +58,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             foreach (var argument in argumentsForAnalysis)
             {
-                var reentrantSymbol = _reEntrantCallFinder.GetReEntrantCalls(syntaxNodeContext.Compilation, invocationExpression, argument).FirstOrDefault();
+                var reentrantSymbol = _reEntrantCallFinder.GetReEntrantCalls(syntaxNodeContext.Compilation, syntaxNodeContext.SemanticModel, invocationExpression, argument).FirstOrDefault();
                 if (reentrantSymbol != null)
                 {
                     var diagnostic = Diagnostic.Create(
@@ -70,19 +71,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     syntaxNodeContext.ReportDiagnostic(diagnostic);
                 }
             }
-        }
-
-        private bool IsReturnsLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntax, string memberName)
-        {
-            if (MethodNames.Contains(memberName) == false)
-            {
-                return false;
-            }
-
-            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax);
-
-            return symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.Symbol?.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteExtensionsFullTypeName, StringComparison.OrdinalIgnoreCase) == true;
         }
     }
 }

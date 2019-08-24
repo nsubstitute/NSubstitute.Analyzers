@@ -6,8 +6,14 @@ using NSubstitute.Analyzers.VisualBasic.Extensions;
 
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
-    internal class SubstituteProxyAnalysis : AbstractSubstituteProxyAnalysis<InvocationExpressionSyntax, ExpressionSyntax>
+    internal sealed class SubstituteProxyAnalysis : AbstractSubstituteProxyAnalysis<InvocationExpressionSyntax, ExpressionSyntax>
     {
+        public static SubstituteProxyAnalysis Instance { get; } = new SubstituteProxyAnalysis();
+
+        private SubstituteProxyAnalysis()
+        {
+        }
+
         protected override IEnumerable<ExpressionSyntax> GetTypeOfLikeExpressions(IList<ExpressionSyntax> arrayParameters)
         {
             return arrayParameters.OfType<GetTypeExpressionSyntax>();

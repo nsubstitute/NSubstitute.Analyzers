@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -42,7 +43,13 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         private bool IsSuppressed(SyntaxNodeAnalysisContext syntaxNodeContext, ISymbol symbol, string diagnosticId)
         {
             var analyzersSettings = syntaxNodeContext.GetSettings(CancellationToken.None);
-            var possibleSymbols = GetPossibleSymbols(symbol).ToList();
+
+            if (analyzersSettings.Suppressions.Count == 0)
+            {
+                return false;
+            }
+
+            var possibleSymbols = GetPossibleSymbols(symbol).ToImmutableHashSet();
 
             return analyzersSettings.Suppressions.Where(suppression => suppression.Rules.Contains(diagnosticId))
                 .SelectMany(suppression => DocumentationCommentId.GetSymbolsForDeclarationId(suppression.Target, syntaxNodeContext.Compilation))

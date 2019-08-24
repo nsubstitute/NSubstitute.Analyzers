@@ -2,22 +2,21 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.VisualBasic;
-using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
     [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
-    internal class UnusedReceivedAnalyzer : AbstractUnusedReceivedAnalyzer<SyntaxKind>
+    internal sealed class UnusedReceivedAnalyzer : AbstractUnusedReceivedAnalyzer<SyntaxKind>
     {
-        protected override ImmutableArray<Parent> PossibleParents { get; } = ImmutableArray.Create(
-            Parent.Create<MemberAccessExpressionSyntax>(),
-            Parent.Create<InvocationExpressionSyntax>());
+        protected override ImmutableHashSet<int> PossibleParentsRawKinds { get; } = ImmutableHashSet.Create(
+            (int)SyntaxKind.SimpleMemberAccessExpression,
+            (int)SyntaxKind.InvocationExpression);
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
         public UnusedReceivedAnalyzer()
-            : base(new DiagnosticDescriptorsProvider())
+            : base(NSubstitute.Analyzers.VisualBasic.DiagnosticDescriptorsProvider.Instance)
         {
         }
     }

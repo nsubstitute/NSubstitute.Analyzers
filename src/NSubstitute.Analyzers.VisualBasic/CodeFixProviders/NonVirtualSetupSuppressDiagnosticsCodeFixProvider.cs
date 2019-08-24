@@ -5,7 +5,7 @@ using NSubstitute.Analyzers.Shared.CodeFixProviders;
 namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders
 {
     [ExportCodeFixProvider(LanguageNames.VisualBasic)]
-    internal class NonVirtualSetupSuppressDiagnosticsCodeFixProvider : AbstractNonVirtualSetupSuppressDiagnosticsCodeFixProvider
+    internal sealed class NonVirtualSetupSuppressDiagnosticsCodeFixProvider : AbstractNonVirtualSetupSuppressDiagnosticsCodeFixProvider
     {
     }
 }

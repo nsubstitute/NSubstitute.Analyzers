@@ -6,6 +6,12 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
     internal class SubstituteConstructorMatcher : AbstractSubstituteConstructorMatcher
     {
+        public static SubstituteConstructorMatcher Instance { get; } = new SubstituteConstructorMatcher();
+
+        private SubstituteConstructorMatcher()
+        {
+        }
+
         protected override bool IsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)
         {
             var conversion = compilation.ClassifyConversion(source, destination);
