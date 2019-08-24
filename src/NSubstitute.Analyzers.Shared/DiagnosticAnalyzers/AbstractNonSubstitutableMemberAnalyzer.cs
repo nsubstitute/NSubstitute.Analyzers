@@ -8,50 +8,40 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractNonSubstitutableMemberAnalyzer<TSyntaxKind, TMemberAccessExpressionSyntax, TInvocationExpressionSyntax> : AbstractDiagnosticAnalyzer
+    internal abstract class AbstractNonSubstitutableMemberAnalyzer<TSyntaxKind, TInvocationExpressionSyntax> : AbstractDiagnosticAnalyzer
         where TInvocationExpressionSyntax : SyntaxNode
-        where TMemberAccessExpressionSyntax : SyntaxNode
         where TSyntaxKind : struct
     {
-        private static readonly ImmutableDictionary<string, string> MethodNamesMap = new Dictionary<string, string>
-            {
-                [MetadataNames.NSubstituteReturnsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-                [MetadataNames.NSubstituteReturnsForAnyArgsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-                [MetadataNames.NSubstituteThrowsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName,
-                [MetadataNames.NSubstituteThrowsForAnyArgsMethod] = MetadataNames.NSubstituteExceptionExtensionsFullTypeName,
-                [MetadataNames.NSubstituteReturnsNullMethod] = MetadataNames.NSubstituteReturnsExtensionsFullTypeName,
-                [MetadataNames.NSubstituteReturnsNullForAnyArgsMethod] = MetadataNames.NSubstituteReturnsExtensionsFullTypeName
-            }.ToImmutableDictionary();
+        private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(DiagnosticDescriptorsProvider.NonVirtualSetupSpecification, DiagnosticDescriptorsProvider.InternalSetupSpecification);
+        private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
         protected abstract ImmutableHashSet<int> SupportedMemberAccesses { get; }
 
-        protected abstract ImmutableHashSet<Type> KnownNonVirtualSyntaxTypes { get; }
-
-        protected abstract TSyntaxKind SimpleMemberAccessExpressionKind { get; }
+        protected abstract ImmutableHashSet<Type> KnownNonVirtualSyntaxKinds { get; }
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
-        protected AbstractNonSubstitutableMemberAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
+        protected AbstractNonSubstitutableMemberAnalyzer(
+            IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
+            ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder)
             : base(diagnosticDescriptorsProvider)
         {
+            _analyzeInvocationAction = AnalyzeInvocation;
+            _substitutionNodeFinder = substitutionNodeFinder;
+            SupportedDiagnostics = ImmutableArray.Create(DiagnosticDescriptorsProvider.NonVirtualSetupSpecification, DiagnosticDescriptorsProvider.InternalSetupSpecification);
         }
 
         protected override void InitializeAnalyzer(AnalysisContext context)
         {
-            context.RegisterSyntaxNodeAction(AnalyzeMemberAccess, SimpleMemberAccessExpressionKind);
-            context.RegisterSyntaxNodeAction(AnalyzeInvocation, InvocationExpressionKind);
+            context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
         }
-
-        protected abstract SyntaxNode GetArgument(TInvocationExpressionSyntax invocationExpressionSyntax);
-
-        protected abstract string GetAccessedMemberName(TMemberAccessExpressionSyntax memberAccessExpressionSyntax);
 
         protected virtual bool? CanBeSetuped(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode accessedMember, SymbolInfo symbolInfo)
         {
-            if (KnownNonVirtualSyntaxTypes.Contains(accessedMember.GetType()))
+            if (KnownNonVirtualSyntaxKinds.Contains(accessedMember.GetType()))
             {
                 return false;
             }
@@ -70,46 +60,13 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
 
             var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
-            if (methodSymbol == null || methodSymbol.MethodKind != MethodKind.Ordinary)
+
+            if (methodSymbol.IsReturnOrThrowLikeMethod() == false)
             {
                 return;
             }
 
-            if (IsSetupLikeMethod(syntaxNodeContext, invocationExpression, methodSymbol.Name) == false)
-            {
-                return;
-            }
-
-            var argumentSyntax = GetArgument((TInvocationExpressionSyntax)invocationExpression);
-
-            AnalyzeMember(syntaxNodeContext, argumentSyntax);
-        }
-
-        private void AnalyzeMemberAccess(SyntaxNodeAnalysisContext syntaxNodeContext)
-        {
-            var memberAccessExpression = syntaxNodeContext.Node;
-            var memberName = GetAccessedMemberName((TMemberAccessExpressionSyntax)memberAccessExpression);
-            if (IsSetupLikeMethod(syntaxNodeContext, memberAccessExpression, memberName) == false)
-            {
-                return;
-            }
-
-            var accessedMember = memberAccessExpression.DescendantNodes().FirstOrDefault();
-
-            AnalyzeMember(syntaxNodeContext, accessedMember);
-        }
-
-        private bool IsSetupLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntax, string memberName)
-        {
-            if (MethodNamesMap.TryGetValue(memberName, out var containingType) == false)
-            {
-                return false;
-            }
-
-            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax);
-
-            return symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.Symbol?.ContainingType?.ToString().Equals(containingType, StringComparison.OrdinalIgnoreCase) == true;
+            AnalyzeMember(syntaxNodeContext, _substitutionNodeFinder.FindForStandardExpression((TInvocationExpressionSyntax)invocationExpression, methodSymbol));
         }
 
         private void AnalyzeMember(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode accessedMember)

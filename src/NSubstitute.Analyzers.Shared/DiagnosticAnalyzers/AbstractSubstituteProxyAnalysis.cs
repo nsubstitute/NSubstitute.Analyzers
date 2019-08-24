@@ -5,9 +5,9 @@ using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractSubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax>
-        where TInvocationExpressionSyntax : SyntaxNode
-        where TExpressionSyntax : SyntaxNode
+    internal abstract class AbstractSubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> :
+        ISubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax>
+        where TInvocationExpressionSyntax : SyntaxNode where TExpressionSyntax : SyntaxNode
     {
         public ITypeSymbol GetActualProxyTypeSymbol(SubstituteContext<TInvocationExpressionSyntax> substituteContext)
         {

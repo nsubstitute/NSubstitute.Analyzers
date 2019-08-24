@@ -12,28 +12,26 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         where TSyntaxKind : struct
         where TMemberAccessExpressionSyntax : SyntaxNode
     {
-        private static readonly ImmutableHashSet<string> MethodNames = ImmutableHashSet.Create(
-            MetadataNames.NSubstituteReceivedMethod,
-            MetadataNames.NSubstituteReceivedWithAnyArgsMethod,
-            MetadataNames.NSubstituteDidNotReceiveMethod,
-            MetadataNames.NSubstituteDidNotReceiveWithAnyArgsMethod);
+        private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
-            DiagnosticDescriptorsProvider.NonVirtualReceivedSetupSpecification,
-            DiagnosticDescriptorsProvider.InternalSetupSpecification);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
         protected AbstractNonSubstitutableMemberReceivedAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
             : base(diagnosticDescriptorsProvider)
         {
+            _analyzeInvocationAction = AnalyzeInvocation;
+            SupportedDiagnostics = ImmutableArray.Create(
+                DiagnosticDescriptorsProvider.NonVirtualReceivedSetupSpecification,
+                DiagnosticDescriptorsProvider.InternalSetupSpecification);
         }
 
-        protected abstract ImmutableArray<Parent> PossibleParents { get; }
+        protected abstract ImmutableHashSet<int> PossibleParentsRawKinds { get; }
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
         protected override void InitializeAnalyzer(AnalysisContext context)
         {
-            context.RegisterSyntaxNodeAction(AnalyzeInvocation, InvocationExpressionKind);
+            context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
         }
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
@@ -47,12 +45,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
 
             var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
-            if (methodSymbol == null)
-            {
-                return;
-            }
 
-            if (IsReceivedLikeMethod(syntaxNodeContext, invocationExpression, methodSymbol.Name) == false)
+            if (methodSymbol.IsReceivedLikeMethod() == false)
             {
                 return;
             }
@@ -94,29 +88,9 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
         }
 
-        private static bool IsReceivedLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntax, string memberName)
-        {
-            if (MethodNames.Contains(memberName) == false)
-            {
-                return false;
-            }
-
-            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax);
-
-            return symbol.Symbol?.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.Ordinal) == true &&
-                   symbol.Symbol?.ContainingType?.ToString().Equals(MetadataNames.NSubstituteSubstituteExtensionsFullTypeName, StringComparison.Ordinal) == true;
-        }
-
         private SyntaxNode GetKnownParent(SyntaxNode receivedSyntaxNode)
         {
-            var typeInfo = receivedSyntaxNode.Parent.GetType().GetTypeInfo();
-
-            if (PossibleParents.Any(parent => parent.Type.GetTypeInfo().IsAssignableFrom(typeInfo)))
-            {
-                return receivedSyntaxNode.Parent;
-            }
-
-            return null;
+            return PossibleParentsRawKinds.Contains(receivedSyntaxNode.Parent.RawKind) ? receivedSyntaxNode.Parent : null;
         }
 
         private Location GetSubstitutionNodeActualLocation(SyntaxNode syntaxNode, ISymbol symbol)

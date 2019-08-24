@@ -8,6 +8,12 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 {
     internal class SubstituteProxyAnalysis : AbstractSubstituteProxyAnalysis<InvocationExpressionSyntax, ExpressionSyntax>
     {
+        public static SubstituteProxyAnalysis Instance { get; } = new SubstituteProxyAnalysis();
+
+        private SubstituteProxyAnalysis()
+        {
+        }
+
         protected override IEnumerable<ExpressionSyntax> GetTypeOfLikeExpressions(IList<ExpressionSyntax> arrayParameters)
         {
             return arrayParameters.OfType<TypeOfExpressionSyntax>();

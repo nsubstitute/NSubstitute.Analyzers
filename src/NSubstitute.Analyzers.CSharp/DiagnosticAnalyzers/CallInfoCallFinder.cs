@@ -9,6 +9,12 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 {
     internal class CallInfoCallFinder : ICallInfoFinder<InvocationExpressionSyntax, ElementAccessExpressionSyntax>
     {
+        public static CallInfoCallFinder Instance { get; } = new CallInfoCallFinder();
+
+        private CallInfoCallFinder()
+        {
+        }
+
         public CallInfoContext<InvocationExpressionSyntax, ElementAccessExpressionSyntax> GetCallInfoContext(SemanticModel semanticModel, SyntaxNode syntaxNode)
         {
             var visitor = new CallInfoVisitor(semanticModel);
@@ -64,6 +70,86 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
                 }
 
                 base.VisitElementAccessExpression(node);
+            }
+
+            public override void VisitClassDeclaration(ClassDeclarationSyntax node)
+            {
+            }
+
+            public override void VisitStructDeclaration(StructDeclarationSyntax node)
+            {
+            }
+
+            public override void VisitTrivia(SyntaxTrivia trivia)
+            {
+            }
+
+            public override void VisitLeadingTrivia(SyntaxToken token)
+            {
+            }
+
+            public override void VisitTrailingTrivia(SyntaxToken token)
+            {
+            }
+
+            public override void VisitAttribute(AttributeSyntax node)
+            {
+            }
+
+            public override void VisitAttributeArgument(AttributeArgumentSyntax node)
+            {
+            }
+
+            public override void VisitAttributeArgumentList(AttributeArgumentListSyntax node)
+            {
+            }
+
+            public override void VisitAttributeList(AttributeListSyntax node)
+            {
+            }
+
+            public override void VisitAttributeTargetSpecifier(AttributeTargetSpecifierSyntax node)
+            {
+            }
+
+            public override void VisitUsingStatement(UsingStatementSyntax node)
+            {
+            }
+
+            public override void VisitEnumDeclaration(EnumDeclarationSyntax node)
+            {
+            }
+
+            public override void VisitEnumMemberDeclaration(EnumMemberDeclarationSyntax node)
+            {
+            }
+
+            public override void VisitLiteralExpression(LiteralExpressionSyntax node)
+            {
+            }
+
+            public override void VisitDocumentationCommentTrivia(DocumentationCommentTriviaSyntax node)
+            {
+            }
+
+            public override void VisitOmittedTypeArgument(OmittedTypeArgumentSyntax node)
+            {
+            }
+
+            public override void VisitTypeArgumentList(TypeArgumentListSyntax node)
+            {
+            }
+
+            public override void VisitTypeParameter(TypeParameterSyntax node)
+            {
+            }
+
+            public override void VisitTypeParameterList(TypeParameterListSyntax node)
+            {
+            }
+
+            public override void VisitTypeParameterConstraintClause(TypeParameterConstraintClauseSyntax node)
+            {
             }
         }
     }

@@ -9,7 +9,7 @@ using static Microsoft.CodeAnalysis.VisualBasic.SyntaxFactory;
 namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders
 {
     [ExportCodeFixProvider(LanguageNames.VisualBasic)]
-    internal class ConstructorArgumentsForInterfaceCodeFixProvider : AbstractConstructorArgumentsForInterfaceCodeFixProvider<InvocationExpressionSyntax>
+    internal sealed class ConstructorArgumentsForInterfaceCodeFixProvider : AbstractConstructorArgumentsForInterfaceCodeFixProvider<InvocationExpressionSyntax>
     {
         protected override InvocationExpressionSyntax GetInvocationExpressionSyntaxWithEmptyArgumentList(InvocationExpressionSyntax invocationExpressionSyntax)
         {

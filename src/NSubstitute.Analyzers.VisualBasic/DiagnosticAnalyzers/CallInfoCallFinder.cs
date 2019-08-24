@@ -9,6 +9,12 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
     internal class CallInfoCallFinder : ICallInfoFinder<InvocationExpressionSyntax, InvocationExpressionSyntax>
     {
+        public static CallInfoCallFinder Instance { get; } = new CallInfoCallFinder();
+
+        private CallInfoCallFinder()
+        {
+        }
+
         public CallInfoContext<InvocationExpressionSyntax, InvocationExpressionSyntax> GetCallInfoContext(SemanticModel semanticModel, SyntaxNode syntaxNode)
         {
             var visitor = new CallInfoVisitor(semanticModel);

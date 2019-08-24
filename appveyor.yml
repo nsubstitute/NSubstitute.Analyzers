@@ -11,6 +11,8 @@ for:
         - image: Ubuntu
     test: off      
     build_script:
+      - sudo mv global.json _global.json #workaround for missing AppVeyor images
+      - dotnet new globaljson --sdk-version 2.2.401
       - cd build
       - chmod +xxx ./build.sh
       - ./build.sh --target="AppVeyor" --configuration=Release --UploadCoverageReport=False
@@ -20,6 +22,8 @@ for:
         - image: Visual Studio 2017
     test: off
     build_script:
+      - move global.json _global.json #workaround for missing AppVeyor images
+      - dotnet new globaljson --sdk-version 2.2.301
       - cd Build
       - ps: >-
           .\build.ps1 --target="AppVeyor" --configuration=Release --UploadCoverageReport=True

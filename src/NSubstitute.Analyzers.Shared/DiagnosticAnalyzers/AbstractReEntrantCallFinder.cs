@@ -9,16 +9,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
     internal abstract class AbstractReEntrantCallFinder : IReEntrantCallFinder
     {
-        private static readonly ImmutableDictionary<string, string> MethodNames = new Dictionary<string, string>()
+        public ImmutableList<ISymbol> GetReEntrantCalls(Compilation compilation, SemanticModel semanticModel, SyntaxNode originatingExpression, SyntaxNode rootNode)
         {
-            [MetadataNames.NSubstituteReturnsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-            [MetadataNames.NSubstituteReturnsForAnyArgsMethod] = MetadataNames.NSubstituteSubstituteExtensionsFullTypeName,
-            [MetadataNames.NSubstituteDoMethod] = MetadataNames.NSubstituteWhenCalledType
-        }.ToImmutableDictionary();
-
-        public ImmutableList<ISymbol> GetReEntrantCalls(Compilation compilation, SyntaxNode originatingExpression, SyntaxNode rootNode)
-        {
-            var semanticModel = compilation.GetSemanticModel(rootNode.SyntaxTree);
             var symbolInfo = semanticModel.GetSymbolInfo(rootNode);
 
             if (IsLocalSymbol(symbolInfo.Symbol) || semanticModel.GetTypeInfo(rootNode).IsCallInfoDelegate(semanticModel))
@@ -26,19 +18,19 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return ImmutableList<ISymbol>.Empty;
             }
 
-            return GetReEntrantSymbols(compilation, originatingExpression, rootNode);
+            return GetReEntrantSymbols(compilation, semanticModel, originatingExpression, rootNode);
         }
 
-        protected abstract ImmutableList<ISymbol> GetReEntrantSymbols(Compilation compilation, SyntaxNode originatingExpression, SyntaxNode rootNode);
+        protected abstract ImmutableList<ISymbol> GetReEntrantSymbols(Compilation compilation, SemanticModel semanticModel, SyntaxNode originatingExpression, SyntaxNode rootNode);
 
-        protected IEnumerable<SyntaxNode> GetRelatedNodes(Compilation compilation, SyntaxNode syntaxNode)
+        protected IEnumerable<SyntaxNode> GetRelatedNodes(Compilation compilation, SemanticModel semanticModel, SyntaxNode syntaxNode)
         {
             if (compilation.ContainsSyntaxTree(syntaxNode.SyntaxTree) == false)
             {
                 yield break;
             }
 
-            var symbol = compilation.GetSemanticModel(syntaxNode.SyntaxTree).GetSymbolInfo(syntaxNode);
+            var symbol = GetSemanticModel(compilation, semanticModel, syntaxNode).GetSymbolInfo(syntaxNode);
             if (symbol.Symbol != null && IsLocalSymbol(symbol.Symbol) == false && symbol.Symbol.Locations.Any())
             {
                 foreach (var symbolLocation in symbol.Symbol.Locations.Where(location => location.SourceTree != null))
@@ -53,16 +45,21 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
         }
 
-        protected bool IsReturnsLikeMethod(SemanticModel semanticModel, ISymbol symbol)
+        protected SemanticModel GetSemanticModel(Compilation compilation, SemanticModel semanticModel, SyntaxNode syntaxNode)
         {
-            if (symbol == null || MethodNames.TryGetValue(symbol.Name, out var containingType) == false)
+            // perf - take original semantic model whenever possible
+            if (semanticModel.SyntaxTree == syntaxNode.SyntaxTree)
             {
-                return false;
+                return semanticModel;
             }
 
-            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                   (symbol.ContainingType?.ToString().Equals(containingType, StringComparison.OrdinalIgnoreCase) == true ||
-                    (symbol.ContainingType?.ConstructedFrom.Name)?.Equals(containingType, StringComparison.OrdinalIgnoreCase) == true);
+            // but keep in mind that we might traverse outside of the original one https://github.com/nsubstitute/NSubstitute.Analyzers/issues/56
+            return compilation.GetSemanticModel(syntaxNode.SyntaxTree);
+        }
+
+        protected bool IsInnerReEntryLikeMethod(SemanticModel semanticModel, ISymbol symbol)
+        {
+            return symbol.IsInnerReEntryLikeMethod();
         }
 
         private bool IsLocalSymbol(ISymbol symbol)

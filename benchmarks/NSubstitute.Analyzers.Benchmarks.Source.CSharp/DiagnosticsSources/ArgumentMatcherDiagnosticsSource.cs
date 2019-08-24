@@ -13,7 +13,7 @@ namespace NSubstitute.Analyzers.Benchmarks.Source.CSharp.DiagnosticsSources
 
             substitute.ObjectReturningMethodWithArguments(Arg.Is(0), Arg.Is(0), Arg.Is(0m));
             substitute.ObjectReturningMethodWithArguments(Arg.Compat.Is(0), Arg.Compat.Is(0), Arg.Compat.Is(0m));
-            
+
             // correct usages
             Received.InOrder(() =>
             {

@@ -100,5 +100,29 @@ namespace NSubstitute.Analyzers.Shared
             [ArgDoMethodName] = NSubstituteArgCompatFullTypeName,
             [ArgInvokeDelegateMethodName] = NSubstituteArgCompatFullTypeName
         };
+
+        public static readonly IReadOnlyDictionary<string, string> InitialReEntryMethodNames = new Dictionary<string, string>
+        {
+            [NSubstituteReturnsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+            [NSubstituteReturnsForAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName
+        };
+
+        public static readonly IReadOnlyDictionary<string, string> CreateSubstituteMethodNames = new Dictionary<string, string>
+        {
+            [NSubstituteForMethod] = NSubstituteSubstituteFullTypeName,
+            [NSubstituteForPartsOfMethod] = NSubstituteSubstituteFullTypeName,
+            [SubstituteFactoryCreate] = NSubstituteFactoryFullTypeName,
+            [SubstituteFactoryCreatePartial] = NSubstituteFactoryFullTypeName
+        };
+
+        public static readonly IReadOnlyDictionary<string, string> SupportingCallInfoMethodNames = new Dictionary<string, string>
+        {
+            [NSubstituteReturnsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+            [NSubstituteReturnsForAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+            [NSubstituteThrowsMethod] = NSubstituteExceptionExtensionsFullTypeName,
+            [NSubstituteThrowsForAnyArgsMethod] = NSubstituteExceptionExtensionsFullTypeName,
+            [NSubstituteAndDoesMethod] = NSubstituteConfiguredCallFullTypeName,
+            [NSubstituteDoMethod] = NSubstituteWhenCalledType
+        };
     }
 }

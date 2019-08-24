@@ -8,17 +8,17 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    internal class UnusedReceivedAnalyzer : AbstractUnusedReceivedAnalyzer<SyntaxKind>
+    internal sealed class UnusedReceivedAnalyzer : AbstractUnusedReceivedAnalyzer<SyntaxKind>
     {
-        protected override ImmutableArray<Parent> PossibleParents { get; } = ImmutableArray.Create(
-            Parent.Create<MemberAccessExpressionSyntax>(),
-            Parent.Create<InvocationExpressionSyntax>(),
-            Parent.Create<ElementAccessExpressionSyntax>());
+        protected override ImmutableHashSet<int> PossibleParentsRawKinds { get; } = ImmutableHashSet.Create(
+            (int)SyntaxKind.SimpleMemberAccessExpression,
+            (int)SyntaxKind.InvocationExpression,
+            (int)SyntaxKind.ElementAccessExpression);
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
         public UnusedReceivedAnalyzer()
-            : base(new DiagnosticDescriptorsProvider())
+            : base(NSubstitute.Analyzers.CSharp.DiagnosticDescriptorsProvider.Instance)
         {
         }
     }

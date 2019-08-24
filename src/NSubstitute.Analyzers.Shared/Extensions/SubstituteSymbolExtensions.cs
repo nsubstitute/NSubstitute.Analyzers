@@ -6,6 +6,32 @@ namespace NSubstitute.Analyzers.Shared.Extensions
 {
     internal static class SubstituteSymbolExtensions
     {
+        public static bool IsAndDoesLikeMethod(this ISymbol symbol)
+        {
+            return IsMember(symbol, MetadataNames.NSubstituteAndDoesMethod, MetadataNames.NSubstituteConfiguredCallFullTypeName);
+        }
+
+        public static bool IsCallInfoSupportingMethod(this ISymbol symbol)
+        {
+            return IsMember(symbol, MetadataNames.SupportingCallInfoMethodNames);
+        }
+
+        public static bool IsInitialReEntryLikeMethod(this ISymbol symbol)
+        {
+            return IsMember(symbol, MetadataNames.InitialReEntryMethodNames);
+        }
+
+        public static bool IsInnerReEntryLikeMethod(this ISymbol symbol)
+        {
+            return IsInitialReEntryLikeMethod(symbol) ||
+                   IsMember(symbol, MetadataNames.NSubstituteDoMethod, MetadataNames.NSubstituteWhenCalledType);
+        }
+
+        public static bool IsReturnOrThrowLikeMethod(this ISymbol symbol)
+        {
+            return IsReturnLikeMethod(symbol) || IsThrowLikeMethod(symbol);
+        }
+
         public static bool IsReturnLikeMethod(this ISymbol symbol)
         {
             return IsMember(symbol, MetadataNames.ReturnsMethodNames);
@@ -41,6 +67,11 @@ namespace NSubstitute.Analyzers.Shared.Extensions
             return IsMember(symbol, MetadataNames.NSubstituteInOrderMethod, MetadataNames.NSubstituteReceivedFullTypeName);
         }
 
+        public static bool IsSubstituteCreateLikeMethod(this ISymbol symbol)
+        {
+            return IsMember(symbol, MetadataNames.CreateSubstituteMethodNames);
+        }
+
         private static bool IsMember(this ISymbol symbol, IReadOnlyDictionary<string, string> memberTypeMap)
         {
             if (symbol == null)
@@ -48,29 +79,27 @@ namespace NSubstitute.Analyzers.Shared.Extensions
                 return false;
             }
 
-            if (memberTypeMap.TryGetValue(symbol.Name, out var containingType) == false)
-            {
-                return false;
-            }
-
-            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.ContainingType?.ToString().Equals(containingType, StringComparison.OrdinalIgnoreCase) == true;
+            return memberTypeMap.TryGetValue(symbol.Name, out var containingType) && IsMember(symbol, containingType);
         }
 
-        private static bool IsMember(ISymbol symbol, string name, string containingType)
+        private static bool IsMember(ISymbol symbol, string memberName, string containingType)
         {
-            if (symbol.Name != name)
-            {
-                return false;
-            }
-
-            return IsMember(symbol, containingType);
+            return symbol != null && symbol.Name == memberName && IsMember(symbol, containingType);
         }
 
         private static bool IsMember(ISymbol symbol, string containingType)
         {
-            return symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
-                   symbol.ContainingType?.ToString().Equals(containingType, StringComparison.OrdinalIgnoreCase) == true;
+            var containingAssembly = symbol.ContainingAssembly;
+            var symbolContainingType = symbol.ContainingType;
+
+            if (containingAssembly == null || symbolContainingType == null)
+            {
+                return false;
+            }
+
+            return containingAssembly.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.Ordinal) &&
+                   (symbolContainingType.ToString().Equals(containingType, StringComparison.Ordinal) ||
+                    symbolContainingType.ConstructedFrom?.Name.Equals(containingType, StringComparison.Ordinal) == true);
         }
     }
 }

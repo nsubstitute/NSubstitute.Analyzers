@@ -8,7 +8,7 @@ using NSubstitute.Analyzers.VisualBasic.Refactorings;
 namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders
 {
     [ExportCodeFixProvider(LanguageNames.VisualBasic)]
-    internal class InternalSetupSpecificationCodeFixProvider : AbstractInternalSetupSpecificationCodeFixProvider<CompilationUnitSyntax>
+    internal sealed class InternalSetupSpecificationCodeFixProvider : AbstractInternalSetupSpecificationCodeFixProvider<CompilationUnitSyntax>
     {
         protected override string ReplaceModifierCodeFixTitle { get; } = "Replace friend with public modifier";
 

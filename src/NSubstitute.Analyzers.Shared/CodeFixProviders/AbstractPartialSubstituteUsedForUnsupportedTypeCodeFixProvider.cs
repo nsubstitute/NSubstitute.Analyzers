@@ -55,13 +55,13 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             {
                 var genericNameSyntax = GetNameSyntax<TGenericNameSyntax>(invocationExpression);
                 nameNode = genericNameSyntax;
-                updateNameNode = GetUpdatedNameSyntax<TGenericNameSyntax>(genericNameSyntax, MetadataNames.NSubstituteForMethod);
+                updateNameNode = GetUpdatedNameSyntax(genericNameSyntax, MetadataNames.NSubstituteForMethod);
             }
             else
             {
                 var identifierNameSyntax = GetNameSyntax<TIdentifierNameSyntax>(invocationExpression);
                 nameNode = identifierNameSyntax;
-                updateNameNode = GetUpdatedNameSyntax<TIdentifierNameSyntax>(identifierNameSyntax, MetadataNames.SubstituteFactoryCreate);
+                updateNameNode = GetUpdatedNameSyntax(identifierNameSyntax, MetadataNames.SubstituteFactoryCreate);
             }
 
             var forNode = invocationExpression.ReplaceNode(nameNode, updateNameNode);

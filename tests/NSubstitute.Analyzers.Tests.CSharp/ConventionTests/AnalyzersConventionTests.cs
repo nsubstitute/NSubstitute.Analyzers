@@ -31,5 +31,11 @@ namespace NSubstitute.Analyzers.Tests.CSharp.ConventionTests
         {
             _fixture.AssertExportCodeFixProviderAttributeUsageFromAssemblyContaining<NonSubstitutableMemberAnalyzer>(LanguageNames.CSharp);
         }
+
+        [Fact]
+        public void CodeFixProvidersInheritanceHierarchyShouldBeSatisfied()
+        {
+            _fixture.AssertCodeFixProviderInheritanceFromAssemblyContaining<NonSubstitutableMemberAnalyzer>();
+        }
     }
 }

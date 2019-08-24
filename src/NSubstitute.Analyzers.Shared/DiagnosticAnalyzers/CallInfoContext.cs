@@ -10,7 +10,10 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         public List<TInvocationExpressionSyntax> ArgInvocations { get; }
 
-        public CallInfoContext(List<TInvocationExpressionSyntax> argAtInvocations, List<TInvocationExpressionSyntax> argInvocations, List<TIndexerSyntax> indexerAccesses)
+        public CallInfoContext(
+            List<TInvocationExpressionSyntax> argAtInvocations,
+            List<TInvocationExpressionSyntax> argInvocations,
+            List<TIndexerSyntax> indexerAccesses)
         {
             IndexerAccesses = indexerAccesses;
             ArgAtInvocations = argAtInvocations;
