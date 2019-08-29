@@ -17,6 +17,11 @@ namespace MyNamespace
 
     public class Bar
     {{
+        public int I {{ get; set; }}
+        public Bar(){{}}
+
+        public Bar(int i){{}}
+
         public int FooBar(int x, int y)
         {{
             return 1;
@@ -31,6 +36,9 @@ namespace MyNamespace
             substitute.Bar({arg}, {arg});
             var bar = substitute.Bar({arg}, {arg});
             new Bar().FooBar({arg}, {arg});
+            new Bar({arg});
+            new Bar {{ I = {arg}}};
+            var anonymous = new {{ I = {arg}}};
             substitute.When(x => {{ new Bar().FooBar({arg}, {arg});}});
         }}
     }}

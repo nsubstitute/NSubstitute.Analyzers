@@ -16,7 +16,19 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
             ImmutableArray.Create(
                 (int)SyntaxKind.SimpleArgument,
                 (int)SyntaxKind.ArgumentList,
-                (int)SyntaxKind.InvocationExpression));
+                (int)SyntaxKind.InvocationExpression),
+            ImmutableArray.Create(
+                (int)SyntaxKind.SimpleArgument,
+                (int)SyntaxKind.ArgumentList,
+                (int)SyntaxKind.ObjectCreationExpression),
+            ImmutableArray.Create(
+                (int)SyntaxKind.NamedFieldInitializer,
+                (int)SyntaxKind.ObjectMemberInitializer,
+                (int)SyntaxKind.ObjectCreationExpression),
+            ImmutableArray.Create(
+                (int)SyntaxKind.NamedFieldInitializer,
+                (int)SyntaxKind.ObjectMemberInitializer,
+                (int)SyntaxKind.AnonymousObjectCreationExpression));
 
         public ArgumentMatcherCompilationAnalyzer(ISubstitutionNodeFinder<InvocationExpressionSyntax> substitutionNodeFinder, IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
             : base(substitutionNodeFinder, diagnosticDescriptorsProvider)

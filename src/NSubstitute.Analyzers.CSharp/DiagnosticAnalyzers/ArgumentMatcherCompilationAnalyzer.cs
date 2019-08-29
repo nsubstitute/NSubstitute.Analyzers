@@ -19,8 +19,19 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
                 (int)SyntaxKind.InvocationExpression),
             ImmutableArray.Create(
                 (int)SyntaxKind.Argument,
+                (int)SyntaxKind.ArgumentList,
+                (int)SyntaxKind.ObjectCreationExpression),
+            ImmutableArray.Create(
+                (int)SyntaxKind.Argument,
                 (int)SyntaxKind.BracketedArgumentList,
-                (int)SyntaxKind.ElementAccessExpression));
+                (int)SyntaxKind.ElementAccessExpression),
+            ImmutableArray.Create(
+                (int)SyntaxKind.SimpleAssignmentExpression,
+                (int)SyntaxKind.ObjectInitializerExpression,
+                (int)SyntaxKind.ObjectCreationExpression),
+            ImmutableArray.Create(
+                (int)SyntaxKind.AnonymousObjectMemberDeclarator,
+                (int)SyntaxKind.AnonymousObjectCreationExpression));
 
         public ArgumentMatcherCompilationAnalyzer(ISubstitutionNodeFinder<InvocationExpressionSyntax> substitutionNodeFinder, IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
             : base(substitutionNodeFinder, diagnosticDescriptorsProvider)

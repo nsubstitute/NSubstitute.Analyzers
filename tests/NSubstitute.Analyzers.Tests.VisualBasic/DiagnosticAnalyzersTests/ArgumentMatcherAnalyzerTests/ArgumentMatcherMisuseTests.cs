@@ -14,6 +14,14 @@ Namespace MyNamespace
     End Class
 
     Public Class Bar
+        Public Property I As Integer
+
+        Public Sub New()
+        End Sub
+
+        Public Sub New(ByVal x As Integer)
+        End Sub
+
         Public Function FooBar(ByVal x As Integer, ByVal y As Integer) As Integer
             Return 1
         End Function
@@ -25,6 +33,13 @@ Namespace MyNamespace
             substitute.Bar({arg}, {arg})
             Dim bar = substitute.Bar({arg}, {arg})
             Dim newBar = New Bar().FooBar({arg}, {arg})
+            Dim otherBar = New Bar({arg})
+            Dim yetAnotherBar = New Bar With {{
+                .I = {arg}
+                }}
+            Dim anonymous = New With {{
+                .I = {arg}
+                }}
             substitute.[When](Function(x)
                                   Dim innerNewBar = New Bar().FooBar({arg}, {arg})
                               End Function)
