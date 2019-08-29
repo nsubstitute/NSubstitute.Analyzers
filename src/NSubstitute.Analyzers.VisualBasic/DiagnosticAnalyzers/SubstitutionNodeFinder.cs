@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.VisualBasic;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Shared.Extensions;
 using NSubstitute.Analyzers.VisualBasic.Extensions;
 
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
@@ -56,7 +57,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
                 ? whenInvocationExpression.ArgumentList.Arguments.First().GetExpression()
                 : whenInvocationExpression.ArgumentList.Arguments.Skip(1).First().GetExpression();
 
-            return FindForWhenExpression(syntaxNodeContext, argumentExpression);
+            return FindForWhenExpression(syntaxNodeContext, argumentExpression).Select(syntax => syntax.GetSubstitutionActualNode<MemberAccessExpressionSyntax>(syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax).Symbol));
         }
 
         private IEnumerable<SyntaxNode> FindForWhenExpression(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode argumentSyntax)

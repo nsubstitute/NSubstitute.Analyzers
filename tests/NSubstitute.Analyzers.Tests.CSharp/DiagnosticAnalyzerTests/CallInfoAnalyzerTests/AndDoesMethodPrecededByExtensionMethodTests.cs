@@ -417,15 +417,18 @@ namespace MyNamespace
     {{
     }}
 
+    public interface IMapper
+    {{
+        TResult Map<TResult>(object source);
+    }}
+
     public class FooTests
     {{
         public void Test()
         {{
-            var substitute = NSubstitute.Substitute.For<IFoo>();
-            {call}.Returns(1).{method}(callInfo =>
-            {{
-                {argAccess}
-            }});
+            var substitute = NSubstitute.Substitute.For<IMapper>();
+            substitute.Map<Foo>(1).Returns(_ => {{ _.Arg<int>(); return (Foo)null; }});
+            
         }}
     }}
 }}";

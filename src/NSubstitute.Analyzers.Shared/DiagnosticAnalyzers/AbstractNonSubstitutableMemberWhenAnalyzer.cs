@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer<TSyntaxKind, TInvocationExpressionSyntax, TMemberAccessExpressionSyntax> : AbstractDiagnosticAnalyzer
+    internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer<TSyntaxKind, TInvocationExpressionSyntax> : AbstractDiagnosticAnalyzer
         where TInvocationExpressionSyntax : SyntaxNode
-        where TMemberAccessExpressionSyntax : SyntaxNode
         where TSyntaxKind : struct, Enum
     {
         private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
@@ -66,7 +63,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     {
                         var diagnostic = Diagnostic.Create(
                             DiagnosticDescriptorsProvider.NonVirtualWhenSetupSpecification,
-                            GetSubstitutionNodeActualLocation(analysedSyntax, symbolInfo),
+                            analysedSyntax.GetLocation(),
                             symbolInfo.Symbol.Name);
 
                         syntaxNodeContext.ReportDiagnostic(diagnostic);
@@ -76,18 +73,13 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     {
                         var diagnostic = Diagnostic.Create(
                             DiagnosticDescriptorsProvider.InternalSetupSpecification,
-                            GetSubstitutionNodeActualLocation(analysedSyntax, symbolInfo),
+                            analysedSyntax.GetLocation(),
                             symbolInfo.Symbol.Name);
 
                         syntaxNodeContext.ReportDiagnostic(diagnostic);
                     }
                 }
             }
-        }
-
-        private static Location GetSubstitutionNodeActualLocation(SyntaxNode analysedSyntax, SymbolInfo symbolInfo)
-        {
-            return analysedSyntax.GetSubstitutionNodeActualLocation<TMemberAccessExpressionSyntax>(symbolInfo.Symbol);
         }
     }
 }

@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.CSharp.Extensions;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 {
@@ -60,7 +61,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
                 ? whenInvocationExpression.ArgumentList.Arguments.First().Expression
                 : whenInvocationExpression.ArgumentList.Arguments.Skip(1).First().Expression;
 
-            return FindForWhenExpression(syntaxNodeContext, argumentExpression);
+            return FindForWhenExpression(syntaxNodeContext, argumentExpression).Select(syntax => syntax.GetSubstitutionActualNode<MemberAccessExpressionSyntax>(syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax).Symbol));
         }
 
         private IEnumerable<SyntaxNode> FindForWhenExpression(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode argumentSyntax)
