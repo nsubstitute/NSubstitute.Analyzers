@@ -1,8 +1,5 @@
 using System.Threading.Tasks;
-using NSubstitute.Analyzers.CSharp;
-using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
-using NSubstitute.Analyzers.Tests.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAnalyzerTests
 {
@@ -117,11 +114,11 @@ namespace MyNamespace
 {{
     public interface Foo
     {{
-        int Bar(int x, int y);
+        int Bar(int x, int y = 1);
 
         int Barr {{ get; }}
 
-        int this[int x, int y] {{ get; }}
+        int this[int x, int y = 1] {{ get; }}
     }}
 
     public class FooTests
@@ -189,10 +186,14 @@ namespace MyNamespace
     public interface Foo
     {{
         int Bar(int x, double y);
+    
+        int Bar(string x, object y);
 
         int Foo(int x, FooBar bar);
 
         int this[int x, double y] {{ get; }}
+
+        int this[string x, object y] {{ get; }}
 
         int this[int x, FooBar bar] {{ get; }}
     }}
@@ -233,7 +234,11 @@ namespace MyNamespace
     {{
         int Bar(int x, Bar y);
 
+        int Bar(decimal x, object y, int z = 1);
+
         int this[int x, Bar y] {{ get; }}
+
+        int this[decimal x, object y] {{ get; }}
     }}
 
     public class BarBase
@@ -272,9 +277,13 @@ namespace MyNamespace
     {{
         int Bar(int x, double y);
 
+        int Bar(object x, object y);
+
         int Foo(int x, FooBar bar);
 
         int this[int x, double y] {{ get; }}
+
+        int this[object x, object y] {{ get; }}
 
         int this[int x, FooBar bar] {{ get; }}
     }}
@@ -418,9 +427,13 @@ namespace MyNamespace
 
         int Bar(Foo x);
 
+        int Bar(int x, object y);
+
         int this[int x] {{ get; }}
 
         int this[Foo x] {{ get; }}
+
+        int this[int x, object y] {{ get; }}
     }}
 
     public class FooBase
@@ -458,7 +471,15 @@ namespace MyNamespace
     {{
         int Bar(int x, int y);
 
+        int Bar(object x, object y);
+        
         int this[int x, int y] {{ get; }}
+
+        int this[object x, object y] {{ get; }}
+    }}
+
+    public class FooBar
+    {{
     }}
 
     public class FooTests
@@ -478,7 +499,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, CallInfoMoreThanOneArgumentOfTypeDescriptor, message);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(string method, string call)
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(string method, string call, string argAccess)
         {
             var source = $@"using NSubstitute;
 
@@ -488,7 +509,15 @@ namespace MyNamespace
     {{
         int Bar(int x, double y);
 
+        int Bar(object x, FooBar y);
+
         int this[int x, double y] {{ get; }}
+
+        int this[object x, FooBar y] {{ get; }}
+    }}
+
+    public class FooBar
+    {{
     }}
 
     public class FooTests
@@ -498,7 +527,7 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
             {call}.{method}(callInfo =>
             {{
-                callInfo.Arg<int>();
+                {argAccess}
                 return 1;
             }});
         }}

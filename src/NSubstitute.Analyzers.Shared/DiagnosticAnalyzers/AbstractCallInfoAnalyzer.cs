@@ -191,7 +191,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 if (symbolInfo.Symbol != null && symbolInfo.Symbol is IMethodSymbol argMethodSymbol)
                 {
                     var typeSymbol = argMethodSymbol.TypeArguments.First();
-                    var parameterCount = GetMatchingArgsCount(syntaxNodeContext, substituteCallParameters, typeSymbol);
+                    var parameterCount = GetMatchingParametersCount(syntaxNodeContext, substituteCallParameters, typeSymbol);
                     if (parameterCount == 0)
                     {
                         var diagnostic = Diagnostic.Create(
@@ -265,13 +265,13 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                         DiagnosticDescriptorsProvider.CallInfoArgumentIsNotOutOrRef,
                         indexer.GetLocation(),
                         position.Value,
-                        parameterSymbol.GetArgumentOperationActualTypeSymbol());
+                        parameterSymbol.GetArgumentOperationDeclaredTypeSymbol());
                     syntaxNodeContext.ReportDiagnostic(diagnostic);
                     return true;
                 }
 
                 var typeInfo = syntaxNodeContext.SemanticModel.GetTypeInfo(assignmentExpressionSyntax);
-                var typeSymbol = substituteCallParameters[position.Value].GetArgumentOperationActualTypeSymbol();
+                var typeSymbol = substituteCallParameters[position.Value].GetArgumentOperationDeclaredTypeSymbol();
                 if (typeInfo.Type != null && IsAssignableTo(syntaxNodeContext.Compilation, typeInfo.Type, typeSymbol) == false)
                 {
                     var diagnostic = Diagnostic.Create(
@@ -327,7 +327,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         // See https://github.com/nsubstitute/NSubstitute/blob/26d0b0b880c623ef8cae8a0a71360ae2a9982f53/src/NSubstitute/Core/CallInfo.cs#L70
         // for the logic behind it
-        private int GetMatchingArgsCount(SyntaxNodeAnalysisContext syntaxNodeContext, IList<IArgumentOperation> substituteCallParameters, ITypeSymbol typeSymbol)
+        private int GetMatchingParametersCount(SyntaxNodeAnalysisContext syntaxNodeContext, IList<IArgumentOperation> substituteCallParameters, ITypeSymbol typeSymbol)
         {
             var declaringTypeMatchCount =
                 substituteCallParameters.Count(param => param.GetArgumentOperationDeclaredTypeSymbol() == typeSymbol);
