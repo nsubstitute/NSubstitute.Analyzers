@@ -88,9 +88,9 @@ Imports NSubstitute
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar(ByVal x As Integer, ByVal y As Integer) As Integer
+        Function Bar(ByVal x As Integer, ByVal Optional y As Integer = 1) As Integer
         ReadOnly Property Barr As Integer
-        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Integer) As Integer
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal Optional y As Integer = 1) As Integer
     End Interface
 
     Public Class FooTests
@@ -325,8 +325,10 @@ Namespace MyNamespace
     Interface IFoo
         Function Bar(ByVal x As Integer) As Integer
         Function Bar(ByVal x As Foo) As Integer
+        Function Bar(ByVal x As Integer, ByVal y As Object) As Integer
         Default ReadOnly Property Item(ByVal x As Integer) As Integer
         Default ReadOnly Property Item(ByVal x As Foo) As Integer
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal y as Object) As Integer
     End Interface
 
     Public Class FooBase
@@ -357,8 +359,13 @@ End Namespace
 Namespace MyNamespace
     Interface Foo
         Function Bar(ByVal x As Integer, ByVal y As Integer) As Integer
+        Function Bar(ByVal x As Object, ByVal y As Object) As Integer
         Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Integer) As Integer
+        Default ReadOnly Property Item(ByVal x As Object, ByVal y As Object) As Integer
     End Interface
+
+    Public Class FooBar
+    End Class
 
     Public Class FooTests
         Public Sub Test()
@@ -373,22 +380,26 @@ End Namespace
             await VerifyDiagnostic(source, CallInfoMoreThanOneArgumentOfTypeDescriptor, message);
         }
 
-        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(
-            string method, string call, string argAccess)
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(string method, string call, string argAccess)
         {
             var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface Foo
         Function Bar(ByVal x As Integer, ByVal y As Double) As Integer
+        Function Bar(ByVal x As Object, ByVal y As FooBar) As Integer
         Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Double) As Integer
+        Default ReadOnly Property Item(ByVal x As Object, ByVal y As FooBar) As Integer
     End Interface
+
+    Public Class FooBar
+    End Class
 
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {call}.Returns(1).{method}(Function(callInfo)
-                               callInfo.Arg(Of Integer)()
+                               {argAccess}
                            End Function)
         End Sub
     End Class
