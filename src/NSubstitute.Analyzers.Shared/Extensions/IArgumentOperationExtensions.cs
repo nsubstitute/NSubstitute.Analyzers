@@ -5,7 +5,7 @@ namespace NSubstitute.Analyzers.Shared.Extensions
 {
     internal static class IArgumentOperationExtensions
     {
-        public static ITypeSymbol GetArgumentOperationTypeSymbol(this IArgumentOperation argumentOperation)
+        public static ITypeSymbol GetArgumentOperationActualTypeSymbol(this IArgumentOperation argumentOperation)
         {
             ITypeSymbol conversionTypeSymbol = null;
             switch (argumentOperation.Value)
@@ -15,7 +15,12 @@ namespace NSubstitute.Analyzers.Shared.Extensions
                     break;
             }
 
-            return conversionTypeSymbol ?? argumentOperation.Parameter.Type;
+            return conversionTypeSymbol ?? argumentOperation.GetArgumentOperationDeclaredTypeSymbol();
+        }
+
+        public static ITypeSymbol GetArgumentOperationDeclaredTypeSymbol(this IArgumentOperation argumentOperation)
+        {
+            return argumentOperation.Parameter.Type;
         }
     }
 }

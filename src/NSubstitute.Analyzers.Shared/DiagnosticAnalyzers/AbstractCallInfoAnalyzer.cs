@@ -169,7 +169,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(argAtInvocation);
                     if (symbolInfo.Symbol != null &&
                         symbolInfo.Symbol is IMethodSymbol argAtMethodSymbol &&
-                        IsAssignableTo(syntaxNodeContext.Compilation, substituteCallParameters[position.Value].GetArgumentOperationTypeSymbol(), argAtMethodSymbol.TypeArguments.First()) == false)
+                        IsAssignableTo(syntaxNodeContext.Compilation, substituteCallParameters[position.Value].GetArgumentOperationActualTypeSymbol(), argAtMethodSymbol.TypeArguments.First()) == false)
                     {
                         var diagnostic = Diagnostic.Create(
                             DiagnosticDescriptorsProvider.CallInfoCouldNotConvertParameterAtPosition,
@@ -191,7 +191,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 if (symbolInfo.Symbol != null && symbolInfo.Symbol is IMethodSymbol argMethodSymbol)
                 {
                     var typeSymbol = argMethodSymbol.TypeArguments.First();
-                    var parameterCount = substituteCallParameters.Count(param => IsAssignableTo(syntaxNodeContext.Compilation, param.GetArgumentOperationTypeSymbol(), typeSymbol));
+                    var parameterCount = GetMatchingArgsCount(syntaxNodeContext, substituteCallParameters, typeSymbol);
                     if (parameterCount == 0)
                     {
                         var diagnostic = Diagnostic.Create(
@@ -238,7 +238,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             if (position.HasValue && indexerInfo.VerifyIndexerCast && castTypeExpression != null)
             {
                 var typeInfo = syntaxNodeContext.SemanticModel.GetTypeInfo(castTypeExpression);
-                if (typeInfo.Type != null && CanCast(syntaxNodeContext.Compilation, substituteCallParameters[position.Value].GetArgumentOperationTypeSymbol(), typeInfo.Type) == false)
+                if (typeInfo.Type != null && CanCast(syntaxNodeContext.Compilation, substituteCallParameters[position.Value].GetArgumentOperationActualTypeSymbol(), typeInfo.Type) == false)
                 {
                     var diagnostic = Diagnostic.Create(
                         DiagnosticDescriptorsProvider.CallInfoCouldNotConvertParameterAtPosition,
@@ -265,13 +265,13 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                         DiagnosticDescriptorsProvider.CallInfoArgumentIsNotOutOrRef,
                         indexer.GetLocation(),
                         position.Value,
-                        parameterSymbol.GetArgumentOperationTypeSymbol());
+                        parameterSymbol.GetArgumentOperationActualTypeSymbol());
                     syntaxNodeContext.ReportDiagnostic(diagnostic);
                     return true;
                 }
 
                 var typeInfo = syntaxNodeContext.SemanticModel.GetTypeInfo(assignmentExpressionSyntax);
-                var typeSymbol = substituteCallParameters[position.Value].GetArgumentOperationTypeSymbol();
+                var typeSymbol = substituteCallParameters[position.Value].GetArgumentOperationActualTypeSymbol();
                 if (typeInfo.Type != null && IsAssignableTo(syntaxNodeContext.Compilation, typeInfo.Type, typeSymbol) == false)
                 {
                     var diagnostic = Diagnostic.Create(
@@ -323,6 +323,21 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var indexerInfo = new IndexerInfo(verifyIndexerCast, verifyAssignment);
             return indexerInfo;
+        }
+
+        // See https://github.com/nsubstitute/NSubstitute/blob/26d0b0b880c623ef8cae8a0a71360ae2a9982f53/src/NSubstitute/Core/CallInfo.cs#L70
+        // for the logic behind it
+        private int GetMatchingArgsCount(SyntaxNodeAnalysisContext syntaxNodeContext, IList<IArgumentOperation> substituteCallParameters, ITypeSymbol typeSymbol)
+        {
+            var declaringTypeMatchCount =
+                substituteCallParameters.Count(param => param.GetArgumentOperationDeclaredTypeSymbol() == typeSymbol);
+
+            if (declaringTypeMatchCount > 0)
+            {
+                return declaringTypeMatchCount;
+            }
+
+            return substituteCallParameters.Count(param => IsAssignableTo(syntaxNodeContext.Compilation, param.GetArgumentOperationActualTypeSymbol(), typeSymbol));
         }
 
         private struct IndexerInfo
