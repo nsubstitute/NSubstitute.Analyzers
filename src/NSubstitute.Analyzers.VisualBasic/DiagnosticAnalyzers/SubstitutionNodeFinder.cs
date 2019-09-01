@@ -57,7 +57,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
                 ? whenInvocationExpression.ArgumentList.Arguments.First().GetExpression()
                 : whenInvocationExpression.ArgumentList.Arguments.Skip(1).First().GetExpression();
 
-            return FindForWhenExpression(syntaxNodeContext, argumentExpression).Select(syntax => syntax.GetSubstitutionActualNode<MemberAccessExpressionSyntax>(syntaxNodeContext.SemanticModel.GetSymbolInfo(syntax).Symbol));
+            return FindForWhenExpression(syntaxNodeContext, argumentExpression).Select(syntax => syntax.GetSubstitutionActualNode(node => syntaxNodeContext.SemanticModel.GetSymbolInfo(node).Symbol));
         }
 
         private IEnumerable<SyntaxNode> FindForWhenExpression(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode argumentSyntax)

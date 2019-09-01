@@ -1,3 +1,4 @@
+using System;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -16,6 +17,11 @@ namespace NSubstitute.Analyzers.CSharp.Extensions
         public static InvocationExpressionSyntax GetParentInvocationExpression(this SyntaxNode node)
         {
             return node.GetParentNode(ParentInvocationKindHierarchy) as InvocationExpressionSyntax;
+        }
+
+        public static SyntaxNode GetSubstitutionActualNode(this SyntaxNode node, Func<SyntaxNode, ISymbol> symbolProvider)
+        {
+            return node.GetSubstitutionActualNode<MemberAccessExpressionSyntax>(symbolProvider);
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
@@ -39,7 +40,13 @@ namespace NSubstitute.Analyzers.Shared.Extensions
         public static SyntaxNode GetSubstitutionActualNode<TMemberAccessExpression>(this SyntaxNode node, ISymbol symbol)
             where TMemberAccessExpression : SyntaxNode
         {
-            var actualNode = node is TMemberAccessExpression && symbol is IMethodSymbol _ ? node.Parent : node;
+            return node.GetSubstitutionActualNode<TMemberAccessExpression>(syntax => symbol);
+        }
+
+        public static SyntaxNode GetSubstitutionActualNode<TMemberAccessExpression>(this SyntaxNode node, Func<SyntaxNode, ISymbol> symbolProvider)
+            where TMemberAccessExpression : SyntaxNode
+        {
+            var actualNode = node is TMemberAccessExpression && symbolProvider(node) is IMethodSymbol _ ? node.Parent : node;
 
             return actualNode;
         }
