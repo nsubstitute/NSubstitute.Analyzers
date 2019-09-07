@@ -19,5 +19,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
         Task ReportsNoDiagnostics_WhenUseTogetherWithArgInvoke_ForMethodCall(string argInvoke, string arg);
 
         Task ReportsNoDiagnostics_WhenUseTogetherWithArgInvoke_ForIndexerCall(string argInvoke, string arg);
+
+        Task ReportsNoDiagnostics_WhenUsedWithPotentiallyValidAssignment(string arg);
     }
 }

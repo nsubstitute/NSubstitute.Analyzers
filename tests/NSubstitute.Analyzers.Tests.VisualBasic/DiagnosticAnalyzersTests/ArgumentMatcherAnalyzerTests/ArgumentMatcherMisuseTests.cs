@@ -319,5 +319,21 @@ End Namespace";
 
             await VerifyNoDiagnostic(source);
         }
+
+        public override async Task ReportsNoDiagnostics_WhenUsedWithPotentiallyValidAssignment(string arg)
+        {
+            var source = $@"Imports System
+Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class FooTests
+        Public Sub Test()
+            Dim arg As Integer = NSubstitute.{arg}
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifyNoDiagnostic(source);
+        }
     }
 }

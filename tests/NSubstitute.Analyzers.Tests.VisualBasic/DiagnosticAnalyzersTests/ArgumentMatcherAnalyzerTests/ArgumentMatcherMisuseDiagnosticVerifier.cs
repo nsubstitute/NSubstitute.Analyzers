@@ -83,6 +83,13 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Argum
         [InlineData("Arg.Compat.Is(1)")]
         public abstract Task ReportsNoDiagnostics_WhenUseTogetherWithArgInvoke_ForIndexerCall(string argInvoke, string arg);
 
+        [Theory]
+        [InlineData("Arg.Any(Of Integer)()")]
+        [InlineData("Arg.Compat.Any(Of Integer)()")]
+        [InlineData("Arg.Is(1)")]
+        [InlineData("Arg.Compat.Is(1)")]
+        public abstract Task ReportsNoDiagnostics_WhenUsedWithPotentiallyValidAssignment(string arg);
+
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
             return new ArgumentMatcherAnalyzer();

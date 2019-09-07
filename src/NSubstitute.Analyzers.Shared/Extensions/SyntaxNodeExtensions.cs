@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers.Shared.Extensions
@@ -16,10 +17,25 @@ namespace NSubstitute.Analyzers.Shared.Extensions
             return GetNodeInHierarchy(syntaxNode.Ancestors(), ancestorNodeHierarchyKinds);
         }
 
+        public static SyntaxNode GetAncestorNode(this SyntaxNode syntaxNode, ImmutableArray<ImmutableArray<int>> ancestorHierarchies)
+        {
+            foreach (var possibleAncestorPath in ancestorHierarchies)
+            {
+                var node = syntaxNode.GetAncestorNode(possibleAncestorPath);
+
+                if (node != null)
+                {
+                    return node;
+                }
+            }
+
+            return null;
+        }
+
         public static Location GetSubstitutionNodeActualLocation<TMemberAccessExpression>(this SyntaxNode node, ISymbol symbol)
             where TMemberAccessExpression : SyntaxNode
         {
-            var actualNode = node is TMemberAccessExpression && symbol is IMethodSymbol _ ? node.Parent : node;
+            var actualNode = node.GetSubstitutionActualNode<TMemberAccessExpression>(syntax => symbol);
 
             return actualNode.GetLocation();
         }

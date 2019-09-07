@@ -355,5 +355,23 @@ namespace MyNamespace
 }}";
             await VerifyNoDiagnostic(source);
         }
+
+        public override async Task ReportsNoDiagnostics_WhenUsedWithPotentiallyValidAssignment(string arg)
+        {
+            var source = $@"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var arg = {arg};
+        }}
+    }}
+}}";
+            await VerifyNoDiagnostic(source);
+        }
     }
 }

@@ -13,19 +13,25 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         where TMemberAccessExpressionSyntax : SyntaxNode
         where TArgumentSyntax : SyntaxNode
     {
-        protected abstract ImmutableArray<ImmutableArray<int>> PossibleAncestorPathsForArgument { get; }
+        protected abstract ImmutableArray<ImmutableArray<int>> AllowedAncestorPaths { get; }
+
+        protected abstract ImmutableArray<ImmutableArray<int>> IgnoredAncestorPaths { get; }
 
         private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
 
         private readonly IDiagnosticDescriptorsProvider _diagnosticDescriptorsProvider;
 
-        private ConcurrentBag<SyntaxNode> ReceivedInOrderNodes { get; } = new ConcurrentBag<SyntaxNode>();
+        private readonly ConcurrentBag<SyntaxNode> _receivedInOrderNodes = new ConcurrentBag<SyntaxNode>();
 
-        private ConcurrentBag<SyntaxNode> WhenNodes { get; } = new ConcurrentBag<SyntaxNode>();
+        private readonly ConcurrentBag<SyntaxNode> _whenNodes = new ConcurrentBag<SyntaxNode>();
 
-        private ConcurrentDictionary<SyntaxNode, List<SyntaxNode>> PotentialMisusedNodes { get; } = new ConcurrentDictionary<SyntaxNode, List<SyntaxNode>>();
+        private readonly ConcurrentDictionary<SyntaxNode, List<SyntaxNode>> _potentialMisusedNodes = new ConcurrentDictionary<SyntaxNode, List<SyntaxNode>>();
 
-        protected AbstractArgumentMatcherCompilationAnalyzer(ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder, IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
+        private readonly ConcurrentBag<SyntaxNode> _misusedNodes = new ConcurrentBag<SyntaxNode>();
+
+        protected AbstractArgumentMatcherCompilationAnalyzer(
+            ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder,
+            IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
         {
             _substitutionNodeFinder = substitutionNodeFinder;
             _diagnosticDescriptorsProvider = diagnosticDescriptorsProvider;
@@ -60,10 +66,10 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         public void FinishAnalyzeArgMatchers(CompilationAnalysisContext compilationAnalysisContext)
         {
             // we dont need thread safety anymore - changing for hashset for faster lookup
-            var whenNodes = WhenNodes.ToImmutableHashSet();
-            var receivedInOrderNodes = ReceivedInOrderNodes.ToImmutableHashSet();
+            var whenNodes = _whenNodes.ToImmutableHashSet();
+            var receivedInOrderNodes = _receivedInOrderNodes.ToImmutableHashSet();
 
-            foreach (var potential in PotentialMisusedNodes)
+            foreach (var potential in _potentialMisusedNodes)
             {
                 if (whenNodes.Contains(potential.Key) == false && receivedInOrderNodes.Contains(potential.Key) == false)
                 {
@@ -76,6 +82,15 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                         compilationAnalysisContext.ReportDiagnostic(diagnostic);
                     }
                 }
+            }
+
+            foreach (var misusedNode in _misusedNodes)
+            {
+                var diagnostic = Diagnostic.Create(
+                    _diagnosticDescriptorsProvider.ArgumentMatcherUsedWithoutSpecifyingCall,
+                    misusedNode.GetLocation());
+
+                compilationAnalysisContext.ReportDiagnostic(diagnostic);
             }
         }
 
@@ -107,12 +122,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         {
             foreach (var syntaxNode in _substitutionNodeFinder.FindForWhenExpression(syntaxNodeContext, invocationExpression))
             {
-                var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode).Symbol;
-                var actualNode = syntaxNode is TMemberAccessExpressionSyntax && symbol is IMethodSymbol _
-                    ? syntaxNode.Parent
-                    : syntaxNode;
-
-                WhenNodes.Add(actualNode);
+                _whenNodes.Add(syntaxNode);
             }
         }
 
@@ -121,26 +131,28 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             foreach (var syntaxNode in _substitutionNodeFinder
                 .FindForReceivedInOrderExpression(syntaxNodeContext, invocationExpression))
             {
-                var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode).Symbol;
-                var actualNode = syntaxNode is TMemberAccessExpressionSyntax && symbol is IMethodSymbol _
-                    ? syntaxNode.Parent
-                    : syntaxNode;
-
-                ReceivedInOrderNodes.Add(actualNode);
+                _receivedInOrderNodes.Add(syntaxNode);
             }
         }
 
         private void BeginAnalyzeArgLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpression)
         {
-            // find enclosing type
-            var enclosingExpression = FindEnclosingExpression(invocationExpression);
+            // find allowed enclosing expression
+            var enclosingExpression = FindAllowedEnclosingExpression(invocationExpression);
+
+            // if Arg is used with not allowed expression, find if it is used in ignored ones eg. var x = Arg.Any
+            // as variable might be used later on
+            if (enclosingExpression == null && FindIgnoredEnclosingExpression(invocationExpression) == null)
+            {
+                _misusedNodes.Add(invocationExpression);
+            }
 
             if (enclosingExpression != null &&
                 IsFollowedBySetupInvocation(syntaxNodeContext, enclosingExpression) == false &&
                 IsPrecededByReceivedInvocation(syntaxNodeContext, enclosingExpression) == false &&
                 IsUsedAlongWithArgInvokers(syntaxNodeContext, enclosingExpression) == false)
             {
-                PotentialMisusedNodes.AddOrUpdate(
+                _potentialMisusedNodes.AddOrUpdate(
                     enclosingExpression,
                     node => new List<SyntaxNode> { invocationExpression },
                     (node, list) =>
@@ -165,21 +177,14 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             return false;
         }
 
-        private SyntaxNode FindEnclosingExpression(TInvocationExpressionSyntax invocationExpression)
+        private SyntaxNode FindAllowedEnclosingExpression(TInvocationExpressionSyntax invocationExpression)
         {
-            // finding usage of Arg like method in element access expressions and method invocation
-            // deliberately skipping odd usages like var x = Arg.Any<int>() in order not to report false positives
-            foreach (var possibleAncestorPath in PossibleAncestorPathsForArgument)
-            {
-                var node = invocationExpression.GetAncestorNode(possibleAncestorPath);
+            return invocationExpression.GetAncestorNode(AllowedAncestorPaths);
+        }
 
-                if (node != null)
-                {
-                    return node;
-                }
-            }
-
-            return null;
+        private SyntaxNode FindIgnoredEnclosingExpression(TInvocationExpressionSyntax invocationExpressionSyntax)
+        {
+            return invocationExpressionSyntax.GetAncestorNode(IgnoredAncestorPaths);
         }
 
         private bool IsUsedAlongWithArgInvokers(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpressionSyntax)

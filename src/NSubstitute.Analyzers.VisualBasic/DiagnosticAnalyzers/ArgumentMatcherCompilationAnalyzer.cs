@@ -12,30 +12,25 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
     internal sealed class ArgumentMatcherCompilationAnalyzer : AbstractArgumentMatcherCompilationAnalyzer<InvocationExpressionSyntax, MemberAccessExpressionSyntax, ArgumentSyntax>
     {
-        private static ImmutableArray<ImmutableArray<int>> AncestorPaths { get; } = ImmutableArray.Create(
+        private static ImmutableArray<ImmutableArray<int>> AllowedPaths { get; } = ImmutableArray.Create(
             ImmutableArray.Create(
                 (int)SyntaxKind.SimpleArgument,
                 (int)SyntaxKind.ArgumentList,
-                (int)SyntaxKind.InvocationExpression),
+                (int)SyntaxKind.InvocationExpression));
+
+        private static ImmutableArray<ImmutableArray<int>> IgnoredPaths { get; } = ImmutableArray.Create(
             ImmutableArray.Create(
-                (int)SyntaxKind.SimpleArgument,
-                (int)SyntaxKind.ArgumentList,
-                (int)SyntaxKind.ObjectCreationExpression),
-            ImmutableArray.Create(
-                (int)SyntaxKind.NamedFieldInitializer,
-                (int)SyntaxKind.ObjectMemberInitializer,
-                (int)SyntaxKind.ObjectCreationExpression),
-            ImmutableArray.Create(
-                (int)SyntaxKind.NamedFieldInitializer,
-                (int)SyntaxKind.ObjectMemberInitializer,
-                (int)SyntaxKind.AnonymousObjectCreationExpression));
+                (int)SyntaxKind.EqualsValue,
+                (int)SyntaxKind.VariableDeclarator));
 
         public ArgumentMatcherCompilationAnalyzer(ISubstitutionNodeFinder<InvocationExpressionSyntax> substitutionNodeFinder, IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
             : base(substitutionNodeFinder, diagnosticDescriptorsProvider)
         {
         }
 
-        protected override ImmutableArray<ImmutableArray<int>> PossibleAncestorPathsForArgument { get; } = AncestorPaths;
+        protected override ImmutableArray<ImmutableArray<int>> AllowedAncestorPaths { get; } = AllowedPaths;
+
+        protected override ImmutableArray<ImmutableArray<int>> IgnoredAncestorPaths { get; } = IgnoredPaths;
 
         protected override SyntaxNode GetOperationSyntax(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, ArgumentSyntax argumentExpression)
         {
