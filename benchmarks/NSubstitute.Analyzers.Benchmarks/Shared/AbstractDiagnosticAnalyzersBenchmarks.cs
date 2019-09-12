@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Engines;
 using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers.Benchmarks.Shared
@@ -97,6 +98,13 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
         public void ArgumentMatcherAnalyzer()
         {
             ArgumentMatcherAnalyzerBenchmark.Run();
+        }
+
+        [IterationCleanup(Target = nameof(ArgumentMatcherAnalyzer))]
+        public void CleanUp()
+        {
+            // clearing previously captured actions, as solution-wide analyzer keeps state
+            ArgumentMatcherAnalyzerBenchmark.RefreshActions();
         }
 
         private string GetBenchmarkSourceProjectPath()
