@@ -16,6 +16,21 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
             ImmutableArray.Create(
                 (int)SyntaxKind.SimpleArgument,
                 (int)SyntaxKind.ArgumentList,
+                (int)SyntaxKind.InvocationExpression),
+            ImmutableArray.Create(
+                (int)SyntaxKind.TryCastExpression,
+                (int)SyntaxKind.SimpleArgument,
+                (int)SyntaxKind.ArgumentList,
+                (int)SyntaxKind.InvocationExpression),
+            ImmutableArray.Create(
+                (int)SyntaxKind.DirectCastExpression,
+                (int)SyntaxKind.SimpleArgument,
+                (int)SyntaxKind.ArgumentList,
+                (int)SyntaxKind.InvocationExpression),
+            ImmutableArray.Create(
+                (int)SyntaxKind.CTypeExpression,
+                (int)SyntaxKind.SimpleArgument,
+                (int)SyntaxKind.ArgumentList,
                 (int)SyntaxKind.InvocationExpression));
 
         private static ImmutableArray<ImmutableArray<int>> IgnoredPaths { get; } = ImmutableArray.Create(

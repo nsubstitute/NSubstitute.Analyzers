@@ -25,7 +25,7 @@ namespace MyNamespace
 {{
     public abstract class Foo
     {{
-        public abstract int Bar(int x);
+        public abstract int Bar(int? x);
     }}
 
     public class FooTests
@@ -49,7 +49,7 @@ namespace MyNamespace
 {{
     public abstract class Foo
     {{
-        public abstract int this[int x] {{ get; }}
+        public abstract int this[int? x] {{ get; }}
     }}
 
      public class FooTests

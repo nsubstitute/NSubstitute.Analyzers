@@ -17,16 +17,32 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMat
 
         [CombinatoryTheory]
         [InlineData("Arg.Any<int>()")]
+        [InlineData("(int)Arg.Any<int>()")]
+        [InlineData("Arg.Any<int>() as int?")]
         [InlineData("Arg.Compat.Any<int>()")]
+        [InlineData("(int)Arg.Compat.Any<int>()")]
+        [InlineData("Arg.Compat.Any<int>() as int?")]
         [InlineData("Arg.Is(1)")]
+        [InlineData("(int)Arg.Is(1)")]
+        [InlineData("Arg.Is(1) as int?")]
         [InlineData("Arg.Compat.Is(1)")]
+        [InlineData("(int)Arg.Compat.Is(1)")]
+        [InlineData("Arg.Compat.Is(1) as int?")]
         public abstract Task ReportsNoDiagnostics_WhenUsedWithSubstituteMethod_ForMethodCall(string method, string arg);
 
         [CombinatoryTheory]
         [InlineData("Arg.Any<int>()")]
+        [InlineData("(int)Arg.Any<int>()")]
+        [InlineData("Arg.Any<int>() as int?")]
         [InlineData("Arg.Compat.Any<int>()")]
+        [InlineData("(int)Arg.Compat.Any<int>()")]
+        [InlineData("Arg.Compat.Any<int>() as int?")]
         [InlineData("Arg.Is(1)")]
+        [InlineData("(int)Arg.Is(1)")]
+        [InlineData("Arg.Is(1) as int?")]
         [InlineData("Arg.Compat.Is(1)")]
+        [InlineData("(int)Arg.Compat.Is(1)")]
+        [InlineData("Arg.Compat.Is(1) as int?")]
         public abstract Task ReportsNoDiagnostics_WhenUsedWithSubstituteMethod_ForIndexerCall(string method, string arg);
 
         [CombinatoryTheory]

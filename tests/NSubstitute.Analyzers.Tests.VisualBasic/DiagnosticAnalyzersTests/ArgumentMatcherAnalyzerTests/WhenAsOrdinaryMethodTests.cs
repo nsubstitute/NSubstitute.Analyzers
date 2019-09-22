@@ -18,7 +18,7 @@ Imports NSubstitute
 
 Namespace MyNamespace
     Public MustInherit Class Foo
-        Public MustOverride Function Bar(ByVal x As Integer) As Integer
+        Public MustOverride Function Bar(ByVal x As Object) As Integer
     End Class
 
     Public Class FooTests
@@ -53,7 +53,7 @@ Imports NSubstitute
 
 Namespace MyNamespace
     Public MustInherit Class Foo
-        Default Public MustOverride ReadOnly Property Item(ByVal x As Integer) As Integer
+        Default Public MustOverride ReadOnly Property Item(ByVal x As Object) As Integer
     End Class
 
     Public Class FooTests
