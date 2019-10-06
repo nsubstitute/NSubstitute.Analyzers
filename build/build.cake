@@ -305,7 +305,7 @@ Task("GenerateDocTableOfContents")
     Information("Generating Table of Contents for {0}", rulesDir);
     var entries =
         GetFiles($"{rulesDir}/NS*.md")
-            .Select(f => TableOfContentsEntry.Parse(f))
+            .Select(TableOfContentsEntry.Parse)
             .OrderBy(entry => entry.CheckId);
     var contents = header + string.Join("\n",
         entries.Select(entry => $"| [{entry.CheckId}]({entry.CheckId}.md) | {entry.Category} | {entry.Description} |")
