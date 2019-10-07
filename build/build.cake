@@ -2,6 +2,7 @@
 #load "./version.cake"
 #load "./paths.cake"
 #load "./releasenotes.cake"
+#load "./table-of-contents.cake"
 
 // Install modules
 #module nuget:?package=Cake.DotNetTool.Module&version=0.1.0
@@ -14,12 +15,12 @@
 #addin "nuget:https://www.nuget.org/api/v2?package=Newtonsoft.Json&version=9.0.1"
 #addin "nuget:https://www.nuget.org/api/v2?package=semver.core&version=2.0.0"
 
+using Cake.Incubator.LoggingExtensions;
 using Newtonsoft.Json.Linq;
 using System.Net.Http;
-using System.Text.RegularExpressions;
-using Cake.Incubator.LoggingExtensions;
-using System.Threading;
 using System.Net.Http.Headers;
+using System.Text.RegularExpressions;
+using System.Threading;
 
 var parameters = BuildParameters.GetParameters(Context);
 var buildVersion = BuildVersion.Calculate(Context);
@@ -290,6 +291,30 @@ Task("Upload-Coverage-Report")
 Task("AppVeyor")
   .IsDependentOn("Upload-Coverage-Report")
   .IsDependentOn("Publish");
+
+Task("GenerateDocTableOfContents")
+    .Does(() =>
+{
+    var rulesDir = paths.Directories.RootDir.Combine("documentation").Combine("rules");
+    var header = @"
+## Rules
+
+| ID       | Category      | Cause |
+|---|---|---|
+";
+    Information("Generating Table of Contents for {0}", rulesDir);
+    var entries =
+        GetFiles($"{rulesDir}/NS*.md")
+            .Select(TableOfContentsEntry.Parse)
+            .OrderBy(entry => entry.CheckId);
+    var contents = header + string.Join("\n",
+        entries.Select(entry => $"| [{entry.CheckId}]({entry.CheckId}.md) | {entry.Category} | {entry.Description} |")
+    );
+
+    var target = $"{rulesDir}/README.md";
+    System.IO.File.WriteAllText(target, contents);
+    Information("Generated Table of Context: {0}", target);
+});
 
 Teardown(context =>
 {
