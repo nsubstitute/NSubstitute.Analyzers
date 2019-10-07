@@ -178,7 +178,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DocumentationTests
         {
             var descendants = cell.Descendants().ToList();
             var linkInline = descendants.OfType<LinkInline>().Single();
-            linkInline.Url.Should().Be($"rules/{descriptor.Id}");
+            linkInline.Url.Should().Be($"{descriptor.Id}.md");
             linkInline.FirstChild.ToString().Should().Be(descriptor.Id);
         }
 
