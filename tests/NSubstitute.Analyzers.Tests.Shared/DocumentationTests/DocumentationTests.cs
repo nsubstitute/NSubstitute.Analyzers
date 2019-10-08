@@ -1,23 +1,33 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using FluentAssertions;
 using Markdig;
+using Markdig.Extensions.Tables;
+using Markdig.Renderers.Normalize;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 using Microsoft.CodeAnalysis;
+using MoreLinq.Extensions;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.Shared.DocumentationTests
 {
     public class DocumentationTests
     {
-        public static IEnumerable<object[]> DiagnosticDescriptors { get; } = DiagnosticIdentifierTests.DiagnosticIdentifierTests.DiagnosticDescriptors.Select(diag => new object[] { diag }).ToList();
+        private static readonly ImmutableArray<DiagnosticDescriptor> DiagnosticDescriptors = DiagnosticIdentifierTests
+            .DiagnosticIdentifierTests.DiagnosticDescriptors
+            .DistinctBy(diag => diag.Id) // NS5000 is duplicated as it is used in two flavours extension/non-extension method usage
+            .OrderBy(diag => diag.Id).ToImmutableArray();
+
+        public static IEnumerable<object[]> DiagnosticDescriptorTestCases { get; } = DiagnosticDescriptors
+            .Select(diag => new object[] { diag }).ToList();
 
         [Theory]
-        [MemberData(nameof(DiagnosticDescriptors))]
+        [MemberData(nameof(DiagnosticDescriptorTestCases))]
         public void DiagnosticDocumentation_ShouldHave_ProperHeadings(DiagnosticDescriptor descriptor)
         {
             var markdownDocument = GetParsedDocumentation(descriptor);
@@ -29,7 +39,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DocumentationTests
         }
 
         [Theory]
-        [MemberData(nameof(DiagnosticDescriptors))]
+        [MemberData(nameof(DiagnosticDescriptorTestCases))]
         public void DiagnosticDocumentation_ShouldHave_ProperContent(DiagnosticDescriptor descriptor)
         {
             var markdownDocument = GetParsedDocumentation(descriptor);
@@ -38,6 +48,31 @@ namespace NSubstitute.Analyzers.Tests.Shared.DocumentationTests
 
             markdownDocument.First().Should().BeOfType<HeadingBlock>();
             AssertContent(layout, descriptor.Id, descriptor.Category);
+        }
+
+        [Theory]
+        [MemberData(nameof(DiagnosticDescriptorTestCases))]
+        public void RulesSummary_ShouldHave_ContentCorrespondingToRuleFile(DiagnosticDescriptor descriptor)
+        {
+            var documentationDirectory = GetRulesDocumentationDirectoryPath();
+            var rulesSummaryFileInfo = new FileInfo(Path.Combine(documentationDirectory, "README.md"));
+            var parsedDocumentation = GetLayoutByHeadings(GetParsedDocumentation(rulesSummaryFileInfo));
+
+            AssertRulesSummaryRow(descriptor, parsedDocumentation);
+        }
+
+        private void AssertRulesSummaryRow(DiagnosticDescriptor descriptor, List<HeadingContainer> parsedDocumentation)
+        {
+            var ruleRowLocation = DiagnosticDescriptors.IndexOf(descriptor);
+            var rulesTable = parsedDocumentation.Single(container => GetBlockText(container.Heading) == "Rules")
+                .Children.OfType<Table>().Single();
+
+            // skip header row
+            var ruleRow = rulesTable.OfType<TableRow>().Skip(1).ElementAt(ruleRowLocation);
+            var cells = ruleRow.OfType<TableCell>().ToList();
+            AssertRuleSummaryIdCell(cells.First(), descriptor);
+            AssertRuleSummaryCategoryCell(cells.ElementAt(1), descriptor);
+            AssertRuleSummaryCauseCell(cells.ElementAt(2), descriptor);
         }
 
         private static List<Block> GetParsedDocumentation(DiagnosticDescriptor descriptor)
@@ -104,11 +139,10 @@ namespace NSubstitute.Analyzers.Tests.Shared.DocumentationTests
 
         private void AssertHeading(HeadingBlock heading, int expectedLevel, string expectedText)
         {
-            var inline = heading.Inline.ToList();
+            var headingText = GetBlockText(heading);
 
-            inline.Should().HaveCount(1);
             heading.Level.Should().Be(expectedLevel);
-            inline[0].ToString().Should().Be(expectedText);
+            headingText.Should().Be(expectedText);
         }
 
         private void AssertContent(List<HeadingContainer> layout, string ruleId, string ruleCategory)
@@ -140,19 +174,38 @@ namespace NSubstitute.Analyzers.Tests.Shared.DocumentationTests
             children.Single().As<HtmlBlock>().Lines.ToString().Should().Be(expectedInfo);
         }
 
-        private static IEnumerable<T> Traverse<T>(
-            IEnumerable<T> items,
-            Func<T, IEnumerable<T>> childSelector)
+        private void AssertRuleSummaryIdCell(TableCell cell, DiagnosticDescriptor descriptor)
         {
-            var stack = new Stack<T>(items);
-            while (stack.Any())
+            var descendants = cell.Descendants().ToList();
+            var linkInline = descendants.OfType<LinkInline>().Single();
+            linkInline.Url.Should().Be($"{descriptor.Id}.md");
+            linkInline.FirstChild.ToString().Should().Be(descriptor.Id);
+        }
+
+        private void AssertRuleSummaryCategoryCell(TableCell cell, DiagnosticDescriptor descriptor)
+        {
+            cell.OfType<ParagraphBlock>().Single().Inline.Single().ToString().Should().Be(descriptor.Category);
+        }
+
+        private void AssertRuleSummaryCauseCell(TableCell cell, DiagnosticDescriptor descriptor)
+        {
+            var ruleDocument = GetParsedDocumentation(descriptor);
+            var layoutByHeadings = GetLayoutByHeadings(ruleDocument);
+            var headingContainer = layoutByHeadings.Single(heading => GetBlockText(heading.Heading) == "Cause");
+
+            var cellContent = GetBlockText(cell.OfType<ParagraphBlock>().Single());
+            var ruleContent = GetBlockText(headingContainer.Children.OfType<ParagraphBlock>().Single());
+
+            cellContent.Should().Be(ruleContent);
+        }
+
+        private static string GetBlockText(LeafBlock heading)
+        {
+            using (var stringWriter = new StringWriter())
             {
-                var next = stack.Pop();
-                yield return next;
-                foreach (var child in childSelector(next))
-                {
-                    stack.Push(child);
-                }
+                var renderer = new NormalizeRenderer(stringWriter);
+                renderer.Write(heading.Inline);
+                return stringWriter.ToString();
             }
         }
 
