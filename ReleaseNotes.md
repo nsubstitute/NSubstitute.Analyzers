@@ -1,3 +1,10 @@
+### 1.0.11 (15 October 2019)
+
+- [#124](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/124) - NS4000 false positive when using an initializer
+- [#118](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/118) - NS3002 false positive
+- [#115](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/115) - Eliminate unnecessary allocations and improve performance
+- [#106](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/106) - NS4000 false positive in foreach loop when element used twice
+
 ### 1.0.10 (5 June 2019)
 
  - [#103](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/103) - Enable concurrent execution for every analyzer
@@ -83,4 +90,3 @@
 
 ### 0.1.0-beta1 (01 August 2018)
  - Initial release
-

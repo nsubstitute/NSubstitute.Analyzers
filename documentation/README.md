@@ -1,6 +1,6 @@
 ﻿### Rules
 
-See [rules list](rules).
+See [rules list](rules/README.md).
 
 ### Additional documentation
 
