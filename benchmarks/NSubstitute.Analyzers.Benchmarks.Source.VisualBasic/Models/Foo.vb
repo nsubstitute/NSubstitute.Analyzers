@@ -26,6 +26,10 @@ Namespace Models
             Return Nothing
         End Function
 
+        Friend Overridable Function InternalObjectReturningMethodWithArguments(ByVal a As Integer) As IFoo
+            Return Nothing
+        End Function
+        
         Friend Overridable ReadOnly Property InternalObjectReturningProperty As IFoo
             Get
                 Return Nothing

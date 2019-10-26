@@ -20,6 +20,8 @@ namespace NSubstitute.Analyzers.Benchmarks.Source.CSharp.Models
 
         internal virtual IFoo InternalObjectReturningMethod() => null;
 
+        internal virtual IFoo InternalObjectReturningMethodWithArguments(int a) => null;
+
         internal virtual IFoo InternalObjectReturningProperty => null;
 
         public ConfiguredCall CallInfoReturningMethod() => null;
