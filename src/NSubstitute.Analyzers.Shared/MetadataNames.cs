@@ -8,7 +8,6 @@ namespace NSubstitute.Analyzers.Shared
         public const string NSubstituteArgFullTypeName = "NSubstitute.Arg";
         public const string NSubstituteArgCompatFullTypeName = "NSubstitute.Arg.Compat";
         public const string NSubstituteSubstituteExtensionsFullTypeName = "NSubstitute.SubstituteExtensions";
-        public const string NSubstituteReceivedFullTypeName = "NSubstitute.Received";
         public const string NSubstituteReturnsExtensionsFullTypeName = "NSubstitute.ReturnsExtensions.ReturnsExtensions";
         public const string NSubstituteExceptionExtensionsFullTypeName = "NSubstitute.ExceptionExtensions.ExceptionExtensions";
         public const string NSubstituteCallInfoFullTypeName = "NSubstitute.Core.CallInfo";
@@ -27,7 +26,6 @@ namespace NSubstitute.Analyzers.Shared
         public const string NSubstituteReceivedWithAnyArgsMethod = "ReceivedWithAnyArgs";
         public const string NSubstituteDidNotReceiveMethod = "DidNotReceive";
         public const string NSubstituteDidNotReceiveWithAnyArgsMethod = "DidNotReceiveWithAnyArgs";
-        public const string NSubstituteInOrderMethod = "InOrder";
         public const string NSubstituteForMethod = "For";
         public const string NSubstituteForPartsOfMethod = "ForPartsOf";
         public const string SubstituteFactoryCreate = "Create";
@@ -39,7 +37,6 @@ namespace NSubstitute.Analyzers.Shared
         public const string NSubstituteWhenCalledType = "WhenCalled";
         public const string CallInfoArgAtMethod = "ArgAt";
         public const string CallInfoArgMethod = "Arg";
-        public const string CallInfoArgsMethod = "Args";
         public const string CallInfoArgTypesMethod = "ArgTypes";
         public const string ArgIsMethodName = "Is";
         public const string ArgAnyMethodName = "Any";
@@ -78,26 +75,18 @@ namespace NSubstitute.Analyzers.Shared
         public static readonly IReadOnlyDictionary<string, string> ArgMatchersMethodNames = new Dictionary<string, string>
         {
             [ArgIsMethodName] = NSubstituteArgFullTypeName,
-            [ArgAnyMethodName] = NSubstituteArgFullTypeName
+            [ArgAnyMethodName] = NSubstituteArgFullTypeName,
+            [ArgDoMethodName] = NSubstituteArgFullTypeName,
+            [ArgInvokeMethodName] = NSubstituteArgFullTypeName,
+            [ArgInvokeDelegateMethodName] = NSubstituteArgFullTypeName
         };
 
         public static readonly IReadOnlyDictionary<string, string> ArgMatchersCompatMethodNames = new Dictionary<string, string>
         {
             [ArgIsMethodName] = NSubstituteArgCompatFullTypeName,
-            [ArgAnyMethodName] = NSubstituteArgCompatFullTypeName
-        };
-
-        public static readonly IReadOnlyDictionary<string, string> ArgInvokersMethodNames = new Dictionary<string, string>
-        {
-            [ArgInvokeMethodName] = NSubstituteArgFullTypeName,
-            [ArgDoMethodName] = NSubstituteArgFullTypeName,
-            [ArgInvokeDelegateMethodName] = NSubstituteArgFullTypeName
-        };
-
-        public static readonly IReadOnlyDictionary<string, string> ArgInvokersCompatMethodNames = new Dictionary<string, string>
-        {
-            [ArgInvokeMethodName] = NSubstituteArgCompatFullTypeName,
+            [ArgAnyMethodName] = NSubstituteArgCompatFullTypeName,
             [ArgDoMethodName] = NSubstituteArgCompatFullTypeName,
+            [ArgInvokeMethodName] = NSubstituteArgCompatFullTypeName,
             [ArgInvokeDelegateMethodName] = NSubstituteArgCompatFullTypeName
         };
 

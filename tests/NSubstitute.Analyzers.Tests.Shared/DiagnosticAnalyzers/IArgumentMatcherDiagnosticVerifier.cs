@@ -43,5 +43,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
         Task ReportsDiagnostics_WhenUsedInInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string arg);
 
         Task ReportsNoDiagnostics_WhenUsedInProtectedInternalVirtualMember(string arg);
+
+        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod(string arg);
     }
 }

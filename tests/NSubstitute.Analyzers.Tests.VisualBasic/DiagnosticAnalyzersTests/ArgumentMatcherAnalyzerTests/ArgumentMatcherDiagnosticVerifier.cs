@@ -1,8 +1,12 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.VisualBasic;
 using NSubstitute.Analyzers.Shared;
+using NSubstitute.Analyzers.Shared.Settings;
+using NSubstitute.Analyzers.Shared.TinyJson;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.VisualBasic;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
@@ -12,6 +16,8 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Argum
 {
     public abstract class ArgumentMatcherDiagnosticVerifier : VisualBasicDiagnosticVerifier, IArgumentMatcherDiagnosticVerifier
     {
+        internal AnalyzersSettings Settings { get; set; }
+
         protected DiagnosticDescriptor ArgumentMatcherUsedWithoutSpecifyingCall { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ArgumentMatcherUsedWithoutSpecifyingCall;
 
         [Theory]
@@ -71,7 +77,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Argum
         public abstract Task ReportsNoDiagnostics_WhenUsedWithPotentiallyValidAssignment(string arg);
 
         [Theory]
-        [MemberData(nameof(MisusedArgTestCases))]
+        [MemberData(nameof(MisusedArgTestCasesWithoutCast))]
         public abstract Task ReportsDiagnostics_WhenUsedAsStandaloneExpression(string arg);
 
         [Theory]
@@ -94,6 +100,14 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Argum
         [MemberData(nameof(CorrectlyUsedArgTestCases))]
         public abstract Task ReportsNoDiagnostics_WhenUsedInProtectedInternalVirtualMember(string arg);
 
+        [Theory]
+        [MemberData(nameof(CorrectlyUsedArgTestCasesWithoutCasts))]
+        public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod(string arg);
+
+        // VisualBasic specific case
+        [Fact]
+        public abstract Task ReportsNoDiagnostic_WhenOverloadCannotBeInferred();
+
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
             return new ArgumentMatcherAnalyzer();
@@ -101,12 +115,16 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Argum
 
         public static IEnumerable<object[]> MisusedArgTestCases
         {
+            get { return MisusedArgs.Select(argArray => argArray.Select<string, object>(arg => arg).ToArray()); }
+        }
+
+        public static IEnumerable<object[]> MisusedArgTestCasesWithoutCast
+        {
             get
             {
-                yield return new object[] { "[|Arg.Any(Of Integer)()|]" };
-                yield return new object[] { "[|Arg.Compat.Any(Of Integer)()|]" };
-                yield return new object[] { "[|Arg.Is(1)|]" };
-                yield return new object[] { "[|Arg.Compat.Is(1)|]" };
+                var ignoredExpressions = new[] { "TryCast", "CType", "DirectCast" };
+
+                return MisusedArgs.Where(args => args.Any(arg => !ignoredExpressions.Any(arg.Contains)));
             }
         }
 
@@ -118,22 +136,105 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Argum
                 yield return new object[] { "TryCast(Arg.Any(Of Integer)(), Object)" };
                 yield return new object[] { "CType(Arg.Any(Of Integer)(), Integer)" };
                 yield return new object[] { "DirectCast(Arg.Any(Of Integer)(), Integer)" };
-
                 yield return new object[] { "Arg.Compat.Any(Of Integer)()" };
                 yield return new object[] { "TryCast(Arg.Compat.Any(Of Integer)(), Object)" };
                 yield return new object[] { "CType(Arg.Compat.Any(Of Integer)(), Integer)" };
                 yield return new object[] { "DirectCast(Arg.Compat.Any(Of Integer)(), Integer)" };
-
                 yield return new object[] { "Arg.Is(1)" };
                 yield return new object[] { "TryCast(Arg.Is(1), Object)" };
                 yield return new object[] { "CType(Arg.Is(1), Integer)" };
                 yield return new object[] { "DirectCast(Arg.Is(1), Integer)" };
-
                 yield return new object[] { "Arg.Compat.Is(1)" };
                 yield return new object[] { "TryCast(Arg.Compat.Is(1), Object)" };
                 yield return new object[] { "CType(Arg.Compat.Is(1), Integer)" };
                 yield return new object[] { "DirectCast(Arg.Compat.Is(1), Integer)" };
+                yield return new object[] { "Arg.Invoke()" };
+                yield return new object[] { "Arg.Compat.Invoke()" };
+                yield return new object[] { "Arg.InvokeDelegate(Of Integer)()" };
+                yield return new object[] { "Arg.Compat.InvokeDelegate(Of Integer)()" };
+                yield return new object[]
+                {
+                    @"Arg.Do(Of Integer)(Function(doValue)
+End Function)"
+                };
+                yield return new object[]
+                {
+                    @"Arg.Compat.Do(Of Integer)(Function(doValue)
+End Function)"
+                };
             }
+        }
+
+        public static IEnumerable<object[]> CorrectlyUsedArgTestCasesWithoutCasts
+        {
+            get
+            {
+                yield return new object[] { "Arg.Any(Of Integer)()" };
+                yield return new object[] { "Arg.Compat.Any(Of Integer)()" };
+                yield return new object[] { "Arg.Is(1)" };
+                yield return new object[] { "Arg.Compat.Is(1)" };
+                yield return new object[] { "Arg.Invoke()" };
+                yield return new object[] { "Arg.Compat.Invoke()" };
+                yield return new object[] { "Arg.InvokeDelegate(Of Integer)()" };
+                yield return new object[] { "Arg.Compat.InvokeDelegate(Of Integer)()" };
+                yield return new object[]
+                {
+                    @"Arg.Do(Of Integer)(Function(doValue)
+End Function)"
+                };
+                yield return new object[]
+                {
+                    @"Arg.Compat.Do(Of Integer)(Function(doValue)
+End Function)"
+                };
+            }
+        }
+
+        public static IEnumerable<string[]> MisusedArgs
+        {
+            get
+            {
+                yield return new[] { "[|Arg.Any(Of Integer)()|]" };
+                yield return new[] { "TryCast([|Arg.Any(Of Integer)()|], Object)" };
+                yield return new[] { "CType([|Arg.Any(Of Integer)()|], Integer)" };
+                yield return new[] { "DirectCast([|Arg.Any(Of Integer)()|], Integer)" };
+                yield return new[] { "[|Arg.Compat.Any(Of Integer)()|]" };
+                yield return new[] { "TryCast([|Arg.Compat.Any(Of Integer)()|], Object)" };
+                yield return new[] { "CType([|Arg.Compat.Any(Of Integer)()|], Integer)" };
+                yield return new[] { "DirectCast([|Arg.Compat.Any(Of Integer)()|], Integer)" };
+                yield return new[] { "[|Arg.Is(1)|]" };
+                yield return new[] { "TryCast([|Arg.Is(1)|], Object)" };
+                yield return new[] { "CType([|Arg.Is(1)|], Integer)" };
+                yield return new[] { "DirectCast([|Arg.Is(1)|], Integer)" };
+                yield return new[] { "[|Arg.Compat.Is(1)|]" };
+                yield return new[] { "TryCast([|Arg.Compat.Is(1)|], Object)" };
+                yield return new[] { "CType([|Arg.Compat.Is(1)|], Integer)" };
+                yield return new[] { "DirectCast([|Arg.Compat.Is(1)|], Integer)" };
+                yield return new[] { "[|Arg.Invoke()|]" };
+                yield return new[] { "[|Arg.Compat.Invoke()|]" };
+                yield return new[] { "[|Arg.InvokeDelegate(Of Integer)()|]" };
+                yield return new[] { "[|Arg.Compat.InvokeDelegate(Of Integer)()|]" };
+                yield return new[]
+                {
+                    @"[|Arg.Do(Of Integer)(Function(doValue)
+End Function)|]"
+                };
+                yield return new[]
+                {
+                    @"[|Arg.Compat.Do(Of Integer)(Function(doValue)
+End Function)|]"
+                };
+            }
+        }
+
+        protected override string GetSettings()
+        {
+            return Settings != null ? Json.Encode(Settings) : null;
+        }
+
+        protected override CompilationOptions GetCompilationOptions()
+        {
+            return new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optionStrict: OptionStrict.Off);
         }
     }
 }

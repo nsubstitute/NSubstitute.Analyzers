@@ -7,7 +7,6 @@ namespace NSubstitute.Analyzers.Benchmarks.Source.CSharp.DiagnosticsSources
         public void NS5001_ArgumentMatcherUsedWithoutSpecifyingCall()
         {
             var substitute = Substitute.For<Foo>();
-
             substitute.ObjectReturningMethodWithArguments(Arg.Any<int>(), Arg.Compat.Any<int>(), Arg.Is(1m));
             substitute.ObjectReturningMethodWithArguments(Arg.Any<int>(), Arg.Compat.Any<int>(), Arg.Is(1m));
             substitute.InternalObjectReturningMethodWithArguments(Arg.Is(1));

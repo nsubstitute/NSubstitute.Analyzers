@@ -74,16 +74,22 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(enclosingExpression).Symbol;
-            var canBeSetuped = symbol.CanBeSetuped();
+            var enclosingExpressionSymbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(enclosingExpression).Symbol;
 
-            if (canBeSetuped == false || symbol.MemberVisibleToProxyGenerator() == false)
+            if (enclosingExpressionSymbol == null)
+            {
+                return;
+            }
+
+            var canBeSetuped = enclosingExpressionSymbol.CanBeSetuped();
+
+            if (canBeSetuped == false || enclosingExpressionSymbol.MemberVisibleToProxyGenerator() == false)
             {
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.ArgumentMatcherUsedWithoutSpecifyingCall,
                     argInvocationExpression.GetLocation());
 
-                TryReportDiagnostic(syntaxNodeContext, diagnostic, symbol);
+                TryReportDiagnostic(syntaxNodeContext, diagnostic, enclosingExpressionSymbol);
             }
         }
 

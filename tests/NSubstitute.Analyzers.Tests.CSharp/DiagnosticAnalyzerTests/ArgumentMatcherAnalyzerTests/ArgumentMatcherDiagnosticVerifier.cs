@@ -5,6 +5,8 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.CSharp;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Shared;
+using NSubstitute.Analyzers.Shared.Settings;
+using NSubstitute.Analyzers.Shared.TinyJson;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using Xunit;
 
@@ -12,6 +14,8 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMat
 {
     public abstract class ArgumentMatcherDiagnosticVerifier : CSharpDiagnosticVerifier, IArgumentMatcherDiagnosticVerifier
     {
+        internal AnalyzersSettings Settings { get; set; }
+
         protected DiagnosticDescriptor ArgumentMatcherUsedWithoutSpecifyingCall { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ArgumentMatcherUsedWithoutSpecifyingCall;
 
         [Theory]
@@ -94,6 +98,10 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMat
         [MemberData(nameof(CorrectlyUsedArgTestCases))]
         public abstract Task ReportsNoDiagnostics_WhenUsedInProtectedInternalVirtualMember(string arg);
 
+        [Theory]
+        [MemberData(nameof(CorrectlyUsedArgTestCasesWithoutCasts))]
+        public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod(string arg);
+
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {
             return new ArgumentMatcherAnalyzer();
@@ -104,9 +112,23 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMat
             get
             {
                 yield return new object[] { "[|Arg.Any<int>()|]" };
+                yield return new object[] { "(int)[|Arg.Any<int>()|]" };
+                yield return new object[] { "[|Arg.Any<int>()|] as int?" };
                 yield return new object[] { "[|Arg.Compat.Any<int>()|]" };
+                yield return new object[] { "(int)[|Arg.Compat.Any<int>()|]" };
+                yield return new object[] { "[|Arg.Compat.Any<int>()|] as int?" };
                 yield return new object[] { "[|Arg.Is(1)|]" };
+                yield return new object[] { "(int)[|Arg.Is(1)|]" };
+                yield return new object[] { "[|Arg.Is(1)|] as int?" };
                 yield return new object[] { "[|Arg.Compat.Is(1)|]" };
+                yield return new object[] { "(int)[|Arg.Compat.Is(1)|]" };
+                yield return new object[] { "[|Arg.Compat.Is(1)|] as int?" };
+                yield return new object[] { "[|Arg.Do<int>(_ => {})|]" };
+                yield return new object[] { "[|Arg.Compat.Do<int>(_ => {})|]" };
+                yield return new object[] { "[|Arg.Invoke()|]" };
+                yield return new object[] { "[|Arg.Compat.Invoke()|]" };
+                yield return new object[] { "[|Arg.InvokeDelegate<int>()|]" };
+                yield return new object[] { "[|Arg.Compat.InvokeDelegate<int>()|]" };
             }
         }
 
@@ -126,7 +148,39 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMat
                 yield return new object[] { "Arg.Compat.Is(1)" };
                 yield return new object[] { "(int)Arg.Compat.Is(1)" };
                 yield return new object[] { "Arg.Compat.Is(1) as int?" };
+                yield return new object[] { "Arg.Do<int>(_ => {})" };
+                yield return new object[] { "Arg.Compat.Do<int>(_ => {})" };
+                yield return new object[] { "Arg.Invoke()" };
+                yield return new object[] { "Arg.Compat.Invoke()" };
+                yield return new object[] { "Arg.InvokeDelegate<int>()" };
+                yield return new object[] { "(int)Arg.InvokeDelegate<int>()" };
+                yield return new object[] { "Arg.InvokeDelegate<int>() as int?" };
+                yield return new object[] { "Arg.Compat.InvokeDelegate<int>()" };
+                yield return new object[] { "(int)Arg.Compat.InvokeDelegate<int>()" };
+                yield return new object[] { "Arg.Compat.InvokeDelegate<int>() as int?" };
             }
+        }
+
+        public static IEnumerable<object[]> CorrectlyUsedArgTestCasesWithoutCasts
+        {
+            get
+            {
+                yield return new object[] { "Arg.Any<int>()" };
+                yield return new object[] { "Arg.Compat.Any<int>()" };
+                yield return new object[] { "Arg.Is(1)" };
+                yield return new object[] { "Arg.Compat.Is(1)" };
+                yield return new object[] { "Arg.Do<int>(_ => {})" };
+                yield return new object[] { "Arg.Compat.Do<int>(_ => {})" };
+                yield return new object[] { "Arg.Invoke()" };
+                yield return new object[] { "Arg.Compat.Invoke()" };
+                yield return new object[] { "Arg.InvokeDelegate<int>()" };
+                yield return new object[] { "Arg.Compat.InvokeDelegate<int>()" };
+            }
+        }
+
+        protected override string GetSettings()
+        {
+            return Settings != null ? Json.Encode(Settings) : null;
         }
     }
 }
