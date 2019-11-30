@@ -36,13 +36,13 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 
             var root = await context.Document.GetSyntaxRootAsync();
             var model = await context.Document.GetSemanticModelAsync();
-            foreach (var diagnostic in context.Diagnostics.Where(diagnostic =>
-                FixableDiagnosticIds.Contains(diagnostic.Id)))
+            foreach (var diagnostic in context.Diagnostics
+                .Where(diagnostic => FixableDiagnosticIds.Contains(diagnostic.Id)))
             {
                 var syntaxNode = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
                 var symbolInfo = model.GetSymbolInfo(syntaxNode);
 
-                foreach (var innerSymbol in GetSuppressibleSymbol(symbolInfo.Symbol))
+                foreach (var innerSymbol in GetSuppressibleSymbol(model, syntaxNode, symbolInfo.Symbol))
                 {
                     context.RegisterCodeFix(
                         CodeAction.Create(
@@ -53,7 +53,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             }
         }
 
-        protected virtual IEnumerable<ISymbol> GetSuppressibleSymbol(ISymbol symbol)
+        protected virtual IEnumerable<ISymbol> GetSuppressibleSymbol(SemanticModel model, SyntaxNode syntaxNode, ISymbol symbol)
         {
             if (symbol == null)
             {

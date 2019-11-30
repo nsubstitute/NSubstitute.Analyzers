@@ -7,6 +7,7 @@
 | [NS1001](NS1001.md) | Non-substitutable member | Checking received calls for non-virtual member of a class. |
 | [NS1002](NS1002.md) | Non-substitutable member | Substituting for non-virtual member of a class. |
 | [NS1003](NS1003.md) | Non-substitutable member | Substituting for an internal member of a class without proxies having visibility into internal members. |
+| [NS1004](NS1004.md) | Non-substitutable member | Argument matcher used with a non-virtual member of a class. |
 | [NS2000](NS2000.md) | Substitute creation | Substitute.ForPartsOf used with interface or delegate. |
 | [NS2001](NS2001.md) | Substitute creation | NSubstitute used with class which does not expose public or protected constructor. |
 | [NS2002](NS2002.md) | Substitute creation | NSubstitute used with class which does not expose parameterless constructor. |
@@ -24,4 +25,3 @@
 | [NS3006](NS3006.md) | Argument specification | Conflicting assignments to out/ref arguments. |
 | [NS4000](NS4000.md) | Call configuration | Calling substitute from within `Returns` block. |
 | [NS5000](NS5000.md) | Usage | Checking received calls without specifying member. |
-| [NS5001](NS5001.md) | Usage |Argument matcher used without specifying a call. |

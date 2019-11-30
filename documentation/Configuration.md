@@ -67,4 +67,4 @@ Defines target id for which given suppression is applicable. Target might be a n
 
 An array of rules to suppress.
 
-> :warning: As for today the only rule which can be safely suppressed is `NS1000`. See more on [GitHub](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/11)
+> :warning: As for today the only rules which can be safely suppressed is `NS1000` and `NS1004`. See more on [GitHub](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/11)

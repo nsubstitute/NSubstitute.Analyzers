@@ -189,11 +189,11 @@ namespace NSubstitute.Analyzers.Shared
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true);
 
-        public static DiagnosticDescriptor ArgumentMatcherUsedWithoutSpecifyingCall { get; } =
+        public static DiagnosticDescriptor NonSubstitutableMemberArgumentMatcherUsage { get; } =
             CreateDiagnosticDescriptor(
-                name: nameof(ArgumentMatcherUsedWithoutSpecifyingCall),
-                id: DiagnosticIdentifiers.ArgumentMatcherUsedWithoutSpecifyingCall,
-                category: DiagnosticCategory.Usage.GetDisplayName(),
+                name: nameof(NonSubstitutableMemberArgumentMatcherUsage),
+                id: DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage,
+                category: DiagnosticCategory.NonVirtualSubstitution.GetDisplayName(),
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true);
 

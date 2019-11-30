@@ -8,10 +8,12 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System.Reflection;
+
 namespace NSubstitute.Analyzers.Shared {
     using System;
-    using System.Reflection;
-
+    
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -406,21 +408,21 @@ namespace NSubstitute.Analyzers.Shared {
             }
         }
         
-        internal static string ArgumentMatcherUsedWithoutSpecifyingCallDescription {
+        internal static string NonSubstitutableMemberArgumentMatcherUsageDescription {
             get {
-                return ResourceManager.GetString("ArgumentMatcherUsedWithoutSpecifyingCallDescription", resourceCulture);
+                return ResourceManager.GetString("NonSubstitutableMemberArgumentMatcherUsageDescription", resourceCulture);
             }
         }
         
-        internal static string ArgumentMatcherUsedWithoutSpecifyingCallMessageFormat {
+        internal static string NonSubstitutableMemberArgumentMatcherUsageMessageFormat {
             get {
-                return ResourceManager.GetString("ArgumentMatcherUsedWithoutSpecifyingCallMessageFormat", resourceCulture);
+                return ResourceManager.GetString("NonSubstitutableMemberArgumentMatcherUsageMessageFormat", resourceCulture);
             }
         }
         
-        internal static string ArgumentMatcherUsedWithoutSpecifyingCallTitle {
+        internal static string NonSubstitutableMemberArgumentMatcherUsageTitle {
             get {
-                return ResourceManager.GetString("ArgumentMatcherUsedWithoutSpecifyingCallTitle", resourceCulture);
+                return ResourceManager.GetString("NonSubstitutableMemberArgumentMatcherUsageTitle", resourceCulture);
             }
         }
     }

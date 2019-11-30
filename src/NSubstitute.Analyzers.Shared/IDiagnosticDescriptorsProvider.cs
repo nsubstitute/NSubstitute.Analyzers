@@ -48,6 +48,6 @@ namespace NSubstitute.Analyzers.Shared
 
         DiagnosticDescriptor ConflictingArgumentAssignments { get; }
 
-        DiagnosticDescriptor ArgumentMatcherUsedWithoutSpecifyingCall { get; }
+        DiagnosticDescriptor NonSubstitutableMemberArgumentMatcherUsage { get; }
     }
 }
