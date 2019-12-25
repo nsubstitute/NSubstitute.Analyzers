@@ -5,6 +5,8 @@ namespace NSubstitute.Analyzers.Shared
     internal class MetadataNames
     {
         public const string NSubstituteAssemblyName = "NSubstitute";
+        public const string NSubstituteArgFullTypeName = "NSubstitute.Arg";
+        public const string NSubstituteArgCompatFullTypeName = "NSubstitute.Arg.Compat";
         public const string NSubstituteSubstituteExtensionsFullTypeName = "NSubstitute.SubstituteExtensions";
         public const string NSubstituteReturnsExtensionsFullTypeName = "NSubstitute.ReturnsExtensions.ReturnsExtensions";
         public const string NSubstituteExceptionExtensionsFullTypeName = "NSubstitute.ExceptionExtensions.ExceptionExtensions";
@@ -35,14 +37,12 @@ namespace NSubstitute.Analyzers.Shared
         public const string NSubstituteWhenCalledType = "WhenCalled";
         public const string CallInfoArgAtMethod = "ArgAt";
         public const string CallInfoArgMethod = "Arg";
-        public const string CallInfoArgsMethod = "Args";
         public const string CallInfoArgTypesMethod = "ArgTypes";
-
-        public static readonly IReadOnlyDictionary<string, string> InitialReEntryMethodNames = new Dictionary<string, string>
-        {
-            [NSubstituteReturnsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
-            [NSubstituteReturnsForAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName
-        };
+        public const string ArgIsMethodName = "Is";
+        public const string ArgAnyMethodName = "Any";
+        public const string ArgDoMethodName = "Do";
+        public const string ArgInvokeMethodName = "Invoke";
+        public const string ArgInvokeDelegateMethodName = "InvokeDelegate";
 
         public static readonly IReadOnlyDictionary<string, string> ReturnsMethodNames = new Dictionary<string, string>
         {
@@ -70,6 +70,30 @@ namespace NSubstitute.Analyzers.Shared
         {
             [NSubstituteWhenMethod] = NSubstituteSubstituteExtensionsFullTypeName,
             [NSubstituteWhenForAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName
+        };
+
+        public static readonly IReadOnlyDictionary<string, string> ArgMatchersMethodNames = new Dictionary<string, string>
+        {
+            [ArgIsMethodName] = NSubstituteArgFullTypeName,
+            [ArgAnyMethodName] = NSubstituteArgFullTypeName,
+            [ArgDoMethodName] = NSubstituteArgFullTypeName,
+            [ArgInvokeMethodName] = NSubstituteArgFullTypeName,
+            [ArgInvokeDelegateMethodName] = NSubstituteArgFullTypeName
+        };
+
+        public static readonly IReadOnlyDictionary<string, string> ArgMatchersCompatMethodNames = new Dictionary<string, string>
+        {
+            [ArgIsMethodName] = NSubstituteArgCompatFullTypeName,
+            [ArgAnyMethodName] = NSubstituteArgCompatFullTypeName,
+            [ArgDoMethodName] = NSubstituteArgCompatFullTypeName,
+            [ArgInvokeMethodName] = NSubstituteArgCompatFullTypeName,
+            [ArgInvokeDelegateMethodName] = NSubstituteArgCompatFullTypeName
+        };
+
+        public static readonly IReadOnlyDictionary<string, string> InitialReEntryMethodNames = new Dictionary<string, string>
+        {
+            [NSubstituteReturnsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+            [NSubstituteReturnsForAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName
         };
 
         public static readonly IReadOnlyDictionary<string, string> CreateSubstituteMethodNames = new Dictionary<string, string>

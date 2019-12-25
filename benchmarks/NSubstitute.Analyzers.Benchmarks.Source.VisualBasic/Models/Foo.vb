@@ -1,3 +1,4 @@
+Imports System
 Imports NSubstitute.Core
 
 Namespace Models
@@ -18,6 +19,10 @@ Namespace Models
             Return Nothing
         End Function
 
+        Public Function ObjectReturningMethodWithArguments(a As Action(Of Integer), b As Integer, c As Decimal) As IFoo
+            Return Nothing
+        End Function
+        
         Public Function ObjectReturningMethodWithRefArguments(ByRef a As Integer, ByRef b As Integer, ByRef c As Decimal) As IFoo Implements IFoo.ObjectReturningMethodWithRefArguments
             Return Nothing
         End Function
@@ -26,6 +31,10 @@ Namespace Models
             Return Nothing
         End Function
 
+        Friend Overridable Function InternalObjectReturningMethodWithArguments(ByVal a As Integer) As IFoo
+            Return Nothing
+        End Function
+        
         Friend Overridable ReadOnly Property InternalObjectReturningProperty As IFoo
             Get
                 Return Nothing

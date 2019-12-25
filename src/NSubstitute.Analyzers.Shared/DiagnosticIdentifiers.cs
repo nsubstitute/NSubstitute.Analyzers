@@ -6,6 +6,7 @@
         public const string NonVirtualReceivedSetupSpecification = "NS1001";
         public const string NonVirtualWhenSetupSpecification = "NS1002";
         public const string InternalSetupSpecification = "NS1003";
+        public const string NonSubstitutableMemberArgumentMatcherUsage = "NS1004";
 
         public const string PartialSubstituteForUnsupportedType = "NS2000";
         public const string SubstituteForWithoutAccessibleConstructor = "NS2001";

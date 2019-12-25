@@ -24,6 +24,8 @@ ProjectSection(SolutionItems) = preProject
 	documentation\rules\NS1000.md = documentation\rules\NS1000.md
 	documentation\rules\NS1001.md = documentation\rules\NS1001.md
 	documentation\rules\NS1002.md = documentation\rules\NS1002.md
+	documentation\rules\NS1003.md = documentation\rules\NS1003.md
+	documentation\rules\NS1003.md = documentation\rules\NS1004.md
 	documentation\rules\NS2000.md = documentation\rules\NS2000.md
 	documentation\rules\NS2001.md = documentation\rules\NS2001.md
 	documentation\rules\NS2002.md = documentation\rules\NS2002.md
@@ -41,7 +43,6 @@ ProjectSection(SolutionItems) = preProject
 	documentation\rules\NS3006.md = documentation\rules\NS3006.md
 	documentation\rules\NS4000.md = documentation\rules\NS4000.md
 	documentation\rules\NS5000.md = documentation\rules\NS5000.md
-	documentation\rules\NS1003.md = documentation\rules\NS1003.md
 EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchmarks", "benchmarks", "{1629DF5F-9BC0-49C0-975E-E45C3E58EB3A}"

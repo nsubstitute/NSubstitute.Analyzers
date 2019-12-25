@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -50,6 +51,14 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
             }
         }
 
+        public override IEnumerable<SyntaxNode> FindForReceivedInOrderExpression(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax receivedInOrderExpression, IMethodSymbol receivedInOrderInvocationSymbol = null)
+        {
+            var argumentExpression = receivedInOrderExpression.ArgumentList.Arguments.First();
+
+            return FindInvocations(syntaxNodeContext, argumentExpression.Expression).Select(syntax =>
+                syntax.GetSubstitutionActualNode(node => syntaxNodeContext.SemanticModel.GetSymbolInfo(node).Symbol));
+        }
+
         protected override InvocationExpressionSyntax GetParentInvocationExpression(InvocationExpressionSyntax invocationExpressionSyntax)
         {
             return invocationExpressionSyntax.GetParentInvocationExpression();
@@ -61,10 +70,10 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
                 ? whenInvocationExpression.ArgumentList.Arguments.First().Expression
                 : whenInvocationExpression.ArgumentList.Arguments.Skip(1).First().Expression;
 
-            return FindForWhenExpression(syntaxNodeContext, argumentExpression).Select(syntax => syntax.GetSubstitutionActualNode(node => syntaxNodeContext.SemanticModel.GetSymbolInfo(node).Symbol));
+            return FindInvocations(syntaxNodeContext, argumentExpression).Select(syntax => syntax.GetSubstitutionActualNode(node => syntaxNodeContext.SemanticModel.GetSymbolInfo(node).Symbol));
         }
 
-        private IEnumerable<SyntaxNode> FindForWhenExpression(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode argumentSyntax)
+        private IEnumerable<SyntaxNode> FindInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode argumentSyntax)
         {
             SyntaxNode body = null;
             switch (argumentSyntax)
@@ -88,7 +97,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
                         var location = symbol.Symbol.Locations.First();
                         var syntaxNode = location.SourceTree.GetRoot().FindNode(location.SourceSpan);
 
-                        foreach (var expressionForAnalysis in FindForWhenExpression(syntaxNodeContext, syntaxNode))
+                        foreach (var expressionForAnalysis in FindInvocations(syntaxNodeContext, syntaxNode))
                         {
                             yield return expressionForAnalysis;
                         }

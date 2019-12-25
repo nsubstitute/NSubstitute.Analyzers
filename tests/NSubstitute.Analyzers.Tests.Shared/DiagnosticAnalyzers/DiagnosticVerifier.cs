@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -35,6 +36,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         private static readonly MetadataReference NetStandard = MetadataReference.CreateFromFile(Assembly.Load("netstandard, Version=2.0.0.0").Location);
 
+        private static readonly MetadataReference LinqExpressionReference = MetadataReference.CreateFromFile(typeof(Expression).Assembly.Location);
+
         private static readonly MetadataReference[] MetadataReferences;
 
         public static string DefaultFilePathPrefix { get; } = "Test";
@@ -49,13 +52,13 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         static DiagnosticVerifier()
         {
-            var referencedAssemblies = typeof(Substitute).Assembly.GetReferencedAssemblies();
+            var referencedAssemblies = typeof(DiagnosticVerifier).Assembly.GetReferencedAssemblies();
             var systemRuntimeReference = GetAssemblyReference(referencedAssemblies, "System.Runtime");
             var systemThreadingTasksReference = GetAssemblyReference(referencedAssemblies, "System.Threading.Tasks");
             MetadataReferences = new[]
             {
                 CorlibReference, SystemCoreReference, CodeAnalysisReference, NSubstituteReference, NetStandard,
-                TasksExtensionsReference, systemRuntimeReference, systemThreadingTasksReference
+                TasksExtensionsReference, systemRuntimeReference, LinqExpressionReference, systemThreadingTasksReference
             };
         }
 

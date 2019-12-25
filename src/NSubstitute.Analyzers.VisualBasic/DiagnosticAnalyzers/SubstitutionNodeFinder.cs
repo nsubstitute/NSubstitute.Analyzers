@@ -46,6 +46,14 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
             }
         }
 
+        public override IEnumerable<SyntaxNode> FindForReceivedInOrderExpression(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax receivedInOrderExpression, IMethodSymbol receivedInOrderInvocationSymbol = null)
+        {
+            var argumentExpression = receivedInOrderExpression.ArgumentList.Arguments.First();
+
+            return FindInvocations(syntaxNodeContext, argumentExpression.GetExpression()).Select(syntax =>
+                syntax.GetSubstitutionActualNode(node => syntaxNodeContext.SemanticModel.GetSymbolInfo(node).Symbol));
+        }
+
         protected override InvocationExpressionSyntax GetParentInvocationExpression(InvocationExpressionSyntax invocationExpressionSyntax)
         {
             return invocationExpressionSyntax.GetParentInvocationExpression();
@@ -57,10 +65,10 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
                 ? whenInvocationExpression.ArgumentList.Arguments.First().GetExpression()
                 : whenInvocationExpression.ArgumentList.Arguments.Skip(1).First().GetExpression();
 
-            return FindForWhenExpression(syntaxNodeContext, argumentExpression).Select(syntax => syntax.GetSubstitutionActualNode(node => syntaxNodeContext.SemanticModel.GetSymbolInfo(node).Symbol));
+            return FindInvocations(syntaxNodeContext, argumentExpression).Select(syntax => syntax.GetSubstitutionActualNode(node => syntaxNodeContext.SemanticModel.GetSymbolInfo(node).Symbol));
         }
 
-        private IEnumerable<SyntaxNode> FindForWhenExpression(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode argumentSyntax)
+        private IEnumerable<SyntaxNode> FindInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode argumentSyntax)
         {
             SyntaxNode body = null;
             switch (argumentSyntax)
@@ -86,7 +94,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
                     break;
                 case UnaryExpressionSyntax unaryExpressionSyntax:
-                    foreach (var syntaxNode in FindForWhenExpression(syntaxNodeContext, unaryExpressionSyntax.Operand))
+                    foreach (var syntaxNode in FindInvocations(syntaxNodeContext, unaryExpressionSyntax.Operand))
                     {
                         yield return syntaxNode;
                     }
@@ -106,7 +114,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
                         }
 
                         innerNode = innerNode ?? syntaxNode;
-                        foreach (var expressionsForAnalysy in FindForWhenExpression(syntaxNodeContext, innerNode))
+                        foreach (var expressionsForAnalysy in FindInvocations(syntaxNodeContext, innerNode))
                         {
                             yield return expressionsForAnalysy;
                         }
@@ -142,7 +150,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
             IEnumerable<SyntaxNode> IterateStatements(IEnumerable<StatementSyntax> statements)
             {
-                return statements.SelectMany(statement => FindForWhenExpression(syntaxNodeContext, statement));
+                return statements.SelectMany(statement => FindInvocations(syntaxNodeContext, statement));
             }
         }
     }

@@ -1,3 +1,4 @@
+using System;
 using NSubstitute.Core;
 
 namespace NSubstitute.Analyzers.Benchmarks.Source.CSharp.Models
@@ -16,9 +17,13 @@ namespace NSubstitute.Analyzers.Benchmarks.Source.CSharp.Models
 
         public IFoo ObjectReturningMethodWithArguments(int a, int b, decimal c) => null;
 
+        public IFoo ObjectReturningMethodWithArguments(Action<int> a, int b, decimal c) => null;
+
         public IFoo ObjectReturningMethodWithRefArguments(ref int a, ref int b, ref decimal c) => null;
 
         internal virtual IFoo InternalObjectReturningMethod() => null;
+
+        internal virtual IFoo InternalObjectReturningMethodWithArguments(int a) => null;
 
         internal virtual IFoo InternalObjectReturningProperty => null;
 

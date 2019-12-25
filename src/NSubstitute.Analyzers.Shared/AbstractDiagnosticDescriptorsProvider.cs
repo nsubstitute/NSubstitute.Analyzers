@@ -47,5 +47,7 @@ namespace NSubstitute.Analyzers.Shared
         public DiagnosticDescriptor CallInfoArgumentIsNotOutOrRef { get; } = DiagnosticDescriptors<T>.CallInfoArgumentIsNotOutOrRef;
 
         public DiagnosticDescriptor ConflictingArgumentAssignments { get; } = DiagnosticDescriptors<T>.ConflictingArgumentAssignments;
+
+        public DiagnosticDescriptor NonSubstitutableMemberArgumentMatcherUsage { get; } = DiagnosticDescriptors<T>.NonSubstitutableMemberArgumentMatcherUsage;
     }
 }

@@ -362,4 +362,17 @@
     <value>Conflicting argument assignments.</value>
         <comment>The title of the diagnostic.</comment>
   </data>
+
+    <data name="NonSubstitutableMemberArgumentMatcherUsageDescription" xml:space="preserve">
+    <value>Argument matcher used with a non-virtual member of a class.</value>
+        <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+    <data name="NonSubstitutableMemberArgumentMatcherUsageMessageFormat" xml:space="preserve">
+    <value>Argument matcher used with a non-virtual member of a class.</value>
+        <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+    <data name="NonSubstitutableMemberArgumentMatcherUsageTitle" xml:space="preserve">
+    <value>Argument matcher used with a non-virtual member of a class.</value>
+        <comment>The title of the diagnostic.</comment>
+  </data>
 </root>

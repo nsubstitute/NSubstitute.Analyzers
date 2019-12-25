@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -129,7 +128,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DocumentationTests
 
         private void AssertHeadingsLayout(List<HeadingContainer> layout, string ruleId)
         {
-            layout.Should().HaveCount(5);
+            layout.Should().HaveCountGreaterOrEqualTo(5);
             AssertHeading(layout[0].Heading, 1, ruleId);
             AssertHeading(layout[1].Heading, 2, "Cause");
             AssertHeading(layout[2].Heading, 2, "Rule description");

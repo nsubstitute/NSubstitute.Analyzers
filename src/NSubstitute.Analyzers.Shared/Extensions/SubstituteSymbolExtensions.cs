@@ -52,6 +52,11 @@ namespace NSubstitute.Analyzers.Shared.Extensions
             return IsMember(symbol, MetadataNames.WhenMethodNames);
         }
 
+        public static bool IsArgMatcherLikeMethod(this ISymbol symbol)
+        {
+            return IsMember(symbol, MetadataNames.ArgMatchersMethodNames) || IsMember(symbol, MetadataNames.ArgMatchersCompatMethodNames);
+        }
+
         public static bool IsSubstituteCreateLikeMethod(this ISymbol symbol)
         {
             return IsMember(symbol, MetadataNames.CreateSubstituteMethodNames);
