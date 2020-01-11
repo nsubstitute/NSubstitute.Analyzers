@@ -101,6 +101,19 @@ bar = fooBar;")]
         public abstract Task ReportsDiagnostic_WhenUsingReEntrantReturns_AcrossMultipleFiles(string method);
 
         [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsDiagnostic_WhenUsingReEntrantReturns_InAsyncMethod(string method);
+
+        [CombinatoryTheory]
+        [InlineData("new [] { CreateDefaultValue(), [|ReturnThis()|] }")]
+        [InlineData("new int[] { CreateDefaultValue(), [|ReturnThis()|] }")]
+        public abstract Task ReportsDiagnostic_WhenUsingReEntrantReturnsIn_InParamsArray(string method, string reEntrantArrayCall);
+
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostic_WhenUsingReEntrantReturnsIn_AndParamArrayIsNotCreatedInline(string method);
+
+        [CombinatoryTheory]
         [InlineData("Foo")]
         [InlineData("FooBar")]
         public abstract Task ReportsNoDiagnostic_WhenUsed_WithTypeofExpression(string method, string type);
@@ -112,6 +125,26 @@ bar = fooBar;")]
         [CombinatoryTheory]
         [InlineData]
         public abstract Task ReportsNoDiagnostics_WhenElementUsedTwice_InForEachLoop(string method);
+
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsDiagnostics_WhenReturnValueIsCalledWhileBeingConfigured(string method);
+
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsDiagnostics_WhenReturnValueIsCalledWhileBeingConfiguredInConstructorBody(string method);
+
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsDiagnostics_WhenReturnValueIsCalledWhileBeingConfiguredInConstructorExpressionBody(string method);
+
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostics_WhenReturnValueIsCalledAfterIsConfigured(string method);
+
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegateInArrayParams_AndReEntrantReturnsForAnyArgsCallExists(string method);
 
         protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
         {

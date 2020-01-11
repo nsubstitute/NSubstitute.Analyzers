@@ -37,6 +37,11 @@ namespace NSubstitute.Analyzers.Shared.Extensions
             return $"{symbol.ContainingType}.{minimumDisplayString}";
         }
 
+        public static bool IsLocal(this ISymbol symbol)
+        {
+            return symbol != null && symbol.Kind == SymbolKind.Local;
+        }
+
         private static bool IsInterfaceMember(ISymbol symbol)
         {
             return symbol?.ContainingType?.TypeKind == TypeKind.Interface;

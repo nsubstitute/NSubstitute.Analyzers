@@ -9,6 +9,11 @@ namespace NSubstitute.Analyzers.Shared.Extensions
         public static bool IsCallInfoDelegate(this TypeInfo typeInfo, SemanticModel semanticModel)
         {
             var typeSymbol = typeInfo.Type ?? typeInfo.ConvertedType;
+            return typeSymbol.IsCallInfoDelegate(semanticModel);
+        }
+
+        public static bool IsCallInfoDelegate(this ITypeSymbol typeSymbol, SemanticModel semanticModel)
+        {
             var isCalledViaDelegate = typeSymbol != null &&
                                       typeSymbol.TypeKind == TypeKind.Delegate &&
                                       typeSymbol is INamedTypeSymbol namedTypeSymbol &&
