@@ -8,11 +8,12 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 {
-    internal class ReEntrantCallFinder : AbstractReEntrantCallFinder
+    internal class ReEntrantCallFinder : AbstractReEntrantCallFinder<InvocationExpressionSyntax, IdentifierNameSyntax>
     {
-        public static ReEntrantCallFinder Instance { get; } = new ReEntrantCallFinder();
+        public static ReEntrantCallFinder Instance { get; } = new ReEntrantCallFinder(SubstitutionNodeFinder.Instance);
 
-        private ReEntrantCallFinder()
+        private ReEntrantCallFinder(ISubstitutionNodeFinder<InvocationExpressionSyntax> substitutionNodeFinder)
+            : base(substitutionNodeFinder)
         {
         }
 
@@ -21,6 +22,32 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
             var visitor = new ReEntrantCallVisitor(this, compilation, semanticModel, originatingExpression);
             visitor.Visit(rootNode);
             return visitor.InvocationSymbols;
+        }
+
+        protected override IEnumerable<InvocationExpressionSyntax> GetPotentialOtherSubstituteInvocations(IEnumerable<SyntaxNode> nodes)
+        {
+            foreach (var node in nodes)
+            {
+                switch (node)
+                {
+                    case InvocationExpressionSyntax invocationExpressionSyntax:
+                        yield return invocationExpressionSyntax;
+                        break;
+                    case ExpressionStatementSyntax expressionStatementSyntax when expressionStatementSyntax.Expression is InvocationExpressionSyntax invocationExpressionSyntax:
+                        yield return invocationExpressionSyntax;
+                        break;
+                    case ConstructorDeclarationSyntax constructorDeclarationSyntax:
+                        foreach (var potentialPreviousReturnsLikeInvocation in
+                            GetPotentialOtherSubstituteInvocations(
+                                constructorDeclarationSyntax.Body?.ChildNodes() ??
+                                constructorDeclarationSyntax.ExpressionBody?.ChildNodes()))
+                        {
+                            yield return potentialPreviousReturnsLikeInvocation;
+                        }
+
+                        break;
+                }
+            }
         }
 
         private class ReEntrantCallVisitor : CSharpSyntaxWalker

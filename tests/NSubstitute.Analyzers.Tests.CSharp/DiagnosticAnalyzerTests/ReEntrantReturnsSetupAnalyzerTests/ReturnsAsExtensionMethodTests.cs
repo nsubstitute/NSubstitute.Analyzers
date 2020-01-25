@@ -12,19 +12,16 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ReEntrantRe
         {
             var plainMethodName = method.Replace("<int>", string.Empty);
             var source = $@"using NSubstitute;
-
 namespace MyNamespace
 {{
     public interface Foo
     {{
         int Bar();
     }}
-
     public interface IBar
     {{
         int Foo();
     }}
-
     public class FooTests
     {{
         public void Test()
@@ -32,13 +29,10 @@ namespace MyNamespace
             var substitute = Substitute.For<Foo>();
             substitute.Bar().{method}([|ReturnThis()|], [|OtherReturn()|]);
         }}
-
-
         private int ReturnThis()
         {{
             return OtherReturn();
         }}
-
         private int OtherReturn()
         {{
             var substitute = Substitute.For<IBar>();
@@ -531,6 +525,111 @@ namespace MyNamespace
             await VerifyDiagnostics(new[] { source, secondSource }, Descriptor, $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => FooBar.ReturnThis()).");
         }
 
+        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturns_InAsyncMethod(string method)
+        {
+            var plainMethodName = method.Replace("<int>", string.Empty);
+
+            var source = $@"using System.Threading.Tasks;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        int Bar();
+    }}
+
+    public class FooTests
+    {{
+        public async Task Test()
+        {{
+            var substitute = Substitute.For<IFoo>();
+            substitute.Bar().{method}([|await ReturnThis()|]);
+        }}
+
+        private async Task<int> ReturnThis()
+        {{
+            var substitute = Substitute.For<IFoo>();
+            substitute.Bar().{method}(1);
+            return await Task.FromResult(1);
+        }}
+    }}
+}}";
+
+            await VerifyDiagnostic(source, Descriptor, $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => await ReturnThis()).");
+        }
+
+        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsIn_InParamsArray(string method, string reEntrantArrayCall)
+        {
+            var plainMethodName = method.Replace("<int>", string.Empty);
+
+            var source = $@"using System.Threading.Tasks;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        int Bar();
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = Substitute.For<IFoo>();
+            substitute.Bar().{method}(1, {reEntrantArrayCall});
+        }}
+
+        private int ReturnThis()
+        {{
+            var substitute = Substitute.For<IFoo>();
+            substitute.Bar().{method}(1);
+            return 1;
+        }}
+
+        private int CreateDefaultValue()
+        {{
+            return 1;
+        }}
+    }}
+}}";
+
+            await VerifyDiagnostic(source, Descriptor, $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => ReturnThis()).");
+        }
+
+        public override async Task ReportsNoDiagnostic_WhenUsingReEntrantReturnsIn_AndParamArrayIsNotCreatedInline(string method)
+        {
+            var source = $@"using System.Threading.Tasks;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        int Bar();
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = Substitute.For<IFoo>();
+            var array = new[] {{ ReturnThis() }};
+            substitute.Bar().{method}(1, array);
+        }}
+
+        private int ReturnThis()
+        {{
+            var substitute = Substitute.For<IFoo>();
+            substitute.Bar().{method}(1);
+            return 1;
+        }}
+    }}
+}}";
+            await VerifyNoDiagnostic(source);
+        }
+
         [CombinatoryData("Returns", "Returns<object>", "ReturnsForAnyArgs", "ReturnsForAnyArgs<object>")]
         public override async Task ReportsNoDiagnostic_WhenUsed_WithTypeofExpression(string method, string type)
         {
@@ -632,6 +731,166 @@ namespace MyNamespace
                 thirdEnumerator.Current.{method}(value + 1);
                 fourthEnumerator.Current.{method}(value + 1);
             }}
+        }}
+    }}
+}}";
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsDiagnostics_WhenReturnValueIsCalledWhileBeingConfigured(string method)
+        {
+            var plainMethodName = method.Replace("<int>", string.Empty);
+            var source = $@"using NSubstitute;
+
+namespace MyNamespace
+{{
+    public class FooTests
+    {{
+        public interface IFoo
+        {{
+            int Id {{ get; }}
+        }}
+        
+        public void Test()
+        {{
+            var firstSubstitute = Substitute.For<IFoo>();
+            firstSubstitute.Id.Returns(45);
+
+            var secondSubstitute = Substitute.For<IFoo>();
+            secondSubstitute.Id.{method}([|firstSubstitute.Id|]);
+        }}
+    }} 
+}}";
+            await VerifyDiagnostic(source, Descriptor, $"{plainMethodName}() is set with a method that itself calls Id. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => firstSubstitute.Id).");
+        }
+
+        public override async Task ReportsDiagnostics_WhenReturnValueIsCalledWhileBeingConfiguredInConstructorBody(string method)
+        {
+            var plainMethodName = method.Replace("SubstituteExtensions.", string.Empty).Replace("<int>", string.Empty);
+
+            var source = $@"using NSubstitute;
+
+namespace MyNamespace
+{{
+    public class FooTests
+    {{
+        private IFoo firstSubstitute = Substitute.For<IFoo>();
+
+        public FooTests()
+        {{
+            firstSubstitute.Id.Returns(45);
+        }}
+        
+        public interface IFoo
+        {{
+            int Id {{ get; }}
+        }}
+        
+        public void Test()
+        {{
+            var secondSubstitute = Substitute.For<IFoo>();
+            secondSubstitute.Id.{method}([|firstSubstitute.Id|]);
+        }}
+    }} 
+}}";
+            await VerifyDiagnostic(source, Descriptor, $"{plainMethodName}() is set with a method that itself calls Id. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => firstSubstitute.Id).");
+        }
+
+        public override async Task ReportsDiagnostics_WhenReturnValueIsCalledWhileBeingConfiguredInConstructorExpressionBody(string method)
+        {
+            var plainMethodName = method.Replace("SubstituteExtensions.", string.Empty).Replace("<int>", string.Empty);
+
+            var source = $@"using NSubstitute;
+
+namespace MyNamespace
+{{
+    public class FooTests
+    {{
+        private IFoo firstSubstitute = Substitute.For<IFoo>();
+
+        public FooTests() => firstSubstitute.Id.Returns(45);
+        
+        public interface IFoo
+        {{
+            int Id {{ get; }}
+        }}
+        
+        public void Test()
+        {{
+            var secondSubstitute = Substitute.For<IFoo>();
+            secondSubstitute.Id.{method}([|firstSubstitute.Id|]);
+        }}
+    }} 
+}}";
+            await VerifyDiagnostic(source, Descriptor, $"{plainMethodName}() is set with a method that itself calls Id. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => firstSubstitute.Id).");
+        }
+
+        public override async Task ReportsNoDiagnostics_WhenReturnValueIsCalledAfterIsConfigured(string method)
+        {
+            var source = $@"using NSubstitute;
+
+namespace MyNamespace
+{{
+    public class FooTests
+    {{
+        public interface IFoo
+        {{
+            int Id {{ get; }}
+
+            int OtherId {{ get; }}
+        }}
+        
+        public void Test()
+        {{
+            var firstSubstitute = Substitute.For<IFoo>();
+            var secondSubstitute = Substitute.For<IFoo>();
+            var thirdSubstitute = Substitute.For<IFoo>();
+            var fourthSubstitute = Substitute.For<IFoo>();
+
+            firstSubstitute.OtherId.Returns(45);
+            thirdSubstitute.Id.Returns(45);
+            fourthSubstitute.Id.Returns(45);
+            var value = fourthSubstitute.Id;
+
+            secondSubstitute.Id.{method}(firstSubstitute.Id);
+            secondSubstitute.Id.{method}(value);
+        }}
+    }} 
+}}";
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegateInArrayParams_AndReEntrantReturnsForAnyArgsCallExists(string method)
+        {
+            var source = $@"using NSubstitute;
+using NSubstitute.Core;
+using System;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        int Bar();
+    }}
+
+    public interface IBar
+    {{
+        int Foo();
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = Substitute.For<IFoo>();
+            substitute.Bar().{method}(_ => 1, new Func<CallInfo, int>[] {{ _ => OtherReturn() }});
+        }}
+
+        private int OtherReturn()
+        {{
+            var substitute = Substitute.For<IBar>();
+            substitute.Foo().Returns(1);
+            return 1;
         }}
     }}
 }}";

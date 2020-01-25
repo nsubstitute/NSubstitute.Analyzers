@@ -24,10 +24,24 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         Task ReportsDiagnostic_WhenUsingReEntrantReturns_AcrossMultipleFiles(string method);
 
+        Task ReportsDiagnostic_WhenUsingReEntrantReturns_InAsyncMethod(string method);
+
+        Task ReportsDiagnostic_WhenUsingReEntrantReturnsIn_InParamsArray(string method, string reEntrantArrayCall);
+
+        Task ReportsNoDiagnostic_WhenUsingReEntrantReturnsIn_AndParamArrayIsNotCreatedInline(string method);
+
         Task ReportsNoDiagnostic_WhenUsed_WithTypeofExpression(string method, string type);
 
         Task ReportsNoDiagnostics_WhenReturnsValueIsSet_InForEachLoop(string method);
 
         Task ReportsNoDiagnostics_WhenElementUsedTwice_InForEachLoop(string method);
+
+        Task ReportsDiagnostics_WhenReturnValueIsCalledWhileBeingConfigured(string method);
+
+        Task ReportsDiagnostics_WhenReturnValueIsCalledWhileBeingConfiguredInConstructorBody(string method);
+
+        Task ReportsNoDiagnostics_WhenReturnValueIsCalledAfterIsConfigured(string method);
+
+        Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegateInArrayParams_AndReEntrantReturnsForAnyArgsCallExists(string method);
     }
 }
