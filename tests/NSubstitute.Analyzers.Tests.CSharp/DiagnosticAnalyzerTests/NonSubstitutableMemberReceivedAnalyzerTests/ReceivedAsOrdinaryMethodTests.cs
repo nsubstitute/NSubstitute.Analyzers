@@ -4,19 +4,24 @@ using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitutableMemberReceivedAnalyzerTests
 {
     [CombinatoryData(
-        "SubstituteExtensions.Received",
-        "SubstituteExtensions.Received<Foo>",
-        "SubstituteExtensions.ReceivedWithAnyArgs",
-        "SubstituteExtensions.ReceivedWithAnyArgs<Foo>",
-        "SubstituteExtensions.DidNotReceive",
-        "SubstituteExtensions.DidNotReceive<Foo>",
-        "SubstituteExtensions.DidNotReceiveWithAnyArgs",
-        "SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo>")]
+        "ReceivedExtensions.Received(substitute, Quantity.None())",
+        "ReceivedExtensions.Received<Foo>(substitute, Quantity.None())",
+        "SubstituteExtensions.Received(substitute)",
+        "SubstituteExtensions.Received<Foo>(substitute)",
+        "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs<Foo>(substitute, Quantity.None())",
+        "SubstituteExtensions.ReceivedWithAnyArgs(substitute)",
+        "SubstituteExtensions.ReceivedWithAnyArgs<Foo>(substitute)",
+        "SubstituteExtensions.DidNotReceive(substitute)",
+        "SubstituteExtensions.DidNotReceive<Foo>(substitute)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo>(substitute)")]
     public class ReceivedAsOrdinaryMethodTests : NonSubstitutableMemberReceivedDiagnosticVerifier
     {
         public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualMethod(string method)
         {
             var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
 {{
@@ -33,7 +38,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            [|{method}(substitute).Bar()|];
+            [|{method}.Bar()|];
         }}
     }}
 }}";
@@ -44,6 +49,7 @@ namespace MyNamespace
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualMethod(string method)
         {
             var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
 {{
@@ -60,7 +66,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}(substitute).Bar();
+            {method}.Bar();
         }}
     }}
 }}";
@@ -70,6 +76,7 @@ namespace MyNamespace
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForNonSealedMethod(string method)
         {
             var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
 {{
@@ -91,7 +98,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo2>();
-            {method}(substitute).Bar();
+            {method}.Bar();
         }}
     }}
 }}";
@@ -99,17 +106,22 @@ namespace MyNamespace
         }
 
         [CombinatoryData(
-            "SubstituteExtensions.Received",
-            "SubstituteExtensions.Received<Func<Foo>>",
-            "SubstituteExtensions.ReceivedWithAnyArgs",
-            "SubstituteExtensions.ReceivedWithAnyArgs<Func<Foo>>",
-            "SubstituteExtensions.DidNotReceive",
-            "SubstituteExtensions.DidNotReceive<Func<Foo>>",
-            "SubstituteExtensions.DidNotReceiveWithAnyArgs",
-            "SubstituteExtensions.DidNotReceiveWithAnyArgs<Func<Foo>>")]
+            "ReceivedExtensions.Received(substitute, Quantity.None())",
+            "ReceivedExtensions.Received<Func<Foo>>(substitute, Quantity.None())",
+            "SubstituteExtensions.Received(substitute)",
+            "SubstituteExtensions.Received<Func<Foo>>(substitute)",
+            "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
+            "ReceivedExtensions.ReceivedWithAnyArgs<Func<Foo>>(substitute, Quantity.None())",
+            "SubstituteExtensions.ReceivedWithAnyArgs(substitute)",
+            "SubstituteExtensions.ReceivedWithAnyArgs<Func<Foo>>(substitute)",
+            "SubstituteExtensions.DidNotReceive(substitute)",
+            "SubstituteExtensions.DidNotReceive<Func<Foo>>(substitute)",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute)",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs<Func<Foo>>(substitute)")]
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForDelegate(string method)
         {
             var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 using System;
 
 public class Foo
@@ -123,7 +135,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = Substitute.For<Func<Foo>>();
-            {method}(substitute)();
+            {method}();
         }}
     }}
 }}";
@@ -133,6 +145,7 @@ namespace MyNamespace
         public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForSealedMethod(string method)
         {
             var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
 {{
@@ -154,7 +167,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            [|{method}(substitute).Bar()|];
+            [|{method}.Bar()|];
         }}
     }}
 }}";
@@ -165,6 +178,7 @@ namespace MyNamespace
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractMethod(string method)
         {
             var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
 {{
@@ -178,7 +192,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}(substitute).Bar();
+            {method}.Bar();
         }}
     }}
 }}";
@@ -189,6 +203,7 @@ namespace MyNamespace
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceMethod(string method)
         {
             var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
 {{
@@ -202,7 +217,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}(substitute).Bar();
+            {method}.Bar();
         }}
     }}
 }}";
@@ -212,6 +227,7 @@ namespace MyNamespace
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceProperty(string method)
         {
             var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
 {{
@@ -225,7 +241,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = {method}(substitute).Bar;
+            var x = {method}.Bar;
         }}
     }}
 }}";
@@ -233,17 +249,22 @@ namespace MyNamespace
         }
 
         [CombinatoryData(
-                "SubstituteExtensions.Received",
-                "SubstituteExtensions.Received<Foo<int>>",
-                "SubstituteExtensions.ReceivedWithAnyArgs",
-                "SubstituteExtensions.ReceivedWithAnyArgs<Foo<int>>",
-                "SubstituteExtensions.DidNotReceive",
-                "SubstituteExtensions.DidNotReceive<Foo<int>>",
-                "SubstituteExtensions.DidNotReceiveWithAnyArgs",
-                "SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo<int>>")]
+                "ReceivedExtensions.Received(substitute, Quantity.None())",
+                "ReceivedExtensions.Received<Foo<int>>(substitute, Quantity.None())",
+                "SubstituteExtensions.Received(substitute)",
+                "SubstituteExtensions.Received<Foo<int>>(substitute)",
+                "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
+                "ReceivedExtensions.ReceivedWithAnyArgs<Foo<int>>(substitute, Quantity.None())",
+                "SubstituteExtensions.ReceivedWithAnyArgs(substitute)",
+                "SubstituteExtensions.ReceivedWithAnyArgs<Foo<int>>(substitute)",
+                "SubstituteExtensions.DidNotReceive(substitute)",
+                "SubstituteExtensions.DidNotReceive<Foo<int>>(substitute)",
+                "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute)",
+                "SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo<int>>(substitute)")]
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForGenericInterfaceMethod(string method)
         {
             var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
 {{
@@ -257,7 +278,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo<int>>();
-            {method}(substitute).Bar<int>();
+            {method}.Bar<int>();
         }}
     }}
 }}";
@@ -267,6 +288,7 @@ namespace MyNamespace
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractProperty(string method)
         {
             var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
 {{
@@ -280,7 +302,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = {method}(substitute).Bar;
+            var x = {method}.Bar;
         }}
     }}
 }}";
@@ -291,6 +313,7 @@ namespace MyNamespace
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceIndexer(string method)
         {
             var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
 {{
@@ -304,7 +327,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = {method}(substitute)[1];
+            var x = {method}[1];
         }}
     }}
 }}";
@@ -314,6 +337,7 @@ namespace MyNamespace
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualProperty(string method)
         {
             var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
 {{
@@ -327,7 +351,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = {method}(substitute).Bar;
+            var x = {method}.Bar;
         }}
     }}
 }}";
@@ -338,6 +362,7 @@ namespace MyNamespace
         public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualProperty(string method)
         {
             var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
 {{
@@ -351,7 +376,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = [|{method}(substitute).Bar|];
+            var x = [|{method}.Bar|];
         }}
     }}
 }}";
@@ -362,6 +387,7 @@ namespace MyNamespace
         public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualIndexer(string method)
         {
             var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
 {{
@@ -375,7 +401,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = {method}(substitute)[1];
+            var x = {method}[1];
         }}
     }}
 }}";
@@ -385,6 +411,7 @@ namespace MyNamespace
         public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualIndexer(string method)
         {
             var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
 {{
@@ -398,7 +425,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = [|{method}(substitute)[1]|];
+            var x = [|{method}[1]|];
         }}
     }}
 }}";
@@ -406,12 +433,30 @@ namespace MyNamespace
             await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
         }
 
+        [CombinatoryData(
+            "ReceivedExtensions.Received(substitute, Quantity.None())",
+            "ReceivedExtensions.Received<Foo>(substitute, Quantity.None())",
+            "SubstituteExtensions.Received(substitute, 1, 1)",
+            "SubstituteExtensions.Received<Foo>(substitute, 1, 1)",
+            "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
+            "ReceivedExtensions.ReceivedWithAnyArgs<Foo>(substitute, Quantity.None())",
+            "SubstituteExtensions.ReceivedWithAnyArgs(substitute, 1, 1)",
+            "SubstituteExtensions.ReceivedWithAnyArgs<Foo>(substitute, 1, 1)",
+            "SubstituteExtensions.DidNotReceive(substitute, 1, 1)",
+            "SubstituteExtensions.DidNotReceive<Foo>(substitute, 1, 1)",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute, 1, 1)",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo>(substitute, 1, 1)")]
         public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method)
         {
             var source = $@"
 
 namespace NSubstitute
 {{
+    public class Quantity
+    {{
+        public static Quantity None() => null;
+    }}
+
     public class Foo
     {{
         public int Bar()
@@ -422,22 +467,45 @@ namespace NSubstitute
 
     public static class SubstituteExtensions
     {{
-        public static T Received<T>(this T returnValue, decimal x)
+        public static T Received<T>(this T substitute, int x, int y)
         {{
             return default(T);
         }}
 
-        public static T ReceivedWithAnyArgs<T>(this T returnValue, decimal x)
+        public static T ReceivedWithAnyArgs<T>(this T substitute, int x, int y)
         {{
             return default(T);
         }}
 
-        public static T DidNotReceive<T>(this T returnValue, decimal x)
+        public static T DidNotReceive<T>(this T substitute, int x, int y)
         {{
             return default(T);
         }}
 
-        public static T DidNotReceiveWithAnyArgs<T>(this T returnValue, decimal x)
+        public static T DidNotReceiveWithAnyArgs<T>(this T substitute, int x, int y)
+        {{
+            return default(T);
+        }}
+    }}
+    
+    public static class ReceivedExtensions
+    {{
+        public static T Received<T>(this T substitute, Quantity x)
+        {{
+            return default(T);
+        }}
+
+        public static T ReceivedWithAnyArgs<T>(this T substitute, Quantity x)
+        {{
+            return default(T);
+        }}
+
+        public static T DidNotReceive<T>(this T substitute, Quantity x)
+        {{
+            return default(T);
+        }}
+
+        public static T DidNotReceiveWithAnyArgs<T>(this T substitute, Quantity x)
         {{
             return default(T);
         }}
@@ -448,7 +516,7 @@ namespace NSubstitute
         public void Test()
         {{
             Foo substitute = null;
-            var x = {method}(substitute, 1m).Bar();
+            var x = {method}.Bar();
         }}
     }}
 }}";
@@ -458,6 +526,7 @@ namespace NSubstitute
         public override async Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message)
         {
             var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
 {{
@@ -481,7 +550,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = [|{method}(substitute){call}|];
+            var x = [|{method}{call}|];
         }}
     }}
 }}";
@@ -492,6 +561,7 @@ namespace MyNamespace
         public override async Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call)
         {
             var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo(""OtherFirstAssembly"")]
 [assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
@@ -519,7 +589,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = {method}(substitute){call};
+            var x = {method}{call};
         }}
     }}
 }}";
@@ -530,6 +600,7 @@ namespace MyNamespace
         public override async Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message)
         {
             var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo(""OtherAssembly"")]
 
@@ -555,7 +626,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = [|{method}(substitute){call}|];
+            var x = [|{method}{call}|];
         }}
     }}
 }}";
@@ -566,6 +637,7 @@ namespace MyNamespace
         public override async Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call)
         {
             var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
 {{
@@ -589,7 +661,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = {method}(substitute){call};
+            var x = {method}{call};
         }}
     }}
 }}";

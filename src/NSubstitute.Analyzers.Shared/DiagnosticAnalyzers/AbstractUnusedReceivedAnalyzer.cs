@@ -62,7 +62,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             var diagnostic = Diagnostic.Create(
                 diagnosticDescriptor,
                 invocationExpression.GetLocation(),
-                methodSymbol.Name);
+                methodSymbol.Name,
+                methodSymbol.ContainingType.Name);
 
             syntaxNodeContext.ReportDiagnostic(diagnostic);
         }
