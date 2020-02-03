@@ -28,5 +28,6 @@
         public const string ReEntrantSubstituteCall = "NS4000";
 
         public const string UnusedReceived = "NS5000";
+        public const string ReceivedUsedInReceivedInOrder = "NS5001";
     }
 }

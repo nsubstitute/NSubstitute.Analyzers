@@ -375,4 +375,17 @@
     <value>Argument matcher used with a non-virtual member of a class.</value>
         <comment>The title of the diagnostic.</comment>
   </data>
+
+    <data name="ReceivedUsedInReceivedInOrderDescription" xml:space="preserve">
+    <value>Received-like method used in Received.InOrder block.</value>
+        <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+    <data name="ReceivedUsedInReceivedInOrderMessageFormat" xml:space="preserve">
+    <value>{0} method used in Received.InOrder block.</value>
+        <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+    <data name="ReceivedUsedInReceivedInOrderTitle" xml:space="preserve">
+    <value>Received-like method used in Received.InOrder block.</value>
+        <comment>The title of the diagnostic.</comment>
+  </data>
 </root>

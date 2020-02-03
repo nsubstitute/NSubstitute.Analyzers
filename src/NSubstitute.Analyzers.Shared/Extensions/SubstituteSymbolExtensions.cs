@@ -48,6 +48,11 @@ namespace NSubstitute.Analyzers.Shared.Extensions
                    IsMember(symbol, MetadataNames.ReceivedWithQuantityMethodNames);
         }
 
+        public static bool IsReceivedInOrderMethod(this ISymbol symbol)
+        {
+            return IsMember(symbol, MetadataNames.NSubstituteInOrderMethod, MetadataNames.NSubstituteReceivedFullTypeName);
+        }
+
         public static bool IsWhenLikeMethod(this ISymbol symbol)
         {
             return IsMember(symbol, MetadataNames.WhenMethodNames);
