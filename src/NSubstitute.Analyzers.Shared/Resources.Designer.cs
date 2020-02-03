@@ -425,5 +425,23 @@ namespace NSubstitute.Analyzers.Shared {
                 return ResourceManager.GetString("NonSubstitutableMemberArgumentMatcherUsageTitle", resourceCulture);
             }
         }
+        
+        internal static string ReceivedUsedInReceivedInOrderDescription {
+            get {
+                return ResourceManager.GetString("ReceivedUsedInReceivedInOrderDescription", resourceCulture);
+            }
+        }
+        
+        internal static string ReceivedUsedInReceivedInOrderMessageFormat {
+            get {
+                return ResourceManager.GetString("ReceivedUsedInReceivedInOrderMessageFormat", resourceCulture);
+            }
+        }
+        
+        internal static string ReceivedUsedInReceivedInOrderTitle {
+            get {
+                return ResourceManager.GetString("ReceivedUsedInReceivedInOrderTitle", resourceCulture);
+            }
+        }
     }
 }
