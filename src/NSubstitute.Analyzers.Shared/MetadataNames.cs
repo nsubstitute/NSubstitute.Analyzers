@@ -8,6 +8,7 @@ namespace NSubstitute.Analyzers.Shared
         public const string NSubstituteArgFullTypeName = "NSubstitute.Arg";
         public const string NSubstituteArgCompatFullTypeName = "NSubstitute.Arg.Compat";
         public const string NSubstituteSubstituteExtensionsFullTypeName = "NSubstitute.SubstituteExtensions";
+        public const string NSubstituteReceivedExtensionsFullTypeName = "NSubstitute.ReceivedExtensions.ReceivedExtensions";
         public const string NSubstituteReturnsExtensionsFullTypeName = "NSubstitute.ReturnsExtensions.ReturnsExtensions";
         public const string NSubstituteExceptionExtensionsFullTypeName = "NSubstitute.ExceptionExtensions.ExceptionExtensions";
         public const string NSubstituteCallInfoFullTypeName = "NSubstitute.Core.CallInfo";
@@ -64,6 +65,12 @@ namespace NSubstitute.Analyzers.Shared
             [NSubstituteReceivedWithAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
             [NSubstituteDidNotReceiveMethod] = NSubstituteSubstituteExtensionsFullTypeName,
             [NSubstituteDidNotReceiveWithAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName
+        };
+
+        public static readonly IReadOnlyDictionary<string, string> ReceivedWithQuantityMethodNames = new Dictionary<string, string>
+        {
+            [NSubstituteReceivedMethod] = NSubstituteReceivedExtensionsFullTypeName,
+            [NSubstituteReceivedWithAnyArgsMethod] = NSubstituteReceivedExtensionsFullTypeName,
         };
 
         public static readonly IReadOnlyDictionary<string, string> WhenMethodNames = new Dictionary<string, string>

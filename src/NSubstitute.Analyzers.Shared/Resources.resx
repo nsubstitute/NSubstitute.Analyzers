@@ -155,7 +155,7 @@
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
   <data name="UnusedReceivedForOrdinaryMethodMessageFormat" xml:space="preserve">
-    <value>Unused received check. To fix, make sure there is a call after "{0}". Correct: "SubstituteExtensions.{0}(sub).SomeCall();". Incorrect: "SubstituteExtensions.{0}(sub);"</value>
+    <value>Unused received check. To fix, make sure there is a call after "{0}". Correct: "{1}.{0}(sub).SomeCall();". Incorrect: "{1}.{0}(sub);"</value>
     <comment>The format-able message the diagnostic displays.</comment>
   </data>
   <data name="UnusedReceivedForOrdinaryMethodTitle" xml:space="preserve">

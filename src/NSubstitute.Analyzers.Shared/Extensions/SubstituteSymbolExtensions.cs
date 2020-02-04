@@ -44,7 +44,8 @@ namespace NSubstitute.Analyzers.Shared.Extensions
 
         public static bool IsReceivedLikeMethod(this ISymbol symbol)
         {
-            return IsMember(symbol, MetadataNames.ReceivedMethodNames);
+            return IsMember(symbol, MetadataNames.ReceivedMethodNames) ||
+                   IsMember(symbol, MetadataNames.ReceivedWithQuantityMethodNames);
         }
 
         public static bool IsWhenLikeMethod(this ISymbol symbol)

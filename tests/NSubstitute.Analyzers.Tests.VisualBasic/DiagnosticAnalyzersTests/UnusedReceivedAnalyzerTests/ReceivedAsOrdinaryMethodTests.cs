@@ -1,28 +1,34 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using NSubstitute.Analyzers.Shared;
-using NSubstitute.Analyzers.Tests.Shared;
-using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.UnusedReceivedAnalyzerTests
 {
     [CombinatoryData(
-        "SubstituteExtensions.Received",
-        "SubstituteExtensions.Received(Of Foo)",
-        "SubstituteExtensions.ReceivedWithAnyArgs",
-        "SubstituteExtensions.ReceivedWithAnyArgs(Of Foo)",
-        "SubstituteExtensions.DidNotReceive",
-        "SubstituteExtensions.DidNotReceive(Of Foo)",
-        "SubstituteExtensions.DidNotReceiveWithAnyArgs",
-        "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Foo)")]
+        "ReceivedExtensions.Received(substitute, Quantity.None())",
+        "ReceivedExtensions.Received(Of Foo)(substitute, Quantity.None())",
+        "SubstituteExtensions.Received(substitute)",
+        "SubstituteExtensions.Received(Of Foo)(substitute)",
+        "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(Of Foo)(substitute, Quantity.None())",
+        "SubstituteExtensions.ReceivedWithAnyArgs(substitute)",
+        "SubstituteExtensions.ReceivedWithAnyArgs(Of Foo)(substitute)",
+        "SubstituteExtensions.DidNotReceive(substitute)",
+        "SubstituteExtensions.DidNotReceive(Of Foo)(substitute)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Foo)(substitute)")]
     public class ReceivedAsOrdinaryMethodTests : UnusedReceivedDiagnosticVerifier
     {
         public override async Task ReportDiagnostics_WhenUsedWithoutMemberCall(string method)
         {
-            var plainMethodName = method.Replace("(Of Foo)", string.Empty);
-            var planMethodNameWithoutNamespace = plainMethodName.Replace("SubstituteExtensions.", string.Empty);
+            var plainMethodName = method.Replace("(Of Foo)", string.Empty)
+                .Replace("(substitute, Quantity.None())", string.Empty)
+                .Replace("(substitute)", string.Empty);
+
+            var planMethodNameWithoutNamespace = plainMethodName.Replace("SubstituteExtensions.", string.Empty)
+                .Replace("ReceivedExtensions.", string.Empty);
+
             var source = $@"Imports NSubstitute
+Imports NSubstitute.ReceivedExtensions
 
 Namespace MyNamespace
     Interface Foo
@@ -31,7 +37,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            [|{method}(substitute)|]
+            [|{method}|]
         End Sub
     End Class
 End Namespace
@@ -43,6 +49,7 @@ End Namespace
         public override async Task ReportNoDiagnostics_WhenUsedWithMethodMemberAccess(string method)
         {
             var source = $@"Imports NSubstitute
+Imports NSubstitute.ReceivedExtensions
 
 Namespace MyNamespace
     Public Class FooBar
@@ -55,7 +62,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            {method}(substitute).Bar()
+            {method}.Bar()
         End Sub
     End Class
 End Namespace
@@ -67,6 +74,7 @@ End Namespace
         public override async Task ReportNoDiagnostics_WhenUsedWithPropertyMemberAccess(string method)
         {
             var source = $@"Imports NSubstitute
+Imports NSubstitute.ReceivedExtensions
 
 Namespace MyNamespace
     Interface Foo
@@ -76,7 +84,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            Dim bar = {method}(substitute).Bar
+            Dim bar = {method}.Bar
         End Sub
     End Class
 End Namespace
@@ -88,6 +96,7 @@ End Namespace
         public override async Task ReportNoDiagnostics_WhenUsedWithIndexerMemberAccess(string method)
         {
             var source = $@"Imports NSubstitute
+Imports NSubstitute.ReceivedExtensions
 
 Namespace MyNamespace
     Interface Foo
@@ -97,7 +106,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            Dim bar = {method}(substitute)(0)
+            Dim bar = {method}(0)
         End Sub
     End Class
 End Namespace
@@ -107,17 +116,22 @@ End Namespace
         }
 
         [CombinatoryData(
-            "SubstituteExtensions.Received",
-            "SubstituteExtensions.Received(Of Func(Of Integer))",
-            "SubstituteExtensions.ReceivedWithAnyArgs",
-            "SubstituteExtensions.ReceivedWithAnyArgs(Of Func(Of Integer))",
-            "SubstituteExtensions.DidNotReceive",
-            "SubstituteExtensions.DidNotReceive(Of Func(Of Integer))",
-            "SubstituteExtensions.DidNotReceiveWithAnyArgs",
-            "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Func(Of Integer))")]
+            "ReceivedExtensions.Received(substitute, Quantity.None())",
+            "ReceivedExtensions.Received(Of Func(Of Integer))(substitute, Quantity.None())",
+            "SubstituteExtensions.Received(substitute)",
+            "SubstituteExtensions.Received(Of Func(Of Integer))(substitute)",
+            "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
+            "ReceivedExtensions.ReceivedWithAnyArgs(Of Func(Of Integer))(substitute, Quantity.None())",
+            "SubstituteExtensions.ReceivedWithAnyArgs(substitute)",
+            "SubstituteExtensions.ReceivedWithAnyArgs(Of Func(Of Integer))(substitute)",
+            "SubstituteExtensions.DidNotReceive(substitute)",
+            "SubstituteExtensions.DidNotReceive(Of Func(Of Integer))(substitute)",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute)",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Func(Of Integer))(substitute)")]
         public override async Task ReportNoDiagnostics_WhenUsedWithInvokingDelegate(string method)
         {
             var source = $@"Imports NSubstitute
+Imports NSubstitute.ReceivedExtensions
 Imports System
 
 Namespace MyNamespace
@@ -126,7 +140,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Func(Of Integer))()
-            {method}(substitute)()
+            {method}()
         End Sub
     End Class
 End Namespace
@@ -134,42 +148,82 @@ End Namespace
             await VerifyNoDiagnostic(source);
         }
 
+        [CombinatoryData(
+            "ReceivedExtensions.Received(substitute, Quantity.None())",
+            "ReceivedExtensions.Received(Of Foo)(substitute, Quantity.None())",
+            "SubstituteExtensions.Received(substitute, 1, 1)",
+            "SubstituteExtensions.Received(Of Foo)(substitute, 1, 1)",
+            "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
+            "ReceivedExtensions.ReceivedWithAnyArgs(Of Foo)(substitute, Quantity.None())",
+            "SubstituteExtensions.ReceivedWithAnyArgs(substitute, 1, 1)",
+            "SubstituteExtensions.ReceivedWithAnyArgs(Of Foo)(substitute, 1, 1)",
+            "SubstituteExtensions.DidNotReceive(substitute, 1, 1)",
+            "SubstituteExtensions.DidNotReceive(Of Foo)(substitute, 1, 1)",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute, 1, 1)",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Foo)(substitute, 1, 1)")]
         public override async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod(string method)
         {
             var source = $@"Imports System
 Imports System.Runtime.CompilerServices
 
 Namespace NSubstitute
-    Module SubstituteExtensions
-        <Extension()>
-        Function Received(Of T As Class)(ByVal substitute As T, ByVal params As Decimal) As T
+    Public Class Quantity
+        Public Shared Function None() As Quantity
             Return Nothing
         End Function
-
-        <Extension()>
-        Function ReceivedWithAnyArgs(Of T As Class)(ByVal substitute As T, ByVal params As Decimal) As T
-            Return Nothing
-        End Function
-
-        <Extension()>
-        Function DidNotReceive(Of T As Class)(ByVal substitute As T, ByVal params As Decimal) As T
-            Return Nothing
-        End Function
-
-        <Extension()>
-        Function DidNotReceiveWithAnyArgs(Of T As Class)(ByVal substitute As T, ByVal params As Decimal) As T
-            Return Nothing
-        End Function
-
-    End Module
+    End Class
 
     Public Class Foo
     End Class
 
+    Module SubstituteExtensions
+        <Extension()>
+        Function Received(Of T)(ByVal substitute As T, ByVal x As Integer, ByVal y As Integer) As T
+            Return Nothing
+        End Function
+
+        <Extension()>
+        Function ReceivedWithAnyArgs(Of T)(ByVal substitute As T, ByVal x As Integer, ByVal y As Integer) As T
+            Return Nothing
+        End Function
+
+        <Extension()>
+        Function DidNotReceive(Of T)(ByVal substitute As T, ByVal x As Integer, ByVal y As Integer) As T
+            Return Nothing
+        End Function
+
+        <Extension()>
+        Function DidNotReceiveWithAnyArgs(Of T)(ByVal substitute As T, ByVal x As Integer, ByVal y As Integer) As T
+            Return Nothing
+        End Function
+    End Module
+
+    Module ReceivedExtensions
+        <Extension()>
+        Function Received(Of T)(ByVal substitute As T, ByVal x As Quantity) As T
+            Return Nothing
+        End Function
+
+        <Extension()>
+        Function ReceivedWithAnyArgs(Of T)(ByVal substitute As T, ByVal x As Quantity) As T
+            Return Nothing
+        End Function
+
+        <Extension()>
+        Function DidNotReceive(Of T)(ByVal substitute As T, ByVal x As Quantity) As T
+            Return Nothing
+        End Function
+
+        <Extension()>
+        Function DidNotReceiveWithAnyArgs(Of T)(ByVal substitute As T, ByVal x As Quantity) As T
+            Return Nothing
+        End Function
+    End Module
+
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            {method}(substitute, 1D)
+            Dim substitute As Foo = Nothing
+            {method}
         End Sub
     End Class
 End Namespace
