@@ -1,3 +1,12 @@
+### 1.0.12 (5 February 2020)
+
+- [#131](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/131) - NS5000 is not reported for ReceivedExtensions.Received calls 
+- [#130](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/130) - NS1001 is not reported for ReceivedExtensions.Received calls 
+- [#128](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/128) - Code fix provider for NS400 
+- [#126](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/126) - Extend NS400 to detect reentrant property substitution 
+- [#102](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/102) - Produce Strong Named Signed Assemblies  
+- [#35](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/35) - Detect Arg matcher misuse 
+
 ### 1.0.11 (15 October 2019)
 
 - [#124](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/124) - NS4000 false positive when using an initializer
