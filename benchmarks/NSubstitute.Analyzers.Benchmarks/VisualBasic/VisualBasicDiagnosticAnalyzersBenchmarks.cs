@@ -27,6 +27,8 @@ namespace NSubstitute.Analyzers.Benchmarks.VisualBasic
 
         protected override AnalyzerBenchmark ReceivedInReceivedInOrderAnalyzerBenchmark { get; }
 
+        protected override AnalyzerBenchmark AsyncReceivedInOrderCallbackAnalyzerBenchmark { get; }
+
         protected override AbstractSolutionLoader SolutionLoader { get; }
 
         protected override string SourceProjectFolderName { get; }
@@ -49,6 +51,7 @@ namespace NSubstitute.Analyzers.Benchmarks.VisualBasic
             UnusedReceivedAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new UnusedReceivedAnalyzer());
             ArgumentMatcherAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new NonSubstitutableMemberArgumentMatcherAnalyzer());
             ReceivedInReceivedInOrderAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new ReceivedInReceivedInOrderAnalyzer());
+            AsyncReceivedInOrderCallbackAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new AsyncReceivedInOrderCallbackAnalyzer());
         }
     }
 }
