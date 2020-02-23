@@ -27,6 +27,8 @@ namespace NSubstitute.Analyzers.Shared
         public const string NSubstituteReceivedWithAnyArgsMethod = "ReceivedWithAnyArgs";
         public const string NSubstituteDidNotReceiveMethod = "DidNotReceive";
         public const string NSubstituteDidNotReceiveWithAnyArgsMethod = "DidNotReceiveWithAnyArgs";
+        public const string NSubstituteInOrderMethod = "InOrder";
+        public const string NSubstituteReceivedFullTypeName = "NSubstitute.Received";
         public const string NSubstituteForMethod = "For";
         public const string NSubstituteForPartsOfMethod = "ForPartsOf";
         public const string SubstituteFactoryCreate = "Create";
