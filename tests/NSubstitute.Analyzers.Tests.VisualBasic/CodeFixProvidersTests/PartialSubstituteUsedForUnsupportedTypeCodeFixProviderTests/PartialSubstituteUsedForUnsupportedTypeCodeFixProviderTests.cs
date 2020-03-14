@@ -10,6 +10,10 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.PartialS
 {
     public class PartialSubstituteUsedForUnsupportedTypeCodeFixProviderTests : VisualBasicCodeFixVerifier, IForPartsOfUsedForUnsupportedTypeCodeFixVerifier
     {
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
+
+        protected override CodeFixProvider CodeFixProvider { get; } = new PartialSubstituteUsedForUnsupportedTypeCodeFixProvider();
+
         [Fact]
         public async Task ReplacesForPartsOf_WithFor_WhenUsedWithInterface()
         {
@@ -131,16 +135,6 @@ Namespace MyNamespace
 End Namespace";
 
             await VerifyFix(oldSource, newSource);
-        }
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new SubstituteAnalyzer();
-        }
-
-        protected override CodeFixProvider GetCodeFixProvider()
-        {
-            return new PartialSubstituteUsedForUnsupportedTypeCodeFixProvider();
         }
     }
 }

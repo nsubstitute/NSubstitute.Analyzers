@@ -12,6 +12,10 @@ namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.NonSubstitutab
 {
     public class NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixActionsTests : CSharpCodeFixActionsVerifier, INonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixActionsVerifier
     {
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberArgumentMatcherAnalyzer();
+
+        protected override CodeFixProvider CodeFixProvider { get; } = new NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider();
+
         [Fact]
         public async Task CreatesCorrectCodeFixActions_ForIndexer()
         {
@@ -114,16 +118,6 @@ namespace MyNamespace
     }}
 }}";
             await VerifyCodeActions(source, Array.Empty<string>());
-        }
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new NonSubstitutableMemberArgumentMatcherAnalyzer();
-        }
-
-        protected override CodeFixProvider GetCodeFixProvider()
-        {
-            return new NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider();
         }
     }
 }

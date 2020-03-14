@@ -1,18 +1,17 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
+﻿using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests
 {
     public abstract class CSharpCodeFixVerifier : CodeFixVerifier
     {
-        protected override string Language { get; } = LanguageNames.CSharp;
-
-        protected override string FileExtension { get; } = "cs";
-
-        protected override CompilationOptions GetCompilationOptions()
+        protected CSharpCodeFixVerifier()
+            : this(CSharpWorkspaceFactory.Default)
         {
-            return new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
+        }
+
+        protected CSharpCodeFixVerifier(CSharpWorkspaceFactory workspaceFactory)
+            : base(workspaceFactory)
+        {
         }
     }
 }

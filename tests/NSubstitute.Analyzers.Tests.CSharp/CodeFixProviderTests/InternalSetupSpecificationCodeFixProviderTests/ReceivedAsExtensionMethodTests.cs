@@ -1,8 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
-using NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitutableMemberReceivedAnalyzerTests;
-using NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitutableMemberWhenAnalyzerTests;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.InternalSetupSpecificationCodeFixProviderTests
@@ -10,6 +8,8 @@ namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.InternalSetupS
     [CombinatoryData("Received")]
     public class ReceivedAsExtensionMethodTests : InternalSetupSpecificationCodeFixProviderVerifier
     {
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberReceivedAnalyzer();
+
         public override async Task ChangesInternalToPublic_ForIndexer_WhenUsedWithInternalMember(string method)
         {
             var oldSource = $@"using NSubstitute;
@@ -379,11 +379,6 @@ namespace MyNamespace
     }}
 }}";
             await VerifyFix(oldSource, newSource, 2);
-        }
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new NonSubstitutableMemberReceivedAnalyzer();
         }
     }
 }

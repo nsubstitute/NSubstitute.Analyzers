@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,13 +9,26 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.CSharp.CodeFixProviders;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
-using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.InternalSetupSpecificationCodeFixProviderTests
 {
     public class InternalSetupSpecificationCodeFixActionsTests : CSharpCodeFixActionsVerifier, IInternalSetupSpecificationCodeFixActionsVerifier
     {
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberAnalyzer();
+
+        protected override CodeFixProvider CodeFixProvider { get; } = new InternalSetupSpecificationCodeFixProvider();
+
+        private static readonly MetadataReference[] AdditionalMetadataReferences =
+        {
+            GetInternalLibraryMetadataReference()
+        };
+
+        public InternalSetupSpecificationCodeFixActionsTests()
+            : base(CSharpWorkspaceFactory.Default.WithAdditionalMetadataReferences(AdditionalMetadataReferences))
+        {
+        }
+
         [Fact]
         public async Task CreateCodeActions_InProperOrder()
         {
@@ -65,26 +77,11 @@ namespace MyNamespace
             await VerifyCodeActions(source);
         }
 
-        protected override IEnumerable<MetadataReference> GetAdditionalMetadataReferences()
-        {
-            return new[] { GetInternalLibraryMetadataReference() };
-        }
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new NonSubstitutableMemberAnalyzer();
-        }
-
-        protected override CodeFixProvider GetCodeFixProvider()
-        {
-            return new InternalSetupSpecificationCodeFixProvider();
-        }
-
-        private static PortableExecutableReference GetInternalLibraryMetadataReference()
+        private static MetadataReference GetInternalLibraryMetadataReference()
         {
             var syntaxTree = CSharpSyntaxTree.ParseText($@"
 using System.Runtime.CompilerServices;
-[assembly: InternalsVisibleTo(""{TestProjectName}"")]
+[assembly: InternalsVisibleTo(""{Shared.WorkspaceFactory.DefaultProjectName}"")]
 namespace ExternalNamespace
 {{
     public class InternalFoo

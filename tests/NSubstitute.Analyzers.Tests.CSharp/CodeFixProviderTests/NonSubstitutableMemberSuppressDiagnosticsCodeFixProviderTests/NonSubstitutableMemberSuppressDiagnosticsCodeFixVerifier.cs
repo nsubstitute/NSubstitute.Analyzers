@@ -10,6 +10,10 @@ namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.NonSubstitutab
 {
     public abstract class NonSubstitutableMemberSuppressDiagnosticsCodeFixVerifier : CSharpSuppressDiagnosticSettingsVerifier, INonSubstitutableMemberSuppressDiagnosticsCodeFixVerifier
     {
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberAnalyzer();
+
+        protected override CodeFixProvider CodeFixProvider { get; } = new NonSubstitutableMemberSuppressDiagnosticsCodeFixProvider();
+
         [Fact]
         public abstract Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualMethod();
 
@@ -33,15 +37,5 @@ namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.NonSubstitutab
 
         [Fact]
         public abstract Task SuppressesDiagnosticsInSettingsForNamespace_WhenSettingsValueForNonVirtualMember_AndSelectingNamespaceSuppression();
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new NonSubstitutableMemberAnalyzer();
-        }
-
-        protected override CodeFixProvider GetCodeFixProvider()
-        {
-            return new NonSubstitutableMemberSuppressDiagnosticsCodeFixProvider();
-        }
     }
 }

@@ -10,6 +10,10 @@ namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.ConstructorArg
 {
     public class ConstructorArgumentsForInterfaceCodeFixProviderTests : CSharpCodeFixVerifier, IConstructorArgumentsForInterfaceCodeFixVerifier
     {
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
+
+        protected override CodeFixProvider CodeFixProvider { get; } = new ConstructorArgumentsForInterfaceCodeFixProvider();
+
         [Fact]
         public async Task RemovesInvocationArguments_WhenGenericFor_UsedWithParametersForInterface()
         {
@@ -125,16 +129,6 @@ namespace MyNamespace
     }
 }";
             await VerifyFix(source, newSource);
-        }
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new SubstituteAnalyzer();
-        }
-
-        protected override CodeFixProvider GetCodeFixProvider()
-        {
-            return new ConstructorArgumentsForInterfaceCodeFixProvider();
         }
     }
 }

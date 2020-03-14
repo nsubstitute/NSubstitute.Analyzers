@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.VisualBasic;
 using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Shared.Settings;
 using NSubstitute.Analyzers.Shared.TinyJson;
@@ -19,6 +18,10 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
         internal AnalyzersSettings Settings { get; set; }
 
         protected DiagnosticDescriptor ArgumentMatcherUsedWithoutSpecifyingCall { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.NonSubstitutableMemberArgumentMatcherUsage;
+
+        protected override string AnalyzerSettings => Settings != null ? Json.Encode(Settings) : null;
+
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberArgumentMatcherAnalyzer();
 
         [Theory]
         [MemberData(nameof(MisusedArgTestCases))]
@@ -107,11 +110,6 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
         // VisualBasic specific case
         [Fact]
         public abstract Task ReportsNoDiagnostic_WhenOverloadCannotBeInferred();
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new NonSubstitutableMemberArgumentMatcherAnalyzer();
-        }
 
         public static IEnumerable<object[]> MisusedArgTestCases
         {
@@ -225,16 +223,6 @@ End Function)|]"
 End Function)|]"
                 };
             }
-        }
-
-        protected override string GetSettings()
-        {
-            return Settings != null ? Json.Encode(Settings) : null;
-        }
-
-        protected override CompilationOptions GetCompilationOptions()
-        {
-            return new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optionStrict: OptionStrict.Off);
         }
     }
 }

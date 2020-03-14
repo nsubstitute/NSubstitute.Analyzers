@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +15,20 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.Internal
 {
     public class InternalSetupSpecificationCodeFixActionsTests : VisualBasicCodeFixActionsVerifier, IInternalSetupSpecificationCodeFixActionsVerifier
     {
+        private static readonly MetadataReference[] AdditionalMetadataReferences =
+        {
+            GetInternalLibraryMetadataReference()
+        };
+
+        public InternalSetupSpecificationCodeFixActionsTests()
+            : base(VisualBasicWorkspaceFactory.Default.WithAdditionalMetadataReferences(AdditionalMetadataReferences))
+        {
+        }
+
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberAnalyzer();
+
+        protected override CodeFixProvider CodeFixProvider { get; } = new InternalSetupSpecificationCodeFixProvider();
+
         [Fact]
         public async Task CreateCodeActions_InProperOrder()
         {
@@ -58,26 +71,11 @@ End Namespace";
             await VerifyCodeActions(source);
         }
 
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new NonSubstitutableMemberAnalyzer();
-        }
-
-        protected override CodeFixProvider GetCodeFixProvider()
-        {
-            return new InternalSetupSpecificationCodeFixProvider();
-        }
-
-        protected override IEnumerable<MetadataReference> GetAdditionalMetadataReferences()
-        {
-            return new[] { GetInternalLibraryMetadataReference() };
-        }
-
-        private static PortableExecutableReference GetInternalLibraryMetadataReference()
+        private static MetadataReference GetInternalLibraryMetadataReference()
         {
             var syntaxTree = VisualBasicSyntaxTree.ParseText($@"Imports System.Runtime.CompilerServices
 
-<Assembly: InternalsVisibleTo(""{TestProjectName}"")>
+<Assembly: InternalsVisibleTo(""{Shared.WorkspaceFactory.DefaultProjectName}"")>
 Namespace ExternalNamespace
     Public Class InternalFoo
         Friend Overridable Function Bar() As Integer

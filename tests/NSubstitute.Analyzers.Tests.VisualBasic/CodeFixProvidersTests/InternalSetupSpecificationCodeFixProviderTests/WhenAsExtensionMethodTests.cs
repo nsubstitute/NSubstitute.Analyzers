@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
-using NSubstitute.Analyzers.VisualBasic.CodeFixProviders;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.InternalSetupSpecificationCodeFixProviderTests
@@ -9,6 +8,8 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.Internal
     [CombinatoryData("When")]
     public class WhenAsExtensionMethodTests : InternalSetupSpecificationCodeFixProviderVerifier
     {
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberWhenAnalyzer();
+
         public override async Task ChangesInternalToPublic_ForIndexer_WhenUsedWithInternalMember(string method)
         {
             var oldSource = $@"Imports NSubstitute
@@ -363,11 +364,6 @@ Namespace MyNamespace
 End Namespace
 ";
             await VerifyFix(oldSource, newSource, 2);
-        }
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new NonSubstitutableMemberWhenAnalyzer();
         }
     }
 }

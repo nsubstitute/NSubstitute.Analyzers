@@ -2,7 +2,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.Shared;
-using NSubstitute.Analyzers.Tests.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using NSubstitute.Analyzers.VisualBasic;
@@ -14,6 +13,8 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Unuse
     public abstract class UnusedReceivedDiagnosticVerifier : VisualBasicDiagnosticVerifier, IUnusedReceivedDiagnosticVerifier
     {
         protected DiagnosticDescriptor Descriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.UnusedReceived;
+
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new UnusedReceivedAnalyzer();
 
         [CombinatoryTheory]
         [InlineData]
@@ -38,10 +39,5 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Unuse
         [CombinatoryTheory]
         [InlineData]
         public abstract Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod(string method);
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new UnusedReceivedAnalyzer();
-        }
     }
 }

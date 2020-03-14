@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.VisualBasic;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.VisualBasic.CompilerServices;
 using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 
@@ -13,18 +11,11 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests
             MetadataReference.CreateFromFile(typeof(StandardModuleAttribute).Assembly.Location)
         };
 
-        protected override string Language { get; } = LanguageNames.VisualBasic;
-
-        protected override string FileExtension { get; } = "vb";
-
-        protected override CompilationOptions GetCompilationOptions()
+        protected VisualBasicSuppressDiagnosticSettingsVerifier()
+            : base(VisualBasicWorkspaceFactory.Default
+                .WithOptionStrictOn()
+                .WithAdditionalMetadataReferences(AdditionalReferences))
         {
-            return new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optionStrict: OptionStrict.On);
-        }
-
-        protected override IEnumerable<MetadataReference> GetAdditionalMetadataReferences()
-        {
-            return AdditionalReferences;
         }
     }
 }

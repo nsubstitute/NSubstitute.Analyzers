@@ -8,6 +8,8 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.Internal
     [CombinatoryData("SubstituteExtensions.When")]
     public class WhenAsOrdinaryMethodTests : InternalSetupSpecificationCodeFixProviderVerifier
     {
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberWhenAnalyzer();
+
         public override async Task ChangesInternalToPublic_ForIndexer_WhenUsedWithInternalMember(string method)
         {
             var oldSource = $@"Imports NSubstitute
@@ -362,11 +364,6 @@ Namespace MyNamespace
 End Namespace
 ";
             await VerifyFix(oldSource, newSource, 2);
-        }
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new NonSubstitutableMemberWhenAnalyzer();
         }
     }
 }

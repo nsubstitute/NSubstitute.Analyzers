@@ -16,6 +16,8 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitu
 
         protected DiagnosticDescriptor InternalSetupSpecificationDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.InternalSetupSpecification;
 
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberWhenAnalyzer();
+
         [CombinatoryTheory]
         [InlineData("sub => [|sub.Bar(Arg.Any<int>())|]")]
         [InlineData("delegate(Foo sub) { [|sub.Bar(Arg.Any<int>())|]; }")]
@@ -165,10 +167,5 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitu
         [InlineData("sub => sub.FooBar(Arg.Any<int>())")]
         [InlineData("sub => { var x = sub[Arg.Any<int>()]; }")]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call);
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new NonSubstitutableMemberWhenAnalyzer();
-        }
     }
 }

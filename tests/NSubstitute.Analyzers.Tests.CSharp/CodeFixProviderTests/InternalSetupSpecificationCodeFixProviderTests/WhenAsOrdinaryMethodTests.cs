@@ -8,6 +8,8 @@ namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.InternalSetupS
     [CombinatoryData("SubstituteExtensions.When")]
     public class WhenAsOrdinaryMethodTests : InternalSetupSpecificationCodeFixProviderVerifier
     {
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberWhenAnalyzer();
+
         public override async Task ChangesInternalToPublic_ForIndexer_WhenUsedWithInternalMember(string method)
         {
             var oldSource = $@"using NSubstitute;
@@ -377,11 +379,6 @@ namespace MyNamespace
     }}
 }}";
             await VerifyFix(oldSource, newSource, 2);
-        }
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new NonSubstitutableMemberWhenAnalyzer();
         }
     }
 }

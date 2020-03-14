@@ -10,6 +10,10 @@ namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.PartialSubstit
 {
     public class PartialSubstituteUsedForUnsupportedTypeCodeFixProviderTests : CSharpCodeFixVerifier, IForPartsOfUsedForUnsupportedTypeCodeFixVerifier
     {
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
+
+        protected override CodeFixProvider CodeFixProvider { get; } = new PartialSubstituteUsedForUnsupportedTypeCodeFixProvider();
+
         [Fact]
         public async Task ReplacesForPartsOf_WithFor_WhenUsedWithInterface()
         {
@@ -152,16 +156,6 @@ namespace MyNamespace
 }";
 
             await VerifyFix(oldSource, newSource);
-        }
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new SubstituteAnalyzer();
-        }
-
-        protected override CodeFixProvider GetCodeFixProvider()
-        {
-            return new PartialSubstituteUsedForUnsupportedTypeCodeFixProvider();
         }
     }
 }

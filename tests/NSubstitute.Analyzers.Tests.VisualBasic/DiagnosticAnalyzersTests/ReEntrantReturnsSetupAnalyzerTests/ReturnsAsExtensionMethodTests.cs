@@ -48,7 +48,7 @@ End Namespace
                 $"{method}() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) OtherReturn())."
             };
 
-            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
             await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
@@ -93,7 +93,7 @@ End Namespace
                 $"{method}() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) OtherReturn())."
             };
 
-            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
             await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
@@ -137,7 +137,7 @@ End Namespace
                 $"{method}() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) OtherReturn())."
             };
 
-            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
             await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
@@ -193,7 +193,7 @@ End Namespace
                 $"{method}() is set with a method that itself calls {method}. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) NestedReturnThis())."
             };
 
-            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span.Span, span.LineSpan)).ToArray();
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
             await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }

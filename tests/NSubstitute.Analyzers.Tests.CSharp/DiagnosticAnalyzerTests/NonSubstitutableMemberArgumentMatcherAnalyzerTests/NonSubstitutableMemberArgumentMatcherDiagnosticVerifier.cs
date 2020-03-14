@@ -10,13 +10,17 @@ using NSubstitute.Analyzers.Shared.TinyJson;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMatcherAnalyzerTests
+namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitutableMemberArgumentMatcherAnalyzerTests
 {
     public abstract class NonSubstitutableMemberArgumentMatcherDiagnosticVerifier : CSharpDiagnosticVerifier, INonSubstitutableMemberArgumentMatcherDiagnosticVerifier
     {
         internal AnalyzersSettings Settings { get; set; }
 
         protected DiagnosticDescriptor ArgumentMatcherUsedWithoutSpecifyingCall { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.NonSubstitutableMemberArgumentMatcherUsage;
+
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberArgumentMatcherAnalyzer();
+
+        protected override string AnalyzerSettings => Settings != null ? Json.Encode(Settings) : null;
 
         [Theory]
         [MemberData(nameof(MisusedArgTestCases))]
@@ -102,11 +106,6 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMat
         [MemberData(nameof(CorrectlyUsedArgTestCasesWithoutCasts))]
         public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod(string arg);
 
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new NonSubstitutableMemberArgumentMatcherAnalyzer();
-        }
-
         public static IEnumerable<object[]> MisusedArgTestCases
         {
             get
@@ -176,11 +175,6 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ArgumentMat
                 yield return new object[] { "Arg.InvokeDelegate<int>()" };
                 yield return new object[] { "Arg.Compat.InvokeDelegate<int>()" };
             }
-        }
-
-        protected override string GetSettings()
-        {
-            return Settings != null ? Json.Encode(Settings) : null;
         }
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +15,20 @@ namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.SubstituteForI
 {
     public class SubstituteForInternalMemberCodeFixActionsTests : CSharpCodeFixActionsVerifier, ISubstituteForInternalMemberCodeFixActionsVerifier
     {
+        private static readonly MetadataReference[] AdditionalMetadataReferences =
+        {
+            GetInternalLibraryMetadataReference()
+        };
+
+        public SubstituteForInternalMemberCodeFixActionsTests()
+            : base(CSharpWorkspaceFactory.Default.WithAdditionalMetadataReferences(AdditionalMetadataReferences))
+        {
+        }
+
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
+
+        protected override CodeFixProvider CodeFixProvider { get; } = new SubstituteForInternalMemberCodeFixProvider();
+
         [Fact]
         public async Task CreatesCorrectCodeFixActions_WhenSourceForInternalType_IsAvailable()
         {
@@ -85,26 +98,11 @@ namespace MyNamespace
             await VerifyCodeActions(source);
         }
 
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new SubstituteAnalyzer();
-        }
-
-        protected override CodeFixProvider GetCodeFixProvider()
-        {
-            return new SubstituteForInternalMemberCodeFixProvider();
-        }
-
-        protected override IEnumerable<MetadataReference> GetAdditionalMetadataReferences()
-        {
-            return new[] { GetInternalLibraryMetadataReference() };
-        }
-
-        private static PortableExecutableReference GetInternalLibraryMetadataReference()
+        private static MetadataReference GetInternalLibraryMetadataReference()
         {
             var syntaxTree = CSharpSyntaxTree.ParseText($@"
 using System.Runtime.CompilerServices;
-[assembly: InternalsVisibleTo(""{TestProjectName}"")]
+[assembly: InternalsVisibleTo(""{Shared.WorkspaceFactory.DefaultProjectName}"")]
 namespace ExternalNamespace
 {{
     internal class InternalFoo
