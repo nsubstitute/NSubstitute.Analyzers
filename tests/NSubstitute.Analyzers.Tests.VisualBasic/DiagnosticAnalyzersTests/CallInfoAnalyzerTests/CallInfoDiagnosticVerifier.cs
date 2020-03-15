@@ -24,6 +24,8 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallI
 
         protected DiagnosticDescriptor CallInfoArgumentSetWithIncompatibleValueDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.CallInfoArgumentSetWithIncompatibleValue;
 
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new CallInfoAnalyzer();
+
         [CombinatoryTheory]
         [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo.ArgAt(Of Integer)(1)")]
         [InlineData("substitute(Arg.Any(Of Integer)())", "Dim x = callInfo(1)")]
@@ -334,10 +336,5 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallI
         [InlineData("IDictionary(Of String, Object)", "New Dictionary(Of String, Object)()")]
         [InlineData("IReadOnlyDictionary(Of String, Object)", "New Dictionary(Of String, Object)()")]
         public abstract Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string method, string left, string right);
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new CallInfoAnalyzer();
-        }
     }
 }

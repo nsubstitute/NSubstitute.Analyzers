@@ -11,6 +11,10 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.Internal
 {
     public abstract class InternalSetupSpecificationCodeFixProviderVerifier : VisualBasicCodeFixVerifier, IInternalSetupSpecificationCodeFixProviderVerifier
     {
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberAnalyzer();
+
+        protected override CodeFixProvider CodeFixProvider { get; } = new InternalSetupSpecificationCodeFixProvider();
+
         [CombinatoryTheory]
         [InlineData]
         public abstract Task ChangesInternalToPublic_ForIndexer_WhenUsedWithInternalMember(string method);
@@ -40,15 +44,5 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.Internal
         [InlineData(".FooBar()")]
         [InlineData("(0)")]
         public abstract Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalMember(string method, string call);
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new NonSubstitutableMemberAnalyzer();
-        }
-
-        protected override CodeFixProvider GetCodeFixProvider()
-        {
-            return new InternalSetupSpecificationCodeFixProvider();
-        }
     }
 }

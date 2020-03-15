@@ -12,6 +12,10 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.NonSubst
     public class NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixTests
         : VisualBasicSuppressDiagnosticSettingsVerifier, INonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixVerifier
     {
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberArgumentMatcherAnalyzer();
+
+        protected override CodeFixProvider CodeFixProvider { get; } = new NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider();
+
         [Fact]
         public async Task SuppressesDiagnosticsInSettings_WhenArgMatcherUsedInNonVirtualMethod()
         {
@@ -112,16 +116,6 @@ End Namespace
 ";
 
             await VerifySuppressionSettings(source, "N:MyNamespace", DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage, codeFixIndex: 2);
-        }
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new NonSubstitutableMemberArgumentMatcherAnalyzer();
-        }
-
-        protected override CodeFixProvider GetCodeFixProvider()
-        {
-            return new NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider();
         }
     }
 }

@@ -1,7 +1,5 @@
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.CSharp.CodeFixProviders;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
@@ -12,6 +10,15 @@ namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.ReEntrantSetup
 {
     public abstract class ReEntrantSetupCodeFixVerifier : CSharpCodeFixVerifier, IReEntrantSetupCodeFixProviderVerifier
     {
+        protected ReEntrantSetupCodeFixVerifier()
+            : base(CSharpWorkspaceFactory.Default.WithWarningLevel(1))
+        {
+        }
+
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new ReEntrantSetupAnalyzer();
+
+        protected override CodeFixProvider CodeFixProvider { get; } = new ReEntrantSetupCodeFixProvider();
+
         [Theory]
         [InlineData("CreateReEntrantSubstitute(), CreateDefaultValue(), 1", "_ => CreateReEntrantSubstitute(), _ => CreateDefaultValue(), _ => 1")]
         [InlineData("CreateReEntrantSubstitute(), new [] { CreateDefaultValue(), 1 }", "_ => CreateReEntrantSubstitute(), new System.Func<NSubstitute.Core.CallInfo, int>[] { _ => CreateDefaultValue(), _ => 1 }")]
@@ -23,20 +30,5 @@ namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.ReEntrantSetup
 
         [Fact]
         public abstract Task ReplacesArgumentExpression_WithLambdaWithReducedTypes_WhenGeneratingArrayParamsArgument();
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new ReEntrantSetupAnalyzer();
-        }
-
-        protected override CodeFixProvider GetCodeFixProvider()
-        {
-            return new ReEntrantSetupCodeFixProvider();
-        }
-
-        protected override CompilationOptions GetCompilationOptions()
-        {
-            return new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, warningLevel: 1);
-        }
     }
 }

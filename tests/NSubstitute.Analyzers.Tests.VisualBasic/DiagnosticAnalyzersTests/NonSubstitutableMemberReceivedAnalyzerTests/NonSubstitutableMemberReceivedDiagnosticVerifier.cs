@@ -16,6 +16,8 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
 
         protected DiagnosticDescriptor InternalSetupSpecificationDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.InternalSetupSpecification;
 
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberReceivedAnalyzer();
+
         [CombinatoryTheory]
         [InlineData]
         public abstract Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualMethod(string method);
@@ -103,10 +105,5 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
         [CombinatoryTheory]
         [InlineData]
         public abstract Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method);
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new NonSubstitutableMemberReceivedAnalyzer();
-        }
     }
 }

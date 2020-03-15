@@ -10,6 +10,10 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.NonSubst
 {
     public abstract class NonSubstitutableMemberSuppressDiagnosticsCodeFixVerifier : VisualBasicSuppressDiagnosticSettingsVerifier, INonSubstitutableMemberSuppressDiagnosticsCodeFixVerifier
     {
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberAnalyzer();
+
+        protected override CodeFixProvider CodeFixProvider { get; } = new NonSubstitutableMemberSuppressDiagnosticsCodeFixProvider();
+
         [Fact]
         public abstract Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualMethod();
 
@@ -33,15 +37,5 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.NonSubst
 
         [Fact]
         public abstract Task SuppressesDiagnosticsInSettingsForNamespace_WhenSettingsValueForNonVirtualMember_AndSelectingNamespaceSuppression();
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new NonSubstitutableMemberAnalyzer();
-        }
-
-        protected override CodeFixProvider GetCodeFixProvider()
-        {
-            return new NonSubstitutableMemberSuppressDiagnosticsCodeFixProvider();
-        }
     }
 }

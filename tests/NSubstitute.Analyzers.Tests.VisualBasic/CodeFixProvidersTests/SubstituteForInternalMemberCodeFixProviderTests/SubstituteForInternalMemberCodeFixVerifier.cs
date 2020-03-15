@@ -9,6 +9,10 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.Substitu
 {
     public abstract class SubstituteForInternalMemberCodeFixVerifier : VisualBasicCodeFixVerifier, ISubstituteForInternalMemberCodeFixVerifier
     {
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
+
+        protected override CodeFixProvider CodeFixProvider { get; } = new SubstituteForInternalMemberCodeFixProvider();
+
         public abstract Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalClass();
 
         public abstract Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass();
@@ -20,15 +24,5 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.Substitu
         public abstract Task DoesNot_AppendsInternalsVisibleTo_WhenUsedWithPublicClass();
 
         public abstract Task DoesNot_AppendsInternalsVisibleTo_WhenInternalsVisibleToAppliedToDynamicProxyGenAssembly2();
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new SubstituteAnalyzer();
-        }
-
-        protected override CodeFixProvider GetCodeFixProvider()
-        {
-            return new SubstituteForInternalMemberCodeFixProvider();
-        }
     }
 }

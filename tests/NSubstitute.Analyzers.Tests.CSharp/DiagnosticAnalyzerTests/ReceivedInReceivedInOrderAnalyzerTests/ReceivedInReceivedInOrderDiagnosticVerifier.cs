@@ -14,6 +14,8 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ReceivedInR
     {
         protected DiagnosticDescriptor Descriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReceivedUsedInReceivedInOrder;
 
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new ReceivedInReceivedInOrderAnalyzer();
+
         [CombinatoryTheory]
         [InlineData]
         public abstract Task ReportsDiagnostic_WhenUsingReceivedLikeMethodInReceivedInOrderBlock_ForMethod(string method);
@@ -33,10 +35,5 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ReceivedInR
         [CombinatoryTheory]
         [InlineData]
         public abstract Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method);
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new ReceivedInReceivedInOrderAnalyzer();
-        }
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +15,20 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.Substitu
 {
     public class SubstituteForInternalMemberCodeFixActionsTests : VisualBasicCodeFixActionsVerifier, ISubstituteForInternalMemberCodeFixActionsVerifier
     {
+        private static readonly MetadataReference[] AdditionalMetadataReferences =
+        {
+            GetInternalLibraryMetadataReference()
+        };
+
+        public SubstituteForInternalMemberCodeFixActionsTests()
+            : base(VisualBasicWorkspaceFactory.Default.WithAdditionalMetadataReferences(AdditionalMetadataReferences))
+        {
+        }
+
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
+
+        protected override CodeFixProvider CodeFixProvider { get; } = new SubstituteForInternalMemberCodeFixProvider();
+
         [Fact]
         public async Task CreatesCorrectCodeFixActions_WhenSourceForInternalType_IsAvailable()
         {
@@ -77,27 +90,12 @@ End Namespace
             await VerifyCodeActions(source);
         }
 
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new SubstituteAnalyzer();
-        }
-
-        protected override CodeFixProvider GetCodeFixProvider()
-        {
-            return new SubstituteForInternalMemberCodeFixProvider();
-        }
-
-        protected override IEnumerable<MetadataReference> GetAdditionalMetadataReferences()
-        {
-            return new[] { GetInternalLibraryMetadataReference() };
-        }
-
         private static PortableExecutableReference GetInternalLibraryMetadataReference()
         {
             var syntaxTree = VisualBasicSyntaxTree.ParseText($@"
 Imports System.Runtime.CompilerServices
 
-<Assembly: InternalsVisibleTo(""{TestProjectName}"")>
+<Assembly: InternalsVisibleTo(""{Shared.WorkspaceFactory.DefaultProjectName}"")>
 Namespace ExternalNamespace
     Friend Class InternalFoo
     End Class

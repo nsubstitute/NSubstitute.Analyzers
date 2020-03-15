@@ -13,6 +13,8 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Async
     {
         private readonly DiagnosticDescriptor _descriptor = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.AsyncCallbackUsedInReceivedInOrder;
 
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new AsyncReceivedInOrderCallbackAnalyzer();
+
         [Fact]
         public async Task ReportsDiagnostic_WhenAsyncLambdaCallbackUsedInReceivedInOrder()
         {
@@ -137,11 +139,6 @@ End Namespace
 ";
 
             await VerifyNoDiagnostic(source);
-        }
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-           return new AsyncReceivedInOrderCallbackAnalyzer();
         }
     }
 }
