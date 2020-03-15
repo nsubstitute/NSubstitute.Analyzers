@@ -26,3 +26,4 @@
 | [NS4000](NS4000.md) | Call configuration | Calling substitute from within `Returns` block. |
 | [NS5000](NS5000.md) | Usage | Checking received calls without specifying member. |
 | [NS5001](NS5001.md) | Usage | Usage of received-like method in `Received.InOrder` callback. |
+| [NS5002](NS5002.md) | Usage | Usage of async callback in `Received.InOrder` method. |

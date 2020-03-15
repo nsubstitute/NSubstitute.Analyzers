@@ -51,5 +51,7 @@ namespace NSubstitute.Analyzers.Shared
         DiagnosticDescriptor NonSubstitutableMemberArgumentMatcherUsage { get; }
 
         DiagnosticDescriptor ReceivedUsedInReceivedInOrder { get; }
+
+        DiagnosticDescriptor AsyncCallbackUsedInReceivedInOrder { get; }
     }
 }
