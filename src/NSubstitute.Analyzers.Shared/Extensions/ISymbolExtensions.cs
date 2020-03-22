@@ -37,6 +37,11 @@ namespace NSubstitute.Analyzers.Shared.Extensions
             return $"{symbol.ContainingType}.{minimumDisplayString}";
         }
 
+        public static string ToMinimalSymbolString(this ISymbol symbol, SemanticModel semanticModel)
+        {
+            return symbol.ToMinimalDisplayString(semanticModel, 0, SymbolDisplayFormat.CSharpErrorMessageFormat);
+        }
+
         public static bool IsLocal(this ISymbol symbol)
         {
             return symbol != null && symbol.Kind == SymbolKind.Local;

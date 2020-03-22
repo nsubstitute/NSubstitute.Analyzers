@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using FluentAssertions;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Tests.Shared.Extensions;
@@ -70,6 +71,33 @@ namespace NSubstitute.Analyzers.Tests.Shared.Fixtures
                     $"because each analyzer should support only selected language ${expectedLanguage}");
         }
 
+        public void AssertCodeRefactoringProviderInheritanceFromAssemblyContaining<T>()
+        {
+            AssertCodeRefactoringProviderInheritanceFromAssemblyContaining(typeof(T));
+        }
+
+        public void AssertCodeRefactoringProviderInheritanceFromAssemblyContaining(Type type)
+        {
+            var codeRefactoringProviders = GetCodeRefactoringProviders(type.Assembly);
+            codeRefactoringProviders.Should().OnlyContain(analyzer => analyzer.IsSealed);
+        }
+
+        public void AssertExportCodeRefactoringProviderAttributeUsageFromAssemblyContaining<T>(string expectedLanguage)
+        {
+            AssertExportCodeRefactoringProviderAttributeUsageFromAssemblyContaining(typeof(T), expectedLanguage);
+        }
+
+        public void AssertExportCodeRefactoringProviderAttributeUsageFromAssemblyContaining(Type type, string expectedLanguage)
+        {
+            var codeRefactoringProviders = GetCodeRefactoringProviders(type.Assembly).ToList();
+
+            codeRefactoringProviders.Should().OnlyContain(innerType => innerType.GetCustomAttributes<ExportCodeRefactoringProviderAttribute>(false).Count() == 1, "because each code refactoring provider should be marked with only one attribute ExportCodeRefactoringProviderAttribute");
+            codeRefactoringProviders.SelectMany(innerType => innerType.GetCustomAttributes<ExportCodeRefactoringProviderAttribute>(false)).Should()
+                .OnlyContain(
+                    attr => attr.Languages.Length == 1 && attr.Languages.Count(lang => lang == expectedLanguage) == 1,
+                    $"because each code refactoring provider should support only selected language ${expectedLanguage}");
+        }
+
         private IEnumerable<Type> GetDiagnosticAnalyzers(Assembly assembly)
         {
             return assembly.GetTypesAssignableTo<DiagnosticAnalyzer>();
@@ -78,6 +106,11 @@ namespace NSubstitute.Analyzers.Tests.Shared.Fixtures
         private IEnumerable<Type> GetCodeFixProviders(Assembly assembly)
         {
             return assembly.GetTypesAssignableTo<CodeFixProvider>();
+        }
+
+        private IEnumerable<Type> GetCodeRefactoringProviders(Assembly assembly)
+        {
+            return assembly.GetTypesAssignableTo<CodeRefactoringProvider>();
         }
     }
 }

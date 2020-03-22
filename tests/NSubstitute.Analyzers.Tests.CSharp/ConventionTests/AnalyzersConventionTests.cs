@@ -37,5 +37,17 @@ namespace NSubstitute.Analyzers.Tests.CSharp.ConventionTests
         {
             _fixture.AssertCodeFixProviderInheritanceFromAssemblyContaining<NonSubstitutableMemberAnalyzer>();
         }
+
+        [Fact]
+        public void CodeRefactoringProvidersAttributeConventionsShouldBeSatisfied()
+        {
+            _fixture.AssertExportCodeRefactoringProviderAttributeUsageFromAssemblyContaining<NonSubstitutableMemberAnalyzer>(LanguageNames.CSharp);
+        }
+
+        [Fact]
+        public void CodeRefactoringProvidersInheritanceHierarchyShouldBeSatisfied()
+        {
+            _fixture.AssertCodeRefactoringProviderInheritanceFromAssemblyContaining<NonSubstitutableMemberAnalyzer>();
+        }
     }
 }
