@@ -277,7 +277,8 @@ End Namespace
             await VerifyFix(oldSource, newSource, 0);
         }
 
-        public override async Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalMember(string method, string call)
+        public override async Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalMember(
+            string method, string call)
         {
             var oldSource = $@"Imports NSubstitute
 Imports System.Runtime.CompilerServices
@@ -311,7 +312,7 @@ End Namespace
 Imports System.Runtime.CompilerServices
 
 <Assembly: InternalsVisibleTo(""OtherAssembly"")>
-<Assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""DynamicProxyGenAssembly2"")>
+<Assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")>
 Namespace MyNamespace
     Public Class Foo
         Friend Overridable ReadOnly Property Bar As Integer
@@ -331,6 +332,49 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             Dim x = {method}(substitute){call}
+        End Sub
+    End Class
+End Namespace
+";
+            await VerifyFix(oldSource, newSource, 2);
+        }
+
+        public override async Task AppendsInternalsVisibleToWithFullyQualifiedName_WhenUsedWithInternalMemberAndCompilerServicesNotImported(string method)
+        {
+            var oldSource = $@"Imports NSubstitute
+
+<Assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""OtherAssembly"")>
+Namespace MyNamespace
+    Public Class Foo
+        Friend Overridable Function FooBar() As Integer
+            Return 1
+        End Function
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim x = {method}(substitute).FooBar()
+        End Sub
+    End Class
+End Namespace
+";
+
+            var newSource = $@"Imports NSubstitute
+
+<Assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""OtherAssembly"")>
+<Assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""DynamicProxyGenAssembly2"")>
+Namespace MyNamespace
+    Public Class Foo
+        Friend Overridable Function FooBar() As Integer
+            Return 1
+        End Function
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim x = {method}(substitute).FooBar()
         End Sub
     End Class
 End Namespace

@@ -17,5 +17,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
         Task AppendsProtectedInternal_ToMethod_WhenUsedWithInternalMember(string method);
 
         Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalMember(string method, string call);
+
+        Task AppendsInternalsVisibleToWithFullyQualifiedName_WhenUsedWithInternalMemberAndCompilerServicesNotImported(string method);
     }
 }

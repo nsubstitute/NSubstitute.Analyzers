@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.Editing;
 
 namespace NSubstitute.Analyzers.Shared.Extensions
 {
-    internal static class SyntaxGeneratorExtension
+    internal static class SyntaxGeneratorExtensions
     {
         public static SyntaxNode SubstituteForInvocationExpression(
             this SyntaxGenerator syntaxGenerator,
@@ -20,6 +20,16 @@ namespace NSubstitute.Analyzers.Shared.Extensions
             var invocationExpression = syntaxGenerator.InvocationExpression(memberAccessExpression);
 
             return invocationExpression;
+        }
+
+        public static SyntaxNode InternalVisibleToDynamicProxyAttributeList(this SyntaxGenerator syntaxGenerator)
+        {
+            var attributeArguments =
+                syntaxGenerator.AttributeArgument(syntaxGenerator.LiteralExpression("DynamicProxyGenAssembly2"));
+
+            return syntaxGenerator.Attribute(
+                "System.Runtime.CompilerServices.InternalsVisibleTo",
+                attributeArguments);
         }
     }
 }

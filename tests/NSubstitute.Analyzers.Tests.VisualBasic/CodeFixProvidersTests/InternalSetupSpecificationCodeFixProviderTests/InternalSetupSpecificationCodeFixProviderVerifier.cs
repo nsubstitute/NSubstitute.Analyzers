@@ -44,5 +44,9 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.Internal
         [InlineData(".FooBar()")]
         [InlineData("(0)")]
         public abstract Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalMember(string method, string call);
+
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task AppendsInternalsVisibleToWithFullyQualifiedName_WhenUsedWithInternalMemberAndCompilerServicesNotImported(string method);
     }
 }
