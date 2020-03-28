@@ -9,9 +9,7 @@ namespace NSubstitute.Analyzers.Shared.Extensions
             this SyntaxGenerator syntaxGenerator,
             IParameterSymbol parameterSymbol)
         {
-            var qualifiedName = syntaxGenerator.QualifiedName(
-                syntaxGenerator.IdentifierName("NSubstitute"),
-                syntaxGenerator.IdentifierName("Substitute"));
+            var qualifiedName = syntaxGenerator.DottedName("NSubstitute.Substitute");
 
             var genericName = syntaxGenerator.GenericName("For", syntaxGenerator.TypeExpression(parameterSymbol.Type));
 

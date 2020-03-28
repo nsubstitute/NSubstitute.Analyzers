@@ -8,19 +8,20 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Operations;
-using Microsoft.CodeAnalysis.Simplification;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 {
-    internal abstract class AbstractReEntrantSetupCodeFixProvider<TArgumentListSyntax, TArgumentSyntax> : CodeFixProvider
+    internal abstract class AbstractReEntrantSetupCodeFixProvider<TArgumentListSyntax, TArgumentSyntax, TTypeSyntax> : CodeFixProvider
         where TArgumentListSyntax : SyntaxNode
         where TArgumentSyntax : SyntaxNode
+        where TTypeSyntax : SyntaxNode
     {
         public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.ReEntrantSubstituteCall);
 
         protected abstract TArgumentSyntax CreateUpdatedArgumentSyntaxNode(TArgumentSyntax argumentSyntaxNode);
 
-        protected abstract TArgumentSyntax CreateUpdatedParamsArgumentSyntaxNode(SyntaxGenerator syntaxGenerator, ITypeSymbol returnedTypeSymbol, TArgumentSyntax argumentSyntaxNode);
+        protected abstract TArgumentSyntax CreateUpdatedParamsArgumentSyntaxNode(TArgumentSyntax argumentSyntaxNode, TTypeSyntax typeSyntax);
 
         protected abstract SyntaxNode GetArgumentExpressionSyntax(TArgumentSyntax argumentSyntax);
 
@@ -53,7 +54,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             var codeAction = CodeAction.Create(
                 "Replace with lambda",
                 ct => CreateChangedDocument(context, argumentList, allArguments, ct),
-                nameof(AbstractReEntrantSetupCodeFixProvider<TArgumentListSyntax, TArgumentSyntax>));
+                nameof(AbstractReEntrantSetupCodeFixProvider<TArgumentListSyntax, TArgumentSyntax, TTypeSyntax>));
 
             context.RegisterCodeFix(codeAction, diagnostic);
         }
@@ -82,10 +83,9 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             {
                 if (IsArrayParamsArgument(semanticModel, argumentSyntax))
                 {
-                    var updatedParamsArgumentSyntaxNode = CreateUpdatedParamsArgumentSyntaxNode(
-                        SyntaxGenerator.GetGenerator(context.Document),
-                        methodSymbol.TypeArguments.FirstOrDefault() ?? methodSymbol.ReceiverType,
-                        argumentSyntax);
+                    var arrayType = GetArrayTypeSymbol(semanticModel, methodSymbol);
+                    var arrayTypeExpression = documentEditor.Generator.TypeExpression(arrayType).Cast<TTypeSyntax>();
+                    var updatedParamsArgumentSyntaxNode = CreateUpdatedParamsArgumentSyntaxNode(argumentSyntax, arrayTypeExpression);
 
                     documentEditor.ReplaceNode(argumentSyntax, updatedParamsArgumentSyntaxNode);
                 }
@@ -97,7 +97,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
                 }
             }
 
-            return await Simplifier.ReduceAsync(documentEditor.GetChangedDocument(), cancellationToken: ct);
+            return documentEditor.GetChangedDocument();
         }
 
         private bool IsFixSupported(SemanticModel semanticModel, IEnumerable<TArgumentSyntax> arguments)
@@ -122,6 +122,17 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
         {
             var argumentListSyntax = diagnosticNode.Ancestors().OfType<TArgumentListSyntax>().FirstOrDefault();
             return argumentListSyntax;
+        }
+
+        private static INamedTypeSymbol GetArrayTypeSymbol(SemanticModel semanticModel, IMethodSymbol methodSymbol)
+        {
+            var typeArgument = methodSymbol.TypeArguments.FirstOrDefault() ?? methodSymbol.ReceiverType;
+            var funcTypeSymbol = semanticModel.Compilation.GetTypeByMetadataName("System.Func`2");
+            var callInfoTypeSymbol =
+                semanticModel.Compilation.GetTypeByMetadataName(MetadataNames.NSubstituteCallInfoFullTypeName);
+            var arrayType = funcTypeSymbol.Construct(callInfoTypeSymbol, typeArgument);
+
+            return arrayType;
         }
     }
 }

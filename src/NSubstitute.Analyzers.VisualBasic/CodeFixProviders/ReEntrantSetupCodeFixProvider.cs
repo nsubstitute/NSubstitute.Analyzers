@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Editing;
-using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.VisualBasic;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using NSubstitute.Analyzers.Shared.CodeFixProviders;
@@ -14,7 +12,7 @@ using static Microsoft.CodeAnalysis.VisualBasic.SyntaxFactory;
 namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders
 {
     [ExportCodeFixProvider(LanguageNames.VisualBasic)]
-    internal sealed class ReEntrantSetupCodeFixProvider : AbstractReEntrantSetupCodeFixProvider<ArgumentListSyntax, ArgumentSyntax>
+    internal sealed class ReEntrantSetupCodeFixProvider : AbstractReEntrantSetupCodeFixProvider<ArgumentListSyntax, ArgumentSyntax, TypeSyntax>
     {
         protected override ArgumentSyntax CreateUpdatedArgumentSyntaxNode(ArgumentSyntax argumentSyntaxNode)
         {
@@ -31,7 +29,7 @@ namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders
             return argumentSyntaxNode;
         }
 
-        protected override ArgumentSyntax CreateUpdatedParamsArgumentSyntaxNode(SyntaxGenerator syntaxGenerator, ITypeSymbol typeSymbol, ArgumentSyntax argumentSyntaxNode)
+        protected override ArgumentSyntax CreateUpdatedParamsArgumentSyntaxNode(ArgumentSyntax argumentSyntaxNode, TypeSyntax typeSyntax)
         {
             if (!(argumentSyntaxNode is SimpleArgumentSyntax simpleArgumentSyntax))
             {
@@ -45,15 +43,13 @@ namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders
             {
                 case ArrayCreationExpressionSyntax arrayCreationExpressionSyntax:
                     resultArrayCreationExpressionSyntax = CreateArrayCreationExpression(
-                        syntaxGenerator,
-                        typeSymbol,
-                        arrayCreationExpressionSyntax.Initializer.Initializers);
+                        arrayCreationExpressionSyntax.Initializer.Initializers,
+                        typeSyntax);
                     break;
                 case CollectionInitializerSyntax implicitArrayCreationExpressionSyntax:
                     resultArrayCreationExpressionSyntax = CreateArrayCreationExpression(
-                        syntaxGenerator,
-                        typeSymbol,
-                        implicitArrayCreationExpressionSyntax.Initializers);
+                        implicitArrayCreationExpressionSyntax.Initializers,
+                        typeSyntax);
                     break;
                 default:
                     throw new ArgumentException($"{argumentSyntaxNode.Kind()} is not recognized as array initialization", nameof(argumentSyntaxNode));
@@ -80,31 +76,34 @@ namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders
         }
 
         private static ArrayCreationExpressionSyntax CreateArrayCreationExpression(
-            SyntaxGenerator syntaxGenerator,
-            ITypeSymbol typeSymbol,
-            SeparatedSyntaxList<ExpressionSyntax> initializers)
+            SeparatedSyntaxList<ExpressionSyntax> initializers, TypeSyntax typeSyntax)
         {
-            var typeNode = CreateTypeNode(syntaxGenerator, typeSymbol);
             var syntaxes = CreateSingleLineLambdaExpressions(initializers);
 
-            var initializer = CollectionInitializer(syntaxes);
+            var initializer = CollectionInitializer(SeparatedList<ExpressionSyntax>(syntaxes));
             var arrayRankSpecifierSyntaxes = SingletonList(ArrayRankSpecifier());
 
-            return ArrayCreationExpression(Token(SyntaxKind.NewKeyword), new SyntaxList<AttributeListSyntax>(), typeNode, null, arrayRankSpecifierSyntaxes, initializer);
+            return ArrayCreationExpression(
+                Token(SyntaxKind.NewKeyword),
+                List<AttributeListSyntax>(),
+                typeSyntax,
+                null,
+                arrayRankSpecifierSyntaxes,
+                initializer);
         }
 
-        private static SeparatedSyntaxList<ExpressionSyntax> CreateSingleLineLambdaExpressions(SeparatedSyntaxList<ExpressionSyntax> expressions)
+        private static IEnumerable<SingleLineLambdaExpressionSyntax> CreateSingleLineLambdaExpressions(SeparatedSyntaxList<ExpressionSyntax> expressions)
         {
-            var singleLineLambdaExpressionSyntaxes = expressions.Select<ExpressionSyntax, ExpressionSyntax>(CreateSingleLineLambdaExpression);
+            var singleLineLambdaExpressionSyntaxes = expressions.Select(CreateSingleLineLambdaExpression);
 
-            return SeparatedList(singleLineLambdaExpressionSyntaxes);
+            return singleLineLambdaExpressionSyntaxes;
         }
 
         private static SingleLineLambdaExpressionSyntax CreateSingleLineLambdaExpression(ExpressionSyntax expressionSyntax)
         {
             var separatedSyntaxList = SeparatedList(SingletonList(Parameter(ModifiedIdentifier(Identifier("x")))));
             var functionLambdaHeader = FunctionLambdaHeader(
-                new SyntaxList<AttributeListSyntax>(),
+                List<AttributeListSyntax>(),
                 TokenList(),
                 ParameterList(separatedSyntaxList),
                 null);
@@ -114,27 +113,6 @@ namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders
                 functionLambdaHeader,
                 expressionSyntax.WithLeadingTrivia());
             return lambdaExpression;
-        }
-
-        private static QualifiedNameSyntax CreateTypeNode(SyntaxGenerator syntaxGenerator, ITypeSymbol type)
-        {
-            var typeSyntax = (TypeSyntax)syntaxGenerator.TypeExpression(type);
-            var typeArgumentListSyntax = TypeArgumentList(
-                SeparatedList<TypeSyntax>(
-                    new SyntaxNodeOrToken[]
-                    {
-                        QualifiedName(
-                            QualifiedName(
-                                IdentifierName("NSubstitute"),
-                                IdentifierName("Core")),
-                            IdentifierName("CallInfo")),
-                        Token(SyntaxKind.CommaToken),
-                        typeSyntax
-                    }));
-
-            var qualifiedNameSyntax = QualifiedName(IdentifierName("System"), GenericName(Identifier("Func"), typeArgumentListSyntax));
-
-            return qualifiedNameSyntax.WithAdditionalAnnotations(Simplifier.Annotation);
         }
     }
 }
