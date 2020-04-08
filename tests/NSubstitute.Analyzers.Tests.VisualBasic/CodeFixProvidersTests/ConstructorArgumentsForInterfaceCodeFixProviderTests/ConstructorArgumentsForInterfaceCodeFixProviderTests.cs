@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
@@ -11,6 +10,10 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.Construc
 {
     public class ConstructorArgumentsForInterfaceCodeFixProviderTests : VisualBasicCodeFixVerifier, IConstructorArgumentsForInterfaceCodeFixVerifier
     {
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
+
+        protected override CodeFixProvider CodeFixProvider { get; } = new ConstructorArgumentsForInterfaceCodeFixProvider();
+
         [Fact]
         public async Task RemovesInvocationArguments_WhenGenericFor_UsedWithParametersForInterface()
         {
@@ -108,16 +111,6 @@ Namespace MyNamespace
 End Namespace
 ";
             await VerifyFix(source, newSource);
-        }
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new SubstituteAnalyzer();
-        }
-
-        protected override CodeFixProvider GetCodeFixProvider()
-        {
-            return new ConstructorArgumentsForInterfaceCodeFixProvider();
         }
     }
 }

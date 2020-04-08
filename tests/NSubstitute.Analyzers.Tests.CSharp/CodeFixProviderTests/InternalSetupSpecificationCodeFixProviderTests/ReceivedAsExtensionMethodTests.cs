@@ -1,8 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
-using NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitutableMemberReceivedAnalyzerTests;
-using NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitutableMemberWhenAnalyzerTests;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.InternalSetupSpecificationCodeFixProviderTests
@@ -10,6 +8,8 @@ namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.InternalSetupS
     [CombinatoryData("Received")]
     public class ReceivedAsExtensionMethodTests : InternalSetupSpecificationCodeFixProviderVerifier
     {
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberReceivedAnalyzer();
+
         public override async Task ChangesInternalToPublic_ForIndexer_WhenUsedWithInternalMember(string method)
         {
             var oldSource = $@"using NSubstitute;
@@ -350,7 +350,7 @@ namespace MyNamespace
             var newSource = $@"using NSubstitute;
 using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo(""OtherAssembly"")]
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
+[assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
 
 namespace MyNamespace
 {{
@@ -381,9 +381,55 @@ namespace MyNamespace
             await VerifyFix(oldSource, newSource, 2);
         }
 
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
+        public override async Task AppendsInternalsVisibleToWithFullyQualifiedName_WhenUsedWithInternalMemberAndCompilerServicesNotImported(string method)
         {
-            return new NonSubstitutableMemberReceivedAnalyzer();
+            var oldSource = $@"using NSubstitute;
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""OtherAssembly"")]
+
+namespace MyNamespace
+{{
+    public class Foo
+    {{
+        internal virtual int FooBar()
+        {{
+            return 1;
+        }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            var x = substitute.{method}().FooBar();
+        }}
+    }}
+}}";
+
+            var newSource = $@"using NSubstitute;
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""OtherAssembly"")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
+
+namespace MyNamespace
+{{
+    public class Foo
+    {{
+        internal virtual int FooBar()
+        {{
+            return 1;
+        }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            var x = substitute.{method}().FooBar();
+        }}
+    }}
+}}";
+            await VerifyFix(oldSource, newSource, 2);
         }
     }
 }

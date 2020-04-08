@@ -14,6 +14,8 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.ReEnt
     {
         protected DiagnosticDescriptor Descriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ReEntrantSubstituteCall;
 
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new ReEntrantSetupAnalyzer();
+
         [CombinatoryTheory]
         [InlineData("substitute.Foo().Returns(1)")]
         [InlineData("substitute.Foo().Returns(1) \n\rOtherReturn()")]
@@ -130,10 +132,5 @@ barr = fooBar")]
         [CombinatoryTheory]
         [InlineData]
         public abstract Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegateInArrayParams_AndReEntrantReturnsForAnyArgsCallExists(string method);
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new ReEntrantSetupAnalyzer();
-        }
     }
 }

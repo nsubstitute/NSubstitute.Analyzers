@@ -11,6 +11,10 @@ namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.NonSubstitutab
 {
     public class NonSubstitutableMemberSuppressDiagnosticsCodeFixActionsTests : CSharpCodeFixActionsVerifier, INonSubstitutableMemberSuppressDiagnosticsCodeFixActionsVerifier
     {
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberAnalyzer();
+
+        protected override CodeFixProvider CodeFixProvider { get; } = new NonSubstitutableMemberSuppressDiagnosticsCodeFixProvider();
+
         [Fact]
         public async Task CreatesCorrectCodeFixActions_ForIndexer()
         {
@@ -99,16 +103,6 @@ namespace MyNamespace
                 $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for class Foo in nsubstitute.json",
                 $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for namespace MyNamespace in nsubstitute.json"
             });
-        }
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new NonSubstitutableMemberAnalyzer();
-        }
-
-        protected override CodeFixProvider GetCodeFixProvider()
-        {
-            return new NonSubstitutableMemberSuppressDiagnosticsCodeFixProvider();
         }
     }
 }

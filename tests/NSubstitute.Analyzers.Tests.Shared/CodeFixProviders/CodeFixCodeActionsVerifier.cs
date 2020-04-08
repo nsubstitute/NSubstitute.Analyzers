@@ -4,43 +4,65 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.Shared.TinyJson;
+using NSubstitute.Analyzers.Tests.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
 {
-    public abstract class CodeFixCodeActionsVerifier : CodeFixVerifier
+    public abstract class CodeFixCodeActionsVerifier : CodeVerifier
     {
+        protected CodeFixCodeActionsVerifier(WorkspaceFactory workspaceFactory)
+            : base(workspaceFactory)
+        {
+        }
+
+        protected abstract CodeFixProvider CodeFixProvider { get; }
+
+        protected abstract DiagnosticAnalyzer DiagnosticAnalyzer { get; }
+
+        protected override string AnalyzerSettings { get; } = Json.Encode(new object());
+
         protected async Task VerifyCodeActions(string source, params string[] expectedCodeActionTitles)
         {
-            var codeActions = await ApplyFixProvider(GetDiagnosticAnalyzer(), GetCodeFixProvider(), source);
+            var codeActions = await RegisterCodeFixes(source);
 
             codeActions.Should().NotBeNull();
             codeActions.Select(action => action.Title).Should().BeEquivalentTo(expectedCodeActionTitles ?? Array.Empty<string>());
         }
 
-        protected override string GetSettings()
+        private async Task<List<CodeAction>> RegisterCodeFixes(string source)
         {
-            return Json.Encode(new object());
-        }
-
-        private async Task<List<CodeAction>> ApplyFixProvider(DiagnosticAnalyzer analyzer, CodeFixProvider codeFixProvider, string source)
-        {
-            var document = CreateDocument(source);
-            var analyzerDiagnostics = await GetSortedDiagnosticsFromDocuments(analyzer, new[] { document }, false);
-            var attempts = analyzerDiagnostics.Length;
-
-            var actions = new List<CodeAction>();
-
-            for (var i = 0; i < attempts; ++i)
+            using (var workspace = new AdhocWorkspace())
             {
-                var context = new CodeFixContext(document, analyzerDiagnostics[0], (a, d) => actions.Add(a), CancellationToken.None);
-                await codeFixProvider.RegisterCodeFixesAsync(context);
-            }
+                var actions = new List<CodeAction>();
+                var project = AddProject(workspace.CurrentSolution, source);
 
-            return actions;
+                var document = project.Documents.Single();
+
+                var compilation = await document.Project.GetCompilationAsync();
+                var compilationDiagnostics = compilation.GetDiagnostics();
+
+                VerifyNoCompilerDiagnosticErrors(compilationDiagnostics);
+
+                var analyzerDiagnostics = await compilation.GetSortedAnalyzerDiagnostics(
+                    DiagnosticAnalyzer,
+                    project.AnalyzerOptions);
+
+                foreach (var context in analyzerDiagnostics.Select(diagnostic => new CodeFixContext(
+                    document,
+                    analyzerDiagnostics[0],
+                    (action, array) => actions.Add(action),
+                    CancellationToken.None)))
+                {
+                    await CodeFixProvider.RegisterCodeFixesAsync(context);
+                }
+
+                return actions;
+            }
         }
     }
 }

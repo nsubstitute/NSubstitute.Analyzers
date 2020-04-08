@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NSubstitute.Analyzers.Shared.Extensions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static Microsoft.CodeAnalysis.Editing.SyntaxGenerator;
 
 namespace NSubstitute.Analyzers.CSharp.Refactorings
 {
@@ -14,27 +15,14 @@ namespace NSubstitute.Analyzers.CSharp.Refactorings
     {
         public static Task<Document> RefactorAsync(Document document, CompilationUnitSyntax compilationUnitSyntax, CancellationToken cancellationToken = default)
         {
-            var addAttributeLists = compilationUnitSyntax.AddAttributeLists(
-                AttributeList(
-                    AttributeTargetSpecifier(
-                        Token(SyntaxKind.AssemblyKeyword)),
-                    SingletonSeparatedList(
-                        Attribute(
-                            QualifiedName(
-                                QualifiedName(
-                                    QualifiedName(
-                                        IdentifierName("System"),
-                                        IdentifierName("Runtime")),
-                                    IdentifierName("CompilerServices")),
-                                IdentifierName("InternalsVisibleTo")),
-                            AttributeArgumentList(
-                                SingletonSeparatedList(
-                                    AttributeArgument(
-                                        LiteralExpression(
-                                            SyntaxKind.StringLiteralExpression,
-                                            Literal("DynamicProxyGenAssembly2")))))))));
+            var attributeList = GetGenerator(document)
+                .InternalVisibleToDynamicProxyAttributeList()
+                .Cast<AttributeListSyntax>()
+                .WithTarget(AttributeTargetSpecifier(
+                    Token(SyntaxKind.AssemblyKeyword)));
 
-            return document.ReplaceNodeAsync(compilationUnitSyntax, addAttributeLists, CancellationToken.None);
+            var updatedCompilationUnitSyntax = compilationUnitSyntax.AddAttributeLists(attributeList);
+            return document.ReplaceNodeAsync(compilationUnitSyntax, updatedCompilationUnitSyntax, cancellationToken);
         }
 
         public static void RegisterCodeFix(CodeFixContext context, Diagnostic diagnostic, CompilationUnitSyntax compilationUnitSyntax)

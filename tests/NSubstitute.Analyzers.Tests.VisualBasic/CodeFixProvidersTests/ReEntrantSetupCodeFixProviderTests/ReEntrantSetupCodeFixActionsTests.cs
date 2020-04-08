@@ -11,6 +11,10 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.ReEntran
 {
     public class ReEntrantSetupCodeFixActionsTests : VisualBasicCodeFixActionsVerifier, IReEntrantSetupCodeFixActionsVerifier
     {
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new ReEntrantSetupAnalyzer();
+
+        protected override CodeFixProvider CodeFixProvider { get; } = new ReEntrantSetupCodeFixProvider();
+
         [Theory]
         [InlineData("Await CreateReEntrantSubstituteAsync(), Await CreateDefaultValue()")]
         [InlineData("CreateReEntrantSubstitute(), Await CreateDefaultValue()")]
@@ -83,16 +87,6 @@ Namespace MyNamespace
 End Namespace
 ";
             await VerifyCodeActions(source, Array.Empty<string>());
-        }
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new ReEntrantSetupAnalyzer();
-        }
-
-        protected override CodeFixProvider GetCodeFixProvider()
-        {
-            return new ReEntrantSetupCodeFixProvider();
         }
     }
 }

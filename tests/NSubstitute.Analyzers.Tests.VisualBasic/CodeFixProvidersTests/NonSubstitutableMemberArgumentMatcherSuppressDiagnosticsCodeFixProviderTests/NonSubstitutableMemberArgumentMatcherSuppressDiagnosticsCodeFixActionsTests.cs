@@ -12,6 +12,10 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.NonSubst
 {
     public class NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixActionsTests : VisualBasicCodeFixActionsVerifier, INonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixActionsVerifier
     {
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberArgumentMatcherAnalyzer();
+
+        protected override CodeFixProvider CodeFixProvider { get; } = new NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider();
+
         [Fact]
         public async Task CreatesCorrectCodeFixActions_ForIndexer()
         {
@@ -111,16 +115,6 @@ Namespace MyNamespace
     End Class
 End Namespace";
             await VerifyCodeActions(source, Array.Empty<string>());
-        }
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new NonSubstitutableMemberArgumentMatcherAnalyzer();
-        }
-
-        protected override CodeFixProvider GetCodeFixProvider()
-        {
-            return new NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider();
         }
     }
 }

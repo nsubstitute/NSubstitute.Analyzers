@@ -20,6 +20,10 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
 
         protected DiagnosticDescriptor InternalSetupSpecificationDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.InternalSetupSpecification;
 
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberAnalyzer();
+
+        protected override string AnalyzerSettings => Settings != null ? Json.Encode(Settings) : null;
+
         [CombinatoryTheory]
         [InlineData]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method);
@@ -163,15 +167,5 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
         [InlineData(".FooBar()")]
         [InlineData("(0)")]
         public abstract Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call);
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new NonSubstitutableMemberAnalyzer();
-        }
-
-        protected override string GetSettings()
-        {
-            return Settings != null ? Json.Encode(Settings) : null;
-        }
     }
 }

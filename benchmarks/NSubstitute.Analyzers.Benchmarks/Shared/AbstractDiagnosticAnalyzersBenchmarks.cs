@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Engines;
 using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers.Benchmarks.Shared
@@ -32,6 +31,10 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
         protected abstract AnalyzerBenchmark UnusedReceivedAnalyzerBenchmark { get; }
 
         protected abstract AnalyzerBenchmark ArgumentMatcherAnalyzerBenchmark { get; }
+
+        protected abstract AnalyzerBenchmark ReceivedInReceivedInOrderAnalyzerBenchmark { get; }
+
+        protected abstract AnalyzerBenchmark AsyncReceivedInOrderCallbackAnalyzerBenchmark { get; }
 
         protected abstract AbstractSolutionLoader SolutionLoader { get; }
 
@@ -98,6 +101,18 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
         public void ArgumentMatcherAnalyzer()
         {
             ArgumentMatcherAnalyzerBenchmark.Run();
+        }
+
+        [Benchmark]
+        public void ReceivedInReceivedInOrderAnalyzer()
+        {
+            ReceivedInReceivedInOrderAnalyzerBenchmark.Run();
+        }
+
+        [Benchmark]
+        public void AsyncReceivedInOrderCallbackAnalyzer()
+        {
+            AsyncReceivedInOrderCallbackAnalyzerBenchmark.Run();
         }
 
         [IterationCleanup(Target = nameof(ArgumentMatcherAnalyzer))]

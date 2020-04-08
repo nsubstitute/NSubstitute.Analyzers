@@ -27,6 +27,8 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.SubstituteA
 
         protected DiagnosticDescriptor PartialSubstituteForUnsupportedTypeDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.PartialSubstituteForUnsupportedType;
 
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
+
 #pragma warning disable xUnit1013 // Public method should be marked as test
         [Fact]
         public abstract Task ReturnsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor();
@@ -70,10 +72,5 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.SubstituteA
         [Fact]
         public abstract Task ReturnsNoDiagnostic_WhenUsedWithGenericArgument();
 #pragma warning restore xUnit1013 // Public method should be marked as test
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new SubstituteAnalyzer();
-        }
     }
 }

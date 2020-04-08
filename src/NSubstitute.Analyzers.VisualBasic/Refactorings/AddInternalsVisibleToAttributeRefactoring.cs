@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -6,6 +7,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.VisualBasic;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using NSubstitute.Analyzers.Shared.Extensions;
+using static Microsoft.CodeAnalysis.Editing.SyntaxGenerator;
 using static Microsoft.CodeAnalysis.VisualBasic.SyntaxFactory;
 
 namespace NSubstitute.Analyzers.VisualBasic.Refactorings
@@ -14,23 +16,19 @@ namespace NSubstitute.Analyzers.VisualBasic.Refactorings
     {
         public static Task<Document> RefactorAsync(Document document, CompilationUnitSyntax compilationUnitSyntax, CancellationToken cancellationToken = default)
         {
-            var addAttributeLists = compilationUnitSyntax.AddAttributes(
-                AttributesStatement(SingletonList(
-                    AttributeList(SingletonSeparatedList(Attribute(
-                        AttributeTarget(Token(SyntaxKind.AssemblyKeyword)),
-                        QualifiedName(
-                            QualifiedName(
-                                QualifiedName(
-                                    IdentifierName("System"),
-                                    IdentifierName("Runtime")),
-                                IdentifierName("CompilerServices")),
-                            IdentifierName("InternalsVisibleTo")),
-                        ArgumentList(SingletonSeparatedList<ArgumentSyntax>(SimpleArgument(
-                            LiteralExpression(
-                                SyntaxKind.StringLiteralExpression,
-                                Literal("DynamicProxyGenAssembly2")))))))))));
+            var attributeList = GetGenerator(document)
+                .InternalVisibleToDynamicProxyAttributeList()
+                .Cast<AttributeListSyntax>();
 
-            return document.ReplaceNodeAsync(compilationUnitSyntax, addAttributeLists, CancellationToken.None);
+            var assemblyAttributes = attributeList.Attributes.Select(attr =>
+                attr.WithTarget(AttributeTarget(Token(SyntaxKind.AssemblyKeyword))));
+
+            attributeList = attributeList.WithAttributes(SeparatedList(assemblyAttributes));
+
+            var updatedCompilationUnitSyntax =
+                compilationUnitSyntax.AddAttributes(AttributesStatement(SingletonList(attributeList)));
+
+            return document.ReplaceNodeAsync(compilationUnitSyntax, updatedCompilationUnitSyntax, cancellationToken);
         }
 
         public static void RegisterCodeFix(CodeFixContext context, Diagnostic diagnostic, CompilationUnitSyntax compilationUnitSyntax)

@@ -12,7 +12,9 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Confl
 {
     public abstract class ConflictingArgumentAssignmentsDiagnosticVerifier : VisualBasicDiagnosticVerifier, IConflictingArgumentAssignmentsDiagnosticVerifier
     {
-        public DiagnosticDescriptor Descriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ConflictingArgumentAssignments;
+        protected DiagnosticDescriptor Descriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.ConflictingArgumentAssignments;
+
+        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new ConflictingArgumentAssignmentsAnalyzer();
 
         [CombinatoryTheory]
         [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "callInfo(1) = 1", "[|callInfo(1)|] = 1")]
@@ -49,10 +51,5 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Confl
         [InlineData("substitute.Barr", "callInfo(1) = 1")]
         [InlineData("substitute(Arg.Any(Of Integer)())", "callInfo(1) = 1")]
         public abstract Task ReportsNoDiagnostic_When_AndDoesMethod_SetArgument_AndPreviousMethod_IsNotUsedWithCallInfo(string method, string call, string andDoesArgAccess);
-
-        protected override DiagnosticAnalyzer GetDiagnosticAnalyzer()
-        {
-            return new ConflictingArgumentAssignmentsAnalyzer();
-        }
     }
 }

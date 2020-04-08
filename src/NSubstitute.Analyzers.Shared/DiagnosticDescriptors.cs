@@ -197,6 +197,20 @@ namespace NSubstitute.Analyzers.Shared
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true);
 
+        public static DiagnosticDescriptor ReceivedUsedInReceivedInOrder { get; } = CreateDiagnosticDescriptor(
+            name: nameof(ReceivedUsedInReceivedInOrder),
+            id: DiagnosticIdentifiers.ReceivedUsedInReceivedInOrder,
+            category: DiagnosticCategory.Usage.GetDisplayName(),
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
+
+        public static DiagnosticDescriptor AsyncCallbackUsedInReceivedInOrder { get; } = CreateDiagnosticDescriptor(
+            name: nameof(AsyncCallbackUsedInReceivedInOrder),
+            id: DiagnosticIdentifiers.AsyncCallbackUsedInReceivedInOrder,
+            category: DiagnosticCategory.Usage.GetDisplayName(),
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
+
         private static DiagnosticDescriptor CreateDiagnosticDescriptor(
             string name, string id, string category, DiagnosticSeverity defaultSeverity, bool isEnabledByDefault)
         {
