@@ -1,3 +1,10 @@
+### 1.0.13 (8 April 2020)
+
+- [#142](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/142) - Simplify InternalVisibilityTo when System.Runtime.CompilerServices in scope
+- [#138](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/138) - Quick-action for introducing substitute in constructor argument
+- [#135](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/135) - Detect usages of Received like methods in Received.InOrder block
+- [#134](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/134) - Detect async callback in Received.InOrder
+
 ### 1.0.12 (5 February 2020)
 
 - [#131](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/131) - NS5000 is not reported for ReceivedExtensions.Received calls 
