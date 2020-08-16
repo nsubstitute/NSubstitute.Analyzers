@@ -1,14 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractNonSubstitutableMemberAnalyzer<TSyntaxKind, TInvocationExpressionSyntax> : AbstractDiagnosticAnalyzer
+    internal abstract class AbstractNonSubstitutableMemberAnalyzer<TSyntaxKind, TInvocationExpressionSyntax> : AbstractNonSubstitutableSetupAnalyzer
         where TInvocationExpressionSyntax : SyntaxNode
         where TSyntaxKind : struct
     {
@@ -20,33 +18,25 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract ImmutableHashSet<int> SupportedMemberAccesses { get; }
 
-        protected abstract ImmutableHashSet<Type> KnownNonVirtualSyntaxKinds { get; }
-
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
         protected AbstractNonSubstitutableMemberAnalyzer(
             IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
-            ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder)
-            : base(diagnosticDescriptorsProvider)
+            ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder,
+            INonSubstitutableMemberAnalysis nonSubstitutableMemberAnalysis)
+            : base(diagnosticDescriptorsProvider, nonSubstitutableMemberAnalysis)
         {
             _analyzeInvocationAction = AnalyzeInvocation;
             _substitutionNodeFinder = substitutionNodeFinder;
             SupportedDiagnostics = ImmutableArray.Create(DiagnosticDescriptorsProvider.NonVirtualSetupSpecification, DiagnosticDescriptorsProvider.InternalSetupSpecification);
+            NonVirtualSetupDescriptor = diagnosticDescriptorsProvider.NonVirtualSetupSpecification;
         }
+
+        protected override DiagnosticDescriptor NonVirtualSetupDescriptor { get; }
 
         protected override void InitializeAnalyzer(AnalysisContext context)
         {
             context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
-        }
-
-        protected virtual bool? CanBeSetuped(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode accessedMember, SymbolInfo symbolInfo)
-        {
-            if (KnownNonVirtualSyntaxKinds.Contains(accessedMember.GetType()))
-            {
-                return false;
-            }
-
-            return symbolInfo.Symbol?.CanBeSetuped();
         }
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
@@ -76,28 +66,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            var accessedSymbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(accessedMember);
-
-            var canBeSetuped = CanBeSetuped(syntaxNodeContext, accessedMember, accessedSymbol);
-            if (canBeSetuped.HasValue && canBeSetuped == false)
-            {
-                var diagnostic = Diagnostic.Create(
-                    DiagnosticDescriptorsProvider.NonVirtualSetupSpecification,
-                    accessedMember.GetLocation(),
-                    accessedSymbol.Symbol?.Name ?? accessedMember.ToString());
-
-                TryReportDiagnostic(syntaxNodeContext, diagnostic, accessedSymbol.Symbol);
-            }
-
-            if (accessedSymbol.Symbol != null && canBeSetuped.HasValue && canBeSetuped == true && accessedSymbol.Symbol.MemberVisibleToProxyGenerator() == false)
-            {
-                var diagnostic = Diagnostic.Create(
-                    DiagnosticDescriptorsProvider.InternalSetupSpecification,
-                    accessedMember.GetLocation(),
-                    accessedSymbol.Symbol.Name);
-
-                syntaxNodeContext.ReportDiagnostic(diagnostic);
-            }
+            Analyze(syntaxNodeContext, accessedMember);
         }
 
         private bool IsValidForAnalysis(SyntaxNode accessedMember)

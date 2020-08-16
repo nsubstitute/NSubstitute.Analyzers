@@ -54,7 +54,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
                     (int)SyntaxKind.VariableDeclarator));
 
         public NonSubstitutableMemberArgumentMatcherAnalyzer()
-            : base(NSubstitute.Analyzers.CSharp.DiagnosticDescriptorsProvider.Instance)
+            : base(NonSubstitutableMemberAnalysis.Instance, NSubstitute.Analyzers.CSharp.DiagnosticDescriptorsProvider.Instance)
         {
         }
 

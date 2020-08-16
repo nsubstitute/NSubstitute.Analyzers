@@ -6,6 +6,12 @@ namespace NSubstitute.Analyzers.Shared
     {
         DiagnosticDescriptor NonVirtualSetupSpecification { get; }
 
+        DiagnosticDescriptor NonVirtualReceivedSetupSpecification { get; }
+
+        DiagnosticDescriptor NonVirtualWhenSetupSpecification { get; }
+
+        DiagnosticDescriptor NonVirtualReceivedInOrderSetupSpecification { get; }
+
         DiagnosticDescriptor InternalSetupSpecification { get; }
 
         DiagnosticDescriptor UnusedReceived { get; }
@@ -27,10 +33,6 @@ namespace NSubstitute.Analyzers.Shared
         DiagnosticDescriptor SubstituteConstructorArgumentsForInterface { get; }
 
         DiagnosticDescriptor SubstituteConstructorArgumentsForDelegate { get; }
-
-        DiagnosticDescriptor NonVirtualReceivedSetupSpecification { get; }
-
-        DiagnosticDescriptor NonVirtualWhenSetupSpecification { get; }
 
         DiagnosticDescriptor ReEntrantSubstituteCall { get; }
 

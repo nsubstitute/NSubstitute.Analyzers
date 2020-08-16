@@ -19,7 +19,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
         public NonSubstitutableMemberReceivedAnalyzer()
-            : base(NSubstitute.Analyzers.CSharp.DiagnosticDescriptorsProvider.Instance)
+            : base(NSubstitute.Analyzers.CSharp.DiagnosticDescriptorsProvider.Instance, NonSubstitutableMemberAnalysis.Instance)
         {
         }
     }

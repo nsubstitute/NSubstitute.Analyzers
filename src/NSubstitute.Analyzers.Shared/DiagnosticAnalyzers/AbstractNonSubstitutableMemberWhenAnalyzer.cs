@@ -6,7 +6,7 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer<TSyntaxKind, TInvocationExpressionSyntax> : AbstractDiagnosticAnalyzer
+    internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer<TSyntaxKind, TInvocationExpressionSyntax> : AbstractNonSubstitutableSetupAnalyzer
         where TInvocationExpressionSyntax : SyntaxNode
         where TSyntaxKind : struct, Enum
     {
@@ -20,15 +20,19 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected AbstractNonSubstitutableMemberWhenAnalyzer(
             IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
-            ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder)
-            : base(diagnosticDescriptorsProvider)
+            ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder,
+            INonSubstitutableMemberAnalysis nonSubstitutableMemberAnalysis)
+            : base(diagnosticDescriptorsProvider, nonSubstitutableMemberAnalysis)
         {
             _substitutionNodeFinder = substitutionNodeFinder;
             _analyzeInvocationAction = AnalyzeInvocation;
             SupportedDiagnostics = ImmutableArray.Create(
                 DiagnosticDescriptorsProvider.NonVirtualWhenSetupSpecification,
                 DiagnosticDescriptorsProvider.InternalSetupSpecification);
+            NonVirtualSetupDescriptor = diagnosticDescriptorsProvider.NonVirtualWhenSetupSpecification;
         }
+
+        protected override DiagnosticDescriptor NonVirtualSetupDescriptor { get; }
 
         protected override void InitializeAnalyzer(AnalysisContext context)
         {
@@ -58,26 +62,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(analysedSyntax);
                 if (symbolInfo.Symbol != null)
                 {
-                    var canBeSetuped = symbolInfo.Symbol.CanBeSetuped();
-                    if (canBeSetuped == false)
-                    {
-                        var diagnostic = Diagnostic.Create(
-                            DiagnosticDescriptorsProvider.NonVirtualWhenSetupSpecification,
-                            analysedSyntax.GetLocation(),
-                            symbolInfo.Symbol.Name);
-
-                        syntaxNodeContext.ReportDiagnostic(diagnostic);
-                    }
-
-                    if (canBeSetuped && symbolInfo.Symbol.MemberVisibleToProxyGenerator() == false)
-                    {
-                        var diagnostic = Diagnostic.Create(
-                            DiagnosticDescriptorsProvider.InternalSetupSpecification,
-                            analysedSyntax.GetLocation(),
-                            symbolInfo.Symbol.Name);
-
-                        syntaxNodeContext.ReportDiagnostic(diagnostic);
-                    }
+                    Analyze(syntaxNodeContext, analysedSyntax, symbolInfo.Symbol);
                 }
             }
         }

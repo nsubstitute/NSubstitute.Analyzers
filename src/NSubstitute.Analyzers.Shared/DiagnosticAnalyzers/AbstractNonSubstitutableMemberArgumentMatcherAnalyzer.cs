@@ -12,15 +12,20 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
     {
         private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
 
+        private readonly INonSubstitutableMemberAnalysis _nonSubstitutableMemberAnalysis;
+
         protected abstract ImmutableArray<ImmutableArray<int>> AllowedAncestorPaths { get; }
 
         protected abstract ImmutableArray<ImmutableArray<int>> IgnoredAncestorPaths { get; }
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
-        protected AbstractNonSubstitutableMemberArgumentMatcherAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
+        protected AbstractNonSubstitutableMemberArgumentMatcherAnalyzer(
+            INonSubstitutableMemberAnalysis nonSubstitutableMemberAnalysis,
+            IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
             : base(diagnosticDescriptorsProvider)
         {
+            _nonSubstitutableMemberAnalysis = nonSubstitutableMemberAnalysis;
             _analyzeInvocationAction = AnalyzeInvocation;
             SupportedDiagnostics = ImmutableArray.Create(DiagnosticDescriptorsProvider.NonSubstitutableMemberArgumentMatcherUsage);
         }
@@ -81,15 +86,15 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            var canBeSetuped = enclosingExpressionSymbol.CanBeSetuped();
+            var analysisResult = _nonSubstitutableMemberAnalysis.Analyze(syntaxNodeContext, enclosingExpression);
 
-            if (canBeSetuped == false || enclosingExpressionSymbol.MemberVisibleToProxyGenerator() == false)
+            if (analysisResult.CanBeSubstituted == false)
             {
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.NonSubstitutableMemberArgumentMatcherUsage,
                     argInvocationExpression.GetLocation());
 
-                TryReportDiagnostic(syntaxNodeContext, diagnostic, enclosingExpressionSymbol);
+                syntaxNodeContext.TryReportDiagnostic(diagnostic, enclosingExpressionSymbol);
             }
         }
 

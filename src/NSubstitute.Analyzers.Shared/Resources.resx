@@ -401,4 +401,12 @@
     <value>Async callback used in Received.InOrder method.</value>
         <comment>The title of the diagnostic.</comment>
   </data>
+    <data name="NonVirtualReceivedInOrderSetupSpecificationDescription" xml:space="preserve">
+    <value>Non-virtual members can not be intercepted.</value>
+        <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+    <data name="NonVirtualReceivedInOrderSetupSpecificationTitle" xml:space="preserve">
+    <value>Non-virtual setup specification.</value>
+        <comment>The title of the diagnostic.</comment>
+  </data>
 </root>

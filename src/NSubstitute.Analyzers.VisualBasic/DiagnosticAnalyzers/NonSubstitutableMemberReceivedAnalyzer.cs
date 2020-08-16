@@ -17,7 +17,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
         public NonSubstitutableMemberReceivedAnalyzer()
-            : base(NSubstitute.Analyzers.VisualBasic.DiagnosticDescriptorsProvider.Instance)
+            : base(NSubstitute.Analyzers.VisualBasic.DiagnosticDescriptorsProvider.Instance, NonSubstitutableMemberAnalysis.Instance)
         {
         }
     }

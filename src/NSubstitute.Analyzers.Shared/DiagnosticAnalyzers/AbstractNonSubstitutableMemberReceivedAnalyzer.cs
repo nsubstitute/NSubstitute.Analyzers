@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractNonSubstitutableMemberReceivedAnalyzer<TSyntaxKind, TMemberAccessExpressionSyntax> : AbstractDiagnosticAnalyzer
+    internal abstract class AbstractNonSubstitutableMemberReceivedAnalyzer<TSyntaxKind, TMemberAccessExpressionSyntax> : AbstractNonSubstitutableSetupAnalyzer
         where TSyntaxKind : struct
         where TMemberAccessExpressionSyntax : SyntaxNode
     {
@@ -16,22 +14,32 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
-        protected AbstractNonSubstitutableMemberReceivedAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
-            : base(diagnosticDescriptorsProvider)
+        protected AbstractNonSubstitutableMemberReceivedAnalyzer(
+            IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
+            INonSubstitutableMemberAnalysis nonSubstitutableMemberAnalysis)
+            : base(diagnosticDescriptorsProvider, nonSubstitutableMemberAnalysis)
         {
             _analyzeInvocationAction = AnalyzeInvocation;
             SupportedDiagnostics = ImmutableArray.Create(
                 DiagnosticDescriptorsProvider.NonVirtualReceivedSetupSpecification,
                 DiagnosticDescriptorsProvider.InternalSetupSpecification);
+            NonVirtualSetupDescriptor = diagnosticDescriptorsProvider.NonVirtualReceivedSetupSpecification;
         }
 
         protected abstract ImmutableHashSet<int> PossibleParentsRawKinds { get; }
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
+        protected override DiagnosticDescriptor NonVirtualSetupDescriptor { get; }
+
         protected override void InitializeAnalyzer(AnalysisContext context)
         {
             context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
+        }
+
+        protected override Location GetSubstitutionNodeActualLocation(in NonSubstitutableMemberAnalysisResult analysisResult)
+        {
+            return analysisResult.Member.GetSubstitutionNodeActualLocation<TMemberAccessExpressionSyntax>(analysisResult.Symbol);
         }
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
@@ -65,37 +73,12 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            var canBeSetuped = symbolInfo.Symbol.CanBeSetuped();
-
-            if (canBeSetuped == false)
-            {
-                var diagnostic = Diagnostic.Create(
-                    DiagnosticDescriptorsProvider.NonVirtualReceivedSetupSpecification,
-                    GetSubstitutionNodeActualLocation(parentNode, symbolInfo.Symbol),
-                    symbolInfo.Symbol.Name);
-
-                syntaxNodeContext.ReportDiagnostic(diagnostic);
-            }
-
-            if (canBeSetuped && symbolInfo.Symbol != null && symbolInfo.Symbol.MemberVisibleToProxyGenerator() == false)
-            {
-                var diagnostic = Diagnostic.Create(
-                    DiagnosticDescriptorsProvider.InternalSetupSpecification,
-                    GetSubstitutionNodeActualLocation(parentNode, symbolInfo.Symbol),
-                    symbolInfo.Symbol.Name);
-
-                syntaxNodeContext.ReportDiagnostic(diagnostic);
-            }
+            Analyze(syntaxNodeContext, parentNode, symbolInfo.Symbol);
         }
 
         private SyntaxNode GetKnownParent(SyntaxNode receivedSyntaxNode)
         {
             return PossibleParentsRawKinds.Contains(receivedSyntaxNode.Parent.RawKind) ? receivedSyntaxNode.Parent : null;
-        }
-
-        private Location GetSubstitutionNodeActualLocation(SyntaxNode syntaxNode, ISymbol symbol)
-        {
-            return syntaxNode.GetSubstitutionNodeActualLocation<TMemberAccessExpressionSyntax>(symbol);
         }
     }
 }
