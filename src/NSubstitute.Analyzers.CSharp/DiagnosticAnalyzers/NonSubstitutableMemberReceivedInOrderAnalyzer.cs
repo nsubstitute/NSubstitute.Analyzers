@@ -14,12 +14,19 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
                 ImmutableArray.Create(
                     (int)SyntaxKind.Argument),
                 ImmutableArray.Create(
+                    (int)SyntaxKind.AwaitExpression,
+                    (int)SyntaxKind.Argument),
+                ImmutableArray.Create(
                     (int)SyntaxKind.CastExpression,
                     (int)SyntaxKind.Argument),
                 ImmutableArray.Create(
                     (int)SyntaxKind.AsExpression,
                     (int)SyntaxKind.Argument),
                 ImmutableArray.Create(
+                    (int)SyntaxKind.EqualsValueClause,
+                    (int)SyntaxKind.VariableDeclarator),
+                ImmutableArray.Create(
+                    (int)SyntaxKind.AwaitExpression,
                     (int)SyntaxKind.EqualsValueClause,
                     (int)SyntaxKind.VariableDeclarator),
                 ImmutableArray.Create(

@@ -29,7 +29,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
         public async Task ReportsDiagnostics_WhenInvokingNonVirtualMethodWithoutAssignment()
         {
             var source = @"Imports NSubstitute
-
+Imports System.Threading.Tasks
 Namespace MyNamespace
     Public Class Foo
         Public Function Bar() As Integer
@@ -37,14 +37,23 @@ Namespace MyNamespace
         End Function
     End Class
 
+    Public Class FooBar
+        Public Function Bar() As Task(Of Integer)
+            Return Task.FromResult(1)
+        End Function
+    End Class
+
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim otherSubstitute = NSubstitute.Substitute.[For](Of FooBar)()
             NSubstitute.Received.InOrder(Function()
                                  [|substitute.Bar()|]
                              End Function)
             NSubstitute.Received.InOrder(Function() [|substitute.Bar()|])
+            NSubstitute.Received.InOrder(Async Function() Await [|otherSubstitute.Bar()|])
             NSubstitute.Received.InOrder(Sub() [|substitute.Bar()|])
+            NSubstitute.Received.InOrder(Async Sub() Await [|otherSubstitute.Bar()|])
         End Sub
     End Class
 End Namespace
@@ -56,7 +65,7 @@ End Namespace
         public async Task ReportsDiagnostics_WhenInvokingNonVirtualMethodWithNonUsedAssignment()
         {
             var source = @"Imports NSubstitute
-
+Imports System.Threading.Tasks
 Namespace MyNamespace
     Public Class Foo
         Public Function Bar() As Integer
@@ -68,14 +77,25 @@ Namespace MyNamespace
         End Function
     End Class
 
+    Public Class FooBar
+        Public Function Bar() As Task(Of Integer)
+            Return Task.FromResult(1)
+        End Function
+    End Class
+
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim otherSubstitute = NSubstitute.Substitute.[For](Of FooBar)()
             NSubstitute.Received.InOrder(Function()
                                  [|substitute.Bar()|]
                                  Dim y = [|substitute.Bar()|]
                                  Dim z = CInt([|substitute.Bar()|])
                                  Dim zz = TryCast([|substitute.Bar()|], Object)
+                             End Function)
+            NSubstitute.Received.InOrder(Async Function()
+                                 Await [|otherSubstitute.Bar()|]
+                                 Dim y = Await [|otherSubstitute.Bar()|]
                              End Function)
         End Sub
     End Class
@@ -188,7 +208,7 @@ End Namespace
         public async Task ReportsNoDiagnostics_WhenInvokingNonVirtualMethodWithUsedAssignment()
         {
             var source = @"Imports NSubstitute
-
+Imports System.Threading.Tasks
 Namespace MyNamespace
     Public Class Foo
         Public Function Bar() As Integer
@@ -196,11 +216,22 @@ Namespace MyNamespace
         End Function
     End Class
 
+    Public Class FooBar
+        Public Function Bar() As Task(Of Integer)
+            Return Task.FromResult(1)
+        End Function
+    End Class
+
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim otherSubstitute = NSubstitute.Substitute.[For](Of FooBar)()
             NSubstitute.Received.InOrder(Function()
                                              Dim x = substitute.Bar()
+                                             Dim y = x
+                                         End Function)
+            NSubstitute.Received.InOrder(Async Function()
+                                             Dim x = Await otherSubstitute.Bar()
                                              Dim y = x
                                          End Function)
         End Sub
@@ -274,7 +305,7 @@ End Namespace
         public async Task ReportsNoDiagnostics_WhenNonVirtualMethodIsCalledAsArgument()
         {
             var source = @"Imports NSubstitute
-
+Imports System.Threading.Tasks
 Namespace MyNamespace
     Public Class Foo
         Public Overridable Function Bar(ByVal x As Object) As Integer
@@ -286,9 +317,16 @@ Namespace MyNamespace
         End Function
     End Class
 
+    Public Class FooBar
+        Public Function Bar() As Task(Of Integer)
+            Return Task.FromResult(1)
+        End Function
+    End Class
+
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            Dim otherSubstitute = NSubstitute.Substitute.[For](Of FooBar)()
             NSubstitute.Received.InOrder(Function()
                                              Dim local = 1
                                              Dim x = substitute.Bar(substitute.FooBar())
@@ -299,6 +337,9 @@ Namespace MyNamespace
                                              substitute.Bar(CType(substitute.FooBar(), Integer))
                                              substitute.Bar(local)
                                              substitute.Bar(1)
+                                         End Function)
+            NSubstitute.Received.InOrder(Async Function()
+                                             Dim x = substitute.Bar(Await otherSubstitute.Bar())
                                          End Function)
         End Sub
     End Class

@@ -29,7 +29,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitu
         public async Task ReportsDiagnostics_WhenInvokingNonVirtualMethodWithoutAssignment()
         {
             var source = @"using NSubstitute;
-
+using System.Threading.Tasks;
 namespace MyNamespace
 {
     public class Foo
@@ -40,17 +40,22 @@ namespace MyNamespace
         }
     }
 
+    public class FooBar
+    {
+        public Task Bar()
+        {
+           return Task.CompletedTask; 
+        }
+    }
+
     public class FooTests
     {
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
-            Received.InOrder(() =>
-            {
-                [|substitute.Bar()|]; 
-            });
-
+            var otherSubstitute = NSubstitute.Substitute.For<FooBar>();
             Received.InOrder(() => [|substitute.Bar()|]);
+            Received.InOrder(async () => await [|otherSubstitute.Bar()|]);
         }
     }
 }";
@@ -61,7 +66,7 @@ namespace MyNamespace
         public async Task ReportsDiagnostics_WhenInvokingNonVirtualMethodWithNonUsedAssignment()
         {
             var source = @"using NSubstitute;
-
+using System.Threading.Tasks;
 namespace MyNamespace
 {
     public class Foo
@@ -77,11 +82,20 @@ namespace MyNamespace
         }
     }
 
+    public class FooBar
+    {
+        public Task<int> Bar()
+        {
+           return Task.FromResult(1);
+        }
+    }
+
     public class FooTests
     {
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
+            var otherSubstitute = NSubstitute.Substitute.For<FooBar>();
             Received.InOrder(() =>
             {
                 [|substitute.Bar()|]; 
@@ -89,6 +103,10 @@ namespace MyNamespace
                 var y = [|substitute.Bar()|]; 
                 var z = (int)[|substitute.Bar()|]; 
                 var zz = [|substitute.Bar()|] as object; 
+            });
+            Received.InOrder(async () =>
+            {
+                var x = await [|otherSubstitute.Bar()|];
             });
         }
     }
@@ -208,7 +226,7 @@ namespace MyNamespace
         public async Task ReportsNoDiagnostics_WhenInvokingNonVirtualMethodWithUsedAssignment()
         {
             var source = @"using NSubstitute;
-
+using System.Threading.Tasks;
 namespace MyNamespace
 {
     public class Foo
@@ -219,11 +237,20 @@ namespace MyNamespace
         }
     }
 
+    public class FooBar
+    {
+        public Task<int> Bar()
+        {
+           return Task.FromResult(1);
+        }
+    }
+
     public class FooTests
     {
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
+            var otherSubstitute = NSubstitute.Substitute.For<FooBar>();
             Received.InOrder(() =>
             {
                 var a = substitute.Bar(); 
@@ -232,6 +259,11 @@ namespace MyNamespace
                 var aa = a;
                 var bb = b;
                 var cc = c;
+            });
+            Received.InOrder(async () =>
+            {
+                var a = await otherSubstitute.Bar();
+                var aa = a;
             });
         }
     }
@@ -299,7 +331,7 @@ namespace MyNamespace
         public async Task ReportsNoDiagnostics_WhenNonVirtualMethodIsCalledAsArgument()
         {
             var source = @"using NSubstitute;
-
+using System.Threading.Tasks;
 namespace MyNamespace
 {
     public class Foo
@@ -315,11 +347,20 @@ namespace MyNamespace
         }    
     }
 
+    public class FooBar
+    {
+        public Task<int> Bar()
+        {
+           return Task.FromResult(1);
+        }
+    }
+
     public class FooTests
     {
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>();
+            var otherSubstitute = NSubstitute.Substitute.For<FooBar>();
             Received.InOrder(() =>
             {
                 var local = 1;
@@ -329,6 +370,10 @@ namespace MyNamespace
                 substitute.Bar(substitute.FooBar() as object);
                 substitute.Bar(local);
                 substitute.Bar(1);
+            });
+            Received.InOrder(async () =>
+            {
+                substitute.Bar(await otherSubstitute.Bar());
             });
         }
     }

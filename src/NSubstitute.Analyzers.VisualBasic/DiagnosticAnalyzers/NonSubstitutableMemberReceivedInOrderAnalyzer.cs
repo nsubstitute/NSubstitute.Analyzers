@@ -12,30 +12,27 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
     {
         private static ImmutableArray<ImmutableArray<int>> IgnoredPaths { get; } = ImmutableArray.Create(
             ImmutableArray.Create(
-                (int)SyntaxKind.SimpleArgument,
-                (int)SyntaxKind.ArgumentList,
-                (int)SyntaxKind.InvocationExpression),
+                (int)SyntaxKind.SimpleArgument),
+            ImmutableArray.Create(
+                (int)SyntaxKind.AwaitExpression,
+                (int)SyntaxKind.SimpleArgument),
             ImmutableArray.Create(
                 (int)SyntaxKind.TryCastExpression,
-                (int)SyntaxKind.SimpleArgument,
-                (int)SyntaxKind.ArgumentList,
-                (int)SyntaxKind.InvocationExpression),
+                (int)SyntaxKind.SimpleArgument),
             ImmutableArray.Create(
                 (int)SyntaxKind.PredefinedCastExpression,
-                (int)SyntaxKind.SimpleArgument,
-                (int)SyntaxKind.ArgumentList,
-                (int)SyntaxKind.InvocationExpression),
+                (int)SyntaxKind.SimpleArgument),
             ImmutableArray.Create(
                 (int)SyntaxKind.DirectCastExpression,
-                (int)SyntaxKind.SimpleArgument,
-                (int)SyntaxKind.ArgumentList,
-                (int)SyntaxKind.InvocationExpression),
+                (int)SyntaxKind.SimpleArgument),
             ImmutableArray.Create(
                 (int)SyntaxKind.CTypeExpression,
-                (int)SyntaxKind.SimpleArgument,
-                (int)SyntaxKind.ArgumentList,
-                (int)SyntaxKind.InvocationExpression),
+                (int)SyntaxKind.SimpleArgument),
             ImmutableArray.Create(
+                (int)SyntaxKind.EqualsValue,
+                (int)SyntaxKind.VariableDeclarator),
+            ImmutableArray.Create(
+                (int)SyntaxKind.AwaitExpression,
                 (int)SyntaxKind.EqualsValue,
                 (int)SyntaxKind.VariableDeclarator),
             ImmutableArray.Create(

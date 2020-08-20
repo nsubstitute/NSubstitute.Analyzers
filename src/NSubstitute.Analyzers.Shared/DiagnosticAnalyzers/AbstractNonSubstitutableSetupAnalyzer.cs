@@ -27,7 +27,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             if (analysisResult.CanBeSubstituted == false)
             {
-                ReportDiagnostics(syntaxNodeAnalysisContext, analysisResult);
+                ReportDiagnostics(syntaxNodeAnalysisContext, in analysisResult);
             }
         }
 
