@@ -34,6 +34,7 @@ namespace MyNamespace
 {
     public class Foo
     {
+
         public int Bar()
         {
             return 2;
@@ -220,6 +221,96 @@ namespace MyNamespace
     }
 }";
             await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
+        }
+
+        [Fact]
+        public async Task ReportsNoDiagnostics_WhenSubscribingToEvent()
+        {
+            var source = @"using NSubstitute;
+using System;
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public event Action SomeEvent;
+        public int Bar()
+        {
+            return 2;
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            Received.InOrder(() => substitute.SomeEvent += Arg.Any<Action>());
+        }
+    }
+}";
+            await VerifyNoDiagnostic(source);
+        }
+
+        [Fact]
+        public async Task ReportsDiagnostics_WhenNonVirtualMethodUsedAsPartOfExpression_WithoutAssignment()
+        {
+            var source = @"using NSubstitute;
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public int Bar()
+        {
+            return 2;
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            Received.InOrder(() =>
+            {
+                var a = [|substitute.Bar()|] + [|substitute.Bar()|];
+                var b = [|substitute.Bar()|] - [|substitute.Bar()|];
+            });
+        }
+    }
+}";
+            await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
+        }
+
+        [Fact]
+        public async Task ReportsNoDiagnostics_WhenNonVirtualMethodUsedAsPartOfExpression_WithAssignment()
+        {
+            var source = @"using NSubstitute;
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public int Bar()
+        {
+            return 2;
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            Received.InOrder(() =>
+            {
+                var a = substitute.Bar() + substitute.Bar();
+                var b = substitute.Bar() - substitute.Bar();
+                var aa = a;
+                var bb = b;
+            });
+        }
+    }
+}";
+            await VerifyNoDiagnostic(source);
         }
 
         [Fact]

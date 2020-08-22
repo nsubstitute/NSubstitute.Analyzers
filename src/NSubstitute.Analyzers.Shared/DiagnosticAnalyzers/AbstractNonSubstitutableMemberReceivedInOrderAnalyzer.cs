@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
@@ -17,7 +18,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
-        protected abstract ImmutableArray<ImmutableArray<int>> IgnoredAncestorPaths { get; }
+        protected abstract ImmutableArray<int> IgnoredAncestorPaths { get; }
 
         private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
         private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
@@ -89,6 +90,20 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return true;
             }
 
+            var operation = semanticModel.GetOperation(maybeIgnoredExpression);
+
+            if (operation is IArgumentOperation &&
+                operation.Parent is IInvocationOperation invocationOperation &&
+                invocationOperation.TargetMethod.IsReceivedInOrderMethod())
+            {
+                return true;
+            }
+
+            if (operation.IsEventAssignmentOperation())
+            {
+                return false;
+            }
+
             var symbol = GetDeclarationSymbol(semanticModel, maybeIgnoredExpression);
 
             if (symbol == null)
@@ -110,7 +125,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private SyntaxNode FindIgnoredEnclosingExpression(SyntaxNode syntaxNode)
         {
-            return syntaxNode.GetAncestorNode(IgnoredAncestorPaths);
+            return syntaxNode.Ancestors().FirstOrDefault(ancestor => IgnoredAncestorPaths.Contains(ancestor.RawKind));
         }
     }
 }

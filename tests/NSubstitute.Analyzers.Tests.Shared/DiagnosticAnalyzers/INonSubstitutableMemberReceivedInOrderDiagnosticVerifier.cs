@@ -16,6 +16,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         Task ReportsDiagnostics_WhenInvokingNonVirtualIndexerWithNonUsedAssignment();
 
+        Task ReportsNoDiagnostics_WhenSubscribingToEvent();
+
         Task ReportsNoDiagnostics_WhenInvokingNonVirtualMethodWithUsedAssignment();
 
         Task ReportsNoDiagnostics_WhenInvokingNonVirtualPropertyWithUsedAssignment();
@@ -37,5 +39,9 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
         Task ReportsNoDiagnostics_WhenInvokingInternalVirtualMember_AndInternalsVisibleToApplied();
 
         Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod();
+
+        Task ReportsDiagnostics_WhenNonVirtualMethodUsedAsPartOfExpression_WithoutAssignment();
+
+        Task ReportsNoDiagnostics_WhenNonVirtualMethodUsedAsPartOfExpression_WithAssignment();
     }
 }

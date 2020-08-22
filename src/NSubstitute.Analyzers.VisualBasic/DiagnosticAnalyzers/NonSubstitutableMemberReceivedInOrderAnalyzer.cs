@@ -10,47 +10,10 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
     [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
     internal sealed class NonSubstitutableMemberReceivedInOrderAnalyzer : AbstractNonSubstitutableMemberReceivedInOrderAnalyzer<SyntaxKind, InvocationExpressionSyntax, MemberAccessExpressionSyntax, LambdaExpressionSyntax>
     {
-        private static ImmutableArray<ImmutableArray<int>> IgnoredPaths { get; } = ImmutableArray.Create(
-            ImmutableArray.Create(
-                (int)SyntaxKind.SimpleArgument),
-            ImmutableArray.Create(
-                (int)SyntaxKind.AwaitExpression,
-                (int)SyntaxKind.SimpleArgument),
-            ImmutableArray.Create(
-                (int)SyntaxKind.TryCastExpression,
-                (int)SyntaxKind.SimpleArgument),
-            ImmutableArray.Create(
-                (int)SyntaxKind.PredefinedCastExpression,
-                (int)SyntaxKind.SimpleArgument),
-            ImmutableArray.Create(
-                (int)SyntaxKind.DirectCastExpression,
-                (int)SyntaxKind.SimpleArgument),
-            ImmutableArray.Create(
-                (int)SyntaxKind.CTypeExpression,
-                (int)SyntaxKind.SimpleArgument),
-            ImmutableArray.Create(
-                (int)SyntaxKind.EqualsValue,
-                (int)SyntaxKind.VariableDeclarator),
-            ImmutableArray.Create(
-                (int)SyntaxKind.AwaitExpression,
-                (int)SyntaxKind.EqualsValue,
-                (int)SyntaxKind.VariableDeclarator),
-            ImmutableArray.Create(
-                (int)SyntaxKind.TryCastExpression,
-                (int)SyntaxKind.EqualsValue,
-                (int)SyntaxKind.VariableDeclarator),
-            ImmutableArray.Create(
-                (int)SyntaxKind.PredefinedCastExpression,
-                (int)SyntaxKind.EqualsValue,
-                (int)SyntaxKind.VariableDeclarator),
-            ImmutableArray.Create(
-                (int)SyntaxKind.DirectCastExpression,
-                (int)SyntaxKind.EqualsValue,
-                (int)SyntaxKind.VariableDeclarator),
-            ImmutableArray.Create(
-                (int)SyntaxKind.CTypeExpression,
-                (int)SyntaxKind.EqualsValue,
-                (int)SyntaxKind.VariableDeclarator));
+        private static ImmutableArray<int> IgnoredPaths { get; } = ImmutableArray.Create(
+            (int)SyntaxKind.SimpleArgument,
+            (int)SyntaxKind.VariableDeclarator,
+            (int)SyntaxKind.AddAssignmentStatement);
 
         public NonSubstitutableMemberReceivedInOrderAnalyzer()
             : base(SubstitutionNodeFinder.Instance, NonSubstitutableMemberAnalysis.Instance, NSubstitute.Analyzers.VisualBasic.DiagnosticDescriptorsProvider.Instance)
@@ -59,7 +22,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
-        protected override ImmutableArray<ImmutableArray<int>> IgnoredAncestorPaths { get; } = IgnoredPaths;
+        protected override ImmutableArray<int> IgnoredAncestorPaths { get; } = IgnoredPaths;
 
         protected override ISymbol GetDeclarationSymbol(SemanticModel semanticModel, SyntaxNode node)
         {

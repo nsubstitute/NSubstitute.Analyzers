@@ -205,6 +205,35 @@ End Namespace
         }
 
         [Fact]
+        public async Task ReportsNoDiagnostics_WhenSubscribingToEvent()
+        {
+            var source = @"Imports NSubstitute
+Imports System
+
+Namespace MyNamespace
+    Public Class Foo
+        Public Event SomeEvent As Action
+
+        Public Function Bar() As Integer
+            Return 2
+        End Function
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            NSubstitute.Received.InOrder(Function()
+                AddHandler substitute.SomeEvent, Arg.Any(Of Action)()
+            End Function)
+        End Sub
+
+    End Class
+End Namespace
+";
+            await VerifyNoDiagnostic(source);
+        }
+
+        [Fact]
         public async Task ReportsNoDiagnostics_WhenInvokingNonVirtualMethodWithUsedAssignment()
         {
             var source = @"Imports NSubstitute
@@ -602,6 +631,61 @@ Namespace MyNamespace
 End Namespace";
 
             await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+        }
+
+        [Fact]
+        public async Task ReportsDiagnostics_WhenNonVirtualMethodUsedAsPartOfExpression_WithoutAssignment()
+        {
+            var source = @"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class Foo
+        Public Function Bar() As Integer
+            Return 2
+        End Function
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            NSubstitute.Received.InOrder(Function()
+                                 Dim a = [|substitute.Bar()|] + [|substitute.Bar()|]
+                                 Dim b = [|substitute.Bar()|] - [|substitute.Bar()|]
+                             End Function)
+        End Sub
+    End Class
+End Namespace
+";
+
+            await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+        }
+
+        [Fact]
+        public async Task ReportsNoDiagnostics_WhenNonVirtualMethodUsedAsPartOfExpression_WithAssignment()
+        {
+            var source = @"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class Foo
+        Public Function Bar() As Integer
+            Return 2
+        End Function
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            NSubstitute.Received.InOrder(Function()
+                                 Dim a = substitute.Bar() + substitute.Bar()
+                                 Dim b = substitute.Bar() - substitute.Bar()
+                                 Dim aa = a
+                                 Dim bb = b
+                             End Function)
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifyNoDiagnostic(source);
         }
     }
 }
