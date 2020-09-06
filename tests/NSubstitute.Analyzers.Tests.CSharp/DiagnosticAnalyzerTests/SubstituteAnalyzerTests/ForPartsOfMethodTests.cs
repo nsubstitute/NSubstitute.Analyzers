@@ -80,6 +80,108 @@ namespace MyNamespace
             await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
         }
 
+        public override async Task ReturnsDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToNotApplied()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        internal Foo()
+        {
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = [|NSubstitute.Substitute.ForPartsOf<Foo>()|];
+        }
+    }
+}";
+            await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
+        }
+
+        public override async Task ReturnsDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToNotApplied()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        protected internal Foo()
+        {
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = [|NSubstitute.Substitute.ForPartsOf<Foo>()|];
+        }
+    }
+}";
+            await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
+        }
+
+        public override async Task ReturnsNoDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToApplied()
+        {
+            var source = @"using NSubstitute;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        internal Foo()
+        {
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.ForPartsOf<Foo>();
+        }
+    }
+}";
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReturnsNoDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToApplied()
+        {
+            var source = @"using NSubstitute;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        protected internal Foo()
+        {
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.ForPartsOf<Foo>();
+        }
+    }
+}";
+            await VerifyNoDiagnostic(source);
+        }
+
         [Fact]
         public override async Task ReturnsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount()
         {

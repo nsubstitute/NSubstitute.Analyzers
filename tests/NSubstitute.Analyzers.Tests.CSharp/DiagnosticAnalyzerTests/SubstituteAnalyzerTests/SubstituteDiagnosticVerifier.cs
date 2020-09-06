@@ -34,6 +34,18 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.SubstituteA
         public abstract Task ReturnsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor();
 
         [Fact]
+        public abstract Task ReturnsDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToNotApplied();
+
+        [Fact]
+        public abstract Task ReturnsDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToNotApplied();
+
+        [Fact]
+        public abstract Task ReturnsNoDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToApplied();
+
+        [Fact]
+        public abstract Task ReturnsNoDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToApplied();
+
+        [Fact]
         public abstract Task ReturnsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount();
 
         [Fact]

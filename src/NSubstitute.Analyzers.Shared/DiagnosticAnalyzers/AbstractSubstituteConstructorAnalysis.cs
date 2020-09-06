@@ -115,12 +115,27 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         {
             var internalsVisibleToProxy = genericArgument.InternalsVisibleToProxyGenerator();
 
+            bool IsAccessible(IMethodSymbol symbol)
+            {
+                return symbol.DeclaredAccessibility == Accessibility.Protected ||
+                       symbol.DeclaredAccessibility == Accessibility.Public;
+            }
+
+            bool IsVisibleToProxy(IMethodSymbol symbol)
+            {
+                if (internalsVisibleToProxy == false)
+                {
+                    return false;
+                }
+
+                return symbol.DeclaredAccessibility == Accessibility.Internal ||
+                       symbol.DeclaredAccessibility == Accessibility.ProtectedOrInternal;
+            }
+
             return genericArgument.GetMembers().OfType<IMethodSymbol>().Where(symbol =>
                 symbol.MethodKind == MethodKind.Constructor &&
                 symbol.IsStatic == false &&
-                (symbol.DeclaredAccessibility == Accessibility.Protected ||
-                 symbol.DeclaredAccessibility == Accessibility.Public ||
-                 (internalsVisibleToProxy && symbol.DeclaredAccessibility == Accessibility.Internal))).ToArray();
+                (IsAccessible(symbol) || IsVisibleToProxy(symbol))).ToArray();
         }
 
         private TypeInfo GetTypeInfo(SubstituteContext<TInvocationExpression> substituteContext, SyntaxNode syntax)

@@ -6,6 +6,14 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
     {
         Task ReturnsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor();
 
+        Task ReturnsDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToNotApplied();
+
+        Task ReturnsDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToNotApplied();
+
+        Task ReturnsNoDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToApplied();
+
+        Task ReturnsNoDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToApplied();
+
         Task ReturnsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount();
 
         Task ReturnsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount();

@@ -1,8 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using NSubstitute.Analyzers.Shared;
-using NSubstitute.Analyzers.Tests.Shared;
-using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.SubstituteAnalyzerTests
@@ -66,6 +62,90 @@ Namespace MyNamespace
 End Namespace
 ";
             await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
+        }
+
+        public override async Task ReturnsDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToNotApplied()
+        {
+            var source = @"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class Foo
+        Friend Sub New()
+        End Sub
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = [|NSubstitute.Substitute.ForPartsOf(Of Foo)()|]
+        End Sub
+    End Class
+End Namespace
+";
+            await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
+        }
+
+        public override async Task ReturnsDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToNotApplied()
+        {
+            var source = @"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class Foo
+        Protected Friend Sub New()
+        End Sub
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = [|NSubstitute.Substitute.ForPartsOf(Of Foo)()|]
+        End Sub
+    End Class
+End Namespace
+";
+            await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
+        }
+
+        public override async Task ReturnsNoDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToApplied()
+        {
+            var source = @"Imports NSubstitute
+Imports System.Runtime.CompilerServices
+
+<Assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")>
+Namespace MyNamespace
+    Public Class Foo
+        Friend Sub New()
+        End Sub
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.ForPartsOf(Of Foo)()
+        End Sub
+    End Class
+End Namespace
+";
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReturnsNoDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToApplied()
+        {
+            var source = @"Imports NSubstitute
+Imports System.Runtime.CompilerServices
+
+<Assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")>
+Namespace MyNamespace
+    Public Class Foo
+        Protected Friend Sub New()
+        End Sub
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.ForPartsOf(Of Foo)()
+        End Sub
+    End Class
+End Namespace
+";
+            await VerifyNoDiagnostic(source);
         }
 
         public override async Task ReturnsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount()
