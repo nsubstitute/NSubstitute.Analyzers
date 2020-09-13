@@ -44,8 +44,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
         }
 
-        protected abstract ISymbol GetDeclarationSymbol(SemanticModel semanticModel, SyntaxNode node);
-
         protected override Location GetSubstitutionNodeActualLocation(in NonSubstitutableMemberAnalysisResult analysisResult)
         {
             return analysisResult.Member.GetSubstitutionNodeActualLocation<TMemberAccessExpressionSyntax>(analysisResult.Symbol);
@@ -104,7 +102,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return false;
             }
 
-            var symbol = GetDeclarationSymbol(semanticModel, maybeIgnoredExpression);
+            var symbol = GetVariableDeclaratorSymbol(operation);
 
             if (symbol == null)
             {
@@ -121,6 +119,16 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var dataFlowAnalysis = semanticModel.AnalyzeDataFlow(blockStatementSyntax);
             return !dataFlowAnalysis.ReadInside.Contains(symbol);
+        }
+
+        private static ILocalSymbol GetVariableDeclaratorSymbol(IOperation operation)
+        {
+            return operation switch
+            {
+                IVariableDeclaratorOperation declarator => declarator.Symbol,
+                IVariableDeclarationOperation { Declarators: { Length: 1 } } declarationOperation => declarationOperation.Declarators.Single().Symbol,
+                _ => null
+            };
         }
 
         private SyntaxNode FindIgnoredEnclosingExpression(SyntaxNode syntaxNode)
