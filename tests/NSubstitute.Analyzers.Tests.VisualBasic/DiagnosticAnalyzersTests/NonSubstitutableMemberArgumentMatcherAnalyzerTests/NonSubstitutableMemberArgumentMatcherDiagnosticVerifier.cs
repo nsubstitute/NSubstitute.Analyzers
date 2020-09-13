@@ -107,6 +107,9 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
         [MemberData(nameof(CorrectlyUsedArgTestCasesWithoutCasts))]
         public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod(string arg);
 
+        [Fact]
+        public abstract Task ReportsNoDiagnostics_WhenSubscribingToEvent();
+
         // VisualBasic specific case
         [Fact]
         public abstract Task ReportsNoDiagnostic_WhenOverloadCannotBeInferred();

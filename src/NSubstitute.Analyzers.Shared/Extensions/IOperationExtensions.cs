@@ -7,8 +7,15 @@ namespace NSubstitute.Analyzers.Shared.Extensions
     {
         public static bool IsEventAssignmentOperation(this IOperation operation)
         {
-            return operation is IAssignmentOperation assignmentOperation &&
-                   assignmentOperation.Kind == OperationKind.EventAssignment;
+            switch (operation)
+            {
+                case IAssignmentOperation assignmentOperation:
+                    return assignmentOperation.Kind == OperationKind.EventAssignment;
+                case IEventAssignmentOperation _:
+                    return true;
+                default:
+                    return false;
+            }
         }
     }
 }

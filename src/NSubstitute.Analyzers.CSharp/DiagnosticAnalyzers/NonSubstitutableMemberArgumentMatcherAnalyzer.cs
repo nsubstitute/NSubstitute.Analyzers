@@ -38,7 +38,8 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
                 (int)SyntaxKind.AsExpression,
                 (int)SyntaxKind.Argument,
                 (int)SyntaxKind.BracketedArgumentList,
-                (int)SyntaxKind.ElementAccessExpression));
+                (int)SyntaxKind.ElementAccessExpression),
+            ImmutableArray.Create((int)SyntaxKind.AddAssignmentExpression));
 
         private static ImmutableArray<ImmutableArray<int>> IgnoredPaths { get; } = ImmutableArray.Create(
                 ImmutableArray.Create(
