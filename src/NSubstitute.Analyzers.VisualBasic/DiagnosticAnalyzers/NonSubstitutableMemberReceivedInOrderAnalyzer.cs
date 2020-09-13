@@ -23,29 +23,5 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
         protected override ImmutableArray<int> IgnoredAncestorPaths { get; } = IgnoredPaths;
-
-        protected override ISymbol GetDeclarationSymbol(SemanticModel semanticModel, SyntaxNode node)
-        {
-            var symbol = semanticModel.GetDeclaredSymbol(node);
-
-            if (symbol != null)
-            {
-                return symbol;
-            }
-
-            if (!(node is VariableDeclaratorSyntax variableDeclaratorSyntax))
-            {
-                return null;
-            }
-
-            var modifiedIdentifierSyntax = variableDeclaratorSyntax.Names.FirstOrDefault();
-
-            if (modifiedIdentifierSyntax == null)
-            {
-                return null;
-            }
-
-            return semanticModel.GetDeclaredSymbol(modifiedIdentifierSyntax);
-        }
     }
 }

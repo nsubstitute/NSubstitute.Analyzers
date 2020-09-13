@@ -34,6 +34,7 @@ namespace MyNamespace
 {
     public class Foo
     {
+        public Foo Nested { get; set; }
 
         public int Bar()
         {
@@ -43,6 +44,8 @@ namespace MyNamespace
 
     public class FooBar
     {
+        public FooBar Nested { get; set; }
+
         public Task Bar()
         {
            return Task.CompletedTask; 
@@ -56,7 +59,9 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
             var otherSubstitute = NSubstitute.Substitute.For<FooBar>();
             Received.InOrder(() => [|substitute.Bar()|]);
+            Received.InOrder(() => [|substitute.Nested.Bar()|]);
             Received.InOrder(async () => await [|otherSubstitute.Bar()|]);
+            Received.InOrder(async () => await [|otherSubstitute.Nested.Bar()|]);
         }
     }
 }";
@@ -124,6 +129,8 @@ namespace MyNamespace
 {
     public class Foo
     {
+        public Foo Nested { get; set; }
+
         public int Bar { get; set;}
     }
 
@@ -135,6 +142,7 @@ namespace MyNamespace
             Received.InOrder(() =>
             {
                 _ = [|substitute.Bar|]; 
+                _ = [|substitute.Nested.Bar|]; 
             });
         }
     }
@@ -178,6 +186,8 @@ namespace MyNamespace
 {
     public class Foo
     {
+        public Foo Nested { get; set; }
+
         public int this[int x] { get => 1; }
     }
 
@@ -189,6 +199,7 @@ namespace MyNamespace
             Received.InOrder(() =>
             {
                 _ = [|substitute[1]|]; 
+                _ = [|substitute.Nested[1]|]; 
             });
         }
     }
@@ -756,6 +767,52 @@ namespace MyNamespace
 }";
 
             await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
+        }
+
+        [Fact]
+        public async Task ReportsNoDiagnostics_WhenAccessingVirtualMemberViaNonVirtualAccessor()
+        {
+            var source = @"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public Foo NestedFoo { get; set; }
+
+        public Foo NestedFooMethod()
+        {
+            return null;
+        }
+
+        public Foo this[int x]
+        { 
+            get { return null; }
+        }
+    
+        public virtual int Bar(int x)
+        {
+            return 1;
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            Received.InOrder(() =>
+            {
+                substitute.NestedFoo.Bar(1);
+                substitute.NestedFooMethod().Bar(1);
+                substitute[1].Bar(1);
+            });
+        }
+    }
+}";
+
+            await VerifyNoDiagnostic(source);
         }
     }
 }

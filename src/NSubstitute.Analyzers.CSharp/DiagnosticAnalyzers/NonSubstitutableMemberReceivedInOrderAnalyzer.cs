@@ -21,10 +21,5 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
         protected override ImmutableArray<int> IgnoredAncestorPaths { get; } = IgnoredPaths;
-
-        protected override ISymbol GetDeclarationSymbol(SemanticModel semanticModel, SyntaxNode node)
-        {
-            return semanticModel.GetDeclaredSymbol(node);
-        }
     }
 }

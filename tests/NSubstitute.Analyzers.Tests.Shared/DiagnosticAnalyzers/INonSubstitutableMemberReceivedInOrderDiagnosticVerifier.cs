@@ -43,5 +43,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
         Task ReportsDiagnostics_WhenNonVirtualMethodUsedAsPartOfExpression_WithoutAssignment();
 
         Task ReportsNoDiagnostics_WhenNonVirtualMethodUsedAsPartOfExpression_WithAssignment();
+
+        Task ReportsNoDiagnostics_WhenAccessingVirtualMemberViaNonVirtualAccessor();
     }
 }

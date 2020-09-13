@@ -32,12 +32,16 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
 Imports System.Threading.Tasks
 Namespace MyNamespace
     Public Class Foo
+        Public Property Nested As Foo
+
         Public Function Bar() As Integer
             Return 2
         End Function
     End Class
 
     Public Class FooBar
+        Public Property Nested As FooBar
+
         Public Function Bar() As Task(Of Integer)
             Return Task.FromResult(1)
         End Function
@@ -47,13 +51,21 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             Dim otherSubstitute = NSubstitute.Substitute.[For](Of FooBar)()
+
             NSubstitute.Received.InOrder(Function()
                                  [|substitute.Bar()|]
                              End Function)
             NSubstitute.Received.InOrder(Function() [|substitute.Bar()|])
-            NSubstitute.Received.InOrder(Async Function() Await [|otherSubstitute.Bar()|])
             NSubstitute.Received.InOrder(Sub() [|substitute.Bar()|])
+            NSubstitute.Received.InOrder(Function()
+                                 [|substitute.Nested.Bar()|]
+                             End Function)
+            NSubstitute.Received.InOrder(Function() [|substitute.Nested.Bar()|])
+            NSubstitute.Received.InOrder(Sub() [|substitute.Nested.Bar()|])
+            NSubstitute.Received.InOrder(Async Function() Await [|otherSubstitute.Bar()|])
             NSubstitute.Received.InOrder(Async Sub() Await [|otherSubstitute.Bar()|])
+            NSubstitute.Received.InOrder(Async Function() Await [|otherSubstitute.Nested.Bar()|])
+            NSubstitute.Received.InOrder(Async Sub() Await [|otherSubstitute.Nested.Bar()|])
         End Sub
     End Class
 End Namespace
@@ -111,6 +123,8 @@ End Namespace";
 
 Namespace MyNamespace
     Public Class Foo
+        Public Property Nested As Foo
+
         Public Property Bar As Integer
     End Class
 
@@ -119,6 +133,9 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             NSubstitute.Received.InOrder(Function()
                                              Dim x = [|substitute.Bar|]
+                                         End Function)
+            NSubstitute.Received.InOrder(Function()
+                                             Dim x = [|substitute.Nested.Bar|]
                                          End Function)
         End Sub
     End Class
@@ -157,6 +174,8 @@ End Namespace
 
 Namespace MyNamespace
     Public Class Foo
+        Public Property Nested As Foo
+
         Default Public ReadOnly Property Item(ByVal x As Integer) As Integer
             Get
                 Return 1
@@ -169,6 +188,9 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             NSubstitute.Received.InOrder(Function()
                                              Dim x = [|substitute(1)|]
+                                         End Function)
+            NSubstitute.Received.InOrder(Function()
+                                             Dim x = [|substitute.Nested(1)|]
                                          End Function)
         End Sub
     End Class
@@ -681,6 +703,46 @@ Namespace MyNamespace
                                  Dim aa = a
                                  Dim bb = b
                              End Function)
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifyNoDiagnostic(source);
+        }
+
+        [Fact]
+        public async Task ReportsNoDiagnostics_WhenAccessingVirtualMemberViaNonVirtualAccessor()
+        {
+            var source = @"Imports System
+Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class Foo
+        Public Property NestedFoo As Foo
+
+        Public Function NestedFooMethod() As Foo
+            Return Nothing
+        End Function
+
+        Default Public ReadOnly Property Item(ByVal x As Integer) As Foo
+            Get
+                Return Nothing
+            End Get
+        End Property
+
+        Public Overridable Function Bar(ByVal x As Integer) As Integer
+            Return 1
+        End Function
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            NSubstitute.Received.InOrder(Function()
+                                     substitute.NestedFoo.Bar(1)
+                                     substitute.NestedFooMethod().Bar(1)
+                                     substitute(1).Bar(1)
+                                 End Function)
         End Sub
     End Class
 End Namespace";

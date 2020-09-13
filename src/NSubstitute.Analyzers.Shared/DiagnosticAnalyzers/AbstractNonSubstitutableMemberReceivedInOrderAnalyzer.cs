@@ -44,8 +44,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
         }
 
-        protected abstract ISymbol GetDeclarationSymbol(SemanticModel semanticModel, SyntaxNode node);
-
         protected override Location GetSubstitutionNodeActualLocation(in NonSubstitutableMemberAnalysisResult analysisResult)
         {
             return analysisResult.Member.GetSubstitutionNodeActualLocation<TMemberAccessExpressionSyntax>(analysisResult.Symbol);
@@ -90,6 +88,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return true;
             }
 
+            if (syntaxNode.Parent is TMemberAccessExpressionSyntax || semanticModel.GetOperation(syntaxNode.Parent) is IMemberReferenceOperation)
+            {
+                return false;
+            }
+
             var operation = semanticModel.GetOperation(maybeIgnoredExpression);
 
             if (operation is IArgumentOperation &&
@@ -104,7 +107,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return false;
             }
 
-            var symbol = GetDeclarationSymbol(semanticModel, maybeIgnoredExpression);
+            var symbol = GetVariableDeclaratorSymbol(operation);
 
             if (symbol == null)
             {
@@ -121,6 +124,19 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var dataFlowAnalysis = semanticModel.AnalyzeDataFlow(blockStatementSyntax);
             return !dataFlowAnalysis.ReadInside.Contains(symbol);
+        }
+
+        private static ILocalSymbol GetVariableDeclaratorSymbol(IOperation operation)
+        {
+            switch (operation)
+            {
+                case IVariableDeclaratorOperation declarator:
+                    return declarator.Symbol;
+                case IVariableDeclarationOperation declarationOperation:
+                    return declarationOperation.Declarators.FirstOrDefault()?.Symbol;
+                default:
+                    return null;
+            }
         }
 
         private SyntaxNode FindIgnoredEnclosingExpression(SyntaxNode syntaxNode)
