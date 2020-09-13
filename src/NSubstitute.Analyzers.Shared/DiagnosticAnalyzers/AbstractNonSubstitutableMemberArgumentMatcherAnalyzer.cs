@@ -64,17 +64,27 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             // if Arg is used with not allowed expression, find if it is used in ignored ones eg. var x = Arg.Any
             // as variable might be used later on
-            if (enclosingExpression == null && FindIgnoredEnclosingExpression(argInvocationExpression) == null)
+            if (enclosingExpression == null)
             {
-                var diagnostic = Diagnostic.Create(
-                    DiagnosticDescriptorsProvider.NonSubstitutableMemberArgumentMatcherUsage,
-                    argInvocationExpression.GetLocation());
+                var maybeIgnoredEnclosingExpression = FindMaybeIgnoredEnclosingExpression(argInvocationExpression);
 
-                syntaxNodeContext.ReportDiagnostic(diagnostic);
-                return;
+                if (maybeIgnoredEnclosingExpression == null)
+                {
+                    var diagnostic = Diagnostic.Create(
+                        DiagnosticDescriptorsProvider.NonSubstitutableMemberArgumentMatcherUsage,
+                        argInvocationExpression.GetLocation());
+
+                    syntaxNodeContext.ReportDiagnostic(diagnostic);
+                    return;
+                }
             }
 
             if (enclosingExpression == null)
+            {
+                return;
+            }
+
+            if (syntaxNodeContext.SemanticModel.GetOperation(enclosingExpression).IsEventAssignmentOperation())
             {
                 return;
             }
@@ -103,7 +113,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             return invocationExpression.GetAncestorNode(AllowedAncestorPaths);
         }
 
-        private SyntaxNode FindIgnoredEnclosingExpression(TInvocationExpressionSyntax invocationExpressionSyntax)
+        private SyntaxNode FindMaybeIgnoredEnclosingExpression(TInvocationExpressionSyntax invocationExpressionSyntax)
         {
             return invocationExpressionSyntax.GetAncestorNode(IgnoredAncestorPaths);
         }

@@ -700,5 +700,32 @@ namespace MyNamespace
 
             await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
         }
+
+        public override async Task ReportsNoDiagnostics_WhenSubscribingToEvent()
+        {
+            var source = @"using NSubstitute;
+using System;
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public event Action SomeEvent;
+        public int Bar()
+        {
+            return 2;
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            Received.InOrder(() => substitute.SomeEvent += Arg.Any<Action>());
+        }
+    }
+}";
+            await VerifyNoDiagnostic(source);
+        }
     }
 }
