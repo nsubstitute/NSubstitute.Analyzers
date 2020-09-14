@@ -20,11 +20,6 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
-        protected override IEnumerable<SyntaxNode> GetArgumentExpressions(InvocationExpressionSyntax invocationExpressionSyntax)
-        {
-            return invocationExpressionSyntax.ArgumentList.Arguments.Select<ArgumentSyntax, SyntaxNode>(arg => arg.Expression);
-        }
-
         protected override IEnumerable<SyntaxToken?> GetCallbackArgumentSyntaxTokens(SyntaxNode node)
         {
             return node.ChildTokens().Select<SyntaxToken, SyntaxToken?>(token => token);
