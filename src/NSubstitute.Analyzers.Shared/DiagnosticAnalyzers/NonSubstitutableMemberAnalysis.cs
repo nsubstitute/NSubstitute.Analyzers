@@ -1,14 +1,13 @@
-using System;
-using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractNonSubstitutableMemberAnalysis : INonSubstitutableMemberAnalysis
+    internal class NonSubstitutableMemberAnalysis : INonSubstitutableMemberAnalysis
     {
-        protected abstract ImmutableHashSet<Type> KnownNonVirtualSyntaxKinds { get; }
+        public static INonSubstitutableMemberAnalysis Instance { get; } = new NonSubstitutableMemberAnalysis();
 
         public NonSubstitutableMemberAnalysisResult Analyze(
             in SyntaxNodeAnalysisContext syntaxNodeContext,
@@ -20,7 +19,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             if (accessedSymbol == null)
             {
                 return new NonSubstitutableMemberAnalysisResult(
-                    nonVirtualMemberSubstitution: KnownNonVirtualSyntaxKinds.Contains(accessedMember.GetType()),
+                    nonVirtualMemberSubstitution: syntaxNodeContext.SemanticModel.GetOperation(accessedMember) is ILiteralOperation,
                     internalMemberSubstitution: false,
                     symbol: null,
                     member: accessedMember,
@@ -62,8 +61,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             SyntaxNode accessedMember,
             ISymbol symbol)
         {
-            return !KnownNonVirtualSyntaxKinds.Contains(accessedMember.GetType()) &&
-                   CanBeSubstituted(symbol);
+            return CanBeSubstituted(symbol);
         }
 
         private static bool CanBeSubstituted(ISymbol symbol)
