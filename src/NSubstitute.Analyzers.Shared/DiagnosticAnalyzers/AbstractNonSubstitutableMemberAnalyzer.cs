@@ -34,7 +34,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected override DiagnosticDescriptor NonVirtualSetupDescriptor { get; }
 
-        protected override void InitializeAnalyzer(AnalysisContext context)
+        protected sealed override void InitializeAnalyzer(AnalysisContext context)
         {
             context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
         }
