@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
@@ -28,8 +29,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
-        protected abstract IEnumerable<SyntaxNode> GetArgumentExpressions(TInvocationExpressionSyntax invocationExpressionSyntax);
-
         protected abstract IEnumerable<SyntaxToken?> GetCallbackArgumentSyntaxTokens(SyntaxNode node);
 
         protected sealed override void InitializeAnalyzer(AnalysisContext context)
@@ -52,9 +51,12 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            foreach (var expression in GetArgumentExpressions(invocationExpression))
+            var invocationOperation =
+                (IInvocationOperation)syntaxNodeContext.SemanticModel.GetOperation(invocationExpression);
+
+            foreach (var argument in invocationOperation.Arguments)
             {
-                var asyncToken = GetCallbackArgumentSyntaxTokens(expression)
+                var asyncToken = GetCallbackArgumentSyntaxTokens(argument.Value.Syntax)
                     .FirstOrDefault(token => token.HasValue && token.Value.RawKind == AsyncExpressionRawKind);
 
                 if (asyncToken.HasValue == false)

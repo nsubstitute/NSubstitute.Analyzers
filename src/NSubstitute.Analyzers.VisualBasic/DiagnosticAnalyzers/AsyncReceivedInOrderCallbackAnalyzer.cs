@@ -20,11 +20,6 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
-        protected override IEnumerable<SyntaxNode> GetArgumentExpressions(InvocationExpressionSyntax invocationExpressionSyntax)
-        {
-            return invocationExpressionSyntax.ArgumentList.Arguments.Select<ArgumentSyntax, SyntaxNode>(arg => arg.GetExpression());
-        }
-
         protected override IEnumerable<SyntaxToken?> GetCallbackArgumentSyntaxTokens(SyntaxNode node)
         {
             switch (node)
