@@ -1,13 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractSubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> :
-        ISubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax>
-        where TInvocationExpressionSyntax : SyntaxNode where TExpressionSyntax : SyntaxNode
+    internal abstract class AbstractSubstituteProxyAnalysis<TInvocationExpressionSyntax> : ISubstituteProxyAnalysis<TInvocationExpressionSyntax>
+        where TInvocationExpressionSyntax : SyntaxNode
     {
         public ITypeSymbol GetActualProxyTypeSymbol(SubstituteContext<TInvocationExpressionSyntax> substituteContext)
         {
@@ -35,26 +34,33 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return methodSymbol.TypeArguments;
             }
 
-            var arrayParameters = GetArrayInitializerArguments(invocationExpressionSyntax)?.ToList();
+            var operation = (IInvocationOperation)semanticModel.GetOperation(invocationExpressionSyntax);
 
-            if (arrayParameters == null)
-            {
-                return ImmutableArray<ITypeSymbol>.Empty;
-            }
+            var argument = operation.Arguments.First();
+            var typeSymbols = ArgType(argument);
 
-            var proxyTypes = GetTypeOfLikeExpressions(arrayParameters)
-                .Select(exp =>
-                    semanticModel
-                        .GetTypeInfo(exp.DescendantNodes().First()))
-                .Where(model => model.Type != null)
-                .Select(model => model.Type)
-                .ToImmutableArray();
-
-            return arrayParameters.Count == proxyTypes.Length ? proxyTypes : ImmutableArray<ITypeSymbol>.Empty;
+            return typeSymbols;
         }
 
-        protected abstract IEnumerable<TExpressionSyntax> GetTypeOfLikeExpressions(IList<TExpressionSyntax> arrayParameters);
+        // TODO remove copy pasting
+        private ImmutableArray<ITypeSymbol> TypeSymbols(IArrayCreationOperation arrayInitializerOperation)
+        {
+            return arrayInitializerOperation.Initializer.ElementValues.OfType<ITypeOfOperation>()
+                .Select(op => op.TypeOperand)
+                .ToImmutableArray();
+        }
 
-        protected abstract IEnumerable<TExpressionSyntax> GetArrayInitializerArguments(TInvocationExpressionSyntax invocationExpressionSyntax);
+        private ImmutableArray<ITypeSymbol> ArgType(IArgumentOperation x)
+        {
+            if (x.Value is IArrayCreationOperation arrayInitializerOperation)
+            {
+                var typeSymbols = TypeSymbols(arrayInitializerOperation);
+                return arrayInitializerOperation.Initializer.ElementValues.Length == typeSymbols.Length
+                    ? typeSymbols
+                    : ImmutableArray<ITypeSymbol>.Empty;
+            }
+
+            return ImmutableArray<ITypeSymbol>.Empty;
+        }
     }
 }

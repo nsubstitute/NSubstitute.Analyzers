@@ -14,7 +14,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         where TExpressionSyntax : SyntaxNode
         where TArgumentSyntax : SyntaxNode
     {
-        private readonly ISubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> _substituteProxyAnalysis;
+        private readonly ISubstituteProxyAnalysis<TInvocationExpressionSyntax> _substituteProxyAnalysis;
         private readonly ISubstituteConstructorAnalysis<TInvocationExpressionSyntax> _substituteConstructorAnalysis;
         private readonly ISubstituteConstructorMatcher _substituteConstructorMatcher;
 
@@ -22,7 +22,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected AbstractSubstituteAnalyzer(
             IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
-            ISubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> substituteProxyAnalysis,
+            ISubstituteProxyAnalysis<TInvocationExpressionSyntax> substituteProxyAnalysis,
             ISubstituteConstructorAnalysis<TInvocationExpressionSyntax> substituteConstructorAnalysis,
             ISubstituteConstructorMatcher substituteConstructorMatcher)
             : base(diagnosticDescriptorsProvider)

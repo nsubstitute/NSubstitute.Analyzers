@@ -11,7 +11,7 @@ using static Microsoft.CodeAnalysis.VisualBasic.SyntaxFactory;
 namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders
 {
     [ExportCodeFixProvider(LanguageNames.VisualBasic)]
-    internal sealed class SubstituteForInternalMemberCodeFixProvider : AbstractSubstituteForInternalMemberCodeFixProvider<InvocationExpressionSyntax, ExpressionSyntax, CompilationUnitSyntax>
+    internal sealed class SubstituteForInternalMemberCodeFixProvider : AbstractSubstituteForInternalMemberCodeFixProvider<InvocationExpressionSyntax, CompilationUnitSyntax>
     {
         public SubstituteForInternalMemberCodeFixProvider()
             : base(SubstituteProxyAnalysis.Instance)

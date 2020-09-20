@@ -1,24 +1,21 @@
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 {
-    internal abstract class AbstractSubstituteForInternalMemberCodeFixProvider<TInvocationExpressionSyntax, TExpressionSyntax, TCompilationUnitSyntax> : AbstractSuppressDiagnosticsCodeFixProvider
+    internal abstract class AbstractSubstituteForInternalMemberCodeFixProvider<TInvocationExpressionSyntax, TCompilationUnitSyntax> : AbstractSuppressDiagnosticsCodeFixProvider
         where TInvocationExpressionSyntax : SyntaxNode
-        where TExpressionSyntax : SyntaxNode
         where TCompilationUnitSyntax : SyntaxNode
     {
-        private readonly ISubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> _substituteProxyAnalysis;
+        private readonly ISubstituteProxyAnalysis<TInvocationExpressionSyntax> _substituteProxyAnalysis;
 
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.SubstituteForInternalMember);
 
-        protected AbstractSubstituteForInternalMemberCodeFixProvider(ISubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> substituteProxyAnalysis)
+        protected AbstractSubstituteForInternalMemberCodeFixProvider(ISubstituteProxyAnalysis<TInvocationExpressionSyntax> substituteProxyAnalysis)
         {
             _substituteProxyAnalysis = substituteProxyAnalysis;
         }
