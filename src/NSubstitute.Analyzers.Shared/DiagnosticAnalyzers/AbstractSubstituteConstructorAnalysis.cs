@@ -1,13 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractSubstituteConstructorAnalysis<TInvocationExpression, TArgumentSyntax> : ISubstituteConstructorAnalysis<TInvocationExpression> where TInvocationExpression : SyntaxNode
-        where TArgumentSyntax : SyntaxNode
+    internal abstract class AbstractSubstituteConstructorAnalysis<TInvocationExpression> : ISubstituteConstructorAnalysis<TInvocationExpression>
+        where TInvocationExpression : SyntaxNode
     {
         public ConstructorContext CollectConstructorContext(SubstituteContext<TInvocationExpression> substituteContext, ITypeSymbol proxyTypeSymbol)
         {
@@ -30,10 +31,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 invocationParameterTypes);
         }
 
-        protected abstract IList<TArgumentSyntax> GetInvocationArguments(TInvocationExpression invocationExpression);
-
-        protected abstract IList<SyntaxNode> GetParameterExpressionsFromArrayArgument(TArgumentSyntax syntaxNode);
-
         private ITypeSymbol[] GetInvocationInfo(SubstituteContext<TInvocationExpression> substituteContext)
         {
             var infos = substituteContext.MethodSymbol.IsGenericMethod
@@ -45,70 +42,49 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private ITypeSymbol[] GetGenericInvocationArgumentTypes(SubstituteContext<TInvocationExpression> substituteContext)
         {
-            var arguments = GetInvocationArguments(substituteContext.InvocationExpression);
+            var operation = substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetOperation(substituteContext.InvocationExpression);
 
-            if (arguments == null)
+            ImmutableArray<IArgumentOperation>? arguments = null;
+            if (operation is IInvocationOperation invocationOperation)
+            {
+                arguments = invocationOperation.Arguments;
+            }
+
+            if (arguments.HasValue == false)
             {
                 return null;
             }
 
-            if (arguments.Count == 0)
+            if (arguments.Value.Length == 0)
             {
                 return Array.Empty<ITypeSymbol>();
             }
 
-            var typeInfos = arguments.Select(arg => GetTypeInfo(substituteContext, arg.DescendantNodes().First()))
-                .ToList();
-
-            var possibleParamsArgument = typeInfos.First();
-
             // if passing array of objects as a sole element
-            if (arguments.Count == 1 &&
-                possibleParamsArgument.ConvertedType is IArrayTypeSymbol arrayTypeSymbol &&
-                arrayTypeSymbol.ElementType.Equals(substituteContext.SyntaxNodeAnalysisContext.Compilation.ObjectType))
+            if (arguments.Value.Length == 1 && arguments.Value.Single().Value is IArrayCreationOperation arrayTypeSymbol)
             {
-                return GetArgumentTypeInfo(substituteContext, arguments.First());
+                return TypeSymbols(arrayTypeSymbol);
             }
 
-            return typeInfos.Select(type => type.Type).ToArray();
+            return arguments.Value.SelectMany(ArgType).ToArray();
         }
 
         private ITypeSymbol[] GetNonGenericInvocationArgumentTypes(SubstituteContext<TInvocationExpression> substituteContext)
         {
             // Substitute.For(new [] { typeof(T) }, new object[] { 1, 2, 3}) // actual arguments reside in second arg
-            var arrayArgument = GetInvocationArguments(substituteContext.InvocationExpression)?.Skip(1).FirstOrDefault();
+            var arrayArgument = GetInvocationArguments(substituteContext,  substituteContext.InvocationExpression).Skip(1).FirstOrDefault();
             if (arrayArgument == null)
             {
                 return null;
             }
 
-            return GetArgumentTypeInfo(substituteContext, arrayArgument);
-        }
-
-        private ITypeSymbol[] GetArgumentTypeInfo(SubstituteContext<TInvocationExpression> substituteContext, TArgumentSyntax arrayArgument)
-        {
-            var typeInfo = GetTypeInfo(substituteContext, arrayArgument.DescendantNodes().First());
-
-            if (typeInfo.ConvertedType != null &&
-                typeInfo.ConvertedType.TypeKind == TypeKind.Array &&
-                typeInfo.Type == null)
+            // if passing array of objects as a sole element
+            if (arrayArgument.Value is IArrayCreationOperation arrayTypeSymbol)
             {
-                return null;
+                return TypeSymbols(arrayTypeSymbol);
             }
 
-            // new object[] { }; // means we dont pass any arguments
-            var parameterExpressionsFromArrayArgument = GetParameterExpressionsFromArrayArgument(arrayArgument);
-            if (parameterExpressionsFromArrayArgument == null)
-            {
-                return null;
-            }
-
-            // new object[] { 1, 2, 3}); // means we pass arguments
-            var types = parameterExpressionsFromArrayArgument
-                .Select(exp => GetTypeInfo(substituteContext, exp).Type)
-                .ToArray();
-
-            return types;
+            return ArgType(arrayArgument);
         }
 
         private IMethodSymbol[] GetAccessibleConstructors(ITypeSymbol genericArgument)
@@ -138,9 +114,32 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 (IsAccessible(symbol) || IsVisibleToProxy(symbol))).ToArray();
         }
 
-        private TypeInfo GetTypeInfo(SubstituteContext<TInvocationExpression> substituteContext, SyntaxNode syntax)
+        private ImmutableArray<IArgumentOperation> GetInvocationArguments(SubstituteContext<TInvocationExpression> substituteContext, TInvocationExpression invocationExpression)
         {
-            return substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(syntax);
+            var invocationOperation = (IInvocationOperation)substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetOperation(invocationExpression);
+
+            return invocationOperation.Arguments;
+        }
+
+        private ITypeSymbol[] TypeSymbols(IArrayCreationOperation arrayInitializerOperation)
+        {
+            return arrayInitializerOperation.Initializer.ElementValues.Select(item =>
+                    item is IConversionOperation conversionOperation
+                        ? conversionOperation.Operand.Type
+                        : item.Type)
+                .ToArray();
+        }
+
+        private ITypeSymbol[] ArgType(IArgumentOperation x)
+        {
+            if (x.ArgumentKind == ArgumentKind.ParamArray)
+            {
+                var arrayInitializerOperation = x.Value as IArrayCreationOperation;
+
+                return TypeSymbols(arrayInitializerOperation);
+            }
+
+            return Array.Empty<ITypeSymbol>();
         }
     }
 }
