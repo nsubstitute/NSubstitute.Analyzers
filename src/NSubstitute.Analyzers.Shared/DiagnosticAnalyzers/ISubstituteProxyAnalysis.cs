@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal interface ISubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> where TInvocationExpressionSyntax : SyntaxNode where TExpressionSyntax : SyntaxNode
+    internal interface ISubstituteProxyAnalysis<TInvocationExpressionSyntax> where TInvocationExpressionSyntax : SyntaxNode
     {
         ITypeSymbol GetActualProxyTypeSymbol(SubstituteContext<TInvocationExpressionSyntax> substituteContext);
 
