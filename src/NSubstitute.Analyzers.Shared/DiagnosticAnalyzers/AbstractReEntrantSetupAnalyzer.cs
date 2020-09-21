@@ -9,10 +9,8 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractReEntrantSetupAnalyzer<TSyntaxKind, TInvocationExpressionSyntax, TArgumentSyntax> : AbstractDiagnosticAnalyzer
+    internal abstract class AbstractReEntrantSetupAnalyzer<TSyntaxKind> : AbstractDiagnosticAnalyzer
         where TSyntaxKind : struct
-        where TInvocationExpressionSyntax : SyntaxNode
-        where TArgumentSyntax : SyntaxNode
     {
         private readonly IReEntrantCallFinder _reEntrantCallFinder;
         private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
@@ -36,15 +34,9 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
         }
 
-        protected abstract IEnumerable<SyntaxNode> GetExpressionsFromArrayInitializer(TArgumentSyntax syntaxNode);
-
-        protected abstract IEnumerable<TArgumentSyntax> GetArguments(TInvocationExpressionSyntax invocationExpressionSyntax);
-
-        protected abstract SyntaxNode GetArgumentExpression(TArgumentSyntax argumentSyntax);
-
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
-            var invocationExpression = (TInvocationExpressionSyntax)syntaxNodeContext.Node;
+            var invocationExpression = syntaxNodeContext.Node;
             var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
 
             if (methodSymbolInfo.Symbol?.Kind != SymbolKind.Method)
@@ -59,39 +51,60 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            var allArguments = GetArguments(invocationExpression);
-            var argumentsForAnalysis = methodSymbol.MethodKind == MethodKind.ReducedExtension ? allArguments : allArguments.Skip(1);
+            var invocationOperation = (IInvocationOperation)syntaxNodeContext.SemanticModel.GetOperation(invocationExpression);
 
-            foreach (var argument in argumentsForAnalysis)
+            var arguments = GetArgumentOperations(invocationOperation, methodSymbol);
+
+            foreach (var argumentOperation in arguments)
             {
-                var operation = syntaxNodeContext.SemanticModel.GetOperation(argument) as IArgumentOperation;
-
-                if (IsPassedByParamsArrayOfCallInfoFunc(syntaxNodeContext.SemanticModel, operation))
+                if (IsPassedByParamsArrayOfCallInfoFunc(syntaxNodeContext.SemanticModel, argumentOperation))
                 {
                     continue;
                 }
 
-                if (IsPassedByParamsArray(operation))
+                if (IsPassedByParamsArray(argumentOperation))
                 {
-                    AnalyzeParamsArgument(syntaxNodeContext, argument, invocationExpression, methodSymbol);
+                    AnalyzeParamsArgument(syntaxNodeContext, argumentOperation, invocationExpression, methodSymbol);
                 }
                 else
                 {
-                    AnalyzeExpression(syntaxNodeContext, GetArgumentExpression(argument), invocationExpression, methodSymbol);
+                    AnalyzeExpression(syntaxNodeContext, argumentOperation.Value, invocationExpression, methodSymbol);
                 }
             }
         }
 
+        private static IEnumerable<IArgumentOperation> GetArgumentOperations(IInvocationOperation invocationOperation, IMethodSymbol methodSymbol)
+        {
+            var orderedArguments = invocationOperation.Arguments.OrderBy(arg => arg.Parameter.Ordinal);
+
+            // TODO figure out if we can drop lang if
+            if (invocationOperation.Language == LanguageNames.VisualBasic && methodSymbol.MethodKind == MethodKind.ReducedExtension)
+            {
+                return orderedArguments;
+            }
+
+            return orderedArguments.OrderBy(item => item.Parameter.Ordinal).Skip(1);
+        }
+
         private void AnalyzeParamsArgument(
             SyntaxNodeAnalysisContext syntaxNodeContext,
-            TArgumentSyntax argument,
-            TInvocationExpressionSyntax invocationExpression,
+            IArgumentOperation argumentOperation,
+            SyntaxNode invocationExpression,
             IMethodSymbol methodSymbol)
         {
-            var arrayInitializersExpressions = GetExpressionsFromArrayInitializer(argument);
+            // TODO naming
+            ImmutableArray<IOperation> x;
+            if (argumentOperation.Value is IArrayCreationOperation arrayCreationOperation)
+            {
+                x = arrayCreationOperation.Initializer.ElementValues;
+            }
+            else
+            {
+                x = ImmutableArray.Create(argumentOperation.Value);
+            }
 
             // if array elements can't be extracted, analyze argument itself
-            foreach (var argumentExpression in arrayInitializersExpressions ?? new[] { GetArgumentExpression(argument) })
+            foreach (var argumentExpression in x)
             {
                 AnalyzeExpression(syntaxNodeContext, argumentExpression, invocationExpression, methodSymbol);
             }
@@ -99,24 +112,25 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private void AnalyzeExpression(
             SyntaxNodeAnalysisContext syntaxNodeContext,
-            SyntaxNode argumentExpression,
-            TInvocationExpressionSyntax invocationExpression,
+            IOperation argumentOperation,
+            SyntaxNode invocationExpression,
             IMethodSymbol methodSymbol)
         {
+            var argumentOperationSyntax = argumentOperation.Syntax;
             var reentrantSymbol = _reEntrantCallFinder.GetReEntrantCalls(
                 syntaxNodeContext.Compilation,
                 syntaxNodeContext.SemanticModel,
                 invocationExpression,
-                argumentExpression).FirstOrDefault();
+                argumentOperationSyntax).FirstOrDefault();
 
             if (reentrantSymbol != null)
             {
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.ReEntrantSubstituteCall,
-                    argumentExpression.GetLocation(),
+                    argumentOperationSyntax.GetLocation(),
                     methodSymbol.Name,
                     reentrantSymbol.Name,
-                    argumentExpression.ToString());
+                    argumentOperationSyntax.ToString());
 
                 syntaxNodeContext.ReportDiagnostic(diagnostic);
             }
