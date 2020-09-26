@@ -9,7 +9,7 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    internal sealed class AsyncReceivedInOrderCallbackAnalyzer : AbstractAsyncReceivedInOrderCallbackAnalyzer<SyntaxKind, InvocationExpressionSyntax>
+    internal sealed class AsyncReceivedInOrderCallbackAnalyzer : AbstractAsyncReceivedInOrderCallbackAnalyzer<SyntaxKind>
     {
         public AsyncReceivedInOrderCallbackAnalyzer()
             : base(CSharp.DiagnosticDescriptorsProvider.Instance)

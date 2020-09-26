@@ -9,7 +9,7 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
     [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
-    internal sealed class AsyncReceivedInOrderCallbackAnalyzer : AbstractAsyncReceivedInOrderCallbackAnalyzer<SyntaxKind, InvocationExpressionSyntax>
+    internal sealed class AsyncReceivedInOrderCallbackAnalyzer : AbstractAsyncReceivedInOrderCallbackAnalyzer<SyntaxKind>
     {
         public AsyncReceivedInOrderCallbackAnalyzer()
             : base(VisualBasic.DiagnosticDescriptorsProvider.Instance)
