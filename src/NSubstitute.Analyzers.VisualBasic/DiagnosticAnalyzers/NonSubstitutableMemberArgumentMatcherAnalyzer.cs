@@ -8,7 +8,7 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
     [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
-    internal sealed class NonSubstitutableMemberArgumentMatcherAnalyzer : AbstractNonSubstitutableMemberArgumentMatcherAnalyzer<SyntaxKind, InvocationExpressionSyntax>
+    internal sealed class NonSubstitutableMemberArgumentMatcherAnalyzer : AbstractNonSubstitutableMemberArgumentMatcherAnalyzer<SyntaxKind>
     {
         internal static ImmutableArray<ImmutableArray<int>> AllowedPaths { get; } = ImmutableArray.Create(
             ImmutableArray.Create(

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -53,7 +52,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var invocationOperation = (IInvocationOperation)syntaxNodeContext.SemanticModel.GetOperation(invocationExpression);
 
-            var arguments = GetArgumentOperations(invocationOperation, methodSymbol);
+            var arguments = invocationOperation.GetOrderedArgumentOperations();
 
             foreach (var argumentOperation in arguments)
             {
@@ -71,19 +70,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                     AnalyzeExpression(syntaxNodeContext, argumentOperation.Value, invocationExpression, methodSymbol);
                 }
             }
-        }
-
-        private static IEnumerable<IArgumentOperation> GetArgumentOperations(IInvocationOperation invocationOperation, IMethodSymbol methodSymbol)
-        {
-            var orderedArguments = invocationOperation.Arguments.OrderBy(arg => arg.Parameter.Ordinal);
-
-            // TODO figure out if we can drop lang if
-            if (invocationOperation.Language == LanguageNames.VisualBasic && methodSymbol.MethodKind == MethodKind.ReducedExtension)
-            {
-                return orderedArguments;
-            }
-
-            return orderedArguments.OrderBy(item => item.Parameter.Ordinal).Skip(1);
         }
 
         private void AnalyzeParamsArgument(
