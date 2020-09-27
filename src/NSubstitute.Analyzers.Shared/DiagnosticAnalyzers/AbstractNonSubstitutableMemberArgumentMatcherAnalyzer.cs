@@ -6,8 +6,7 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractNonSubstitutableMemberArgumentMatcherAnalyzer<TSyntaxKind, TInvocationExpressionSyntax> : AbstractDiagnosticAnalyzer
-        where TInvocationExpressionSyntax : SyntaxNode
+    internal abstract class AbstractNonSubstitutableMemberArgumentMatcherAnalyzer<TSyntaxKind> : AbstractDiagnosticAnalyzer
         where TSyntaxKind : struct
     {
         private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
@@ -39,7 +38,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
-            var invocationExpression = (TInvocationExpressionSyntax)syntaxNodeContext.Node;
+            var invocationExpression = syntaxNodeContext.Node;
             var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
 
             if (methodSymbolInfo.Symbol?.Kind != SymbolKind.Method)
@@ -57,7 +56,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             AnalyzeArgLikeMethod(syntaxNodeContext, invocationExpression);
         }
 
-        private void AnalyzeArgLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax argInvocationExpression)
+        private void AnalyzeArgLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode argInvocationExpression)
         {
             // find allowed enclosing expression
             var enclosingExpression = FindAllowedEnclosingExpression(argInvocationExpression);
@@ -96,7 +95,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            var analysisResult = _nonSubstitutableMemberAnalysis.Analyze(syntaxNodeContext, enclosingExpression);
+            var analysisResult = _nonSubstitutableMemberAnalysis.Analyze(syntaxNodeContext, enclosingExpression, enclosingExpressionSymbol);
 
             if (analysisResult.CanBeSubstituted == false)
             {
@@ -108,12 +107,12 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
         }
 
-        private SyntaxNode FindAllowedEnclosingExpression(TInvocationExpressionSyntax invocationExpression)
+        private SyntaxNode FindAllowedEnclosingExpression(SyntaxNode invocationExpression)
         {
             return invocationExpression.GetAncestorNode(AllowedAncestorPaths);
         }
 
-        private SyntaxNode FindMaybeIgnoredEnclosingExpression(TInvocationExpressionSyntax invocationExpressionSyntax)
+        private SyntaxNode FindMaybeIgnoredEnclosingExpression(SyntaxNode invocationExpressionSyntax)
         {
             return invocationExpressionSyntax.GetAncestorNode(IgnoredAncestorPaths);
         }
