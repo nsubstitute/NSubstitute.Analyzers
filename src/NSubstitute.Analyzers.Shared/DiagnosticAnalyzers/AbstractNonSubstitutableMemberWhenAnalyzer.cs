@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
@@ -41,22 +42,17 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
-            var invocationExpression = (TInvocationExpressionSyntax)syntaxNodeContext.Node;
-            var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
-
-            if (methodSymbolInfo.Symbol == null || methodSymbolInfo.Symbol.Kind != SymbolKind.Method)
+            if (!(syntaxNodeContext.SemanticModel.GetOperation(syntaxNodeContext.Node) is IInvocationOperation invocationOperation))
             {
                 return;
             }
 
-            var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
-
-            if (methodSymbol.IsWhenLikeMethod() == false)
+            if (invocationOperation.TargetMethod.IsWhenLikeMethod() == false)
             {
                 return;
             }
 
-            var expressionsForAnalysys = _substitutionNodeFinder.FindForWhenExpression(syntaxNodeContext, invocationExpression, methodSymbol);
+            var expressionsForAnalysys = _substitutionNodeFinder.FindForWhenExpression(syntaxNodeContext, invocationOperation);
             foreach (var analysedSyntax in expressionsForAnalysys)
             {
                 var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(analysedSyntax);
