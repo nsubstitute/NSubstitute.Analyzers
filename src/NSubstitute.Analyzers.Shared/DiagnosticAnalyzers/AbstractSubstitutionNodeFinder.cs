@@ -28,7 +28,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             if (invocationExpressionSymbol.Name.Equals(MetadataNames.NSubstituteDoMethod, StringComparison.Ordinal))
             {
-                var operation = this.GetSubstituteOperation(invocationOperation);
+                var operation = invocationOperation.GetSubstituteOperation();
                 return FindForWhenExpression(syntaxNodeContext, operation as IInvocationOperation);
             }
 
@@ -77,7 +77,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         public SyntaxNode FindForAndDoesExpression(SyntaxNodeAnalysisContext syntaxNodeContext, IInvocationOperation invocationOperation, IMethodSymbol invocationExpressionSymbol)
         {
-            if (!(GetSubstituteOperation(invocationOperation) is IInvocationOperation parentInvocationExpression))
+            if (!(invocationOperation.GetSubstituteOperation() is IInvocationOperation parentInvocationExpression))
             {
                 return null;
             }
@@ -85,7 +85,10 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             return FindForStandardExpression(parentInvocationExpression);
         }
 
-        public SyntaxNode FindForStandardExpression(IInvocationOperation invocationOperation) => GetSubstituteOperation(invocationOperation).Syntax;
+        public SyntaxNode FindForStandardExpression(IInvocationOperation invocationOperation)
+        {
+            return invocationOperation.GetSubstituteOperation().Syntax;
+        }
 
         public abstract IEnumerable<SyntaxNode> FindForReceivedInOrderExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax receivedInOrderExpression, IMethodSymbol receivedInOrderInvocationSymbol = null);
 
@@ -94,22 +97,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         private bool ContainsSymbol(ITypeSymbol containerSymbol, ISymbol symbol)
         {
             return GetBaseTypesAndThis(containerSymbol).Any(typeSymbol => typeSymbol == symbol.ContainingType);
-        }
-
-        private IOperation GetSubstituteOperation(IInvocationOperation invocationOperation)
-        {
-            if (!invocationOperation.TargetMethod.IsExtensionMethod)
-            {
-                return invocationOperation.Children.First();
-            }
-
-            // unlike CSharp implementation, VisualBasic doesnt include "instance" argument for reduced extensions
-            if (invocationOperation.TargetMethod.MethodKind == MethodKind.ReducedExtension && invocationOperation.Language == LanguageNames.VisualBasic)
-            {
-                return invocationOperation.Children.First();
-            }
-
-            return invocationOperation.Arguments.First().Value;
         }
 
         private static IEnumerable<ITypeSymbol> GetBaseTypesAndThis(ITypeSymbol type)

@@ -76,6 +76,39 @@ namespace NSubstitute.Analyzers.Shared.Extensions
             return argumentOperation.Parameter.Type;
         }
 
+        public static IOperation GetSubstituteOperation(this IInvocationOperation invocationOperation)
+        {
+            if (!invocationOperation.TargetMethod.IsExtensionMethod)
+            {
+                return invocationOperation.Children.First();
+            }
+
+            // unlike CSharp implementation, VisualBasic doesnt include "instance" argument for reduced extensions
+            if (invocationOperation.TargetMethod.MethodKind == MethodKind.ReducedExtension && invocationOperation.Language == LanguageNames.VisualBasic)
+            {
+                return invocationOperation.Children.First();
+            }
+
+            return invocationOperation.Arguments.First().Value;
+        }
+
+        public static int? GetIndexerPosition(this IOperation operation)
+        {
+            var literal = operation switch
+            {
+                IArrayElementReferenceOperation arrayElementReferenceOperation => arrayElementReferenceOperation.Indices.First() as ILiteralOperation,
+                IPropertyReferenceOperation propertyReferenceOperation => propertyReferenceOperation.Arguments.First().Value as ILiteralOperation,
+                _ => null
+            };
+
+            if (literal == null || literal.ConstantValue.HasValue == false)
+            {
+                return null;
+            }
+
+            return (int)literal.ConstantValue.Value;
+        }
+
         private static bool IsImplicitlyProvidedArrayWithValues(IArgumentOperation arg)
         {
             return arg.IsImplicit &&
