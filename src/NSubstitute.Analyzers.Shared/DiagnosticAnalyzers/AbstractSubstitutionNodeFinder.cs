@@ -28,13 +28,13 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             if (invocationExpressionSymbol.Name.Equals(MetadataNames.NSubstituteDoMethod, StringComparison.Ordinal))
             {
                 var parentInvocationExpression = GetParentInvocationExpression((TInvocationExpressionSyntax)invocationExpression);
-                return FindForWhenExpression(syntaxNodeContext, parentInvocationExpression);
+                return FindForWhenExpression(syntaxNodeContext, syntaxNodeContext.SemanticModel.GetOperation(parentInvocationExpression) as IInvocationOperation);
             }
 
             if (invocationExpressionSymbol.Name.Equals(MetadataNames.NSubstituteWhenMethod, StringComparison.Ordinal) ||
                 invocationExpressionSymbol.Name.Equals(MetadataNames.NSubstituteWhenForAnyArgsMethod, StringComparison.Ordinal))
             {
-                return FindForWhenExpression(syntaxNodeContext, (TInvocationExpressionSyntax)invocationExpression, invocationExpressionSymbol);
+                return FindForWhenExpression(syntaxNodeContext, invocationOperation, invocationExpressionSymbol);
             }
 
             if (invocationExpressionSymbol.Name.Equals(MetadataNames.NSubstituteAndDoesMethod, StringComparison.Ordinal))
@@ -48,14 +48,15 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             return standardSubstitution != null ? new[] { standardSubstitution } : Enumerable.Empty<SyntaxNode>();
         }
 
-        public IEnumerable<SyntaxNode> FindForWhenExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax whenInvocationExpression, IMethodSymbol whenInvocationSymbol = null)
+        public IEnumerable<SyntaxNode> FindForWhenExpression(SyntaxNodeAnalysisContext syntaxNodeContext, IInvocationOperation invocationOperation, IMethodSymbol whenInvocationSymbol = null)
         {
-            if (whenInvocationExpression == null)
+            if (invocationOperation == null)
             {
                 yield break;
             }
 
-            whenInvocationSymbol = whenInvocationSymbol ?? syntaxNodeContext.SemanticModel.GetSymbolInfo(whenInvocationExpression).Symbol as IMethodSymbol;
+            var invocationExpression = invocationOperation.Syntax;
+            whenInvocationSymbol ??= syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression).Symbol as IMethodSymbol;
 
             if (whenInvocationSymbol == null)
             {
@@ -63,7 +64,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
 
             var typeSymbol = whenInvocationSymbol.TypeArguments.FirstOrDefault() ?? whenInvocationSymbol.ReceiverType;
-            foreach (var syntaxNode in FindForWhenExpressionInternal(syntaxNodeContext, whenInvocationExpression, whenInvocationSymbol))
+            foreach (var syntaxNode in FindForWhenExpressionInternal(syntaxNodeContext, (TInvocationExpressionSyntax)invocationExpression, whenInvocationSymbol))
             {
                 var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode).Symbol;
                 if (symbol != null && typeSymbol != null && ContainsSymbol(typeSymbol, symbol))
