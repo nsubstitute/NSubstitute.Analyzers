@@ -99,7 +99,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
 
             // perf - dont use linq in hotpath
-            foreach (var arg in invocationOperation.GetOrderedArgumentOperations())
+            foreach (var arg in invocationOperation.GetOrderedArgumentOperationsWithoutInstanceArgument())
             {
                 if (arg.GetTypeSymbol().IsCallInfoDelegate(syntaxNodeContext.SemanticModel))
                 {
@@ -130,7 +130,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return;
             }
 
-            foreach (var argumentExpressionSyntax in invocationOperation.GetOrderedArgumentOperations())
+            foreach (var argumentExpressionSyntax in invocationOperation.GetOrderedArgumentOperationsWithoutInstanceArgument())
             {
                 var callInfoContext = _callInfoFinder.GetCallInfoContext(syntaxNodeContext.SemanticModel, argumentExpressionSyntax.Value.Syntax);
 

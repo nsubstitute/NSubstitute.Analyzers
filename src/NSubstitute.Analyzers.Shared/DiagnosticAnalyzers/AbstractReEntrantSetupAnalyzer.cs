@@ -52,7 +52,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var invocationOperation = (IInvocationOperation)syntaxNodeContext.SemanticModel.GetOperation(invocationExpression);
 
-            var arguments = invocationOperation.GetOrderedArgumentOperations();
+            var arguments = invocationOperation.GetOrderedArgumentOperationsWithoutInstanceArgument();
 
             foreach (var argumentOperation in arguments)
             {

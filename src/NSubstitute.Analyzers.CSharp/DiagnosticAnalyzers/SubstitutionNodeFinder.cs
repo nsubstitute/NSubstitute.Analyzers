@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.CSharp.Extensions;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Shared.Extensions;
@@ -36,19 +37,6 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
             return symbol.Symbol is IMethodSymbol methodSymbol && methodSymbol.ReducedFrom == null
                 ? parentInvocationExpression.ArgumentList.Arguments.First().Expression
                 : parentInvocationExpression.Expression.DescendantNodes().First();
-        }
-
-        public override SyntaxNode FindForStandardExpression(InvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol invocationExpressionSymbol)
-        {
-            switch (invocationExpressionSymbol.MethodKind)
-            {
-                case MethodKind.ReducedExtension:
-                    return invocationExpressionSyntax.Expression.DescendantNodes().First();
-                case MethodKind.Ordinary:
-                    return invocationExpressionSyntax.ArgumentList.Arguments.First().Expression;
-                default:
-                    return null;
-            }
         }
 
         public override IEnumerable<SyntaxNode> FindForReceivedInOrderExpression(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax receivedInOrderExpression, IMethodSymbol receivedInOrderInvocationSymbol = null)

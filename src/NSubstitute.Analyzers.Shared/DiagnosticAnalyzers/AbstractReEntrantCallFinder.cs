@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
@@ -98,13 +99,18 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             var ancestorChildNodes = rootNode.Ancestors().SelectMany(ancestor => ancestor.ChildNodes());
             foreach (var syntaxNode in GetPotentialOtherSubstituteInvocations(ancestorChildNodes))
             {
-                var symbol = semanticModel.GetSymbolInfo(syntaxNode).Symbol;
-                if (symbol.IsReturnLikeMethod() == false)
+                var operation = semanticModel.GetOperation(syntaxNode) as IInvocationOperation;
+                if (operation == null)
                 {
                     continue;
                 }
 
-                var substitutedNode = _substitutionNodeFinder.FindForStandardExpression(syntaxNode, symbol as IMethodSymbol);
+                if (operation.TargetMethod.IsReturnLikeMethod() == false)
+                {
+                    continue;
+                }
+
+                var substitutedNode = _substitutionNodeFinder.FindForStandardExpression(operation);
 
                 var substituteNodeSymbol = semanticModel.GetSymbolInfo(substitutedNode).Symbol;
                 if (substituteNodeSymbol != rootNodeSymbol)
