@@ -28,8 +28,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             if (invocationExpressionSymbol.Name.Equals(MetadataNames.NSubstituteDoMethod, StringComparison.Ordinal))
             {
-                var parentInvocationExpression = GetParentInvocationExpression((TInvocationExpressionSyntax)invocationExpression);
-                return FindForWhenExpression(syntaxNodeContext, syntaxNodeContext.SemanticModel.GetOperation(parentInvocationExpression) as IInvocationOperation);
+                var operation = this.GetSubstituteOperation(invocationOperation);
+                return FindForWhenExpression(syntaxNodeContext, operation as IInvocationOperation);
             }
 
             if (invocationExpressionSymbol.Name.Equals(MetadataNames.NSubstituteWhenMethod, StringComparison.Ordinal) ||
@@ -40,7 +40,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             if (invocationExpressionSymbol.Name.Equals(MetadataNames.NSubstituteAndDoesMethod, StringComparison.Ordinal))
             {
-                var substitution = FindForAndDoesExpression(syntaxNodeContext, (TInvocationExpressionSyntax)invocationExpression, invocationExpressionSymbol);
+                var substitution = FindForAndDoesExpression(syntaxNodeContext, invocationOperation, invocationExpressionSymbol);
                 return substitution != null ? new[] { substitution } : Enumerable.Empty<SyntaxNode>();
             }
 
@@ -75,28 +75,41 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
         }
 
-        public abstract SyntaxNode FindForAndDoesExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpression, IMethodSymbol invocationExpressionSymbol = null);
-
-        public SyntaxNode FindForStandardExpression(IInvocationOperation invocationOperation)
+        public SyntaxNode FindForAndDoesExpression(SyntaxNodeAnalysisContext syntaxNodeContext, IInvocationOperation invocationOperation, IMethodSymbol invocationExpressionSymbol)
         {
-            // unlike CSharp implementation, VisualBasic doesnt include "instance" argument for reduced extensions
-            if (invocationOperation.TargetMethod.MethodKind == MethodKind.ReducedExtension && invocationOperation.Language == LanguageNames.VisualBasic)
+            if (!(GetSubstituteOperation(invocationOperation) is IInvocationOperation parentInvocationExpression))
             {
-                return invocationOperation.Children.First().Syntax;
+                return null;
             }
 
-            return invocationOperation.GetOrderedArgumentOperations().First().Value.Syntax;
+            return FindForStandardExpression(parentInvocationExpression);
         }
 
-        public abstract IEnumerable<SyntaxNode> FindForReceivedInOrderExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax receivedInOrderExpression, IMethodSymbol receivedInOrderInvocationSymbol = null);
+        public SyntaxNode FindForStandardExpression(IInvocationOperation invocationOperation) => GetSubstituteOperation(invocationOperation).Syntax;
 
-        protected abstract TInvocationExpressionSyntax GetParentInvocationExpression(TInvocationExpressionSyntax invocationExpressionSyntax);
+        public abstract IEnumerable<SyntaxNode> FindForReceivedInOrderExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax receivedInOrderExpression, IMethodSymbol receivedInOrderInvocationSymbol = null);
 
         protected abstract IEnumerable<SyntaxNode> FindForWhenExpressionInternal(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax whenInvocationExpression, IMethodSymbol whenInvocationSymbol);
 
         private bool ContainsSymbol(ITypeSymbol containerSymbol, ISymbol symbol)
         {
             return GetBaseTypesAndThis(containerSymbol).Any(typeSymbol => typeSymbol == symbol.ContainingType);
+        }
+
+        private IOperation GetSubstituteOperation(IInvocationOperation invocationOperation)
+        {
+            if (!invocationOperation.TargetMethod.IsExtensionMethod)
+            {
+                return invocationOperation.Children.First();
+            }
+
+            // unlike CSharp implementation, VisualBasic doesnt include "instance" argument for reduced extensions
+            if (invocationOperation.TargetMethod.MethodKind == MethodKind.ReducedExtension && invocationOperation.Language == LanguageNames.VisualBasic)
+            {
+                return invocationOperation.Children.First();
+            }
+
+            return invocationOperation.Arguments.First().Value;
         }
 
         private static IEnumerable<ITypeSymbol> GetBaseTypesAndThis(ITypeSymbol type)
