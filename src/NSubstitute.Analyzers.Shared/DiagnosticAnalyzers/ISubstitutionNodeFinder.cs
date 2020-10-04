@@ -13,8 +13,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         IEnumerable<SyntaxNode> FindForReceivedInOrderExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax receivedInOrderExpression, IMethodSymbol receivedInOrderInvocationSymbol = null);
 
-        SyntaxNode FindForAndDoesExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpression, IMethodSymbol invocationExpressionSymbol = null);
-
         SyntaxNode FindForStandardExpression(IInvocationOperation invocationOperation);
     }
 }
