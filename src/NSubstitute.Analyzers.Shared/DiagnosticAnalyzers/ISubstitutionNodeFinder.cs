@@ -15,6 +15,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         SyntaxNode FindForAndDoesExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpression, IMethodSymbol invocationExpressionSymbol = null);
 
-        SyntaxNode FindForStandardExpression(TInvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol invocationExpressionSymbol = null);
+        SyntaxNode FindForStandardExpression(IInvocationOperation invocationOperation);
     }
 }

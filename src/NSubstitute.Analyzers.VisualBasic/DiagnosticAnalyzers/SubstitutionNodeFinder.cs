@@ -33,19 +33,6 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
                 : parentInvocationExpression.Expression.DescendantNodes().First();
         }
 
-        public override SyntaxNode FindForStandardExpression(InvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol invocationExpressionSymbol)
-        {
-            switch (invocationExpressionSymbol.MethodKind)
-            {
-                case MethodKind.ReducedExtension:
-                    return invocationExpressionSyntax.Expression.DescendantNodes().First();
-                case MethodKind.Ordinary:
-                    return invocationExpressionSyntax.ArgumentList.Arguments.First().GetExpression();
-                default:
-                    return null;
-            }
-        }
-
         public override IEnumerable<SyntaxNode> FindForReceivedInOrderExpression(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax receivedInOrderExpression, IMethodSymbol receivedInOrderInvocationSymbol = null)
         {
             var argumentExpression = receivedInOrderExpression.ArgumentList.Arguments.First();

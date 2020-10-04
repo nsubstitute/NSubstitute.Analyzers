@@ -20,11 +20,10 @@ namespace NSubstitute.Analyzers.Shared.Extensions
             }
         }
 
-        public static IEnumerable<IArgumentOperation> GetOrderedArgumentOperations(this IInvocationOperation invocationOperation)
+        public static IEnumerable<IArgumentOperation> GetOrderedArgumentOperationsWithoutInstanceArgument(this IInvocationOperation invocationOperation)
         {
-            var orderedArguments = invocationOperation.Arguments
-                .Where(arg => IsImplicitlyProvidedArrayWithValues(arg) == false)
-                .OrderBy(arg => arg.Parameter.Ordinal);
+            var orderedArguments = invocationOperation.GetOrderedArgumentOperations()
+                .Where(arg => IsImplicitlyProvidedArrayWithValues(arg) == false);
 
             if (!invocationOperation.TargetMethod.IsExtensionMethod)
             {
@@ -39,6 +38,11 @@ namespace NSubstitute.Analyzers.Shared.Extensions
             }
 
             return orderedArguments.Skip(1);
+        }
+
+        public static IEnumerable<IArgumentOperation> GetOrderedArgumentOperations(this IInvocationOperation invocationOperation)
+        {
+            return invocationOperation.Arguments.OrderBy(arg => arg.Parameter.Ordinal);
         }
 
         public static ITypeSymbol GetTypeSymbol(this IArgumentOperation argumentOperation)

@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
@@ -43,7 +44,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return substitution != null ? new[] { substitution } : Enumerable.Empty<SyntaxNode>();
             }
 
-            var standardSubstitution = FindForStandardExpression((TInvocationExpressionSyntax)invocationExpression, invocationExpressionSymbol);
+            var standardSubstitution = FindForStandardExpression(invocationOperation);
 
             return standardSubstitution != null ? new[] { standardSubstitution } : Enumerable.Empty<SyntaxNode>();
         }
@@ -76,7 +77,16 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         public abstract SyntaxNode FindForAndDoesExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpression, IMethodSymbol invocationExpressionSymbol = null);
 
-        public abstract SyntaxNode FindForStandardExpression(TInvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol invocationExpressionSymbol = null);
+        public SyntaxNode FindForStandardExpression(IInvocationOperation invocationOperation)
+        {
+            // unlike CSharp implementation, VisualBasic doesnt include "instance" argument for reduced extensions
+            if (invocationOperation.TargetMethod.MethodKind == MethodKind.ReducedExtension && invocationOperation.Language == LanguageNames.VisualBasic)
+            {
+                return invocationOperation.Children.First().Syntax;
+            }
+
+            return invocationOperation.GetOrderedArgumentOperations().First().Value.Syntax;
+        }
 
         public abstract IEnumerable<SyntaxNode> FindForReceivedInOrderExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax receivedInOrderExpression, IMethodSymbol receivedInOrderInvocationSymbol = null);
 
