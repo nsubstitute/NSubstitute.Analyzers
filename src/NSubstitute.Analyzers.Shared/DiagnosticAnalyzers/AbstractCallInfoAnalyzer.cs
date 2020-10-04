@@ -75,20 +75,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         protected int? GetIndexerPosition(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax)
         {
             var operation = syntaxNodeAnalysisContext.SemanticModel.GetOperation(indexerExpressionSyntax);
-
-            var literal = operation switch
-            {
-                IArrayElementReferenceOperation arrayElementReferenceOperation => arrayElementReferenceOperation.Indices.First() as ILiteralOperation,
-                IPropertyReferenceOperation propertyReferenceOperation => propertyReferenceOperation.Arguments.First().Value as ILiteralOperation,
-                _ => null
-            };
-
-            if (literal == null || literal.ConstantValue.HasValue == false)
-            {
-                return null;
-            }
-
-            return (int)literal.ConstantValue.Value;
+            return operation.GetIndexerPosition();
         }
 
         private bool SupportsCallInfo(SyntaxNodeAnalysisContext syntaxNodeContext, IInvocationOperation invocationOperation)
@@ -287,8 +274,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 return false;
             }
 
-            if (syntaxNodeContext.SemanticModel.GetOperation(indexer) is IPropertyReferenceOperation
-                    referenceOperation &&
+            if (syntaxNodeContext.SemanticModel.GetOperation(indexer) is IPropertyReferenceOperation referenceOperation &&
                 referenceOperation.Parent is ISimpleAssignmentOperation simpleAssignmentOperation)
             {
                 var parameterSymbol = substituteCallParameters[position.Value];
