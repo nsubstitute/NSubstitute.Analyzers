@@ -12,7 +12,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
     {
         public static ReEntrantCallFinder Instance { get; } = new ReEntrantCallFinder(SubstitutionNodeFinder.Instance);
 
-        private ReEntrantCallFinder(ISubstitutionNodeFinder<InvocationExpressionSyntax> substitutionNodeFinder)
+        private ReEntrantCallFinder(ISubstitutionNodeFinder substitutionNodeFinder)
             : base(substitutionNodeFinder)
         {
         }

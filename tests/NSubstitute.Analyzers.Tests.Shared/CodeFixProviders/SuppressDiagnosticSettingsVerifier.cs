@@ -83,7 +83,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
             var targetSuppression = originalSupressions.SingleOrDefault(suppression => suppression.Target == target);
             if (targetSuppression != null)
             {
-                targetSuppression.Rules = targetSuppression.Rules ?? new List<string>();
+                targetSuppression.Rules ??= new List<string>();
                 targetSuppression.Rules.Add(diagnosticRuleId);
             }
             else

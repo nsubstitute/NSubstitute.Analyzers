@@ -83,17 +83,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private bool IsAssigned(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax)
         {
-            if (!(syntaxNodeAnalysisContext.SemanticModel.GetOperation(indexerExpressionSyntax) is IPropertyReferenceOperation propertyReferenceOperation))
-            {
-                return false;
-            }
-
-            if (propertyReferenceOperation.Property.ContainingType.IsCallInfoSymbol() == false)
-            {
-                return false;
-            }
-
-            return propertyReferenceOperation.Parent is ISimpleAssignmentOperation;
+            return syntaxNodeAnalysisContext.SemanticModel.GetOperation(indexerExpressionSyntax) is IPropertyReferenceOperation propertyReferenceOperation &&
+                   propertyReferenceOperation.Parent is ISimpleAssignmentOperation;
         }
 
         private IEnumerable<TIndexerExpressionSyntax> FindCallInfoIndexers(SyntaxNodeAnalysisContext syntaxNodeContext, IInvocationOperation invocationOperation)

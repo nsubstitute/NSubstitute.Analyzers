@@ -7,11 +7,10 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer<TSyntaxKind, TInvocationExpressionSyntax> : AbstractNonSubstitutableSetupAnalyzer
-        where TInvocationExpressionSyntax : SyntaxNode
+    internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer<TSyntaxKind> : AbstractNonSubstitutableSetupAnalyzer
         where TSyntaxKind : struct, Enum
     {
-        private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
+        private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
@@ -21,7 +20,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected AbstractNonSubstitutableMemberWhenAnalyzer(
             IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
-            ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder,
+            ISubstitutionNodeFinder substitutionNodeFinder,
             INonSubstitutableMemberAnalysis nonSubstitutableMemberAnalysis)
             : base(diagnosticDescriptorsProvider, nonSubstitutableMemberAnalysis)
         {
