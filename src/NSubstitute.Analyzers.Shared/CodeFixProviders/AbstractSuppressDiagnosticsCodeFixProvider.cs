@@ -128,13 +128,13 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
         {
             var options = context.Document.Project.AnalyzerOptions.GetSettings(default(CancellationToken));
             var target = CreateSuppressionTarget(symbol);
-            options.Suppressions = options.Suppressions ?? new List<Suppression>();
+            options.Suppressions ??= new List<Suppression>();
 
             var existingSuppression = options.Suppressions.FirstOrDefault(suppression => suppression.Target == target);
 
             if (existingSuppression != null)
             {
-                existingSuppression.Rules = existingSuppression.Rules ?? new List<string>();
+                existingSuppression.Rules ??= new List<string>();
                 existingSuppression.Rules.Add(diagnostic.Id);
             }
             else

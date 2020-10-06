@@ -7,11 +7,10 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractNonSubstitutableMemberAnalyzer<TSyntaxKind, TInvocationExpressionSyntax> : AbstractNonSubstitutableSetupAnalyzer
-        where TInvocationExpressionSyntax : SyntaxNode
+    internal abstract class AbstractNonSubstitutableMemberAnalyzer<TSyntaxKind> : AbstractNonSubstitutableSetupAnalyzer
         where TSyntaxKind : struct
     {
-        private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
+        private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
 
         private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
 
@@ -23,7 +22,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected AbstractNonSubstitutableMemberAnalyzer(
             IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
-            ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder,
+            ISubstitutionNodeFinder substitutionNodeFinder,
             INonSubstitutableMemberAnalysis nonSubstitutableMemberAnalysis)
             : base(diagnosticDescriptorsProvider, nonSubstitutableMemberAnalysis)
         {

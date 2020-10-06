@@ -11,9 +11,9 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         where TInvocationExpressionSyntax : SyntaxNode
         where TIdentifierExpressionSyntax : SyntaxNode
     {
-        private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
+        private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
 
-        protected AbstractReEntrantCallFinder(ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder)
+        protected AbstractReEntrantCallFinder(ISubstitutionNodeFinder substitutionNodeFinder)
         {
             _substitutionNodeFinder = substitutionNodeFinder;
         }
