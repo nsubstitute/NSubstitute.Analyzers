@@ -37,21 +37,15 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
-            var invocationExpression = syntaxNodeContext.Node;
-            var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
-
-            if (methodSymbolInfo.Symbol?.Kind != SymbolKind.Method)
+            if (!(syntaxNodeContext.SemanticModel.GetOperation(syntaxNodeContext.Node) is IInvocationOperation invocationOperation))
             {
                 return;
             }
 
-            if (methodSymbolInfo.Symbol.IsReceivedInOrderMethod() == false)
+            if (invocationOperation.TargetMethod.IsReceivedInOrderMethod() == false)
             {
-                return;
+               return;
             }
-
-            var invocationOperation =
-                (IInvocationOperation)syntaxNodeContext.SemanticModel.GetOperation(invocationExpression);
 
             foreach (var argument in invocationOperation.Arguments)
             {
