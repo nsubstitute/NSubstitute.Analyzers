@@ -28,8 +28,10 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         {
             _analyzeInvocationAction = AnalyzeInvocation;
             _substitutionNodeFinder = substitutionNodeFinder;
-            SupportedDiagnostics = ImmutableArray.Create(DiagnosticDescriptorsProvider.NonVirtualSetupSpecification, DiagnosticDescriptorsProvider.InternalSetupSpecification);
             NonVirtualSetupDescriptor = diagnosticDescriptorsProvider.NonVirtualSetupSpecification;
+            SupportedDiagnostics = ImmutableArray.Create(
+                DiagnosticDescriptorsProvider.NonVirtualSetupSpecification,
+                DiagnosticDescriptorsProvider.InternalSetupSpecification);
         }
 
         protected override DiagnosticDescriptor NonVirtualSetupDescriptor { get; }
