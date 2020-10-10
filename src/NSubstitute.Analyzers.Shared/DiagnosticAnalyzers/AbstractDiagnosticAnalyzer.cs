@@ -13,8 +13,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         public sealed override void Initialize(AnalysisContext context)
         {
-            // TODO restore
-            // context.EnableConcurrentExecution();
+            context.EnableConcurrentExecution();
             InitializeAnalyzer(context);
         }
 

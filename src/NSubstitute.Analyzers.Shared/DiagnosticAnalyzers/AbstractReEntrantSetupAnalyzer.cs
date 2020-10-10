@@ -36,23 +36,18 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
         {
             var invocationExpression = syntaxNodeContext.Node;
-            var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
-
-            if (methodSymbolInfo.Symbol?.Kind != SymbolKind.Method)
+            if (!(syntaxNodeContext.SemanticModel.GetOperation(invocationExpression) is IInvocationOperation invocationOperation))
             {
                 return;
             }
 
-            var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
-
-            if (methodSymbol.IsInitialReEntryLikeMethod() == false)
+            if (invocationOperation.TargetMethod.IsInitialReEntryLikeMethod() == false)
             {
                 return;
             }
-
-            var invocationOperation = (IInvocationOperation)syntaxNodeContext.SemanticModel.GetOperation(invocationExpression);
 
             var arguments = invocationOperation.GetOrderedArgumentOperationsWithoutInstanceArgument();
+            var methodSymbol = invocationOperation.TargetMethod;
 
             foreach (var argumentOperation in arguments)
             {
