@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Markdig.Syntax.Inlines;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.CSharp;

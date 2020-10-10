@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
-using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ConflictingArgumentAssignmentsAnalyzerTests
 {

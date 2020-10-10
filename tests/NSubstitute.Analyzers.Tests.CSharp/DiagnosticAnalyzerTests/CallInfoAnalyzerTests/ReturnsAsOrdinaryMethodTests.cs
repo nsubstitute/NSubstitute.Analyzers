@@ -1,11 +1,5 @@
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using NSubstitute.Analyzers.CSharp;
-using NSubstitute.Analyzers.Shared;
-using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
-using NSubstitute.Analyzers.Tests.Shared.Extensions;
-using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAnalyzerTests
 {

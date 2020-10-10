@@ -1,19 +1,20 @@
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal class CallInfoContext<TInvocationExpressionSyntax, TIndexerSyntax>
+    internal class CallInfoContext
     {
-        public IReadOnlyList<TIndexerSyntax> IndexerAccesses { get; }
+        public IReadOnlyList<SyntaxNode> IndexerAccesses { get; }
 
-        public IReadOnlyList<TInvocationExpressionSyntax> ArgAtInvocations { get; }
+        public IReadOnlyList<SyntaxNode> ArgAtInvocations { get; }
 
-        public IReadOnlyList<TInvocationExpressionSyntax> ArgInvocations { get; }
+        public IReadOnlyList<SyntaxNode> ArgInvocations { get; }
 
         public CallInfoContext(
-            IReadOnlyList<TInvocationExpressionSyntax> argAtInvocations,
-            IReadOnlyList<TInvocationExpressionSyntax> argInvocations,
-            IReadOnlyList<TIndexerSyntax> indexerAccesses)
+            IReadOnlyList<SyntaxNode> argAtInvocations,
+            IReadOnlyList<SyntaxNode> argInvocations,
+            IReadOnlyList<SyntaxNode> indexerAccesses)
         {
             IndexerAccesses = indexerAccesses;
             ArgAtInvocations = argAtInvocations;

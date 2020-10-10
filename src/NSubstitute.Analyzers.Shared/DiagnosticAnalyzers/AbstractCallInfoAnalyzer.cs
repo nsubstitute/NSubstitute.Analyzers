@@ -9,18 +9,16 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractCallInfoAnalyzer<TSyntaxKind, TInvocationExpressionSyntax, TIndexerExpressionSyntax> : AbstractDiagnosticAnalyzer
-        where TInvocationExpressionSyntax : SyntaxNode
-        where TIndexerExpressionSyntax : SyntaxNode
+    internal abstract class AbstractCallInfoAnalyzer<TSyntaxKind> : AbstractDiagnosticAnalyzer
         where TSyntaxKind : struct
     {
-        private readonly ICallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> _callInfoFinder;
+        private readonly ICallInfoFinder _callInfoFinder;
         private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
         private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
 
         protected AbstractCallInfoAnalyzer(
             IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
-            ICallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> callInfoFinder,
+            ICallInfoFinder callInfoFinder,
             ISubstitutionNodeFinder substitutionNodeFinder)
             : base(diagnosticDescriptorsProvider)
         {
@@ -46,13 +44,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
-        protected abstract ISymbol GetIndexerSymbol(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax);
-
         protected abstract bool CanCast(Compilation compilation, ITypeSymbol sourceSymbol, ITypeSymbol destinationSymbol);
 
         protected abstract bool IsAssignableTo(Compilation compilation, ITypeSymbol fromSymbol, ITypeSymbol toSymbol);
 
-        protected int? GetArgAtPosition(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TInvocationExpressionSyntax invocationExpressionSyntax)
+        protected int? GetArgAtPosition(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, SyntaxNode invocationExpressionSyntax)
         {
             var operation = syntaxNodeAnalysisContext.SemanticModel.GetOperation(invocationExpressionSyntax);
 
@@ -72,7 +68,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             return (int)literal.ConstantValue.Value;
         }
 
-        protected int? GetIndexerPosition(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax)
+        protected int? GetIndexerPosition(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, SyntaxNode indexerExpressionSyntax)
         {
             var operation = syntaxNodeAnalysisContext.SemanticModel.GetOperation(indexerExpressionSyntax);
             return operation.GetIndexerPosition();
@@ -129,7 +125,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
         }
 
-        private void AnalyzeIndexerInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, CallInfoContext<TInvocationExpressionSyntax, TIndexerExpressionSyntax> callInfoContext, IReadOnlyList<IArgumentOperation> substituteCallParameters)
+        private void AnalyzeIndexerInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, CallInfoContext callInfoContext, IReadOnlyList<IArgumentOperation> substituteCallParameters)
         {
             foreach (var indexer in callInfoContext.IndexerAccesses)
             {
@@ -151,7 +147,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
         }
 
-        private void AnalyzeArgAtInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, CallInfoContext<TInvocationExpressionSyntax, TIndexerExpressionSyntax> callInfoContext, IReadOnlyList<IArgumentOperation> substituteCallParameters)
+        private void AnalyzeArgAtInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, CallInfoContext callInfoContext, IReadOnlyList<IArgumentOperation> substituteCallParameters)
         {
             foreach (var argAtInvocation in callInfoContext.ArgAtInvocations)
             {
@@ -186,7 +182,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
         }
 
-        private void AnalyzeArgInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, CallInfoContext<TInvocationExpressionSyntax, TIndexerExpressionSyntax> callInfoContext, IReadOnlyList<IArgumentOperation> substituteCallParameters)
+        private void AnalyzeArgInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, CallInfoContext callInfoContext, IReadOnlyList<IArgumentOperation> substituteCallParameters)
         {
             foreach (var argInvocation in callInfoContext.ArgInvocations)
             {
@@ -219,7 +215,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
         }
 
-        private bool AnalyzeArgumentAccess(SyntaxNodeAnalysisContext syntaxNodeContext, IReadOnlyList<IArgumentOperation> substituteCallParameters, TIndexerExpressionSyntax indexer, int? position)
+        private bool AnalyzeArgumentAccess(SyntaxNodeAnalysisContext syntaxNodeContext, IReadOnlyList<IArgumentOperation> substituteCallParameters, SyntaxNode indexer, int? position)
         {
             if (position.HasValue && position.Value > substituteCallParameters.Count - 1)
             {
@@ -235,7 +231,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             return false;
         }
 
-        private bool AnalyzeCast(SyntaxNodeAnalysisContext syntaxNodeContext, IReadOnlyList<IArgumentOperation> substituteCallParameters, TIndexerExpressionSyntax indexer, in IndexerInfo indexerInfo, int? position)
+        private bool AnalyzeCast(SyntaxNodeAnalysisContext syntaxNodeContext, IReadOnlyList<IArgumentOperation> substituteCallParameters, SyntaxNode indexer, in IndexerInfo indexerInfo, int? position)
         {
             if (!position.HasValue || !indexerInfo.VerifyIndexerCast)
             {
@@ -265,7 +261,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
         private bool AnalyzeAssignment(
             SyntaxNodeAnalysisContext syntaxNodeContext,
             IReadOnlyList<IArgumentOperation> substituteCallParameters,
-            TIndexerExpressionSyntax indexer,
+            SyntaxNode indexer,
             in IndexerInfo indexerInfo,
             int? position)
         {
@@ -332,7 +328,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             return argumentOperations?.OrderBy(argOperation => argOperation.Parameter.Ordinal).ToList();
         }
 
-        private IndexerInfo GetIndexerInfo(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax)
+        private IndexerInfo GetIndexerInfo(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, SyntaxNode indexerExpressionSyntax)
         {
             var operation = syntaxNodeAnalysisContext.SemanticModel.GetOperation(indexerExpressionSyntax);
             ISymbol info = operation switch

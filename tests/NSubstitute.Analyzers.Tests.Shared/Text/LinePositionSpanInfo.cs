@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.CodeAnalysis.Text;
+﻿using Microsoft.CodeAnalysis.Text;
 
 namespace NSubstitute.Analyzers.Tests.Shared.Text
 {
