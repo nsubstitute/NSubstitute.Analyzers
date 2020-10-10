@@ -9,17 +9,14 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractConflictingArgumentAssignmentsAnalyzer<TSyntaxKind, TInvocationExpressionSyntax, TIndexerExpressionSyntax> : AbstractDiagnosticAnalyzer
-        where TInvocationExpressionSyntax : SyntaxNode
-        where TIndexerExpressionSyntax : SyntaxNode
-        where TSyntaxKind : struct
+    internal abstract class AbstractConflictingArgumentAssignmentsAnalyzer<TSyntaxKind> : AbstractDiagnosticAnalyzer where TSyntaxKind : struct
     {
-        private readonly ICallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> _callInfoFinder;
+        private readonly ICallInfoFinder _callInfoFinder;
         private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
 
         protected AbstractConflictingArgumentAssignmentsAnalyzer(
             IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
-            ICallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> callInfoFinder)
+            ICallInfoFinder callInfoFinder)
             : base(diagnosticDescriptorsProvider)
         {
             _callInfoFinder = callInfoFinder;
@@ -76,18 +73,18 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
         }
 
-        private int? GetIndexerPosition(SyntaxNodeAnalysisContext syntaxNodeContext, TIndexerExpressionSyntax indexerExpression)
+        private int? GetIndexerPosition(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode indexerExpression)
         {
             return syntaxNodeContext.SemanticModel.GetOperation(indexerExpression).GetIndexerPosition();
         }
 
-        private bool IsAssigned(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax)
+        private bool IsAssigned(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, SyntaxNode indexerExpressionSyntax)
         {
             return syntaxNodeAnalysisContext.SemanticModel.GetOperation(indexerExpressionSyntax) is IPropertyReferenceOperation propertyReferenceOperation &&
                    propertyReferenceOperation.Parent is ISimpleAssignmentOperation;
         }
 
-        private IEnumerable<TIndexerExpressionSyntax> FindCallInfoIndexers(SyntaxNodeAnalysisContext syntaxNodeContext, IInvocationOperation invocationOperation)
+        private IEnumerable<SyntaxNode> FindCallInfoIndexers(SyntaxNodeAnalysisContext syntaxNodeContext, IInvocationOperation invocationOperation)
         {
             // perf - dont use linq in hotpaths
             foreach (var argumentOperation in invocationOperation.GetOrderedArgumentOperationsWithoutInstanceArgument())

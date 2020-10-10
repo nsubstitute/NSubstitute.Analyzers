@@ -1,5 +1,4 @@
-﻿using NSubstitute.Analyzers.Tests.Shared;
-using NSubstitute.Analyzers.Tests.Shared.Fixtures;
+﻿using NSubstitute.Analyzers.Tests.Shared.Fixtures;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 using Xunit;
 

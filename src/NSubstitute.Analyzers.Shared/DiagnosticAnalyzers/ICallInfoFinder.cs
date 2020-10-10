@@ -2,8 +2,8 @@ using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal interface ICallInfoFinder<TInvocationExpressionSyntax, TIndexerSyntax>
+    internal interface ICallInfoFinder
     {
-        CallInfoContext<TInvocationExpressionSyntax, TIndexerSyntax> GetCallInfoContext(SemanticModel semanticModel, SyntaxNode syntaxNode);
+        CallInfoContext GetCallInfoContext(SemanticModel semanticModel, SyntaxNode syntaxNode);
     }
 }

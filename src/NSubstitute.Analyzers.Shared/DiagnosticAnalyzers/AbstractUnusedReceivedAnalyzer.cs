@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.Shared.Extensions;
