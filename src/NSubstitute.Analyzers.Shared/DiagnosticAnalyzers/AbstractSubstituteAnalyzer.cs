@@ -7,11 +7,9 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
-    internal abstract class AbstractSubstituteAnalyzer<TSyntaxKind, TInvocationExpressionSyntax, TExpressionSyntax, TArgumentSyntax> : AbstractDiagnosticAnalyzer
+    internal abstract class AbstractSubstituteAnalyzer<TSyntaxKind, TInvocationExpressionSyntax> : AbstractDiagnosticAnalyzer
         where TSyntaxKind : struct
         where TInvocationExpressionSyntax : SyntaxNode
-        where TExpressionSyntax : SyntaxNode
-        where TArgumentSyntax : SyntaxNode
     {
         private readonly ISubstituteProxyAnalysis<TInvocationExpressionSyntax> _substituteProxyAnalysis;
         private readonly ISubstituteConstructorAnalysis<TInvocationExpressionSyntax> _substituteConstructorAnalysis;
@@ -211,11 +209,10 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             if (constructorContext.PossibleConstructors != null && constructorContext.PossibleConstructors.Any() == false)
             {
-                var symbol = substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetSymbolInfo(substituteContext.InvocationExpression);
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.SubstituteForConstructorParametersMismatch,
                     substituteContext.InvocationExpression.GetLocation(),
-                    symbol.Symbol.ToMinimalMethodString(substituteContext.SyntaxNodeAnalysisContext.SemanticModel),
+                    substituteContext.MethodSymbol.ToMinimalMethodString(substituteContext.SyntaxNodeAnalysisContext.SemanticModel),
                     constructorContext.ConstructorType);
 
                 substituteContext.SyntaxNodeAnalysisContext.ReportDiagnostic(diagnostic);
