@@ -4,16 +4,16 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
     internal class CallInfoContext<TInvocationExpressionSyntax, TIndexerSyntax>
     {
-        public List<TIndexerSyntax> IndexerAccesses { get; }
+        public IReadOnlyList<TIndexerSyntax> IndexerAccesses { get; }
 
-        public List<TInvocationExpressionSyntax> ArgAtInvocations { get; }
+        public IReadOnlyList<TInvocationExpressionSyntax> ArgAtInvocations { get; }
 
-        public List<TInvocationExpressionSyntax> ArgInvocations { get; }
+        public IReadOnlyList<TInvocationExpressionSyntax> ArgInvocations { get; }
 
         public CallInfoContext(
-            List<TInvocationExpressionSyntax> argAtInvocations,
-            List<TInvocationExpressionSyntax> argInvocations,
-            List<TIndexerSyntax> indexerAccesses)
+            IReadOnlyList<TInvocationExpressionSyntax> argAtInvocations,
+            IReadOnlyList<TInvocationExpressionSyntax> argInvocations,
+            IReadOnlyList<TIndexerSyntax> indexerAccesses)
         {
             IndexerAccesses = indexerAccesses;
             ArgAtInvocations = argAtInvocations;
