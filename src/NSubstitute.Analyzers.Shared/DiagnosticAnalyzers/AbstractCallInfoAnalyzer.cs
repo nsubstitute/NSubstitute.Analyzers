@@ -334,7 +334,14 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private IndexerInfo GetIndexerInfo(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax)
         {
-            var info = GetIndexerSymbol(syntaxNodeAnalysisContext, indexerExpressionSyntax);
+            var operation = syntaxNodeAnalysisContext.SemanticModel.GetOperation(indexerExpressionSyntax);
+            ISymbol info = operation switch
+            {
+                IInvocationOperation inv => inv.TargetMethod,
+                IArrayElementReferenceOperation x => x.Type,
+                _ => null
+            };
+
             var symbol = info as IMethodSymbol;
             var verifyIndexerCast = symbol == null || symbol.Name != MetadataNames.CallInfoArgTypesMethod;
             var verifyAssignment = symbol == null;
