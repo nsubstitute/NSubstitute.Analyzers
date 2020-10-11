@@ -32,8 +32,7 @@ internal abstract class AbstractSubstituteForInternalMemberCodeFixProvider<TComp
         var invocationExpression = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
         var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
 
-        if (invocationExpression is not { } ||
-            semanticModel.GetOperation(invocationExpression) is not IInvocationOperation invocationOperation)
+        if (semanticModel.GetOperation(invocationExpression) is not IInvocationOperation invocationOperation)
         {
             return;
         }
@@ -66,6 +65,6 @@ internal abstract class AbstractSubstituteForInternalMemberCodeFixProvider<TComp
 
     private TCompilationUnitSyntax FindCompilationUnitSyntax(SyntaxNode syntaxNode)
     {
-        return syntaxNode.Parent.Ancestors().OfType<TCompilationUnitSyntax>().LastOrDefault();
+        return syntaxNode.Ancestors().OfType<TCompilationUnitSyntax>().LastOrDefault();
     }
 }
