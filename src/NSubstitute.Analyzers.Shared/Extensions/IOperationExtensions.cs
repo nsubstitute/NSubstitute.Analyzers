@@ -23,7 +23,7 @@ namespace NSubstitute.Analyzers.Shared.Extensions
         public static IEnumerable<IArgumentOperation> GetOrderedArgumentOperationsWithoutInstanceArgument(this IInvocationOperation invocationOperation)
         {
             var orderedArguments = invocationOperation.GetOrderedArgumentOperations()
-                .Where(arg => IsImplicitlyProvidedArrayWithValues(arg) == false);
+                .Where(arg => IsImplicitlyProvidedArrayWithoutValues(arg) == false);
 
             if (!invocationOperation.TargetMethod.IsExtensionMethod)
             {
@@ -109,7 +109,7 @@ namespace NSubstitute.Analyzers.Shared.Extensions
             return (int)literal.ConstantValue.Value;
         }
 
-        private static bool IsImplicitlyProvidedArrayWithValues(IArgumentOperation arg)
+        private static bool IsImplicitlyProvidedArrayWithoutValues(IArgumentOperation arg)
         {
             return arg.IsImplicit &&
                    arg.ArgumentKind == ArgumentKind.ParamArray &&

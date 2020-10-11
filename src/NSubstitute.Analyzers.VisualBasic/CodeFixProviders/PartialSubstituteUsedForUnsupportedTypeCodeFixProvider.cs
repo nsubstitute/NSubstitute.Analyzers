@@ -8,17 +8,17 @@ using static Microsoft.CodeAnalysis.VisualBasic.SyntaxFactory;
 namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders
 {
     [ExportCodeFixProvider(LanguageNames.VisualBasic)]
-    internal sealed class PartialSubstituteUsedForUnsupportedTypeCodeFixProvider : AbstractPartialSubstituteUsedForUnsupportedTypeCodeFixProvider<InvocationExpressionSyntax, GenericNameSyntax, IdentifierNameSyntax, SimpleNameSyntax>
+    internal sealed class PartialSubstituteUsedForUnsupportedTypeCodeFixProvider : AbstractPartialSubstituteUsedForUnsupportedTypeCodeFixProvider<InvocationExpressionSyntax, SimpleNameSyntax>
     {
-        protected override TInnerNameSyntax GetNameSyntax<TInnerNameSyntax>(InvocationExpressionSyntax methodInvocationNode)
+        protected override SimpleNameSyntax GetNameSyntax(InvocationExpressionSyntax methodInvocationNode)
         {
             var memberAccess = (MemberAccessExpressionSyntax)methodInvocationNode.Expression;
-            return memberAccess.Name as TInnerNameSyntax;
+            return memberAccess.Name;
         }
 
-        protected override TInnerNameSyntax GetUpdatedNameSyntax<TInnerNameSyntax>(TInnerNameSyntax nameSyntax, string identifierName)
+        protected override SimpleNameSyntax GetUpdatedNameSyntax(SimpleNameSyntax nameSyntax, string identifierName)
         {
-            return (TInnerNameSyntax)nameSyntax.WithIdentifier(IdentifierName(identifierName).Identifier);
+            return nameSyntax.WithIdentifier(IdentifierName(identifierName).Identifier);
         }
     }
 }
