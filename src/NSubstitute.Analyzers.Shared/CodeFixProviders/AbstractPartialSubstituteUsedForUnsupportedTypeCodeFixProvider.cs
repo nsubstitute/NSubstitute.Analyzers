@@ -4,15 +4,14 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.Editing;
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 {
-    internal abstract class AbstractPartialSubstituteUsedForUnsupportedTypeCodeFixProvider<TInvocationExpression, TGenericNameSyntax, TIdentifierNameSyntax, TNameSyntax>
+    internal abstract class AbstractPartialSubstituteUsedForUnsupportedTypeCodeFixProvider<TInvocationExpression, TSimpleNameSyntax>
         : CodeFixProvider
         where TInvocationExpression : SyntaxNode
-        where TGenericNameSyntax : TNameSyntax
-        where TIdentifierNameSyntax : TNameSyntax
-        where TNameSyntax : SyntaxNode
+        where TSimpleNameSyntax : SyntaxNode
     {
         public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
@@ -21,53 +20,51 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             var diagnostic = context.Diagnostics.FirstOrDefault(diag => diag.Descriptor.Id == DiagnosticIdentifiers.PartialSubstituteForUnsupportedType);
-            if (diagnostic != null)
+            if (diagnostic == null)
             {
-                var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-                var invocationExpression = (TInvocationExpression)root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
-                var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
-
-                if (!(semanticModel.GetSymbolInfo(invocationExpression).Symbol is IMethodSymbol methodSymbol))
-                {
-                    return;
-                }
-
-                var title = methodSymbol.Name == MetadataNames.SubstituteFactoryCreatePartial ? "Use SubstituteFactory.Create" : "Use Substitute.For";
-                var codeAction = CodeAction.Create(
-                    title,
-                    ct => CreateChangedDocument(context, root, methodSymbol, invocationExpression),
-                    nameof(AbstractPartialSubstituteUsedForUnsupportedTypeCodeFixProvider<TInvocationExpression, TGenericNameSyntax, TIdentifierNameSyntax, TNameSyntax>));
-                context.RegisterCodeFix(codeAction, diagnostic);
+                return;
             }
+
+            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+            var invocationExpression = (TInvocationExpression)root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
+            var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
+
+            if (!(semanticModel.GetSymbolInfo(invocationExpression).Symbol is IMethodSymbol methodSymbol))
+            {
+                return;
+            }
+
+            var title = methodSymbol.Name == MetadataNames.SubstituteFactoryCreatePartial
+                ? "Use SubstituteFactory.Create"
+                : "Use Substitute.For";
+
+            var codeAction = CodeAction.Create(
+                title,
+                ct => CreateChangedDocument(context, methodSymbol, invocationExpression),
+                nameof(AbstractPartialSubstituteUsedForUnsupportedTypeCodeFixProvider<TInvocationExpression, TSimpleNameSyntax>));
+
+            context.RegisterCodeFix(codeAction, diagnostic);
         }
 
-        protected abstract TInnerNameSyntax GetNameSyntax<TInnerNameSyntax>(TInvocationExpression methodInvocationNode) where TInnerNameSyntax : TNameSyntax;
+        protected abstract TSimpleNameSyntax GetNameSyntax(TInvocationExpression methodInvocationNode);
 
-        protected abstract TInnerNameSyntax GetUpdatedNameSyntax<TInnerNameSyntax>(TInnerNameSyntax nameSyntax, string identifierName) where TInnerNameSyntax : TNameSyntax;
+        protected abstract TSimpleNameSyntax GetUpdatedNameSyntax(TSimpleNameSyntax nameSyntax, string identifierName);
 
-        private Task<Document> CreateChangedDocument(CodeFixContext context, SyntaxNode root, IMethodSymbol methodSymbol, TInvocationExpression invocationExpression)
+        private async Task<Document> CreateChangedDocument(CodeFixContext context, IMethodSymbol methodSymbol, TInvocationExpression invocationExpression)
         {
-            SyntaxNode nameNode;
-            SyntaxNode updateNameNode;
+            var documentEditor = await DocumentEditor.CreateAsync(context.Document);
+            var newIdentifierName = methodSymbol.IsGenericMethod
+                ? MetadataNames.NSubstituteForMethod
+                : MetadataNames.SubstituteFactoryCreate;
 
-            if (methodSymbol.IsGenericMethod)
-            {
-                var genericNameSyntax = GetNameSyntax<TGenericNameSyntax>(invocationExpression);
-                nameNode = genericNameSyntax;
-                updateNameNode = GetUpdatedNameSyntax(genericNameSyntax, MetadataNames.NSubstituteForMethod);
-            }
-            else
-            {
-                var identifierNameSyntax = GetNameSyntax<TIdentifierNameSyntax>(invocationExpression);
-                nameNode = identifierNameSyntax;
-                updateNameNode = GetUpdatedNameSyntax(identifierNameSyntax, MetadataNames.SubstituteFactoryCreate);
-            }
+            var nameNode = GetNameSyntax(invocationExpression);
+            var updateNameNode = GetUpdatedNameSyntax(nameNode, newIdentifierName);
 
-            var forNode = invocationExpression.ReplaceNode(nameNode, updateNameNode);
+            var updatedInvocationExpression = invocationExpression.ReplaceNode(nameNode, updateNameNode);
 
-            var replaceNode = root.ReplaceNode(invocationExpression, forNode);
+            documentEditor.ReplaceNode(invocationExpression, updatedInvocationExpression);
 
-            return Task.FromResult(context.Document.WithSyntaxRoot(replaceNode));
+            return documentEditor.GetChangedDocument();
         }
     }
 }
