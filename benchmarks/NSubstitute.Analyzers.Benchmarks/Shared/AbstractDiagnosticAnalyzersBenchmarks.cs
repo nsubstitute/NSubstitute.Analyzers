@@ -24,6 +24,8 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
 
         protected abstract AnalyzerBenchmark NonSubstitutableMemberWhenAnalyzerBenchmark { get; }
 
+        protected abstract AnalyzerBenchmark NonSubstitutableMemberReceivedInOrderAnalyzerBenchmark { get; }
+
         protected abstract AnalyzerBenchmark ReEntrantSetupAnalyzerBenchmark { get; }
 
         protected abstract AnalyzerBenchmark SubstituteAnalyzerBenchmark { get; }
@@ -77,6 +79,12 @@ namespace NSubstitute.Analyzers.Benchmarks.Shared
         public void NonSubstitutableMemberWhenAnalyzer()
         {
             NonSubstitutableMemberWhenAnalyzerBenchmark.Run();
+        }
+
+        [Benchmark]
+        public void NonSubstitutableMemberReceivedInOrderAnalyzer()
+        {
+            NonSubstitutableMemberReceivedInOrderAnalyzerBenchmark.Run();
         }
 
         [Benchmark]

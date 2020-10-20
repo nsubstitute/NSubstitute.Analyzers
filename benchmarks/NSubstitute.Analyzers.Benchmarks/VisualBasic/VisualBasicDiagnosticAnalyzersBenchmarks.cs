@@ -17,6 +17,8 @@ namespace NSubstitute.Analyzers.Benchmarks.VisualBasic
 
         protected override AnalyzerBenchmark NonSubstitutableMemberWhenAnalyzerBenchmark { get; }
 
+        protected override AnalyzerBenchmark NonSubstitutableMemberReceivedInOrderAnalyzerBenchmark { get; }
+
         protected override AnalyzerBenchmark ReEntrantSetupAnalyzerBenchmark { get; }
 
         protected override AnalyzerBenchmark SubstituteAnalyzerBenchmark { get; }
@@ -46,6 +48,7 @@ namespace NSubstitute.Analyzers.Benchmarks.VisualBasic
             NonSubstitutableMemberAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new NonSubstitutableMemberAnalyzer());
             NonSubstitutableMemberReceivedAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new NonSubstitutableMemberReceivedAnalyzer());
             NonSubstitutableMemberWhenAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new NonSubstitutableMemberWhenAnalyzer());
+            NonSubstitutableMemberReceivedInOrderAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new NonSubstitutableMemberReceivedInOrderAnalyzer());
             ReEntrantSetupAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new ReEntrantSetupAnalyzer());
             SubstituteAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new SubstituteAnalyzer());
             UnusedReceivedAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new UnusedReceivedAnalyzer());

@@ -10,7 +10,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
     internal sealed class NonSubstitutableMemberWhenAnalyzer : AbstractNonSubstitutableMemberWhenAnalyzer<SyntaxKind, InvocationExpressionSyntax>
     {
         public NonSubstitutableMemberWhenAnalyzer()
-            : base(NSubstitute.Analyzers.VisualBasic.DiagnosticDescriptorsProvider.Instance, SubstitutionNodeFinder.Instance)
+            : base(NSubstitute.Analyzers.VisualBasic.DiagnosticDescriptorsProvider.Instance, SubstitutionNodeFinder.Instance, NonSubstitutableMemberAnalysis.Instance)
         {
         }
 

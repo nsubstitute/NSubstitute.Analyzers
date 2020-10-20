@@ -5,11 +5,6 @@ namespace NSubstitute.Analyzers.Shared.Extensions
 {
     internal static class ISymbolExtensions
     {
-        public static bool CanBeSetuped(this ISymbol symbol)
-        {
-            return IsInterfaceMember(symbol) || IsVirtual(symbol);
-        }
-
         public static bool MemberVisibleToProxyGenerator(this ISymbol symbol)
         {
             return symbol.DeclaredAccessibility != Accessibility.Internal || symbol.InternalsVisibleToProxyGenerator();
@@ -45,20 +40,6 @@ namespace NSubstitute.Analyzers.Shared.Extensions
         public static bool IsLocal(this ISymbol symbol)
         {
             return symbol != null && symbol.Kind == SymbolKind.Local;
-        }
-
-        private static bool IsInterfaceMember(ISymbol symbol)
-        {
-            return symbol?.ContainingType?.TypeKind == TypeKind.Interface;
-        }
-
-        private static bool IsVirtual(ISymbol symbol)
-        {
-            var isVirtual = symbol.IsVirtual
-                            || (symbol.IsOverride && !symbol.IsSealed)
-                            || symbol.IsAbstract;
-
-            return isVirtual;
         }
     }
 }

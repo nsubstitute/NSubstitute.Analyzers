@@ -133,6 +133,10 @@
     <value>Member {0} can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.</value>
     <comment>The format-able message the diagnostic displays.</comment>
   </data>
+  <data name="NonVirtualReceivedInOrderSetupSpecificationMessageFormat" xml:space="preserve">
+    <value>Member {0} can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.</value>
+    <comment>The format-able message the diagnostic displays.</comment>
+  </data>
   <data name="ReEntrantSubstituteCallMessageFormat" xml:space="preserve">
     <value>{0}() is set with a method that itself calls {1}. This can cause problems with NSubstitute. Consider replacing with a lambda: {0}(Function(x) {2}).</value>
     <comment>The format-able message the diagnostic displays.</comment>

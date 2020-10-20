@@ -13,9 +13,6 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
     {
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
-        protected override ImmutableHashSet<Type> KnownNonVirtualSyntaxKinds { get; } = ImmutableHashSet.Create(
-                typeof(LiteralExpressionSyntax));
-
         protected override ImmutableHashSet<int> SupportedMemberAccesses { get; } = ImmutableHashSet.Create(
             (int)SyntaxKind.InvocationExpression,
             (int)SyntaxKind.SimpleMemberAccessExpression,
@@ -26,7 +23,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
             (int)SyntaxKind.StringLiteralExpression);
 
         public NonSubstitutableMemberAnalyzer()
-            : base(NSubstitute.Analyzers.VisualBasic.DiagnosticDescriptorsProvider.Instance, SubstitutionNodeFinder.Instance)
+            : base(NSubstitute.Analyzers.VisualBasic.DiagnosticDescriptorsProvider.Instance, SubstitutionNodeFinder.Instance, NonSubstitutableMemberAnalysis.Instance)
         {
         }
     }

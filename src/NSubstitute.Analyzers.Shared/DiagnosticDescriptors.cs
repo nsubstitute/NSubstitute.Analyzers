@@ -46,6 +46,14 @@ namespace NSubstitute.Analyzers.Shared
                 defaultSeverity: DiagnosticSeverity.Warning,
                 isEnabledByDefault: true);
 
+        public static DiagnosticDescriptor NonVirtualReceivedInOrderSetupSpecification { get; } =
+            CreateDiagnosticDescriptor(
+                name: nameof(NonVirtualReceivedInOrderSetupSpecification),
+                id: DiagnosticIdentifiers.NonVirtualReceivedInOrderSetupSpecification,
+                category: DiagnosticCategory.NonVirtualSubstitution.GetDisplayName(),
+                defaultSeverity: DiagnosticSeverity.Warning,
+                isEnabledByDefault: true);
+
         public static DiagnosticDescriptor PartialSubstituteForUnsupportedType { get; } =
             CreateDiagnosticDescriptor(
                 name: nameof(PartialSubstituteForUnsupportedType),

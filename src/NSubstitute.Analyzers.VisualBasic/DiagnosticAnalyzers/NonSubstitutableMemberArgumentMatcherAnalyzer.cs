@@ -49,7 +49,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
                 (int)SyntaxKind.VariableDeclarator));
 
         public NonSubstitutableMemberArgumentMatcherAnalyzer()
-            : base(NSubstitute.Analyzers.VisualBasic.DiagnosticDescriptorsProvider.Instance)
+            : base(NonSubstitutableMemberAnalysis.Instance, NSubstitute.Analyzers.VisualBasic.DiagnosticDescriptorsProvider.Instance)
         {
         }
 
