@@ -681,6 +681,34 @@ End Namespace
             await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
         }
 
+        public override async Task ReportsNoDiagnostics_WhenSubscribingToEvent()
+        {
+            var source = @"Imports NSubstitute
+Imports System
+
+Namespace MyNamespace
+    Public Class Foo
+        Public Event SomeEvent As Action
+
+        Public Function Bar() As Integer
+            Return 2
+        End Function
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            NSubstitute.Received.InOrder(Function()
+                AddHandler substitute.SomeEvent, Arg.Any(Of Action)()
+            End Function)
+        End Sub
+
+    End Class
+End Namespace
+";
+            await VerifyNoDiagnostic(source);
+        }
+
         public override async Task ReportsNoDiagnostic_WhenOverloadCannotBeInferred()
         {
             var source = $@"Imports System

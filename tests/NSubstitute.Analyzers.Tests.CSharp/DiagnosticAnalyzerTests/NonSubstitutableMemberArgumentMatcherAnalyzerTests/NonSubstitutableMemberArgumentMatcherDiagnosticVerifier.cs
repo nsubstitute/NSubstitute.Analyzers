@@ -106,6 +106,9 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitu
         [MemberData(nameof(CorrectlyUsedArgTestCasesWithoutCasts))]
         public abstract Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod(string arg);
 
+        [Fact]
+        public abstract Task ReportsNoDiagnostics_WhenSubscribingToEvent();
+
         public static IEnumerable<object[]> MisusedArgTestCases
         {
             get

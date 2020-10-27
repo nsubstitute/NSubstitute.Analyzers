@@ -45,5 +45,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
         Task ReportsNoDiagnostics_WhenUsedInProtectedInternalVirtualMember(string arg);
 
         Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod(string arg);
+
+        Task ReportsNoDiagnostics_WhenSubscribingToEvent();
     }
 }
