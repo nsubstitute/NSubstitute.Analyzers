@@ -21,7 +21,6 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitu
         [CombinatoryTheory]
         [InlineData("sub => [|sub.Bar(Arg.Any<int>())|]")]
         [InlineData("delegate(Foo sub) { [|sub.Bar(Arg.Any<int>())|]; }")]
-        [InlineData("sub => { [|sub.Bar(Arg.Any<int>())|]; }")]
         public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method, string whenAction);
 
         [CombinatoryTheory]
