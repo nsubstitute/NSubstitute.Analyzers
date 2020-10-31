@@ -89,7 +89,7 @@ namespace NSubstitute.Analyzers.Shared.Extensions
                 return invocationOperation.Children.First();
             }
 
-            return invocationOperation.Arguments.First().Value;
+            return GetOrderedArgumentOperations(invocationOperation).First().Value;
         }
 
         public static int? GetIndexerPosition(this IOperation operation)
