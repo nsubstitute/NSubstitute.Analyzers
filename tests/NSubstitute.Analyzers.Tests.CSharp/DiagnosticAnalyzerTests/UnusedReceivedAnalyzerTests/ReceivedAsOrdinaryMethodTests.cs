@@ -5,17 +5,31 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.UnusedRecei
 {
     [CombinatoryData(
         "ReceivedExtensions.Received(substitute, Quantity.None())",
+        "ReceivedExtensions.Received(substitute: substitute, requiredQuantity: Quantity.None())",
+        "ReceivedExtensions.Received(requiredQuantity: Quantity.None(), substitute: substitute)",
         "ReceivedExtensions.Received<Foo>(substitute, Quantity.None())",
+        "ReceivedExtensions.Received<Foo>(substitute: substitute, requiredQuantity: Quantity.None())",
+        "ReceivedExtensions.Received<Foo>(requiredQuantity: Quantity.None(), substitute: substitute)",
         "SubstituteExtensions.Received(substitute)",
+        "SubstituteExtensions.Received(substitute: substitute)",
         "SubstituteExtensions.Received<Foo>(substitute)",
-        "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
-        "ReceivedExtensions.ReceivedWithAnyArgs<Foo>(substitute, Quantity.None())",
+        "SubstituteExtensions.Received<Foo>(substitute: substitute)",
+        "ReceivedExtensions.ReceivedWithAnyArgs(substitute: substitute, requiredQuantity: Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(requiredQuantity: Quantity.None(), substitute: substitute)",
+        "ReceivedExtensions.ReceivedWithAnyArgs<Foo>(substitute: substitute, requiredQuantity: Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs<Foo>(requiredQuantity: Quantity.None(), substitute: substitute)",
         "SubstituteExtensions.ReceivedWithAnyArgs(substitute)",
+        "SubstituteExtensions.ReceivedWithAnyArgs(substitute: substitute)",
         "SubstituteExtensions.ReceivedWithAnyArgs<Foo>(substitute)",
+        "SubstituteExtensions.ReceivedWithAnyArgs<Foo>(substitute: substitute)",
         "SubstituteExtensions.DidNotReceive(substitute)",
+        "SubstituteExtensions.DidNotReceive(substitute: substitute)",
         "SubstituteExtensions.DidNotReceive<Foo>(substitute)",
+        "SubstituteExtensions.DidNotReceive<Foo>(substitute: substitute)",
         "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute)",
-        "SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo>(substitute)")]
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute: substitute)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo>(substitute)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo>(substitute: substitute)")]
     public class ReceivedAsOrdinaryMethodTests : UnusedReceivedDiagnosticVerifier
     {
         public override async Task ReportDiagnostics_WhenUsedWithoutMemberCall(string method)
@@ -130,17 +144,33 @@ namespace MyNamespace
 
         [CombinatoryData(
             "ReceivedExtensions.Received(substitute, Quantity.None())",
+            "ReceivedExtensions.Received(substitute: substitute, requiredQuantity: Quantity.None())",
+            "ReceivedExtensions.Received(requiredQuantity: Quantity.None(), substitute: substitute)",
             "ReceivedExtensions.Received<Func<int>>(substitute, Quantity.None())",
+            "ReceivedExtensions.Received<Func<int>>(substitute: substitute, requiredQuantity: Quantity.None())",
+            "ReceivedExtensions.Received<Func<int>>(requiredQuantity: Quantity.None(), substitute: substitute)",
             "SubstituteExtensions.Received(substitute)",
+            "SubstituteExtensions.Received(substitute: substitute)",
             "SubstituteExtensions.Received<Func<int>>(substitute)",
+            "SubstituteExtensions.Received<Func<int>>(substitute: substitute)",
             "SubstituteExtensions.ReceivedWithAnyArgs(substitute)",
+            "SubstituteExtensions.ReceivedWithAnyArgs(substitute: substitute)",
             "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
+            "ReceivedExtensions.ReceivedWithAnyArgs(substitute: substitute, requiredQuantity: Quantity.None())",
+            "ReceivedExtensions.ReceivedWithAnyArgs(requiredQuantity: Quantity.None(), substitute: substitute)",
             "ReceivedExtensions.ReceivedWithAnyArgs<Func<int>>(substitute, Quantity.None())",
+            "ReceivedExtensions.ReceivedWithAnyArgs<Func<int>>(substitute: substitute, requiredQuantity: Quantity.None())",
+            "ReceivedExtensions.ReceivedWithAnyArgs<Func<int>>(requiredQuantity: Quantity.None(), substitute: substitute)",
             "SubstituteExtensions.ReceivedWithAnyArgs<Func<int>>(substitute)",
+            "SubstituteExtensions.ReceivedWithAnyArgs<Func<int>>(substitute: substitute)",
             "SubstituteExtensions.DidNotReceive(substitute)",
+            "SubstituteExtensions.DidNotReceive(substitute: substitute)",
             "SubstituteExtensions.DidNotReceive<Func<int>>(substitute)",
+            "SubstituteExtensions.DidNotReceive<Func<int>>(substitute: substitute)",
             "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute)",
-            "SubstituteExtensions.DidNotReceiveWithAnyArgs<Func<int>>(substitute)")]
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute: substitute)",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs<Func<int>>(substitute)",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs<Func<int>>(substitute: substitute)")]
         public override async Task ReportNoDiagnostics_WhenUsedWithInvokingDelegate(string method)
         {
             var source = $@"using System;

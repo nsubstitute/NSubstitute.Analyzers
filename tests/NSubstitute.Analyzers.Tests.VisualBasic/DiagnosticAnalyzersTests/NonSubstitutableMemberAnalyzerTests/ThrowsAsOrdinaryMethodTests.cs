@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using MoreLinq.Extensions;
 using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Shared.Settings;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
@@ -29,7 +30,8 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            {method}([|substitute.Bar()|], New Exception())
+            {method}(value:= [|substitute.Bar()|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substitute.Bar()|])
         End Sub
     End Class
 End Namespace
@@ -48,6 +50,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             {method}([|{literal}|], New Exception())
+            {method}(value:= [|{literal}|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|{literal}|])
         End Sub
     End Class
 End Namespace
@@ -74,6 +78,8 @@ Namespace MyNamespace
 
         Public Sub Test()
             {method}([|Foo.Bar()|], New Exception())
+            {method}(value:= [|Foo.Bar()|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|Foo.Bar()|])
         End Sub
     End Class
 End Namespace
@@ -101,6 +107,7 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute.Bar(), New Exception())
+            {method}(value:= substitute.Bar(), ex:= New Exception())
         End Sub
     End Class
 End Namespace
@@ -136,6 +143,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo2)()
             {method}(substitute.Bar(), New Exception())
+            {method}(value:= substitute.Bar(), ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute.Bar())
         End Sub
     End Class
 End Namespace
@@ -164,6 +173,8 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             Dim returnValue = substitute.Bar()
             {method}(returnValue, New Exception())
+            {method}(value:= returnValue, ex:= New Exception())
+            {method}(ex:= New Exception(), value:= returnValue)
         End Sub
     End Class
 End Namespace
@@ -184,6 +195,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Func(Of Integer))()
             {method}(substitute(), New Exception())
+            {method}(value:= substitute(), ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute())
         End Sub
     End Class
 End Namespace
@@ -219,6 +232,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo2)()
             {method}([|substitute.Bar()|], New Exception())
+            {method}(value:= [|substitute.Bar()|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substitute.Bar()|])
         End Sub
     End Class
 End Namespace
@@ -244,6 +259,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute.Bar(), New Exception())
+            {method}(value:= substitute.Bar(), ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute.Bar())
         End Sub
     End Class
 End Namespace
@@ -271,6 +288,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             {method}(substitute.Bar(), New Exception())
+            {method}(value:= substitute.Bar(), ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute.Bar())
         End Sub
     End Class
 End Namespace
@@ -297,6 +316,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             {method}(substitute.Bar, New Exception())
+            {method}(value:= substitute.Bar, ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute.Bar)
         End Sub
     End Class
 End Namespace
@@ -322,6 +343,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo(Of Integer))()
             {method}(substitute.Bar(Of Integer), New Exception())
+            {method}(value:= substitute.Bar(Of Integer), ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute.Bar(Of Integer))
         End Sub
     End Class
 End Namespace";
@@ -347,6 +370,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
             {method}(substitute.Bar, New Exception())
+            {method}(value:= substitute.Bar, ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute.Bar)
         End Sub
     End Class
 End Namespace";
@@ -372,6 +397,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of IFoo)
             {method}(substitute(1), New Exception())
+            {method}(value:= substitute(1), ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute(1))
         End Sub
     End Class
 End Namespace";
@@ -399,6 +426,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
             {method}(substitute.Bar, New Exception())
+            {method}(value:= substitute.Bar, ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute.Bar)
         End Sub
     End Class
 End Namespace";
@@ -427,6 +456,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
             {method}([|substitute.Bar|], New Exception())
+            {method}(value:= [|substitute.Bar|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substitute.Bar|])
         End Sub
     End Class
 End Namespace";
@@ -460,6 +491,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
             {method}(substitute(1), New Exception())
+            {method}(value:= substitute(1), ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute(1))
         End Sub
     End Class
 End Namespace";
@@ -489,6 +522,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
             {method}([|substitute(1)|], New Exception())
+            {method}(value:= [|substitute(1)|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substitute(1)|])
         End Sub
     End Class
 End Namespace";
@@ -549,6 +584,8 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute.Bar, New Exception())
             {method}([|substitute.FooBar|], New Exception())
+            {method}(value:= [|substitute.FooBar|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substitute.FooBar|])
         End Sub
     End Class
 End Namespace
@@ -576,6 +613,8 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo(Of Integer))()
             {method}(substitute.Bar, New Exception())
             {method}([|substitute.FooBar|], New Exception())
+            {method}(value:= [|substitute.FooBar|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substitute.FooBar|])
         End Sub
     End Class
 End Namespace
@@ -608,6 +647,8 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute.Bar(1, 2), New Exception())
             {method}([|substitute.Bar(1)|], New Exception())
+            {method}(value:= [|substitute.Bar(1)|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substitute.Bar(1)|])
         End Sub
     End Class
 End Namespace
@@ -640,6 +681,8 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute.Bar(Of Integer)(1, 2), New Exception())
             {method}([|substitute.Bar(1)|], New Exception())
+            {method}(value:= [|substitute.Bar(1)|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substitute.Bar(1)|])
         End Sub
     End Class
 End Namespace
@@ -676,6 +719,8 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute(1 ,2), New Exception())
             {method}([|substitute(1)|], New Exception())
+            {method}(value:= [|substitute(1)|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substitute(1)|])
         End Sub
     End Class
 End Namespace
@@ -712,6 +757,8 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo(Of Integer))()
             {method}(substitute(1 ,2), New Exception())
             {method}([|substitute(1)|], New Exception())
+            {method}(value:= [|substitute(1)|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substitute(1)|])
         End Sub
     End Class
 End Namespace
@@ -765,6 +812,8 @@ Namespace MyNamespace
             {method}(substitute.FooBar(), New Exception())
             Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar)()
             {method}([|substituteFooBarBar(1)|], New Exception())
+            {method}(value:= [|substituteFooBarBar(1)|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substituteFooBarBar(1)|])
             {method}([|substituteFooBarBar.Bar|], New Exception())
             {method}([|substituteFooBarBar.FooBar()|], New Exception())
         End Sub
@@ -779,7 +828,7 @@ End Namespace
                  "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
                  "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
                  "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted."
-             };
+             }.Repeat(2).ToList();
 
              var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(NonVirtualSetupSpecificationDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
@@ -831,6 +880,8 @@ Namespace MyNamespace
             {method}(substitute.FooBar(), New Exception())
             Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar(Of Integer))()
             {method}([|substituteFooBarBar(1)|], New Exception())
+            {method}(value:= [|substituteFooBarBar(1)|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substituteFooBarBar(1)|])
             {method}([|substituteFooBarBar.Bar|], New Exception())
             {method}([|substituteFooBarBar.FooBar()|], New Exception())
         End Sub
@@ -845,7 +896,7 @@ End Namespace
                 "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
                 "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
                 "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted."
-            };
+            }.Repeat(2).ToList();
 
             var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(NonVirtualSetupSpecificationDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
@@ -900,6 +951,8 @@ Namespace MyNamespace
             {method}(substitute.FooBar(), New Exception())
             Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar)()
             {method}([|substituteFooBarBar(1)|], New Exception())
+            {method}(value:= [|substituteFooBarBar(1)|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substituteFooBarBar(1)|])
             {method}([|substituteFooBarBar.Bar|], New Exception())
             {method}([|substituteFooBarBar.FooBar()|], New Exception())
         End Sub
@@ -914,7 +967,7 @@ End Namespace
                 "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
                 "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
                 "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted."
-            };
+            }.Repeat(2).ToList();
 
             var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(NonVirtualSetupSpecificationDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
@@ -937,6 +990,8 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             {method}(substitute.GetBar(), New Exception())
             {method}([|substitute.GetFooBar()|], New Exception())
+            {method}(value:= [|substitute.GetFooBar()|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substitute.GetFooBar()|])
         End Sub
     End Class
 
@@ -992,6 +1047,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             Dim x = {method}([|substitute{call}|], New Exception())
+            Dim y = {method}(value:= [|substitute{call}|], ex:= New Exception())
+            Dim z = {method}(ex:= New Exception(), value:= [|substitute{call}|])
         End Sub
     End Class
 End Namespace";
@@ -1028,6 +1085,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             Dim x = {method}(substitute{call}, New Exception())
+            Dim y = {method}(value:= substitute{call}, ex:= New Exception())
+            Dim z = {method}(ex:= New Exception(), value:= substitute{call})
         End Sub
     End Class
 End Namespace";
@@ -1062,6 +1121,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             Dim x = {method}([|substitute{call}|], New Exception())
+            Dim y = {method}(value:= [|substitute{call}|], ex:= New Exception())
+            Dim z = {method}(ex:= New Exception(), value:= [|substitute{call}|])
         End Sub
     End Class
 End Namespace";
@@ -1094,6 +1155,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             Dim x = {method}(substitute{call}, New Exception())
+            Dim y = {method}(value:= substitute{call}, ex:= New Exception())
+            Dim z = {method}(ex:= New Exception(), value:= substitute{call})
         End Sub
     End Class
 End Namespace";

@@ -28,7 +28,17 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             var returnedValue = SubstituteExtensions.Returns({call}, 1);
+            var otherValue = SubstituteExtensions.Returns(value: {call}, returnThis: 1);
+            var yetAnotherValue = SubstituteExtensions.Returns(returnThis: 1, value: {call});
             returnedValue.{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            otherValue.{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            yetAnotherValue.{method}(callInfo =>
             {{
                 {argAccess}
             }});
@@ -64,6 +74,14 @@ namespace MyNamespace
             {{
                 {argAccess}
             }});
+            SubstituteExtensions.Returns(value: {call}, returnThis: 1).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            SubstituteExtensions.Returns(returnThis: 1, value: {call}).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
         }}
     }}
 }}";
@@ -96,6 +114,14 @@ namespace MyNamespace
             {{
                 {argAccess}
             }});
+            SubstituteExtensions.Returns(value: {call}, returnThis: 1).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            SubstituteExtensions.Returns(returnThis: 1, value: {call}).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
         }}
     }}
 }}";
@@ -124,6 +150,14 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             SubstituteExtensions.Returns({call}, 1).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            SubstituteExtensions.Returns(value: {call}, returnThis: 1).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            SubstituteExtensions.Returns(returnThis: 1, value: {call}).{method}(callInfo =>
             {{
                 {argAccess}
             }});
@@ -161,6 +195,14 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             SubstituteExtensions.Returns({call}, 1).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            SubstituteExtensions.Returns(value: {call}, returnThis: 1).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            SubstituteExtensions.Returns(returnThis: 1, value: {call}).{method}(callInfo =>
             {{
                 {argAccess}
             }});
@@ -210,6 +252,14 @@ namespace MyNamespace
             {{
                 {argAccess}
             }});
+            SubstituteExtensions.Returns(value: {call}, returnThis: 1).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            SubstituteExtensions.Returns(returnThis: 1, value: {call}).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
         }}
     }}
 }}";
@@ -248,6 +298,14 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             SubstituteExtensions.Returns({call}, 1).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            SubstituteExtensions.Returns(value: {call}, returnThis: 1).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            SubstituteExtensions.Returns(returnThis: 1, value: {call}).{method}(callInfo =>
             {{
                 {argAccess}
             }});
@@ -297,6 +355,14 @@ namespace MyNamespace
             {{
                 {argAccess}
             }});
+            SubstituteExtensions.Returns(value: {call}, returnThis: 1).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            SubstituteExtensions.Returns(returnThis: 1, value: {call}).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
         }}
     }}
 }}";
@@ -327,6 +393,14 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             SubstituteExtensions.Returns({call}, 1).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            SubstituteExtensions.Returns(value: {call}, returnThis: 1).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            SubstituteExtensions.Returns(returnThis: 1, value: {call}).{method}(callInfo =>
             {{
                 {argAccess}
             }});
@@ -363,6 +437,14 @@ namespace MyNamespace
             {{
                 {argAccess}
             }});
+            SubstituteExtensions.Returns(value: {call}, returnThis: 1).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            SubstituteExtensions.Returns(returnThis: 1, value: {call}).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
         }}
     }}
 }}";
@@ -391,6 +473,14 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             SubstituteExtensions.Returns({call}, 1).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            SubstituteExtensions.Returns(value: {call}, returnThis: 1).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            SubstituteExtensions.Returns(returnThis: 1, value: {call}).{method}(callInfo =>
             {{
                 {argAccess}
             }});
@@ -439,6 +529,14 @@ namespace MyNamespace
             {{
                 {argAccess}
             }});
+            SubstituteExtensions.Returns(value: {call}, returnThis: 1).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            SubstituteExtensions.Returns(returnThis: 1, value: {call}).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
         }}
     }}
 }}";
@@ -473,6 +571,14 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             SubstituteExtensions.Returns({call}, 1).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            SubstituteExtensions.Returns(value: {call}, returnThis: 1).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            SubstituteExtensions.Returns(returnThis: 1, value: {call}).{method}(callInfo =>
             {{
                 {argAccess}
             }});
@@ -512,6 +618,14 @@ namespace MyNamespace
             {{
                 {argAccess}
             }});
+            SubstituteExtensions.Returns(value: {call}, returnThis: 1).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
+            SubstituteExtensions.Returns(returnThis: 1, value: {call}).{method}(callInfo =>
+            {{
+                {argAccess}
+            }});
         }}
     }}
 }}";
@@ -538,6 +652,14 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             SubstituteExtensions.Returns({call}, 1).{method}(callInfo =>
+            {{
+                [|callInfo[1]|] = 1;
+            }});
+            SubstituteExtensions.Returns(value: {call}, returnThis: 1).{method}(callInfo =>
+            {{
+                [|callInfo[1]|] = 1;
+            }});
+            SubstituteExtensions.Returns(returnThis: 1, value: {call}).{method}(callInfo =>
             {{
                 [|callInfo[1]|] = 1;
             }});
@@ -568,6 +690,14 @@ namespace MyNamespace
             {{
                 callInfo[0] = 1;
             }});
+            SubstituteExtensions.Returns(value: substitute.Bar(ref value), returnThis: 1).{method}(callInfo =>
+            {{
+                callInfo[0] = 1;
+            }});
+            SubstituteExtensions.Returns(returnThis: 1, value: substitute.Bar(ref value)).{method}(callInfo =>
+            {{
+                callInfo[0] = 1;
+            }});
         }}
     }}
 }}";
@@ -595,6 +725,14 @@ namespace MyNamespace
             {{
                 callInfo[0] = 1;
             }});
+            SubstituteExtensions.Returns(value: substitute.Bar(out value), returnThis: 1).{method}(callInfo =>
+            {{
+                callInfo[0] = 1;
+            }});
+            SubstituteExtensions.Returns(returnThis: 1, value: substitute.Bar(out value)).{method}(callInfo =>
+            {{
+                callInfo[0] = 1;
+            }});
         }}
     }}
 }}";
@@ -619,6 +757,14 @@ namespace MyNamespace
             int value = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
             SubstituteExtensions.Returns(substitute.Bar(out value), 1).{method}(callInfo =>
+            {{
+                [|callInfo[1]|] = 1;
+            }});
+            SubstituteExtensions.Returns(value: substitute.Bar(out value), returnThis: 1).{method}(callInfo =>
+            {{
+                [|callInfo[1]|] = 1;
+            }});
+            SubstituteExtensions.Returns(returnThis: 1, value: substitute.Bar(out value)).{method}(callInfo =>
             {{
                 [|callInfo[1]|] = 1;
             }});
@@ -650,6 +796,14 @@ namespace MyNamespace
             {{
                 [|callInfo[0]|] = {right};
             }});
+            SubstituteExtensions.Returns(value: substitute.Bar(out value), returnThis: 1).{method}(callInfo =>
+            {{
+                [|callInfo[0]|] = {right};
+            }});
+            SubstituteExtensions.Returns(returnThis: 1, value: substitute.Bar(out value)).{method}(callInfo =>
+            {{
+                [|callInfo[0]|] = {right};
+            }});
         }}
     }}
 }}";
@@ -676,6 +830,14 @@ namespace MyNamespace
             {left} value = default({left});
             var substitute = NSubstitute.Substitute.For<Foo>();
             SubstituteExtensions.Returns(substitute.Bar(out value), 1).{method}(callInfo =>
+            {{
+                callInfo[0] = {right};
+            }});
+            SubstituteExtensions.Returns(value: substitute.Bar(out value), returnThis: 1).{method}(callInfo =>
+            {{
+                callInfo[0] = {right};
+            }});
+            SubstituteExtensions.Returns(returnThis: 1, value: substitute.Bar(out value)).{method}(callInfo =>
             {{
                 callInfo[0] = {right};
             }});

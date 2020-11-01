@@ -28,7 +28,17 @@ namespace MyNamespace
         {{
             var sub = NSubstitute.Substitute.For<Foo>();
             var returnValue = {method}(sub, substitute => {{var _ = {call}; }});
+            var otherValue = {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }});
+            var yetAnotherValue = {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub);
             returnValue.Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            otherValue.Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            yetAnotherValue.Do(callInfo =>
             {{
                 {argAccess}
             }});
@@ -64,6 +74,14 @@ namespace MyNamespace
             {{
                 {argAccess}
             }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
         }}
     }}
 }}";
@@ -95,6 +113,14 @@ namespace MyNamespace
             {{
                 {argAccess}
             }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
         }}
     }}
 }}";
@@ -123,6 +149,14 @@ namespace MyNamespace
         {{
             var sub = NSubstitute.Substitute.For<Foo>();
             {method}(sub, substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
             {{
                 {argAccess}
             }});
@@ -160,6 +194,14 @@ namespace MyNamespace
         {{
             var sub = NSubstitute.Substitute.For<Foo>();
             {method}(sub, substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
             {{
                 {argAccess}
             }});
@@ -209,6 +251,14 @@ namespace MyNamespace
             {{
                 {argAccess}
             }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
         }}
     }}
 }}";
@@ -248,6 +298,14 @@ namespace MyNamespace
         {{
             var sub = NSubstitute.Substitute.For<Foo>();
             {method}(sub, substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
             {{
                 {argAccess}
             }});
@@ -297,6 +355,14 @@ namespace MyNamespace
             {{
                 {argAccess}
             }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
         }}
     }}
 }}";
@@ -328,6 +394,14 @@ namespace MyNamespace
         {{
             var sub = NSubstitute.Substitute.For<Foo>();
             {method}(sub, substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
             {{
                 {argAccess}
             }});
@@ -364,6 +438,14 @@ namespace MyNamespace
             {{
                 {argAccess}
             }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
         }}
     }}
 }}";
@@ -392,6 +474,14 @@ namespace MyNamespace
         {{
             var sub = NSubstitute.Substitute.For<Foo>();
             {method}(sub, substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
             {{
                 {argAccess}
             }});
@@ -441,6 +531,14 @@ namespace MyNamespace
             {{
                 {argAccess}
             }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
         }}
     }}
 }}";
@@ -475,6 +573,14 @@ namespace MyNamespace
         {{
             var sub = NSubstitute.Substitute.For<Foo>();
             {method}(sub, substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
             {{
                 {argAccess}
             }});
@@ -515,6 +621,14 @@ namespace MyNamespace
             {{
                 {argAccess}
             }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
         }}
     }}
 }}";
@@ -541,6 +655,14 @@ namespace MyNamespace
         {{
             var sub = NSubstitute.Substitute.For<Foo>();
             {method}(sub, substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                [|callInfo[1]|] = 1;
+            }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                [|callInfo[1]|] = 1;
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
             {{
                 [|callInfo[1]|] = 1;
             }});
@@ -572,6 +694,14 @@ namespace MyNamespace
             {{
                 callInfo[0] = 1;
             }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = substitute.Bar(ref value); }}).Do(callInfo =>
+            {{
+                callInfo[0] = 1;
+            }});
+            {method}(substituteCall: substitute => {{var _ = substitute.Bar(ref value); }}, substitute: sub).Do(callInfo =>
+            {{
+                callInfo[0] = 1;
+            }});
         }}
     }}
 }}";
@@ -599,6 +729,14 @@ namespace MyNamespace
             {{
                 callInfo[0] = 1;
             }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = substitute.Bar(out value); }}).Do(callInfo =>
+            {{
+                callInfo[0] = 1;
+            }});
+            {method}(substituteCall: substitute => {{var _ = substitute.Bar(out value); }}, substitute: sub).Do(callInfo =>
+            {{
+                callInfo[0] = 1;
+            }});
         }}
     }}
 }}";
@@ -623,6 +761,14 @@ namespace MyNamespace
             int value = 0;
             var sub = NSubstitute.Substitute.For<Foo>();
             {method}(sub, substitute => {{var _ = substitute.Bar(out value); }}).Do(callInfo =>
+            {{
+                [|callInfo[1]|] = 1;
+            }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = substitute.Bar(out value); }}).Do(callInfo =>
+            {{
+                [|callInfo[1]|] = 1;
+            }});
+            {method}(substituteCall: substitute => {{var _ = substitute.Bar(out value); }}, substitute: sub).Do(callInfo =>
             {{
                 [|callInfo[1]|] = 1;
             }});
@@ -656,6 +802,14 @@ namespace MyNamespace
             {{
                 [|callInfo[0]|] = {right};
             }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = substitute.Bar(out value); }}).Do(callInfo =>
+            {{
+                [|callInfo[0]|] = {right};
+            }});
+            {method}(substituteCall: substitute => {{var _ = substitute.Bar(out value); }}, substitute: sub).Do(callInfo =>
+            {{
+                [|callInfo[0]|] = {right};
+            }});
         }}
     }}
 }}";
@@ -683,6 +837,14 @@ namespace MyNamespace
             var sub = NSubstitute.Substitute.For<Foo>();
 
             {method}(sub, substitute => {{var _ = substitute.Bar(out value); }}).Do(callInfo =>
+            {{
+                callInfo[0] = {right};
+            }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = substitute.Bar(out value); }}).Do(callInfo =>
+            {{
+                callInfo[0] = {right};
+            }});
+            {method}(substituteCall: substitute => {{var _ = substitute.Bar(out value); }}, substitute: sub).Do(callInfo =>
             {{
                 callInfo[0] = {right};
             }});
