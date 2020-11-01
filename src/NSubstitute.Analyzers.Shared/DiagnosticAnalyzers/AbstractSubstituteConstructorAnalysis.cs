@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -114,11 +115,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 (IsAccessible(symbol) || IsVisibleToProxy(symbol))).ToArray();
         }
 
-        private ImmutableArray<IArgumentOperation> GetInvocationArguments(SubstituteContext<TInvocationExpression> substituteContext, TInvocationExpression invocationExpression)
+        private IEnumerable<IArgumentOperation> GetInvocationArguments(SubstituteContext<TInvocationExpression> substituteContext, TInvocationExpression invocationExpression)
         {
             var invocationOperation = (IInvocationOperation)substituteContext.SyntaxNodeAnalysisContext.SemanticModel.GetOperation(invocationExpression);
 
-            return invocationOperation.Arguments;
+            return invocationOperation.GetOrderedArgumentOperations();
         }
 
         private ITypeSymbol[] TypeSymbols(IArrayCreationOperation arrayInitializerOperation)

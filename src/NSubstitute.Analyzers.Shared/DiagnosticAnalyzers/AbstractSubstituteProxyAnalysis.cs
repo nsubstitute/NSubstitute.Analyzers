@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Operations;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
@@ -36,7 +37,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var operation = (IInvocationOperation)semanticModel.GetOperation(invocationExpressionSyntax);
 
-            var argument = operation.Arguments.First();
+            var argument = operation.GetOrderedArgumentOperations().First();
             var typeSymbols = ArgType(argument);
 
             return typeSymbols;

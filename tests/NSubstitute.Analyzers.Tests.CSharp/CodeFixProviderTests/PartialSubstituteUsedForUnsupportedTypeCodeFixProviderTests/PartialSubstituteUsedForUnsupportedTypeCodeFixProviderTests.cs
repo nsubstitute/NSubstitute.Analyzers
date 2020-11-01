@@ -97,6 +97,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new[] {typeof(System.Func<int>)}, null);
+            var otherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new[] {typeof(System.Func<int>)}, constructorArguments: null);
+            var yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: null, typesToProxy: new[] {typeof(System.Func<int>)});
         }
     }
 }";
@@ -110,6 +112,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = SubstitutionContext.Current.SubstituteFactory.Create(new[] {typeof(System.Func<int>)}, null);
+            var otherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy: new[] {typeof(System.Func<int>)}, constructorArguments: null);
+            var yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments: null, typesToProxy: new[] {typeof(System.Func<int>)});
         }
     }
 }";
@@ -134,6 +138,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new[] {typeof(IFoo)}, null);
+            var otherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new[] {typeof(IFoo)}, constructorArguments: null);
+            var yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: null, typesToProxy: new[] {typeof(IFoo)});
         }
     }
 }";
@@ -151,6 +157,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = SubstitutionContext.Current.SubstituteFactory.Create(new[] {typeof(IFoo)}, null);
+            var otherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy: new[] {typeof(IFoo)}, constructorArguments: null);
+            var yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments: null, typesToProxy: new[] {typeof(IFoo)});
         }
     }
 }";

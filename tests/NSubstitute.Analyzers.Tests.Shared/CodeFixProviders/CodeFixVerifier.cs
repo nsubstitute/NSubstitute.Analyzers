@@ -28,6 +28,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
         {
             using (var workspace = new AdhocWorkspace())
             {
+                codeFixIndex ??= 0;
                 var project = AddProject(workspace.CurrentSolution, oldSource);
                 var document = project.Documents.Single();
                 var compilation = await project.GetCompilationAsync();
@@ -54,12 +55,18 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
                         break;
                     }
 
-                    document = await document.ApplyCodeAction(actions[codeFixIndex ?? 0]);
+                    document = await document.ApplyCodeAction(actions[codeFixIndex.Value]);
                     compilation = await document.Project.GetCompilationAsync();
 
                     compilerDiagnostics = compilation.GetDiagnostics();
 
-                    VerifyNoCompilerDiagnosticErrors(compilerDiagnostics);
+                    var compilationErrorDiagnostics = GetCompilationErrorDiagnostics(compilerDiagnostics);
+
+                    if (compilationErrorDiagnostics.Any())
+                    {
+                        Execute.Assertion.Fail(
+                            $"Fix {codeFixIndex} for diagnostic {analyzerDiagnostics[i].ToString()} introduced compilation error(s): {compilationErrorDiagnostics.ToDebugString()} New document:{Environment.NewLine}{await document.ToFullString()}");
+                    }
 
                     analyzerDiagnostics = await compilation.GetSortedAnalyzerDiagnostics(
                         DiagnosticAnalyzer,

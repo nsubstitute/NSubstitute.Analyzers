@@ -36,6 +36,24 @@ namespace MyNamespace
             {{
                 {andDoesArgAccess}
             }});
+
+            {method}(value: {call}, createException: callInfo =>
+            {{
+                {previousCallArgAccess}
+                return new Exception();
+            }}).AndDoes(callInfo =>
+            {{
+                {andDoesArgAccess}
+            }});
+
+            {method}(createException: callInfo =>
+            {{
+                {previousCallArgAccess}
+                return new Exception();
+            }}, value: {call}).AndDoes(callInfo =>
+            {{
+                {andDoesArgAccess}
+            }});
         }}
     }}
 }}";
@@ -67,7 +85,27 @@ namespace MyNamespace
                 return new Exception();
             }});
 
+            var otherCall = {method}(value: substitute.Bar(Arg.Any<int>()), createException: callInfo =>
+            {{
+                callInfo[0] = 1;
+                return new Exception();
+            }});
+
+            var yetAnotherCall = {method}(createException: callInfo =>
+            {{
+                callInfo[0] = 1;
+                return new Exception();
+            }}, value: substitute.Bar(Arg.Any<int>()));
+
             configuredCall.AndDoes(callInfo =>
+            {{
+                callInfo[0] = 1;
+            }});
+            otherCall.AndDoes(callInfo =>
+            {{
+                callInfo[0] = 1;
+            }});
+            yetAnotherCall.AndDoes(callInfo =>
             {{
                 callInfo[0] = 1;
             }});
@@ -148,6 +186,22 @@ namespace MyNamespace
             {{
                 {andDoesArgAccess}
             }});
+            {method}(value: {call}, createException: callInfo =>
+            {{
+                callInfo[0] = 1;
+                return new Exception();
+            }}).AndDoes(callInfo =>
+            {{
+                {andDoesArgAccess}
+            }});
+            {method}(createException: callInfo =>
+            {{
+                callInfo[0] = 1;
+                return new Exception();
+            }}, value: {call}).AndDoes(callInfo =>
+            {{
+                {andDoesArgAccess}
+            }});
         }}
     }}
 }}";
@@ -182,6 +236,24 @@ namespace MyNamespace
                 {argAccess}
                 return new Exception();
             }}).AndDoes(callInfo =>
+            {{
+                {argAccess}
+            }});
+
+            {method}(value: {call}, createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }}).AndDoes(callInfo =>
+            {{
+                {argAccess}
+            }});
+
+            {method}(createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }}, value: {call}).AndDoes(callInfo =>
             {{
                 {argAccess}
             }});
@@ -220,6 +292,26 @@ namespace MyNamespace
             {{
                 callInfo[0] = 1;
             }});
+            {method}(value: substitute.Bar(Arg.Any<int>()), createException: callInfo =>
+            {{
+                 callInfo.Args()[0] = 1;
+                 callInfo.ArgTypes()[0] = typeof(int);
+                 ((byte[])callInfo[0])[0] = 1;
+                return new Exception();
+            }}).AndDoes(callInfo =>
+            {{
+                callInfo[0] = 1;
+            }});
+            {method}(createException: callInfo =>
+            {{
+                 callInfo.Args()[0] = 1;
+                 callInfo.ArgTypes()[0] = typeof(int);
+                 ((byte[])callInfo[0])[0] = 1;
+                return new Exception();
+            }}, value: substitute.Bar(Arg.Any<int>())).AndDoes(callInfo =>
+            {{
+                callInfo[0] = 1;
+            }});
         }}
     }}
 }}";
@@ -250,6 +342,14 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}({call}, new Exception()).AndDoes(callInfo =>
+            {{
+                {andDoesArgAccess}
+            }});
+            {method}(value: {call}, ex: new Exception()).AndDoes(callInfo =>
+            {{
+                {andDoesArgAccess}
+            }});
+            {method}(ex: new Exception(), value: {call}).AndDoes(callInfo =>
             {{
                 {andDoesArgAccess}
             }});

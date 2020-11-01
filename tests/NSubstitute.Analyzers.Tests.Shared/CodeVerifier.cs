@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
@@ -36,14 +37,21 @@ namespace NSubstitute.Analyzers.Tests.Shared
 
         protected static void VerifyNoCompilerDiagnosticErrors(ImmutableArray<Diagnostic> diagnostics)
         {
-            var compilationErrorDiagnostics = diagnostics.Where(diagnostic =>
-                    diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error)
-                .ToList();
+            var compilationErrorDiagnostics = GetCompilationErrorDiagnostics(diagnostics);
 
             if (compilationErrorDiagnostics.Any())
             {
                 Execute.Assertion.Fail($"Compilation failed. Errors encountered {compilationErrorDiagnostics.ToDebugString()}");
             }
+        }
+
+        protected static IReadOnlyList<Diagnostic> GetCompilationErrorDiagnostics(ImmutableArray<Diagnostic> diagnostics)
+        {
+            var compilationErrorDiagnostics = diagnostics.Where(diagnostic =>
+                    diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error)
+                .ToList();
+
+            return compilationErrorDiagnostics;
         }
     }
 }
