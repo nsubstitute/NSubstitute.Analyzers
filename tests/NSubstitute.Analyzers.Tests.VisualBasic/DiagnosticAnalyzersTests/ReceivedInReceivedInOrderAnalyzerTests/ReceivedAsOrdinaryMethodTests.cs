@@ -5,17 +5,33 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Recei
 {
     [CombinatoryData(
         "ReceivedExtensions.Received(substitute, Quantity.None())",
+        "ReceivedExtensions.Received(substitute:= substitute, requiredQuantity:= Quantity.None())",
+        "ReceivedExtensions.Received(requiredQuantity:= Quantity.None(), substitute:= substitute)",
         "ReceivedExtensions.Received(Of IFoo)(substitute, Quantity.None())",
+        "ReceivedExtensions.Received(Of IFoo)(substitute:= substitute, requiredQuantity:= Quantity.None())",
+        "ReceivedExtensions.Received(Of IFoo)(requiredQuantity:= Quantity.None(), substitute:= substitute)",
         "SubstituteExtensions.Received(substitute)",
+        "SubstituteExtensions.Received(substitute:= substitute)",
         "SubstituteExtensions.Received(Of IFoo)(substitute)",
+        "SubstituteExtensions.Received(Of IFoo)(substitute:= substitute)",
         "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(substitute:= substitute, requiredQuantity:= Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(requiredQuantity:= Quantity.None(), substitute:= substitute)",
         "ReceivedExtensions.ReceivedWithAnyArgs(Of IFoo)(substitute, Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(Of IFoo)(substitute:= substitute, requiredQuantity:= Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(Of IFoo)(requiredQuantity:= Quantity.None(), substitute:= substitute)",
         "SubstituteExtensions.ReceivedWithAnyArgs(substitute)",
+        "SubstituteExtensions.ReceivedWithAnyArgs(substitute:= substitute)",
         "SubstituteExtensions.ReceivedWithAnyArgs(Of IFoo)(substitute)",
+        "SubstituteExtensions.ReceivedWithAnyArgs(Of IFoo)(substitute:= substitute)",
         "SubstituteExtensions.DidNotReceive(substitute)",
+        "SubstituteExtensions.DidNotReceive(substitute:= substitute)",
         "SubstituteExtensions.DidNotReceive(Of IFoo)(substitute)",
+        "SubstituteExtensions.DidNotReceive(Of IFoo)(substitute:= substitute)",
         "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute)",
-        "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of IFoo)(substitute)")]
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute:= substitute)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of IFoo)(substitute)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of IFoo)(substitute:= substitute)")]
     public class ReceivedAsOrdinaryMethodTests : ReceivedInReceivedInOrderDiagnosticVerifier
     {
         public override async Task ReportsDiagnostic_WhenUsingReceivedLikeMethodInReceivedInOrderBlock_ForMethod(string method)
@@ -211,6 +227,9 @@ End Namespace
         {
             var plainMethodName = methodName.Replace("(Of IFoo)", string.Empty)
                 .Replace("(substitute, Quantity.None())", string.Empty)
+                .Replace("(substitute:= substitute, requiredQuantity:= Quantity.None())", string.Empty)
+                .Replace("(requiredQuantity:= Quantity.None(), substitute:= substitute)", string.Empty)
+                .Replace("(substitute:= substitute)", string.Empty)
                 .Replace("(substitute)", string.Empty);
 
             var planMethodNameWithoutNamespace = plainMethodName.Replace("SubstituteExtensions.", string.Empty)

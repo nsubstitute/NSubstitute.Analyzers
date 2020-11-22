@@ -27,6 +27,20 @@ Namespace MyNamespace
             End Function).AndDoes(Function(callInfo)
                 {andDoesArgAccess}
             End Function)
+
+            {method}(value:= {call}, returnThis:= Function(callInfo)
+               {previousCallArgAccess}
+                Return 1
+            End Function).AndDoes(Function(callInfo)
+                {andDoesArgAccess}
+            End Function)
+
+            {method}(returnThis:= Function(callInfo)
+               {previousCallArgAccess}
+                Return 1
+            End Function, value:= {call}).AndDoes(Function(callInfo)
+                {andDoesArgAccess}
+            End Function)
         End Sub
     End Class
 End Namespace
@@ -52,7 +66,25 @@ Namespace MyNamespace
                                                                                                callInfo(0) = 1
                                                                                                Return 1
                                                                                            End Function)
+
+            Dim otherCall = {method}(value:= substitute.Bar(Arg.Any(Of Integer)()), returnThis:= Function(callInfo)
+                                                                                               callInfo(0) = 1
+                                                                                               Return 1
+                                                                                           End Function)
+
+            Dim yetAnotherCall = {method}(returnThis:= Function(callInfo)
+                                                                    callInfo(0) = 1
+                                                                    Return 1
+                                                                 End Function, value:= substitute.Bar(Arg.Any(Of Integer)()))
             configuredCall.AndDoes(Function(callInfo)
+                                       callInfo(0) = 1
+                                   End Function)
+
+            otherCall.AndDoes(Function(callInfo)
+                                       callInfo(0) = 1
+                                   End Function)
+
+            yetAnotherCall.AndDoes(Function(callInfo)
                                        callInfo(0) = 1
                                    End Function)
         End Sub
@@ -122,6 +154,20 @@ Namespace MyNamespace
             End Function).AndDoes(Function(callInfo)
                 {andDoesArgAccess}
             End Function)
+
+            {method}(value:= {call}, returnThis:= Function(callInfo)
+                callInfo(0) = 1
+                Return 1
+            End Function).AndDoes(Function(callInfo)
+                {andDoesArgAccess}
+            End Function)
+
+            {method}(returnThis:= Function(callInfo)
+                callInfo(0) = 1
+                Return 1
+            End Function, value:= {call}).AndDoes(Function(callInfo)
+                {andDoesArgAccess}
+            End Function)
         End Sub
     End Class
 End Namespace";
@@ -148,6 +194,20 @@ Namespace MyNamespace
                 {argAccess}
                 Return 1
             End Function).AndDoes(Function(callInfo)
+                {argAccess}
+            End Function)
+
+            {method}(value:= {call}, returnThis:= Function(callInfo)
+                {argAccess}
+                Return 1
+            End Function).AndDoes(Function(callInfo)
+                {argAccess}
+            End Function)
+            
+            {method}(returnThis:= Function(callInfo)
+                {argAccess}
+                Return 1
+            End Function, value:= {call}).AndDoes(Function(callInfo)
                 {argAccess}
             End Function)
         End Sub
@@ -179,6 +239,27 @@ Namespace MyNamespace
             End Function).AndDoes(Function(callInfo)
                 callInfo(0) = 1
             End Function)
+
+            {method}(value:= substitute.Bar(Arg.Any(Of Integer)()), returnThis:= Function(callInfo)
+                callInfo.Args()(0) = 1
+                callInfo.ArgTypes()(0) = GetType(Integer)
+                Dim x = (DirectCast(callInfo(0), Byte()))
+                x(0) = 1
+                Return 1
+            End Function).AndDoes(Function(callInfo)
+                callInfo(0) = 1
+            End Function)
+
+            {method}(returnThis:= Function(callInfo)
+                callInfo.Args()(0) = 1
+                callInfo.ArgTypes()(0) = GetType(Integer)
+                Dim x = (DirectCast(callInfo(0), Byte()))
+                x(0) = 1
+                Return 1
+            End Function, value:= substitute.Bar(Arg.Any(Of Integer)())).AndDoes(Function(callInfo)
+                callInfo(0) = 1
+            End Function)
+
         End Sub
     End Class
 End Namespace";
@@ -204,6 +285,15 @@ Namespace MyNamespace
             {method}({call}, 1).AndDoes(Function(callInfo)
                 {andDoesArgAccess}
             End Function)
+
+            {method}(value:= {call}, returnThis:= 1).AndDoes(Function(callInfo)
+                {andDoesArgAccess}
+            End Function)
+
+            {method}(returnThis:= 1, value:= {call}).AndDoes(Function(callInfo)
+                {andDoesArgAccess}
+            End Function)
+
         End Sub
     End Class
 End Namespace";

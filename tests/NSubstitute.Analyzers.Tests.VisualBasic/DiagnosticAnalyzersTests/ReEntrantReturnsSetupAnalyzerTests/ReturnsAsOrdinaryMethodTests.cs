@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
+using MoreLinq.Extensions;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using NSubstitute.Analyzers.Tests.Shared.Extensions;
 
@@ -26,6 +27,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             {method}(substitute.Bar(), [|ReturnThis()|], [|OtherReturn()|])
+            {method}(value:= substitute.Bar(), returnThis:= [|ReturnThis()|])
+            {method}(returnThis:= [|ReturnThis()|], value:= substitute.Bar())
         End Sub
 
         Private Function ReturnThis() As Integer
@@ -47,7 +50,7 @@ End Namespace
             {
                 $"{plainMethodName}() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) ReturnThis()).",
                 $"{plainMethodName}() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) OtherReturn())."
-            };
+            }.Repeat(2).ToArray();
 
             var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
@@ -73,6 +76,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             {method}(substitute.Bar(), [|ReturnThis()|], [|OtherReturn()|])
+            {method}(value:= substitute.Bar(), returnThis:= [|ReturnThis()|])
+            {method}(returnThis:= [|ReturnThis()|], value:= substitute.Bar())
         End Sub
 
         Private Function ReturnThis() As Integer
@@ -94,7 +99,7 @@ End Namespace
             {
                 $"{plainMethodName}() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) ReturnThis()).",
                 $"{plainMethodName}() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) OtherReturn())."
-            };
+            }.Repeat(2).ToArray();
 
             var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
@@ -119,6 +124,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             {method}(substitute.Bar(), [|ReturnThis()|], [|OtherReturn()|])
+            {method}(value:= substitute.Bar(), returnThis:= [|ReturnThis()|])
+            {method}(returnThis:= [|ReturnThis()|], value:= substitute.Bar())
         End Sub
 
         Private Function ReturnThis() As Integer
@@ -139,7 +146,7 @@ End Namespace
             {
                 $"{plainMethodName}() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) ReturnThis()).",
                 $"{plainMethodName}() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) OtherReturn())."
-            };
+            }.Repeat(2).ToArray();
 
             var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
@@ -164,6 +171,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             {method}(substitute.Bar(), [|ReturnThis()|], [|OtherReturn()|])
+            {method}(value:= substitute.Bar(), returnThis:= [|ReturnThis()|])
+            {method}(returnThis:= [|ReturnThis()|], value:= substitute.Bar())
         End Sub
 
         Private Function ReturnThis() As Integer
@@ -196,7 +205,7 @@ End Namespace
                 $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) ReturnThis()).",
                 $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) OtherReturn()).",
                 $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) NestedReturnThis())."
-            };
+            }.Repeat(2).ToArray();
 
             var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
@@ -221,6 +230,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             {method}(substitute.Bar(), Function(x) ReturnThis())
+            {method}(value:= substitute.Bar(), returnThis:= Function(x) ReturnThis())
+            {method}(returnThis:= Function(x) ReturnThis(), value:= substitute.Bar())
         End Sub
 
         Private Function ReturnThis() As Integer
@@ -268,6 +279,8 @@ Namespace MyNamespace
             {localVariable}
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             {method}(substitute.Bar(), barr)
+            {method}(value:= substitute.Bar(), returnThis:= barr)
+            {method}(returnThis:= barr, value:= substitute.Bar())
         End Sub
 
         Public Function Bar() As IBar
@@ -300,6 +313,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
                 {method}(substitute.Bar(), {rootCall})
+                {method}(value:= substitute.Bar(), returnThis:= {rootCall})
+                {method}(returnThis:= {rootCall}, value:= substitute.Bar())
         End Sub
 
         Private Function ReturnThis() As Integer
@@ -350,6 +365,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
                 {method}(substitute.Bar(), {rootCall})
+                {method}(value:= substitute.Bar(), returnThis: {rootCall})
+                {method}(returnThis: {rootCall}, value:= substitute.Bar())
         End Sub
 
         Private Function ReturnThis() As Integer
@@ -395,6 +412,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             {method}(substitute.Bar(), {firstReturn}, {secondReturn})
+            {method}(value:= substitute.Bar(), returnThis:= {firstReturn})
+            {method}(returnThis:= {firstReturn}, value:= substitute.Bar())
         End Sub
 
         Private Function ReturnThis() As Integer
@@ -436,6 +455,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             {method}(substitute.Bar(), [|FooBar.ReturnThis()|])
+            {method}(value:= substitute.Bar(), returnThis:= [|FooBar.ReturnThis()|])
+            {method}(returnThis:= [|FooBar.ReturnThis()|], value:= substitute.Bar())
         End Sub
     End Class
 End Namespace
@@ -479,6 +500,8 @@ Namespace MyNamespace
         Public Async Function Test() As Task
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             {method}(substitute.Bar(), [|Await ReturnThis()|])
+            {method}(value:= substitute.Bar(), returnThis:= [|Await ReturnThis()|])
+            {method}(returnThis:= [|Await ReturnThis()|], value:= substitute.Bar())
         End Function
 
         Private Async Function ReturnThis() As Task(Of Integer)
@@ -584,6 +607,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute.FooBar(), GetType([{type}]))
+            {method}(value:= substitute.FooBar(), returnThis:= GetType([{type}]))
+            {method}(returnThis:= GetType([{type}]), value:= substitute.FooBar())
         End Sub
     End Class
 End Namespace";
@@ -611,6 +636,8 @@ Namespace MyNamespace
 
             For Each fooBar In New FooBar(-1) {{}}
                 {method}(substitute.Bar(), fooBar.Value)
+                {method}(value:= substitute.Bar(), returnThis:= fooBar.Value)
+                {method}(returnThis:= fooBar.Value, value:= substitute.Bar())
             Next
         End Sub
     End Class
@@ -636,10 +663,23 @@ Namespace MyNamespace
 
             For Each value In Enumerable.Empty(Of Integer)()
                 {method}(firstEnumerator.Current, value + 1)
+                {method}(value:= firstEnumerator.Current, returnThis:= value + 1)
+                {method}(returnThis:= value + 1, value:= firstEnumerator.Current)
                 {method}(firstEnumerator.Current, value + 1)
+                {method}(value:= firstEnumerator.Current, returnThis:= value + 1)
+                {method}(returnThis:= value + 1, value:= firstEnumerator.Current)
+                {method}(firstEnumerator.Current, value + 1)
+                {method}(value:= firstEnumerator.Current, returnThis:= value + 1)
+                {method}(returnThis:= value + 1, value:= firstEnumerator.Current)
                 {method}(secondEnumerator.Current, value + 1)
+                {method}(value:= secondEnumerator.Current, returnThis:= value + 1)
+                {method}(returnThis:= value + 1, value:= secondEnumerator.Current)
                 {method}(thirdEnumerator.Current, value + 1)
+                {method}(value:= thirdEnumerator.Current, returnThis:= value + 1)
+                {method}(returnThis:= value + 1, value:= thirdEnumerator.Current)
                 {method}(fourthEnumerator.Current, value + 1)
+                {method}(value:= fourthEnumerator.Current, returnThis:= value + 1)
+                {method}(returnThis:= value + 1, value:= fourthEnumerator.Current)
             Next
         End Sub
     End Class
@@ -665,6 +705,8 @@ Namespace MyNamespace
             firstSubstitute.Id.Returns(45)
             Dim secondSubstitute = Substitute.[For](Of IFoo)()
             {method}(secondSubstitute.Id, [|firstSubstitute.Id|])
+            {method}(value:= secondSubstitute.Id, returnThis:= [|firstSubstitute.Id|])
+            {method}(returnThis:= [|firstSubstitute.Id|], value:= secondSubstitute.Id)
         End Sub
     End Class
 End Namespace";
@@ -693,6 +735,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim secondSubstitute = Substitute.[For](Of IFoo)()
             {method}(secondSubstitute.Id, [|firstSubstitute.Id|])
+            {method}(value:= secondSubstitute.Id, returnThis:= [|firstSubstitute.Id|])
+            {method}(returnThis:= [|firstSubstitute.Id|], value:= secondSubstitute.Id)
         End Sub
     End Class
 End Namespace
@@ -721,7 +765,11 @@ Namespace MyNamespace
             fourthSubstitute.Id.Returns(45)
             Dim value = fourthSubstitute.Id
             {method}(secondSubstitute.Id, firstSubstitute.Id)
+            {method}(value:= secondSubstitute.Id, returnThis: =firstSubstitute.Id)
+            {method}(returnThis: =firstSubstitute.Id, value:= secondSubstitute.Id)
             {method}(secondSubstitute.Id, value)
+            {method}(value:= secondSubstitute.Id, returnThis:= value)
+            {method}(returnThis:= value, value:= secondSubstitute.Id)
         End Sub
     End Class
 End Namespace";

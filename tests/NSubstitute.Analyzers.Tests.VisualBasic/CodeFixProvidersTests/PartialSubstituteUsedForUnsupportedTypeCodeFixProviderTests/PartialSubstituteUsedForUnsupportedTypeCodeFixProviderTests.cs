@@ -84,6 +84,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial({GetType(System.Func(Of Integer))}, Nothing)
+            Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= {GetType(System.Func(Of Integer))}, constructorArguments:= Nothing)
+            Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= Nothing, typesToProxy:= {GetType(System.Func(Of Integer))})
         End Sub
     End Class
 End Namespace
@@ -95,6 +97,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = SubstitutionContext.Current.SubstituteFactory.Create({GetType(System.Func(Of Integer))}, Nothing)
+            Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy:= {GetType(System.Func(Of Integer))}, constructorArguments:= Nothing)
+            Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments:= Nothing, typesToProxy:= {GetType(System.Func(Of Integer))})
         End Sub
     End Class
 End Namespace
@@ -116,6 +120,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial({GetType(IFoo)}, Nothing)
+            Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= {GetType(IFoo)}, constructorArguments:= Nothing)
+            Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= Nothing, typesToProxy:= {GetType(IFoo)})
         End Sub
     End Class
 End Namespace";
@@ -130,6 +136,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = SubstitutionContext.Current.SubstituteFactory.Create({GetType(IFoo)}, Nothing)
+            Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy:= {GetType(IFoo)}, constructorArguments:= Nothing)
+            Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments:= Nothing, typesToProxy:= {GetType(IFoo)})
         End Sub
     End Class
 End Namespace";
