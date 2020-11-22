@@ -131,6 +131,14 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallI
         public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string method, string call, string argAccess);
 
         [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBoundsForNestedCall(string method);
+
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsDiagnostic_WhenAccessingArgumentOutOfBoundsForNestedCall(string method);
+
+        [CombinatoryTheory]
         [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = TryCast(callInfo(1), BarBase)")]
         [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = CType(callInfo(1), BarBase)")]
         [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo(1), BarBase)")]
@@ -280,6 +288,10 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallI
         public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string method, string call, string argAccess);
 
         [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInvocationForNestedCall(string method);
+
+        [CombinatoryTheory]
         [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "[|callInfo.Arg(Of Integer)()|]", "There is more than one argument of type Integer to this call.")]
         [InlineData("substitute.Bar(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", "[|callInfo.Arg(Of Object)()|]", "There is more than one argument of type Object to this call.")]
         [InlineData("substitute.Bar(Arg.Any(Of FooBar)(), Arg.Any(Of FooBar)())", "[|callInfo.Arg(Of Object)()|]", "There is more than one argument of type Object to this call.")]
@@ -336,5 +348,9 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallI
         [InlineData("IDictionary(Of String, Object)", "New Dictionary(Of String, Object)()")]
         [InlineData("IReadOnlyDictionary(Of String, Object)", "New Dictionary(Of String, Object)()")]
         public abstract Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string method, string left, string right);
+
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocationForNestedCall(string method);
     }
 }

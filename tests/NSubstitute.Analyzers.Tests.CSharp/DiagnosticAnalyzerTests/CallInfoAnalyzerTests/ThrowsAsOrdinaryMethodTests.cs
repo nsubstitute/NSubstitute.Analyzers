@@ -1,11 +1,7 @@
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using NSubstitute.Analyzers.CSharp;
-using NSubstitute.Analyzers.Shared;
-using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using NSubstitute.Analyzers.Tests.Shared.Extensions;
-using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAnalyzerTests
 {
@@ -140,6 +136,52 @@ namespace MyNamespace
                 {argAccess}
                 return new Exception();
             }});
+        }}
+    }}
+}}";
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBoundsForNestedCall(string method)
+        {
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        int Bar(int x);
+    }}
+
+    public interface IFooBar
+    {{
+        int FooBaz(int x, int y);
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<IFooBar>();
+            {method}(substitute.FooBaz(Arg.Any<int>(), Arg.Any<int>()), outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                {method}(otherSubstitute.Bar(Arg.Any<int>()), innerCallInfo =>
+                {{
+                    var x = outerCallInfo.ArgAt<int>(1);
+                    var y = outerCallInfo[1];
+
+                    var xx = innerCallInfo.ArgAt<int>(0);
+                    var yy = innerCallInfo[0];
+
+                    return new Exception();
+                }});
+
+                return new Exception();
+            }});
+
         }}
     }}
 }}";
@@ -425,6 +467,108 @@ namespace MyNamespace
             await VerifyDiagnostic(source, CallInfoCouldNotFindArgumentToThisCallDescriptor, message);
         }
 
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocationForNestedCall(string method)
+        {
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        int Bar(int x);
+    }}
+
+    public interface IFooBar
+    {{
+        int FooBaz(object x);
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<IFooBar>();
+            {method}(substitute.FooBaz(Arg.Any<object>()), outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                {method}(otherSubstitute.Bar(Arg.Any<int>()), innerCallInfo =>
+                {{
+                    var x = [|outerCallInfo.Arg<string>()|];
+                    var y = [|innerCallInfo.Arg<string>()|];
+                    var z = outerCallInfo.Arg<object>();
+
+                    return new Exception();
+                }});
+
+                return new Exception();
+            }});
+        }}
+    }}
+}}";
+            await VerifyDiagnostic(source, CallInfoCouldNotFindArgumentToThisCallDescriptor, "Can not find an argument of type string to this call.");
+        }
+
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBoundsForNestedCall(string method)
+        {
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        int Bar(int x);
+    }}
+
+    public interface IFooBar
+    {{
+        int FooBaz(int x, int y);
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<IFooBar>();
+            {method}(substitute.FooBaz(Arg.Any<int>(), Arg.Any<int>()), outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                {method}(otherSubstitute.Bar(Arg.Any<int>()), innerCallInfo =>
+                {{
+                    var x = [|outerCallInfo.ArgAt<int>(2)|];
+                    var y = [|outerCallInfo[2]|];
+                    var z = outerCallInfo[1];
+
+                    var xx = [|innerCallInfo.ArgAt<int>(1)|];
+                    var yy = [|innerCallInfo[1]|];
+                    var zz = innerCallInfo[0];
+
+                    return new Exception();
+                }});
+
+                return new Exception();
+            }});
+
+        }}
+    }}
+}}";
+            var textParserResult = TextParser.GetSpans(source);
+
+            var diagnosticMessages = new[]
+            {
+                "There is no argument at position 2",
+                "There is no argument at position 2",
+                "There is no argument at position 1",
+                "There is no argument at position 1"
+            };
+
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(CallInfoArgumentOutOfRangeDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
+        }
+
         public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string method, string call, string argAccess)
         {
             var source = $@"using System;
@@ -470,6 +614,48 @@ namespace MyNamespace
     }}
 }}";
 
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInvocationForNestedCall(string method)
+        {
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        int Bar(int x);
+    }}
+
+    public interface IFooBar
+    {{
+        int FooBaz(string x);
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<IFooBar>();
+            {method}(substitute.FooBaz(Arg.Any<string>()), outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                {method}(otherSubstitute.Bar(Arg.Any<int>()), innerCallInfo =>
+                {{
+                    var x = outerCallInfo.Arg<string>();
+                    var z = innerCallInfo.Arg<int>();
+                    return new Exception();
+                }});
+
+                return new Exception();
+            }});
+
+        }}
+    }}
+}}";
             await VerifyNoDiagnostic(source);
         }
 
