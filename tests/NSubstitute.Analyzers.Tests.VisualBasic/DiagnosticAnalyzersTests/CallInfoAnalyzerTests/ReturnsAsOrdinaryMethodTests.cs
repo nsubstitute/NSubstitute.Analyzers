@@ -26,6 +26,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return 1
                            End Function)
+            {method}(value:= returnedValue, returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function)
+            {method}(returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function, value:= returnedValue)
         End Sub
     End Class
 End Namespace";
@@ -52,6 +60,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return 1
                            End Function)
+            {method}(value:= {call}, returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function)
+            {method}(returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -78,6 +94,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return 1
                            End Function)
+            {method}(value:= {call}, returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function)
+            {method}(returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace";
@@ -103,6 +127,14 @@ Namespace MyNamespace
                                    {argAccess}
                                    Return 1
                            End Function)
+            {method}(value:= {call}, returnThis:= Function(callInfo)
+                                   {argAccess}
+                                   Return 1
+                           End Function)
+            {method}(returnThis:= Function(callInfo)
+                                   {argAccess}
+                                   Return 1
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -135,6 +167,14 @@ Namespace MyNamespace
                                    {argAccess}
                                    Return 1
                            End Function)
+            {method}(value:= {call}, returnThis:= Function(callInfo)
+                                   {argAccess}
+                                   Return 1
+                           End Function)
+            {method}(returnThis:= Function(callInfo)
+                                   {argAccess}
+                                   Return 1
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace";
@@ -169,6 +209,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return 1
                            End Function)
+            {method}(value:= {call}, returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function)
+            {method}(returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -201,6 +249,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return 1
                            End Function)
+            {method}(value:= {call}, returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function)
+            {method}(returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -236,6 +292,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return 1
                            End Function)
+            {method}(value:= {call}, returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function)
+            {method}(returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -264,6 +328,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return 1
                            End Function)
+            {method}(value:= {call}, returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function)
+            {method}(returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -292,6 +364,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return 1
                            End Function)
+            {method}(value:= {call}, returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function)
+            {method}(returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -319,6 +399,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return 1
                            End Function)
+            {method}(value:= {call}, returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function)
+            {method}(returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -355,6 +443,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return 1
                            End Function)
+            {method}(value:= {call}, returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function)
+            {method}(returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -385,6 +481,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return 1
                            End Function)
+            {method}(value:= {call}, returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function)
+            {method}(returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -414,6 +518,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return 1
                            End Function)
+            {method}(value:= {call}, returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function)
+            {method}(returnThis:= Function(callInfo)
+                               {argAccess}
+                               Return 1
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -439,6 +551,14 @@ Namespace MyNamespace
                                [|callInfo(1)|] = 1
                                Return 1
                            End Function)
+            {method}(value:= {call}, returnThis:= Function(callInfo)
+                               [|callInfo(1)|] = 1
+                               Return 1
+                           End Function)
+            {method}(returnThis:= Function(callInfo)
+                               [|callInfo(1)|] = 1
+                               Return 1
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -463,6 +583,14 @@ Namespace MyNamespace
                                               callInfo(0) = 1
                                               Return 1
                                           End Function)
+            {method}(value:= substitute.Bar(value), returnThis:= Function(callInfo)
+                                              callInfo(0) = 1
+                                              Return 1
+                                          End Function)
+            {method}(returnThis:= Function(callInfo)
+                                              callInfo(0) = 1
+                                              Return 1
+                                          End Function, value:= substitute.Bar(value))
         End Sub
     End Class
 End Namespace
@@ -488,6 +616,14 @@ Namespace MyNamespace
                                               callInfo(0) = 1
                                               Return 1
                                           End Function)
+            {method}(value:= substitute.Bar(value), returnThis:= Function(callInfo)
+                                              callInfo(0) = 1
+                                              Return 1
+                                          End Function)
+            {method}(returnThis:= Function(callInfo)
+                                              callInfo(0) = 1
+                                              Return 1
+                                          End Function, value:= substitute.Bar(value))
         End Sub
     End Class
 End Namespace
@@ -513,6 +649,14 @@ Namespace MyNamespace
                                               [|callInfo(1)|] = 1
                                               Return 1
                                           End Function)
+            {method}(value:= substitute.Bar(value), returnThis:= Function(callInfo)
+                                              [|callInfo(1)|] = 1
+                                              Return 1
+                                          End Function)
+            {method}(returnThis:= Function(callInfo)
+                                              [|callInfo(1)|] = 1
+                                              Return 1
+                                          End Function, value:= substitute.Bar(value))
         End Sub
     End Class
 End Namespace
@@ -539,6 +683,14 @@ Namespace MyNamespace
                                               [|callInfo(0)|] = {right}
                                               Return 1
                                           End Function)
+            {method}(value:= substitute.Bar(value), returnThis:= Function(callInfo)
+                                              [|callInfo(0)|] = {right}
+                                              Return 1
+                                          End Function)
+            {method}(returnThis:= Function(callInfo)
+                                              [|callInfo(0)|] = {right}
+                                              Return 1
+                                          End Function, value:= substitute.Bar(value))
         End Sub
     End Class
 End Namespace
@@ -566,6 +718,14 @@ Namespace MyNamespace
                                               callInfo(0) = {right}
                                               Return 1
                                           End Function)
+            {method}(value:= substitute.Bar(value), returnThis:= Function(callInfo)
+                                              callInfo(0) = {right}
+                                              Return 1
+                                          End Function)
+            {method}(returnThis:= Function(callInfo)
+                                              callInfo(0) = {right}
+                                              Return 1
+                                          End Function, value:= substitute.Bar(value))
         End Sub
     End Class
 End Namespace

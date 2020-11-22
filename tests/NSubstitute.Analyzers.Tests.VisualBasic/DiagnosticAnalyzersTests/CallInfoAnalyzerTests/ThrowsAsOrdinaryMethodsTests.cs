@@ -27,6 +27,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return New Exception()
                            End Function)
+            {method}(value:= returnedValue, createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function)
+            {method}(createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function, value:= returnedValue)
         End Sub
     End Class
 End Namespace";
@@ -53,6 +61,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return New Exception()
                            End Function)
+            {method}(value:= {call}, createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function)
+            {method}(createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -80,6 +96,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return New Exception()
                            End Function)
+            {method}(value:= {call}, createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function)
+            {method}(createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace";
@@ -106,6 +130,14 @@ Namespace MyNamespace
                                    {argAccess}
                                    Return New Exception()
                            End Function)
+            {method}(value:= {call}, createException:= Function(callInfo)
+                                   {argAccess}
+                                   Return New Exception()
+                           End Function)
+            {method}(createException:= Function(callInfo)
+                                   {argAccess}
+                                   Return New Exception()
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -139,6 +171,14 @@ Namespace MyNamespace
                                    {argAccess}
                                    Return New Exception()
                            End Function)
+            {method}(value:= {call}, createException:= Function(callInfo)
+                                   {argAccess}
+                                   Return New Exception()
+                           End Function)
+            {method}(createException:= Function(callInfo)
+                                   {argAccess}
+                                   Return New Exception()
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace";
@@ -173,6 +213,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return New Exception()
                            End Function)
+            {method}(value:= {call}, createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function)
+            {method}(createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -206,6 +254,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return New Exception()
                            End Function)
+            {method}(value:= {call}, createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function)
+            {method}(createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -241,6 +297,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return New Exception()
                            End Function)
+            {method}(value:= {call}, createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function)
+            {method}(createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -270,6 +334,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return New Exception()
                            End Function)
+            {method}(value:= {call}, createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function)
+            {method}(createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -299,6 +371,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return New Exception()
                            End Function)
+            {method}(value:= {call}, createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function)
+            {method}(createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -327,6 +407,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return New Exception()
                            End Function)
+            {method}(value:= {call}, createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function)
+            {method}(createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -364,6 +452,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return New Exception()
                            End Function)
+            {method}(value:= {call}, createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function)
+            {method}(createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -396,6 +492,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return New Exception()
                            End Function)
+            {method}(value:= {call}, createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function)
+            {method}(createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -428,6 +532,14 @@ Namespace MyNamespace
                                {argAccess}
                                Return New Exception()
                            End Function)
+            {method}(value:= {call}, createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function)
+            {method}(createException:= Function(callInfo)
+                               {argAccess}
+                               Return New Exception()
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -455,6 +567,14 @@ Namespace MyNamespace
                                [|callInfo(1)|] = 1
                                Return New Exception()
                            End Function)
+            {method}(value:= {call}, createException:= Function(callInfo)
+                               [|callInfo(1)|] = 1
+                               Return New Exception()
+                           End Function)
+            {method}(createException:= Function(callInfo)
+                               [|callInfo(1)|] = 1
+                               Return New Exception()
+                           End Function, value:= {call})
         End Sub
     End Class
 End Namespace
@@ -481,6 +601,14 @@ Namespace MyNamespace
                                               callInfo(0) = 1
                                               Return New Exception()
                                           End Function)
+            {method}(value:= substitute.Bar(value), createException:= Function(callInfo)
+                                              callInfo(0) = 1
+                                              Return New Exception()
+                                          End Function)
+            {method}(createException:= Function(callInfo)
+                                              callInfo(0) = 1
+                                              Return New Exception()
+                                          End Function, value:= substitute.Bar(value))
         End Sub
     End Class
 End Namespace
@@ -508,6 +636,14 @@ Namespace MyNamespace
                                               callInfo(0) = 1
                                               Return New Exception()
                                           End Function)
+            {method}(value:= substitute.Bar(value), createException:= Function(callInfo)
+                                              callInfo(0) = 1
+                                              Return New Exception()
+                                          End Function)
+            {method}(createException:= Function(callInfo)
+                                              callInfo(0) = 1
+                                              Return New Exception()
+                                          End Function, value:= substitute.Bar(value))
         End Sub
     End Class
 End Namespace
@@ -535,6 +671,14 @@ Namespace MyNamespace
                                               [|callInfo(1)|] = 1
                                               Return New Exception()
                                           End Function)
+            {method}(value:= substitute.Bar(value), createException:= Function(callInfo)
+                                              [|callInfo(1)|] = 1
+                                              Return New Exception()
+                                          End Function)
+            {method}(createException:= Function(callInfo)
+                                              [|callInfo(1)|] = 1
+                                              Return New Exception()
+                                          End Function, value:= substitute.Bar(value))
         End Sub
     End Class
 End Namespace
@@ -563,6 +707,14 @@ Namespace MyNamespace
                                               [|callInfo(0)|] = {right}
                                               Return New Exception()
                                           End Function)
+            {method}(value:= substitute.Bar(value), createException:= Function(callInfo)
+                                              [|callInfo(0)|] = {right}
+                                              Return New Exception()
+                                          End Function)
+            {method}(createException:= Function(callInfo)
+                                              [|callInfo(0)|] = {right}
+                                              Return New Exception()
+                                          End Function, value:= substitute.Bar(value))
         End Sub
     End Class
 End Namespace
@@ -593,6 +745,14 @@ Namespace MyNamespace
                                               callInfo(0) = {right}
                                               Return New Exception()
                                           End Function)
+            {method}(value:= substitute.Bar(value), createException:= Function(callInfo)
+                                              callInfo(0) = {right}
+                                              Return New Exception()
+                                          End Function)
+            {method}(createException:= Function(callInfo)
+                                              callInfo(0) = {right}
+                                              Return New Exception()
+                                          End Function, value:= substitute.Bar(value))
         End Sub
     End Class
 End Namespace
