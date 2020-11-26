@@ -120,6 +120,10 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAna
         public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string method, string call, string argAccess);
 
         [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBoundsForNestedCall(string method);
+
+        [CombinatoryTheory]
         [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "var x = (BarBase)callInfo[1];")]
         [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "var x = (object)callInfo[1];")]
         [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<Bar>())", "var x = (int)callInfo[0];")]
@@ -228,6 +232,14 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAna
         public abstract Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string method, string call, string argAccess, string message);
 
         [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocationForNestedCall(string method);
+
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsDiagnostic_WhenAccessingArgumentOutOfBoundsForNestedCall(string method);
+
+        [CombinatoryTheory]
         [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo.Arg<int>();")]
         [InlineData("substitute.Bar(Arg.Any<int>())", "callInfo.Arg<object>();")]
         [InlineData("substitute.Bar(Arg.Any<Foo>())", "callInfo.Arg<FooBase>();")]
@@ -243,6 +255,10 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAna
         [InlineData("substitute[Arg.Any<int>(), Arg.Any<Foo>()]", "callInfo.Arg<Foo>();")]
         [InlineData("substitute[Arg.Any<int>(), Arg.Any<Foo>()]", "callInfo.Arg<object>();")]
         public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string method, string call, string argAccess);
+
+        [CombinatoryTheory]
+        [InlineData]
+        public abstract Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInvocationForNestedCall(string method);
 
         [CombinatoryTheory]
         [InlineData("substitute.Bar(Arg.Any<int>(), Arg.Any<int>())", "[|callInfo.Arg<int>()|];", "There is more than one argument of type int to this call.")]

@@ -1,5 +1,7 @@
+using System.Linq;
 using System.Threading.Tasks;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
+using NSubstitute.Analyzers.Tests.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAnalyzerTests
 {
@@ -126,6 +128,49 @@ namespace MyNamespace
             {{
                 {argAccess}
             }});
+        }}
+    }}
+}}";
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBoundsForNestedCall(string method)
+        {
+            var source = $@"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        int Bar(int x);
+    }}
+
+    public interface IFooBar
+    {{
+        int FooBaz(int x, int y);
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<IFooBar>();
+            {method}(substitute, sub => sub.FooBaz(Arg.Any<int>(), Arg.Any<int>())).Do(outerCallInfo =>
+                {{
+                    var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                    otherSubstitute.Bar(Arg.Any<int>()).Returns(innerCallInfo =>
+                    {{
+                        var x = outerCallInfo.ArgAt<int>(1);
+                        var y = outerCallInfo[1];
+
+                        var xx = innerCallInfo.ArgAt<int>(0);
+                        var yy = innerCallInfo[0];
+
+                        return 1;
+                    }});
+                }});
+
         }}
     }}
 }}";
@@ -402,6 +447,102 @@ namespace MyNamespace
             await VerifyDiagnostic(source, CallInfoCouldNotFindArgumentToThisCallDescriptor, message);
         }
 
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocationForNestedCall(string method)
+        {
+            var source = $@"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        int Bar(int x);
+    }}
+
+    public interface IFooBar
+    {{
+        void FooBaz(int x);
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<IFooBar>();
+            {method}(substitute, sub => sub.FooBaz(Arg.Any<int>())).Do(outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                otherSubstitute.Bar(Arg.Any<int>()).Returns(innerCallInfo =>
+                {{
+                     var x = [|outerCallInfo.Arg<string>()|];
+                     var y = [|innerCallInfo.Arg<string>()|];
+
+                     return 1;
+                }});
+            }});
+
+        }}
+    }}
+}}";
+            await VerifyDiagnostic(source, CallInfoCouldNotFindArgumentToThisCallDescriptor, "Can not find an argument of type string to this call.");
+        }
+
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBoundsForNestedCall(string method)
+        {
+            var source = $@"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        int Bar(int x);
+    }}
+
+    public interface IFooBar
+    {{
+        void FooBaz(int x, int y);
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<IFooBar>();
+            {method}(substitute, sub => sub.FooBaz(Arg.Any<int>(), Arg.Any<int>())).Do(outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                otherSubstitute.Bar(Arg.Any<int>()).Returns(innerCallInfo =>
+                {{
+                     var x = [|outerCallInfo.ArgAt<int>(2)|];
+                     var y = [|outerCallInfo[2]|];
+                     var z = outerCallInfo[1];
+
+                     var xx = [|innerCallInfo.ArgAt<int>(1)|];
+                     var yy = [|innerCallInfo[1]|];
+                     var zz = innerCallInfo[0];
+
+                     return 1;
+                }});
+            }});
+
+        }}
+    }}
+}}";
+            var textParserResult = TextParser.GetSpans(source);
+
+            var diagnosticMessages = new[]
+            {
+                "There is no argument at position 2",
+                "There is no argument at position 2",
+                "There is no argument at position 1",
+                "There is no argument at position 1"
+            };
+
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(CallInfoArgumentOutOfRangeDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
+        }
+
         public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string method, string call, string argAccess)
         {
             var source = $@"using System;
@@ -445,6 +586,44 @@ namespace MyNamespace
     }}
 }}";
 
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInvocationForNestedCall(
+            string method)
+        {
+            var source = $@"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        int Bar(int x);
+    }}
+
+    public interface IFooBar
+    {{
+        void FooBaz(string x);
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<IFooBar>();
+            {method}(substitute, sub => sub.FooBaz(Arg.Any<string>())).Do(outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                otherSubstitute.Bar(Arg.Any<int>()).Returns(innerCallInfo =>
+                {{
+                     var x = outerCallInfo.Arg<string>();
+                     return innerCallInfo.Arg<int>();
+                }});
+            }});
+        }}
+    }}
+}}";
             await VerifyNoDiagnostic(source);
         }
 
