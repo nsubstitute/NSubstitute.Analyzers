@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using NSubstitute.Analyzers.Tests.Shared.Extensions;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.SubstituteAnalyzerTests
@@ -67,7 +69,17 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, SubstituteConstructorArgumentsForInterfaceDescriptor, "Can not provide constructor arguments when substituting for an interface. Use NSubstitute.Substitute.[For]({GetType(IFoo)},Nothing) instead.");
+            var diagnosticMessages = new[]
+            {
+                "Can not provide constructor arguments when substituting for an interface. Use NSubstitute.Substitute.[For]({GetType(IFoo)},Nothing) instead.",
+                "Can not provide constructor arguments when substituting for an interface. Use NSubstitute.Substitute.[For](typesToProxy:= {GetType(IFoo)},Nothing) instead.",
+                "Can not provide constructor arguments when substituting for an interface. Use NSubstitute.Substitute.[For](constructorArguments:= New Object() {1},Nothing) instead."
+            };
+
+            var textParserResult = TextParser.GetSpans(source);
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(SubstituteConstructorArgumentsForInterfaceDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
+
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
         [Fact]
@@ -108,7 +120,17 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, SubstituteConstructorArgumentsForDelegateDescriptor, "Can not provide constructor arguments when substituting for a delegate. Use NSubstitute.Substitute.[For]({GetType(Func(Of Integer))},Nothing) instead.");
+            var diagnosticMessages = new[]
+            {
+                "Can not provide constructor arguments when substituting for a delegate. Use NSubstitute.Substitute.[For]({GetType(Func(Of Integer))},Nothing) instead.",
+                "Can not provide constructor arguments when substituting for a delegate. Use NSubstitute.Substitute.[For](typesToProxy:= {GetType(Func(Of Integer))},Nothing) instead.",
+                "Can not provide constructor arguments when substituting for a delegate. Use NSubstitute.Substitute.[For](constructorArguments:= New Object() {1},Nothing) instead."
+            };
+
+            var textParserResult = TextParser.GetSpans(source);
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(SubstituteConstructorArgumentsForDelegateDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
+
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
         [Theory]

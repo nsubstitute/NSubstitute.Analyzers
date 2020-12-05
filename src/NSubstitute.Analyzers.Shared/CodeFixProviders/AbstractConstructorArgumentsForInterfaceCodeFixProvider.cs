@@ -40,6 +40,8 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 
         protected abstract SyntaxNode GetExpression(TInvocationExpressionSyntax invocationExpressionSyntax);
 
+        protected abstract bool HasNamedArguments(TInvocationExpressionSyntax invocationExpressionSyntax);
+
         private async Task<Document> CreateChangedDocument(CancellationToken cancellationToken, CodeFixContext context, Diagnostic diagnostic)
         {
             var documentEditor = await DocumentEditor.CreateAsync(context.Document, cancellationToken);
@@ -56,9 +58,18 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             }
 
             var expression = GetExpression(invocation);
-            var updatedInvocation = invocationOperation.TargetMethod.IsGenericMethod
-                ? GetInvocationExpressionSyntaxWithEmptyArgumentList(syntaxGenerator, expression)
-                : GetInvocationExpressionSyntaxWithNullConstructorArgument(syntaxGenerator, invocationOperation,  expression);
+            SyntaxNode updatedInvocation;
+            if (invocationOperation.TargetMethod.IsGenericMethod)
+            {
+                updatedInvocation = GetInvocationExpressionSyntaxWithEmptyArgumentList(syntaxGenerator, expression);
+            }
+            else
+            {
+                updatedInvocation = GetInvocationExpressionSyntaxWithNullConstructorArgument(
+                    syntaxGenerator,
+                    invocation,
+                    invocationOperation);
+            }
 
             documentEditor.ReplaceNode(invocation, updatedInvocation);
 
@@ -72,18 +83,36 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             return syntaxGenerator.InvocationExpression(expression);
         }
 
-        private static SyntaxNode GetInvocationExpressionSyntaxWithNullConstructorArgument(
-            SyntaxGenerator generator,
-            IInvocationOperation invocationOperation,
-            SyntaxNode expression)
+        private SyntaxNode GetInvocationExpressionSyntaxWithNullConstructorArgument(
+            SyntaxGenerator syntaxGenerator,
+            TInvocationExpressionSyntax invocationExpressionSyntax,
+            IInvocationOperation invocationOperation)
         {
-            var nullArgument = generator.Argument(generator.NullLiteralExpression());
-            var newArguments = new[]
-            {
-                invocationOperation.GetOrderedArgumentOperationsWithoutInstanceArgument().First().Syntax, nullArgument
-            };
+            var orderedArguments = invocationOperation.GetOrderedArgumentOperationsWithoutInstanceArgument().ToList();
+            var remainingArgumentOperation = orderedArguments.Last();
+            var constructorArguments = GetConstructorArgumentSyntax(
+                syntaxGenerator,
+                invocationExpressionSyntax,
+                remainingArgumentOperation);
 
-            return generator.InvocationExpression(expression, newArguments);
+            return invocationOperation.Syntax.ReplaceNode(remainingArgumentOperation.Syntax, constructorArguments);
+        }
+
+        private SyntaxNode GetConstructorArgumentSyntax(
+            SyntaxGenerator generator,
+            TInvocationExpressionSyntax invocationExpressionSyntax,
+            IArgumentOperation constructorArgumentsOperation)
+        {
+            var argumentName = GetArgumentName(invocationExpressionSyntax, constructorArgumentsOperation);
+            var nullArgument = generator.Argument(argumentName, RefKind.None, generator.NullLiteralExpression());
+            return nullArgument;
+        }
+
+        private string GetArgumentName(
+            TInvocationExpressionSyntax invocationExpressionSyntax,
+            IArgumentOperation argumentOperation)
+        {
+            return HasNamedArguments(invocationExpressionSyntax) ? argumentOperation.Parameter.Name : null;
         }
     }
 }

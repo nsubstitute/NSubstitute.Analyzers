@@ -49,8 +49,10 @@ End Namespace
             var diagnosticMessages = new[]
             {
                 $"{plainMethodName}() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) ReturnThis()).",
-                $"{plainMethodName}() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) OtherReturn())."
-            }.Repeat(2).ToArray();
+                $"{plainMethodName}() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) OtherReturn()).",
+                $"{plainMethodName}() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) ReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) ReturnThis())."
+            };
 
             var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
@@ -98,8 +100,10 @@ End Namespace
             var diagnosticMessages = new[]
             {
                 $"{plainMethodName}() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) ReturnThis()).",
-                $"{plainMethodName}() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) OtherReturn())."
-            }.Repeat(2).ToArray();
+                $"{plainMethodName}() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) OtherReturn()).",
+                $"{plainMethodName}() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) ReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) ReturnThis())."
+            };
 
             var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
@@ -145,8 +149,10 @@ End Namespace
             var diagnosticMessages = new[]
             {
                 $"{plainMethodName}() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) ReturnThis()).",
-                $"{plainMethodName}() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) OtherReturn())."
-            }.Repeat(2).ToArray();
+                $"{plainMethodName}() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) OtherReturn()).",
+                $"{plainMethodName}() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) ReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) ReturnThis())."
+            };
 
             var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
@@ -204,8 +210,12 @@ End Namespace
             {
                 $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) ReturnThis()).",
                 $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) OtherReturn()).",
-                $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) NestedReturnThis())."
-            }.Repeat(2).ToArray();
+                $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) ReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) ReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) NestedReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) ReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(Function(x) NestedReturnThis()).",
+            };
 
             var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
@@ -365,8 +375,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
                 {method}(substitute.Bar(), {rootCall})
-                {method}(value:= substitute.Bar(), returnThis: {rootCall})
-                {method}(returnThis: {rootCall}, value:= substitute.Bar())
+                {method}(value:= substitute.Bar(), returnThis:= {rootCall})
+                {method}(returnThis:= {rootCall}, value:= substitute.Bar())
         End Sub
 
         Private Function ReturnThis() As Integer

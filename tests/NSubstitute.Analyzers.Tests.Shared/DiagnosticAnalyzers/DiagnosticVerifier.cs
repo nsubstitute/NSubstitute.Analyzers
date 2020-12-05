@@ -128,7 +128,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
                 actual.Id.Should().Be(expected.Id);
                 actual.Severity.Should().Be(expected.Severity);
-                actual.GetMessage().Should().Be(expected.GetMessage());
+                actual.GetMessage().Should().Be(expected.GetMessage(), $"because {i}");
             }
         }
 

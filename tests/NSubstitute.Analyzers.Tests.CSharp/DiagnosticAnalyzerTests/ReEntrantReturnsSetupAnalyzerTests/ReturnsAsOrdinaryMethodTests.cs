@@ -197,6 +197,8 @@ namespace MyNamespace
         {{
             var substitute = Substitute.For<IFoo>();
             {method}(substitute.Bar(), [|ReturnThis()|], [|OtherReturn()|]);
+            {method}(value: substitute.Bar(), returnThis: [|ReturnThis()|], returnThese: [|OtherReturn()|]);
+            {method}(returnThis: [|ReturnThis()|], returnThese: [|OtherReturn()|], value: substitute.Bar());
         }}
 
         private int ReturnThis()
@@ -231,8 +233,12 @@ namespace MyNamespace
             {
                 $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => ReturnThis()).",
                 $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => OtherReturn()).",
+                $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => ReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => OtherReturn()).",
+                $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => ReturnThis()).",
+                $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => OtherReturn()).",
                 $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => NestedReturnThis())."
-            }.Repeat(2).ToList();
+            };
 
             var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 

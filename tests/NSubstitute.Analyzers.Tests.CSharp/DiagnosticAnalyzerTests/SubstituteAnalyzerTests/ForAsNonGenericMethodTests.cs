@@ -78,7 +78,17 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyDiagnostic(source, SubstituteConstructorArgumentsForInterfaceDescriptor, "Can not provide constructor arguments when substituting for an interface. Use NSubstitute.Substitute.For(new [] { typeof(IFoo) },null) instead.");
+            var diagnosticMessages = new[]
+            {
+                "Can not provide constructor arguments when substituting for an interface. Use NSubstitute.Substitute.For(new [] { typeof(IFoo) },null) instead.",
+                "Can not provide constructor arguments when substituting for an interface. Use NSubstitute.Substitute.For(typesToProxy: new [] { typeof(IFoo) },null) instead.",
+                "Can not provide constructor arguments when substituting for an interface. Use NSubstitute.Substitute.For(constructorArguments: new object[] { 1 },null) instead."
+            };
+
+            var textParserResult = TextParser.GetSpans(source);
+
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(SubstituteConstructorArgumentsForInterfaceDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
         [Fact]
@@ -124,12 +134,11 @@ namespace MyNamespace
 }";
             var textParserResult = TextParser.GetSpans(source);
 
-            // TODO
             var diagnosticMessages = new[]
             {
                 "Can not provide constructor arguments when substituting for a delegate. Use NSubstitute.Substitute.For(new [] { typeof(Func<int>) },null) instead.",
                 "Can not provide constructor arguments when substituting for a delegate. Use NSubstitute.Substitute.For(typesToProxy: new [] { typeof(Func<int>) },null) instead.",
-                "Can not provide constructor arguments when substituting for a delegate. Use NSubstitute.Substitute.For(constructorArguments: new object[] { 1 },null)"
+                "Can not provide constructor arguments when substituting for a delegate. Use NSubstitute.Substitute.For(constructorArguments: new object[] { 1 },null) instead."
             };
 
             var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(SubstituteConstructorArgumentsForDelegateDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();

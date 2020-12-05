@@ -76,8 +76,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For]({GetType(IFoo)}, Nothing)
-            Dim otherSubstitute = NSubstitute.Substitute.[For](typesToProxy:= {GetType(IFoo)}, constructorArguments:= Nothing)
-            Dim yetAnotherSubstitute = NSubstitute.Substitute.[For](constructorArguments:= Nothing, typesToProxy:= {GetType(IFoo)})
+            Dim otherSubstitute = NSubstitute.Substitute.[For](typesToProxy:= {GetType(IFoo)}, constructorArguments:=Nothing)
+            Dim yetAnotherSubstitute = NSubstitute.Substitute.[For](constructorArguments:=Nothing, typesToProxy:= {GetType(IFoo)})
         End Sub
     End Class
 End Namespace
@@ -114,8 +114,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = SubstitutionContext.Current.SubstituteFactory.Create({GetType(IFoo)}, Nothing)
-            Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy:= {GetType(IFoo)}, constructorArguments:= Nothing)
-            Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments:= Nothing, typesToProxy:= {GetType(IFoo)})
+            Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy:= {GetType(IFoo)}, constructorArguments:=Nothing)
+            Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments:=Nothing, typesToProxy:= {GetType(IFoo)})
         End Sub
     End Class
 End Namespace
