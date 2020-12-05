@@ -112,6 +112,7 @@ namespace MyNamespace
         {
             var secondSubstitute = Substitute.For<IFoo>();
             secondSubstitute.Id.Returns(CreateReEntrantSubstitute(), new[] { MyNamespace.FooTests.Value });
+            secondSubstitute.Id.Returns(returnThis: CreateReEntrantSubstitute(), returnThese: new[] { MyNamespace.FooTests.Value });
         }
 
         private int CreateReEntrantSubstitute()
@@ -149,6 +150,7 @@ namespace MyNamespace
         {
             var secondSubstitute = Substitute.For<IFoo>();
             secondSubstitute.Id.Returns(_ => CreateReEntrantSubstitute(), new Func<CallInfo, int>[] { _ => MyNamespace.FooTests.Value });
+            secondSubstitute.Id.Returns(returnThis: _ => CreateReEntrantSubstitute(), returnThese: new Func<CallInfo, int>[] { _ => MyNamespace.FooTests.Value });
         }
 
         private int CreateReEntrantSubstitute()

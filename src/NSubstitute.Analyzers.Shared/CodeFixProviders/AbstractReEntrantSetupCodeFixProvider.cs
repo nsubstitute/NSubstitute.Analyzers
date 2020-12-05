@@ -20,7 +20,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 
         protected abstract TArgumentSyntax CreateUpdatedArgumentSyntaxNode(TArgumentSyntax argumentSyntaxNode);
 
-        protected abstract TArgumentSyntax CreateUpdatedParamsArgumentSyntaxNode(SyntaxGenerator syntaxGenerator, ITypeSymbol returnedTypeSymbol, TArgumentSyntax argumentSyntaxNode);
+        protected abstract TArgumentSyntax CreateUpdatedParamsArgumentSyntaxNode(SyntaxGenerator syntaxGenerator, ITypeSymbol returnedTypeSymbol, TArgumentSyntax argumentSyntaxNode, IEnumerable<SyntaxNode> initializers);
 
         protected abstract SyntaxNode GetArgumentExpressionSyntax(TArgumentSyntax argumentSyntax);
 
@@ -74,18 +74,23 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
                 return context.Document;
             }
 
-            var skip = methodSymbol.MethodKind == MethodKind.Ordinary
-                ? 1
-                : 0;
-
-            foreach (var argumentSyntax in argumentSyntaxes.Skip(skip))
+            var syntaxGenerator = SyntaxGenerator.GetGenerator(context.Document);
+            foreach (var argumentSyntax in argumentSyntaxes)
             {
-                if (IsArrayParamsArgument(semanticModel, argumentSyntax))
+                var operation = semanticModel.GetOperation(argumentSyntax) as IArgumentOperation;
+                if (operation != null && (methodSymbol.MethodKind == MethodKind.Ordinary && operation.Parameter.Ordinal == 0))
                 {
+                   continue;
+                }
+
+                if (IsArrayParamsArgument(operation))
+                {
+                    var initializers = GetInitializers(operation);
                     var updatedParamsArgumentSyntaxNode = CreateUpdatedParamsArgumentSyntaxNode(
-                        SyntaxGenerator.GetGenerator(context.Document),
+                        syntaxGenerator,
                         methodSymbol.TypeArguments.FirstOrDefault() ?? methodSymbol.ReceiverType,
-                        argumentSyntax);
+                        argumentSyntax,
+                        initializers);
 
                     documentEditor.ReplaceNode(argumentSyntax, updatedParamsArgumentSyntaxNode);
                 }
@@ -115,13 +120,16 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
         private bool IsArrayParamsArgument(SemanticModel semanticModel, TArgumentSyntax argumentSyntax)
         {
             var operation = semanticModel.GetOperation(argumentSyntax);
-            return operation is IArgumentOperation argumentOperation && argumentOperation.Parameter.IsParams;
+            return operation is IArgumentOperation argumentOperation && IsArrayParamsArgument(argumentOperation);
         }
 
-        private static TArgumentListSyntax GetArgumentListSyntax(SyntaxNode diagnosticNode)
+        private bool IsArrayParamsArgument(IArgumentOperation argumentOperation) => argumentOperation != null && argumentOperation.Parameter.IsParams;
+
+        private IEnumerable<SyntaxNode> GetInitializers(IArgumentOperation argumentOperation)
         {
-            var argumentListSyntax = diagnosticNode.Ancestors().OfType<TArgumentListSyntax>().FirstOrDefault();
-            return argumentListSyntax;
+            return (argumentOperation.Value as IArrayCreationOperation).Initializer.ElementValues.Select(value => value.Syntax);
         }
+
+        private static TArgumentListSyntax GetArgumentListSyntax(SyntaxNode diagnosticNode) => diagnosticNode.Ancestors().OfType<TArgumentListSyntax>().FirstOrDefault();
     }
 }
