@@ -397,7 +397,7 @@ namespace MyNamespace
         {
             var substitute = [|NSubstitute.Substitute.For<Foo>(1)|];
             var otherSubstitute = [|NSubstitute.Substitute.For<Foo>(constructorArguments: 1)|];
-            var otherSubstitute = [|NSubstitute.Substitute.For<Foo>(new [] { 1 })|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For<Foo>(new [] { 1 })|];
         }
     }
 }";

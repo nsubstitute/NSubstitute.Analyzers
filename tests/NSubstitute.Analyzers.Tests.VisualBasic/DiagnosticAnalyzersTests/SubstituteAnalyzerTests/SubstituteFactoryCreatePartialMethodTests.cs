@@ -1,4 +1,6 @@
+using System.Linq;
 using System.Threading.Tasks;
+using NSubstitute.Analyzers.Tests.Shared.Extensions;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.SubstituteAnalyzerTests
@@ -24,7 +26,17 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, PartialSubstituteForUnsupportedTypeDescriptor, "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(New Type() {GetType(IFoo)}, Nothing) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(IFoo)}, Nothing) here.");
+            var diagnosticMessages = new[]
+            {
+                "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(New Type() {GetType(IFoo)}, Nothing) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(IFoo)}, Nothing) here.",
+                "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy:= New Type() {GetType(IFoo)}, constructorArguments:= Nothing) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= New Type() {GetType(IFoo)}, constructorArguments:= Nothing) here.",
+                "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments:= Nothing, typesToProxy:= New Type() {GetType(IFoo)}) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= Nothing, typesToProxy:= New Type() {GetType(IFoo)}) here."
+            };
+
+            var textParserResult = TextParser.GetSpans(source);
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(PartialSubstituteForUnsupportedTypeDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
+
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
         [Fact]
@@ -46,7 +58,17 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, PartialSubstituteForUnsupportedTypeDescriptor, "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(New Type() {GetType(Func(Of Integer))}, Nothing) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Func(Of Integer))}, Nothing) here.");
+            var diagnosticMessages = new[]
+            {
+                "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(New Type() {GetType(Func(Of Integer))}, Nothing) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Func(Of Integer))}, Nothing) here.",
+                "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy:= New Type() {GetType(Func(Of Integer))}, constructorArguments:= Nothing) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= New Type() {GetType(Func(Of Integer))}, constructorArguments:= Nothing) here.",
+                "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments:= Nothing, typesToProxy:= New Type() {GetType(Func(Of Integer))}) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= Nothing, typesToProxy:= New Type() {GetType(Func(Of Integer))}) here."
+            };
+
+            var textParserResult = TextParser.GetSpans(source);
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(PartialSubstituteForUnsupportedTypeDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
+
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
         [Fact]

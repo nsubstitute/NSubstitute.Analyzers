@@ -40,6 +40,26 @@ namespace NSubstitute.Analyzers.Shared.Extensions
             return orderedArguments.Skip(1);
         }
 
+        public static IEnumerable<IArgumentOperation> GetArgumentOperationsWithoutInstanceArgument(this IInvocationOperation invocationOperation)
+        {
+            var orderedArguments = invocationOperation.Arguments
+                .Where(arg => IsImplicitlyProvidedArrayWithoutValues(arg) == false);
+
+            if (!invocationOperation.TargetMethod.IsExtensionMethod)
+            {
+                return orderedArguments;
+            }
+
+            // unlike CSharp implementation, VisualBasic doesnt include "instance" argument for reduced extensions
+            if (invocationOperation.TargetMethod.MethodKind == MethodKind.ReducedExtension &&
+                invocationOperation.Language == LanguageNames.VisualBasic)
+            {
+                return orderedArguments;
+            }
+
+            return orderedArguments.Where(x => x.Parameter.Ordinal != 0);
+        }
+
         public static IEnumerable<IArgumentOperation> GetOrderedArgumentOperations(this IInvocationOperation invocationOperation)
         {
             return invocationOperation.Arguments.OrderBy(arg => arg.Parameter.Ordinal);
