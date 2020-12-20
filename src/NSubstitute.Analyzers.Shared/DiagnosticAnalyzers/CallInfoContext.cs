@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
@@ -5,6 +6,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
     internal class CallInfoContext
     {
+        public static CallInfoContext Empty { get; } = new CallInfoContext(
+            Array.Empty<SyntaxNode>(),
+            Array.Empty<SyntaxNode>(),
+            Array.Empty<SyntaxNode>());
+
         public IReadOnlyList<SyntaxNode> IndexerAccesses { get; }
 
         public IReadOnlyList<SyntaxNode> ArgAtInvocations { get; }

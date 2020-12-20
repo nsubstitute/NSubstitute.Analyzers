@@ -7,7 +7,7 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 {
-    internal class CallInfoCallFinder : ICallInfoFinder
+    internal class CallInfoCallFinder : AbstractCallInfoFinder
     {
         public static CallInfoCallFinder Instance { get; } = new CallInfoCallFinder();
 
@@ -15,7 +15,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
         {
         }
 
-        public CallInfoContext GetCallInfoContext(SemanticModel semanticModel, SyntaxNode syntaxNode)
+        protected override CallInfoContext GetCallInfoContextInternal(SemanticModel semanticModel, SyntaxNode syntaxNode)
         {
             var visitor = new CallInfoVisitor(semanticModel);
             visitor.Visit(syntaxNode);

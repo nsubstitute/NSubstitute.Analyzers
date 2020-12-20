@@ -89,7 +89,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             // perf - dont use linq in hotpaths
             foreach (var argumentOperation in invocationOperation.GetOrderedArgumentOperationsWithoutInstanceArgument())
             {
-                foreach (var indexerExpressionSyntax in _callInfoFinder.GetCallInfoContext(syntaxNodeContext.SemanticModel, argumentOperation.Syntax).IndexerAccesses)
+                foreach (var indexerExpressionSyntax in _callInfoFinder.GetCallInfoContext(syntaxNodeContext.SemanticModel, argumentOperation.Value.Syntax).IndexerAccesses)
                 {
                     if (IsAssigned(syntaxNodeContext, indexerExpressionSyntax))
                     {
