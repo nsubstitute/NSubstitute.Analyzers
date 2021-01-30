@@ -312,15 +312,15 @@ Namespace MyNamespace
             Return 1
         End Function
 
-        Private Function ReturnThisWithCallInfo(ByVal info As CallInfo) As Integer
+        Private Function ReturnThisWithCallInfo(ByVal info As CallInfo(Of Integer)) As Integer
             Return OtherReturn()
         End Function
 
-        Private Function MyMethod() As Func(Of CallInfo, Integer)
+        Private Function MyMethod() As Func(Of CallInfo(Of Integer), Integer)
             Return AddressOf ReturnThisWithCallInfo
         End Function
 
-        Private ReadOnly Property MyProperty As Func(Of CallInfo, Integer)
+        Private ReadOnly Property MyProperty As Func(Of CallInfo(Of Integer), Integer)
             Get
                 Return AddressOf ReturnThisWithCallInfo
             End Get
@@ -362,15 +362,15 @@ Namespace MyNamespace
             Return 1
         End Function
 
-        Private Function ReturnThisWithCallInfo(ByVal info As CallInfo) As Integer
+        Private Function ReturnThisWithCallInfo(ByVal info As CallInfo(Of Integer)) As Integer
             Return OtherReturn()
         End Function
 
-        Private Function MyMethod() As Func(Of CallInfo, Integer)
+        Private Function MyMethod() As Func(Of CallInfo(Of Integer), Integer)
             Return AddressOf ReturnThisWithCallInfo
         End Function
 
-        Private ReadOnly Property MyProperty As Func(Of CallInfo, Integer)
+        Private ReadOnly Property MyProperty As Func(Of CallInfo(Of Integer), Integer)
             Get
                 Return AddressOf ReturnThisWithCallInfo
             End Get
@@ -747,7 +747,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            {method}(substitute.Bar(), Function(x) 1, New Func(Of CallInfo, Integer)() {{Function(y) OtherReturn()}})
+            {method}(substitute.Bar(), Function(x) 1, New Func(Of CallInfo(Of Integer), Integer)() {{Function(y) OtherReturn()}})
         End Sub
 
         Private Function OtherReturn() As Integer

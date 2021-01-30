@@ -7,5 +7,7 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
         Task ReplacesArgumentExpression_WithLambda(string arguments, string rewrittenArguments);
 
         Task ReplacesArgumentExpression_WithLambdaWithReducedTypes_WhenGeneratingArrayParamsArgument();
+
+        Task ReplacesArgumentExpression_WithLambdaWithNonGenericCallInfo_WhenGeneratingArrayParamsArgument();
     }
 }

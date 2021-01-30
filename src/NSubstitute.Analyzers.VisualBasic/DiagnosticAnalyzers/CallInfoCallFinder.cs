@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.VisualBasic;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
 {
@@ -48,7 +49,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
             {
                 var symbol = _semanticModel.GetSymbolInfo(node).Symbol;
 
-                if (symbol != null && symbol.ContainingType.ToString().Equals(MetadataNames.NSubstituteCallInfoFullTypeName))
+                if (symbol != null && symbol.ContainingType.IsCallInfoSymbol())
                 {
                     switch (symbol.Name)
                     {
@@ -68,7 +69,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
                 {
                     var expressionSymbol = _semanticModel.GetSymbolInfo(node.Expression).Symbol;
 
-                    if (expressionSymbol != null && expressionSymbol.ContainingType.ToString().Equals(MetadataNames.NSubstituteCallInfoFullTypeName))
+                    if (expressionSymbol != null && expressionSymbol.ContainingType.IsCallInfoSymbol())
                     {
                         DirectIndexerAccesses.Add(node);
                     }

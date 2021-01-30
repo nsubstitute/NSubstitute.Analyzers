@@ -16,12 +16,15 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.ReEntran
 
         [Theory]
         [InlineData("CreateReEntrantSubstitute(), CreateDefaultValue(), 1", "Function(x) CreateReEntrantSubstitute(), Function(x) CreateDefaultValue(), Function(x) 1")]
-        [InlineData("CreateReEntrantSubstitute(), { CreateDefaultValue(), 1 }", "Function(x) CreateReEntrantSubstitute(), New System.Func(Of Core.CallInfo, Integer)() {Function(x) CreateDefaultValue(), Function(x) 1}")]
-        [InlineData("CreateReEntrantSubstitute(), New Integer() {CreateDefaultValue(), 1}", "Function(x) CreateReEntrantSubstitute(), New System.Func(Of Core.CallInfo, Integer)() {Function(x) CreateDefaultValue(), Function(x) 1}")]
+        [InlineData("CreateReEntrantSubstitute(), { CreateDefaultValue(), 1 }", "Function(x) CreateReEntrantSubstitute(), New System.Func(Of Core.CallInfo(Of Integer), Integer)() {Function(x) CreateDefaultValue(), Function(x) 1}")]
+        [InlineData("CreateReEntrantSubstitute(), New Integer() {CreateDefaultValue(), 1}", "Function(x) CreateReEntrantSubstitute(), New System.Func(Of Core.CallInfo(Of Integer), Integer)() {Function(x) CreateDefaultValue(), Function(x) 1}")]
         [InlineData("returnThis:= CreateReEntrantSubstitute()", "returnThis:=Function(x) CreateReEntrantSubstitute()")]
         public abstract Task ReplacesArgumentExpression_WithLambda(string arguments, string rewrittenArguments);
 
         [Fact]
         public abstract Task ReplacesArgumentExpression_WithLambdaWithReducedTypes_WhenGeneratingArrayParamsArgument();
+
+        [Fact]
+        public abstract Task ReplacesArgumentExpression_WithLambdaWithNonGenericCallInfo_WhenGeneratingArrayParamsArgument();
     }
 }
