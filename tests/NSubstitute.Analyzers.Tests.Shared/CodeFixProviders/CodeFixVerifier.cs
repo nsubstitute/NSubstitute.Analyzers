@@ -24,11 +24,18 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
 
         protected abstract DiagnosticAnalyzer DiagnosticAnalyzer { get; }
 
-        protected async Task VerifyFix(string oldSource, string newSource, int? codeFixIndex = null)
+        protected async Task VerifyFix(
+            string oldSource,
+            string newSource,
+            int? codeFixIndex = null,
+            NSubstituteVersion version = NSubstituteVersion.Latest)
         {
             using (var workspace = new AdhocWorkspace())
             {
                 var project = AddProject(workspace.CurrentSolution, oldSource);
+
+                project = UpdateNSubstituteMetadataReference(project, version);
+
                 var document = project.Documents.Single();
                 var compilation = await project.GetCompilationAsync();
 
@@ -80,6 +87,25 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
 
                 actual.Should().Be(newSource);
             }
+        }
+
+        private static Project UpdateNSubstituteMetadataReference(Project project, NSubstituteVersion version)
+        {
+            if (version == NSubstituteVersion.Latest)
+            {
+                return project;
+            }
+
+            project = project.RemoveMetadataReference(RuntimeMetadataReference.NSubstituteLatestReference);
+
+            switch (version)
+            {
+                case NSubstituteVersion.NSubstitute4_2_2:
+                    project = project.AddMetadataReference(RuntimeMetadataReference.NSubstitute422Reference);
+                    break;
+            }
+
+            return project;
         }
     }
 }

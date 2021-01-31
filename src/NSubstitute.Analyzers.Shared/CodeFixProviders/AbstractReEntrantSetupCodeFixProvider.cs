@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Operations;
 using Microsoft.CodeAnalysis.Simplification;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 {
@@ -78,13 +79,15 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
                 ? 1
                 : 0;
 
+            ITypeSymbol lambdaType = null;
             foreach (var argumentSyntax in argumentSyntaxes.Skip(skip))
             {
                 if (IsArrayParamsArgument(semanticModel, argumentSyntax))
                 {
+                    lambdaType = lambdaType ?? ConstructCallInfoLambdaType(methodSymbol, semanticModel);
                     var updatedParamsArgumentSyntaxNode = CreateUpdatedParamsArgumentSyntaxNode(
                         SyntaxGenerator.GetGenerator(context.Document),
-                        methodSymbol.TypeArguments.FirstOrDefault() ?? methodSymbol.ReceiverType,
+                        lambdaType,
                         argumentSyntax);
 
                     documentEditor.ReplaceNode(argumentSyntax, updatedParamsArgumentSyntaxNode);
@@ -98,6 +101,21 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             }
 
             return await Simplifier.ReduceAsync(documentEditor.GetChangedDocument(), cancellationToken: ct);
+        }
+
+        private static ITypeSymbol ConstructCallInfoLambdaType(IMethodSymbol methodSymbol, SemanticModel semanticModel)
+        {
+            var callInfoOverloadMethodSymbol = methodSymbol.ContainingType.GetMembers(methodSymbol.Name)
+                .Where(symbol => !symbol.Equals(methodSymbol.ConstructedFrom))
+                .OfType<IMethodSymbol>()
+                .First(method => method.Parameters.Any(param => param.Type.IsCallInfoDelegate(semanticModel)));
+
+            var typeArgument = methodSymbol.TypeArguments.FirstOrDefault() ?? methodSymbol.ReceiverType;
+            var constructedOverloadSymbol = callInfoOverloadMethodSymbol.Construct(typeArgument);
+            var lambdaType = constructedOverloadSymbol.Parameters
+                .First(param => param.Type.IsCallInfoDelegate(semanticModel)).Type;
+
+            return lambdaType;
         }
 
         private bool IsFixSupported(SemanticModel semanticModel, IEnumerable<TArgumentSyntax> arguments)

@@ -116,25 +116,10 @@ namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders
             return lambdaExpression;
         }
 
-        private static QualifiedNameSyntax CreateTypeNode(SyntaxGenerator syntaxGenerator, ITypeSymbol type)
+        private static TypeSyntax CreateTypeNode(SyntaxGenerator syntaxGenerator, ITypeSymbol type)
         {
             var typeSyntax = (TypeSyntax)syntaxGenerator.TypeExpression(type);
-            var typeArgumentListSyntax = TypeArgumentList(
-                SeparatedList<TypeSyntax>(
-                    new SyntaxNodeOrToken[]
-                    {
-                        QualifiedName(
-                            QualifiedName(
-                                IdentifierName("NSubstitute"),
-                                IdentifierName("Core")),
-                            IdentifierName("CallInfo")),
-                        Token(SyntaxKind.CommaToken),
-                        typeSyntax
-                    }));
-
-            var qualifiedNameSyntax = QualifiedName(IdentifierName("System"), GenericName(Identifier("Func"), typeArgumentListSyntax));
-
-            return qualifiedNameSyntax.WithAdditionalAnnotations(Simplifier.Annotation);
+            return typeSyntax.WithAdditionalAnnotations(Simplifier.Annotation);
         }
     }
 }
