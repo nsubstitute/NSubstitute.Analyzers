@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using NSubstitute.Analyzers.Tests.Shared;
 
@@ -152,8 +151,7 @@ namespace MyNamespace
         {
             var secondSubstitute = Substitute.For<IFoo>();
             secondSubstitute.Id.Returns(_ => CreateReEntrantSubstitute(), new Func<CallInfo<int>, int>[] { _ => MyNamespace.FooTests.Value });
-            secondSubstitute.Id.Returns(_ => CreateReEntrantSubstitute(), new Func<CallInfo, int>[] { _ => MyNamespace.FooTests.Value });
-            secondSubstitute.Id.Returns(returnThis: _ => CreateReEntrantSubstitute(), returnThese: new Func<CallInfo, int>[] { _ => MyNamespace.FooTests.Value });
+            secondSubstitute.Id.Returns(returnThis: _ => CreateReEntrantSubstitute(), returnThese: new Func<CallInfo<int>, int>[] { _ => MyNamespace.FooTests.Value });
         }
 
         private int CreateReEntrantSubstitute()

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -9,7 +8,6 @@ using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Simplification;
 using NSubstitute.Analyzers.CSharp.Extensions;
 using NSubstitute.Analyzers.Shared.CodeFixProviders;
-using NSubstitute.Analyzers.Shared.Extensions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace NSubstitute.Analyzers.CSharp.CodeFixProviders
@@ -72,10 +70,11 @@ namespace NSubstitute.Analyzers.CSharp.CodeFixProviders
 
         private static ArrayTypeSyntax CreateArrayTypeNode(SyntaxGenerator syntaxGenerator, ITypeSymbol type)
         {
-            var callbackTypeSyntax = syntaxGenerator.CallInfoCallbackTypeSyntax(type);
+            var typeSyntax = (TypeSyntax)syntaxGenerator.TypeExpression(type);
+
             var arrayRankSpecifierSyntaxes = SingletonList(ArrayRankSpecifier(SingletonSeparatedList<ExpressionSyntax>(OmittedArraySizeExpression())));
 
-            return ArrayType((TypeSyntax)callbackTypeSyntax, arrayRankSpecifierSyntaxes).WithAdditionalAnnotations(Simplifier.Annotation);
+            return ArrayType(typeSyntax, arrayRankSpecifierSyntaxes).WithAdditionalAnnotations(Simplifier.Annotation);
         }
     }
 }

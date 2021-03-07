@@ -21,7 +21,11 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 
         protected abstract TArgumentSyntax CreateUpdatedArgumentSyntaxNode(TArgumentSyntax argumentSyntaxNode);
 
-        protected abstract TArgumentSyntax CreateUpdatedParamsArgumentSyntaxNode(SyntaxGenerator syntaxGenerator, ITypeSymbol returnedTypeSymbol, TArgumentSyntax argumentSyntaxNode);
+        protected abstract TArgumentSyntax CreateUpdatedParamsArgumentSyntaxNode(
+            SyntaxGenerator syntaxGenerator,
+            ITypeSymbol returnedTypeSymbol,
+            TArgumentSyntax argumentSyntaxNode,
+            IEnumerable<SyntaxNode> syntaxNodes);
 
         protected abstract SyntaxNode GetArgumentExpressionSyntax(TArgumentSyntax argumentSyntax);
 
@@ -90,9 +94,10 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
                     var initializers = operation.GetSyntaxes();
                     lambdaType = lambdaType ?? ConstructCallInfoLambdaType(methodSymbol, semanticModel);
                     var updatedParamsArgumentSyntaxNode = CreateUpdatedParamsArgumentSyntaxNode(
-                        SyntaxGenerator.GetGenerator(context.Document),
+                        syntaxGenerator,
                         lambdaType,
-                        argumentSyntax);
+                        argumentSyntax,
+                        initializers);
 
                     documentEditor.ReplaceNode(argumentSyntax, updatedParamsArgumentSyntaxNode);
                 }

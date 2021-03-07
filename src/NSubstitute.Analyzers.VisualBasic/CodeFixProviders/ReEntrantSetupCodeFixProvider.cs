@@ -6,7 +6,6 @@ using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.VisualBasic;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using NSubstitute.Analyzers.Shared.CodeFixProviders;
-using NSubstitute.Analyzers.Shared.Extensions;
 using NSubstitute.Analyzers.VisualBasic.Extensions;
 using static Microsoft.CodeAnalysis.VisualBasic.SyntaxFactory;
 
@@ -62,7 +61,7 @@ namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders
             IEnumerable<SyntaxNode> initializers)
         {
             var initializersSyntaxList = SeparatedList(initializers);
-            var typeNode = syntaxGenerator.CallInfoCallbackTypeSyntax(typeSymbol);
+            var typeNode = syntaxGenerator.TypeExpression(typeSymbol);
             var syntaxes = CreateSingleLineLambdaExpressions(initializersSyntaxList);
 
             var initializer = CollectionInitializer(syntaxes);
@@ -92,12 +91,6 @@ namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders
                 functionLambdaHeader,
                 expressionSyntax.WithLeadingTrivia());
             return lambdaExpression;
-        }
-
-        private static TypeSyntax CreateTypeNode(SyntaxGenerator syntaxGenerator, ITypeSymbol type)
-        {
-            var typeSyntax = (TypeSyntax)syntaxGenerator.TypeExpression(type);
-            return typeSyntax.WithAdditionalAnnotations(Simplifier.Annotation);
         }
     }
 }
