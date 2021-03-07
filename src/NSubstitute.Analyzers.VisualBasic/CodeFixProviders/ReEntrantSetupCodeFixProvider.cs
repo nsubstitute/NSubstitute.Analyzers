@@ -93,5 +93,11 @@ namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders
                 expressionSyntax.WithLeadingTrivia());
             return lambdaExpression;
         }
+
+        private static TypeSyntax CreateTypeNode(SyntaxGenerator syntaxGenerator, ITypeSymbol type)
+        {
+            var typeSyntax = (TypeSyntax)syntaxGenerator.TypeExpression(type);
+            return typeSyntax.WithAdditionalAnnotations(Simplifier.Annotation);
+        }
     }
 }

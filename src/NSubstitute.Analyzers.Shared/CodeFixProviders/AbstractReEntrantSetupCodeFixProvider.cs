@@ -21,7 +21,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 
         protected abstract TArgumentSyntax CreateUpdatedArgumentSyntaxNode(TArgumentSyntax argumentSyntaxNode);
 
-        protected abstract TArgumentSyntax CreateUpdatedParamsArgumentSyntaxNode(SyntaxGenerator syntaxGenerator, ITypeSymbol returnedTypeSymbol, TArgumentSyntax argumentSyntaxNode, IEnumerable<SyntaxNode> initializers);
+        protected abstract TArgumentSyntax CreateUpdatedParamsArgumentSyntaxNode(SyntaxGenerator syntaxGenerator, ITypeSymbol returnedTypeSymbol, TArgumentSyntax argumentSyntaxNode);
 
         protected abstract SyntaxNode GetArgumentExpressionSyntax(TArgumentSyntax argumentSyntax);
 
@@ -76,6 +76,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             }
 
             var syntaxGenerator = SyntaxGenerator.GetGenerator(context.Document);
+            ITypeSymbol lambdaType = null;
             foreach (var argumentSyntax in argumentSyntaxes)
             {
                 var operation = semanticModel.GetOperation(argumentSyntax) as IArgumentOperation;
@@ -87,11 +88,11 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
                 if (IsArrayParamsArgument(operation))
                 {
                     var initializers = operation.GetSyntaxes();
+                    lambdaType = lambdaType ?? ConstructCallInfoLambdaType(methodSymbol, semanticModel);
                     var updatedParamsArgumentSyntaxNode = CreateUpdatedParamsArgumentSyntaxNode(
-                        syntaxGenerator,
-                        methodSymbol.TypeArguments.FirstOrDefault() ?? methodSymbol.ReceiverType,
-                        argumentSyntax,
-                        initializers);
+                        SyntaxGenerator.GetGenerator(context.Document),
+                        lambdaType,
+                        argumentSyntax);
 
                     documentEditor.ReplaceNode(argumentSyntax, updatedParamsArgumentSyntaxNode);
                 }
@@ -104,6 +105,21 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             }
 
             return await Simplifier.ReduceAsync(documentEditor.GetChangedDocument(), cancellationToken: ct);
+        }
+
+        private static ITypeSymbol ConstructCallInfoLambdaType(IMethodSymbol methodSymbol, SemanticModel semanticModel)
+        {
+            var callInfoOverloadMethodSymbol = methodSymbol.ContainingType.GetMembers(methodSymbol.Name)
+                .Where(symbol => !symbol.Equals(methodSymbol.ConstructedFrom))
+                .OfType<IMethodSymbol>()
+                .First(method => method.Parameters.Any(param => param.Type.IsCallInfoDelegate(semanticModel)));
+
+            var typeArgument = methodSymbol.TypeArguments.FirstOrDefault() ?? methodSymbol.ReceiverType;
+            var constructedOverloadSymbol = callInfoOverloadMethodSymbol.Construct(typeArgument);
+            var lambdaType = constructedOverloadSymbol.Parameters
+                .First(param => param.Type.IsCallInfoDelegate(semanticModel)).Type;
+
+            return lambdaType;
         }
 
         private bool IsFixSupported(SemanticModel semanticModel, IEnumerable<TArgumentSyntax> arguments)

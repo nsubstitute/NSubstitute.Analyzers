@@ -26,6 +26,11 @@ namespace NSubstitute.Analyzers.Shared.Extensions
 
         public static bool IsCallInfoSymbol(this ITypeSymbol symbol)
         {
+            return IsCallInfoSymbolInternal(symbol) || IsCallInfoSymbolInternal(symbol.BaseType);
+        }
+
+        private static bool IsCallInfoSymbolInternal(ISymbol symbol)
+        {
             return symbol != null &&
                    symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&
                    symbol.ToString().Equals(MetadataNames.NSubstituteCallInfoFullTypeName, StringComparison.OrdinalIgnoreCase);

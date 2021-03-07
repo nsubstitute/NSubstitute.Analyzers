@@ -16,8 +16,6 @@ namespace NSubstitute.Analyzers.Tests.Shared
 
         private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
 
-        private static readonly MetadataReference NSubstituteReference = MetadataReference.CreateFromFile(typeof(Substitute).Assembly.Location);
-
         private static readonly MetadataReference TasksExtensionsReference = MetadataReference.CreateFromFile(Assembly.Load("System.Threading.Tasks.Extensions").Location);
 
         private static readonly MetadataReference NetStandard = MetadataReference.CreateFromFile(Assembly.Load("netstandard, Version=2.0.0.0").Location);
@@ -34,7 +32,7 @@ namespace NSubstitute.Analyzers.Tests.Shared
                 CorlibReference,
                 SystemCoreReference,
                 CodeAnalysisReference,
-                NSubstituteReference,
+                NSubstituteLatestReference,
                 NetStandard,
                 TasksExtensionsReference,
                 LinqExpressionReference,
@@ -43,6 +41,12 @@ namespace NSubstitute.Analyzers.Tests.Shared
         }
 
         public static ImmutableArray<MetadataReference> Default { get; }
+
+        public static MetadataReference NSubstitute422Reference { get; } =
+            MetadataReference.CreateFromFile("nsubstitute-4.2.2/NSubstitute.dll");
+
+        public static MetadataReference NSubstituteLatestReference { get; } =
+            MetadataReference.CreateFromFile("nsubstitute-latest/NSubstitute.dll");
 
         private static MetadataReference GetAssemblyReference(IEnumerable<AssemblyName> assemblies, string name)
         {

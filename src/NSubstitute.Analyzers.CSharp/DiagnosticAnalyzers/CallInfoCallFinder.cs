@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 {
@@ -45,7 +46,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
             {
                 var symbolInfo = _semanticModel.GetSymbolInfo(node);
 
-                if (symbolInfo.Symbol != null && symbolInfo.Symbol.ContainingType.ToString().Equals(MetadataNames.NSubstituteCallInfoFullTypeName))
+                if (symbolInfo.Symbol != null && symbolInfo.Symbol.ContainingType.IsCallInfoSymbol())
                 {
                     switch (symbolInfo.Symbol.Name)
                     {
@@ -64,7 +65,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
             public override void VisitElementAccessExpression(ElementAccessExpressionSyntax node)
             {
                 var symbolInfo = ModelExtensions.GetSymbolInfo(_semanticModel, node).Symbol ?? ModelExtensions.GetSymbolInfo(_semanticModel, node.Expression).Symbol;
-                if (symbolInfo != null && symbolInfo.ContainingType.ToString().Equals(MetadataNames.NSubstituteCallInfoFullTypeName))
+                if (symbolInfo != null && symbolInfo.ContainingType.IsCallInfoSymbol())
                 {
                     DirectIndexerAccesses.Add(node);
                 }
