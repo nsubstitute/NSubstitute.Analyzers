@@ -66,12 +66,6 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
             foreach (var invocationExpressionSyntax in body.DescendantNodes().Where(node => node.IsKind(SyntaxKind.SimpleMemberAccessExpression) ||
                                                                                             node.IsKind(SyntaxKind.ElementAccessExpression)))
             {
-                var parentNode = invocationExpressionSyntax.Parent;
-                if (parentNode.IsKind(SyntaxKind.ElementAccessExpression))
-                {
-                    continue;
-                }
-
                 yield return invocationExpressionSyntax;
             }
         }

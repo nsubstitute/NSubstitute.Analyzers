@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Operations;
 using Microsoft.CodeAnalysis.Simplification;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 {
@@ -85,7 +86,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
 
                 if (IsArrayParamsArgument(operation))
                 {
-                    var initializers = GetInitializers(operation);
+                    var initializers = operation.GetSyntaxes();
                     var updatedParamsArgumentSyntaxNode = CreateUpdatedParamsArgumentSyntaxNode(
                         syntaxGenerator,
                         methodSymbol.TypeArguments.FirstOrDefault() ?? methodSymbol.ReceiverType,
@@ -124,11 +125,6 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
         }
 
         private bool IsArrayParamsArgument(IArgumentOperation argumentOperation) => argumentOperation != null && argumentOperation.Parameter.IsParams;
-
-        private IEnumerable<SyntaxNode> GetInitializers(IArgumentOperation argumentOperation)
-        {
-            return (argumentOperation.Value as IArrayCreationOperation).Initializer.ElementValues.Select(value => value.Syntax);
-        }
 
         private static TArgumentListSyntax GetArgumentListSyntax(SyntaxNode diagnosticNode) => diagnosticNode.Ancestors().OfType<TArgumentListSyntax>().FirstOrDefault();
     }

@@ -10,7 +10,10 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
     internal abstract class AbstractSubstitutionNodeFinder : ISubstitutionNodeFinder
     {
-        public IEnumerable<SyntaxNode> Find(SyntaxNodeAnalysisContext syntaxNodeContext, IInvocationOperation invocationOperation, IMethodSymbol invocationExpressionSymbol = null)
+        public IEnumerable<SyntaxNode> Find(
+            SyntaxNodeAnalysisContext syntaxNodeContext,
+            IInvocationOperation invocationOperation,
+            IMethodSymbol invocationExpressionSymbol = null)
         {
             if (invocationOperation == null)
             {
@@ -20,7 +23,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             var invocationExpression = invocationOperation.Syntax;
             invocationExpressionSymbol ??= syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression).Symbol as IMethodSymbol;
 
-            if (invocationExpressionSymbol == null || invocationExpressionSymbol.ContainingAssembly.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.Ordinal) == false)
+            if (invocationExpressionSymbol == null ||
+                invocationExpressionSymbol.ContainingAssembly.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.Ordinal) == false)
             {
                 return Enumerable.Empty<SyntaxNode>();
             }
@@ -76,7 +80,10 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
         }
 
-        public SyntaxNode FindForAndDoesExpression(SyntaxNodeAnalysisContext syntaxNodeContext, IInvocationOperation invocationOperation, IMethodSymbol invocationExpressionSymbol)
+        public SyntaxNode FindForAndDoesExpression(
+            SyntaxNodeAnalysisContext syntaxNodeContext,
+            IInvocationOperation invocationOperation,
+            IMethodSymbol invocationExpressionSymbol)
         {
             if (!(invocationOperation.GetSubstituteOperation() is IInvocationOperation parentInvocationExpression))
             {
@@ -91,7 +98,10 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             return invocationOperation.GetSubstituteOperation().Syntax;
         }
 
-        public IEnumerable<SyntaxNode> FindForReceivedInOrderExpression(SyntaxNodeAnalysisContext syntaxNodeContext, IInvocationOperation invocationOperation, IMethodSymbol receivedInOrderInvocationSymbol = null)
+        public IEnumerable<SyntaxNode> FindForReceivedInOrderExpression(
+            SyntaxNodeAnalysisContext syntaxNodeContext,
+            IInvocationOperation invocationOperation,
+            IMethodSymbol receivedInOrderInvocationSymbol = null)
         {
             var argumentOperation = invocationOperation.GetOrderedArgumentOperationsWithoutInstanceArgument().First();
 
@@ -105,7 +115,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private bool ContainsSymbol(ITypeSymbol containerSymbol, ISymbol symbol)
         {
-            return GetBaseTypesAndThis(containerSymbol).Any(typeSymbol => typeSymbol == symbol.ContainingType);
+            return GetBaseTypesAndThis(containerSymbol).Any(typeSymbol => typeSymbol.Equals(symbol.ContainingType));
         }
 
         private static IEnumerable<ITypeSymbol> GetBaseTypesAndThis(ITypeSymbol type)

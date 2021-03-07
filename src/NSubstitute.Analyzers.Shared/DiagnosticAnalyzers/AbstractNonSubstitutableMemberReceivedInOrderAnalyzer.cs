@@ -84,6 +84,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var operation = semanticModel.GetOperation(maybeIgnoredExpression);
 
+            if (syntaxNode.Parent is TMemberAccessExpressionSyntax || semanticModel.GetOperation(syntaxNode.Parent) is IMemberReferenceOperation)
+            {
+                return false;
+            }
+
             if (operation is IArgumentOperation &&
                 operation.Parent is IInvocationOperation invocationOperation &&
                 invocationOperation.TargetMethod.IsReceivedInOrderMethod())

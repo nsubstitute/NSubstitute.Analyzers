@@ -45,7 +45,6 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
         private async Task<Document> CreateChangedDocument(CancellationToken cancellationToken, CodeFixContext context, Diagnostic diagnostic)
         {
             var documentEditor = await DocumentEditor.CreateAsync(context.Document, cancellationToken);
-            var syntaxGenerator = documentEditor.Generator;
 
             var root = await context.Document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
@@ -58,6 +57,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             }
 
             var expression = GetExpression(invocation);
+            var syntaxGenerator = documentEditor.Generator;
             SyntaxNode updatedInvocation;
             if (invocationOperation.TargetMethod.IsGenericMethod)
             {
@@ -104,8 +104,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders
             IArgumentOperation constructorArgumentsOperation)
         {
             var argumentName = GetArgumentName(invocationExpressionSyntax, constructorArgumentsOperation);
-            var nullArgument = generator.Argument(argumentName, RefKind.None, generator.NullLiteralExpression());
-            return nullArgument;
+            return generator.Argument(argumentName, RefKind.None, generator.NullLiteralExpression());
         }
 
         private string GetArgumentName(
