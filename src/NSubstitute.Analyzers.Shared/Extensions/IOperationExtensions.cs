@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -107,6 +108,23 @@ namespace NSubstitute.Analyzers.Shared.Extensions
             }
 
             return (int)literal.ConstantValue.Value;
+        }
+
+        public static IEnumerable<SyntaxNode> GetSyntaxes(this IArgumentOperation argumentOperation)
+        {
+            if (argumentOperation.Parameter.IsParams)
+            {
+                var initializerElementValues = (argumentOperation.Value as IArrayCreationOperation)?.Initializer.ElementValues;
+
+                foreach (var operation in initializerElementValues ?? Enumerable.Empty<IOperation>())
+                {
+                    yield return operation.Syntax;
+                }
+
+                yield break;
+            }
+
+            yield return argumentOperation.Value.Syntax;
         }
 
         private static bool IsImplicitlyProvidedArrayWithoutValues(IArgumentOperation arg)

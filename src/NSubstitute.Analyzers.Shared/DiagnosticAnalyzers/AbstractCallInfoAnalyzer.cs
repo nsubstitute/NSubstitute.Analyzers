@@ -115,7 +115,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             foreach (var argumentExpressionSyntax in invocationOperation.GetOrderedArgumentOperationsWithoutInstanceArgument())
             {
-                var callInfoContext = _callInfoFinder.GetCallInfoContext(syntaxNodeContext.SemanticModel, argumentExpressionSyntax.Value.Syntax);
+                var callInfoContext = _callInfoFinder.GetCallInfoContext(syntaxNodeContext.SemanticModel, argumentExpressionSyntax);
 
                 AnalyzeArgAtInvocations(syntaxNodeContext, callInfoContext, substituteCallParameters);
 

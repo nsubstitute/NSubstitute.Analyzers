@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
@@ -25,6 +26,14 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             IndexerAccesses = indexerAccesses;
             ArgAtInvocations = argAtInvocations;
             ArgInvocations = argInvocations;
+        }
+
+        public CallInfoContext Merge(CallInfoContext callInfoContext)
+        {
+            return new CallInfoContext(
+                ArgAtInvocations.Concat(callInfoContext.ArgAtInvocations).ToList(),
+                ArgInvocations.Concat(callInfoContext.ArgInvocations).ToList(),
+                IndexerAccesses.Concat(callInfoContext.IndexerAccesses).ToList());
         }
     }
 }

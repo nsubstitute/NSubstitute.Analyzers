@@ -29,11 +29,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             : base(diagnosticDescriptorsProvider, nonSubstitutableMemberAnalysis)
         {
             _substitutionNodeFinder = substitutionNodeFinder;
+            _analyzeInvocationAction = AnalyzeInvocation;
+            NonVirtualSetupDescriptor = diagnosticDescriptorsProvider.NonVirtualReceivedInOrderSetupSpecification;
             SupportedDiagnostics = ImmutableArray.Create(
                 DiagnosticDescriptorsProvider.InternalSetupSpecification,
                 DiagnosticDescriptorsProvider.NonVirtualReceivedInOrderSetupSpecification);
-            _analyzeInvocationAction = AnalyzeInvocation;
-            NonVirtualSetupDescriptor = diagnosticDescriptorsProvider.NonVirtualReceivedInOrderSetupSpecification;
         }
 
         protected override DiagnosticDescriptor NonVirtualSetupDescriptor { get; }

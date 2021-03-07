@@ -2,23 +2,23 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Operations;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
     internal abstract class AbstractCallInfoFinder : ICallInfoFinder
     {
-        public CallInfoContext GetCallInfoContext(
-            SemanticModel semanticModel, SyntaxNode syntaxNode)
+        public CallInfoContext GetCallInfoContext(SemanticModel semanticModel, IArgumentOperation argumentOperation)
         {
-            var callInfoParameterSymbol = GetCallInfoParameterSymbol(semanticModel, syntaxNode);
-            if (callInfoParameterSymbol == null)
+            var callContext = CallInfoContext.Empty;
+            foreach (var syntaxNode in argumentOperation.GetSyntaxes())
             {
-                return CallInfoContext.Empty;
+                var callInfoParameterSymbol = GetCallInfoParameterSymbol(semanticModel, syntaxNode);
+                var currentContext = GetCallInfoContextInternal(semanticModel, syntaxNode);
+                callContext = callContext.Merge(CreateFilteredCallInfoContext(semanticModel, currentContext, callInfoParameterSymbol));
             }
 
-            var callContext = GetCallInfoContextInternal(semanticModel, syntaxNode);
-
-            return CreateFilteredCallInfoContext(semanticModel, callContext, callInfoParameterSymbol);
+            return callContext;
         }
 
         protected abstract CallInfoContext GetCallInfoContextInternal(SemanticModel semanticModel, SyntaxNode syntaxNode);
