@@ -339,6 +339,27 @@ End Namespace
             await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.[For](Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
         }
 
+        public override async Task ReturnsNoDiagnostic_WhenPassedParametersCount_EqualsMandatoryCtorParametersCount()
+        {
+            var source = @"Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class Foo
+        Public Sub New(ByVal x As Integer, ByVal y As Integer, ByVal z as Integer = 1)
+        End Sub
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)(1, 2)
+            Dim otherSubstitute = NSubstitute.Substitute.[For](Of Foo)(New Integer() { 1, 2 })
+        End Sub
+    End Class
+End Namespace
+";
+            await VerifyNoDiagnostic(source);
+        }
+
         public override async Task ReturnsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters()
         {
             var source = @"Imports NSubstitute

@@ -51,6 +51,8 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.Subst
         [Fact]
         public abstract Task ReturnsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount();
 
+        public abstract Task ReturnsNoDiagnostic_WhenPassedParametersCount_EqualsMandatoryCtorParametersCount();
+
         [Fact]
         public abstract Task ReturnsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters();
 

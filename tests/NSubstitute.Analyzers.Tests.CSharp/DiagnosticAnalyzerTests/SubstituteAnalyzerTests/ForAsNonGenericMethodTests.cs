@@ -506,6 +506,32 @@ namespace MyNamespace
             await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.For do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
         }
 
+        public override async Task ReturnsNoDiagnostic_WhenPassedParametersCount_EqualsMandatoryCtorParametersCount()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public Foo(int x, int y, int z = 1)
+        {
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = [|NSubstitute.Substitute.For(new [] { typeof(Foo) }, new object[] { 1, 2 })|];
+            var otherSubstitute = [|NSubstitute.Substitute.For(typesToProxy: new [] { typeof(Foo) }, constructorArguments: new object[] { 1, 2 })|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For(constructorArguments: new object[] { 1, 2 }, typesToProxy: new [] { typeof(Foo) })|];
+        }
+    }
+}";
+            await VerifyNoDiagnostic(source);
+        }
+
         [Fact]
         public override async Task ReturnsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters()
         {

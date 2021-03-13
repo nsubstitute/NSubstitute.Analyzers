@@ -238,6 +238,29 @@ End Namespace
             await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Core.ISubstituteFactory.CreatePartial do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
         }
 
+        public override async Task ReturnsNoDiagnostic_WhenPassedParametersCount_EqualsMandatoryCtorParametersCount()
+        {
+            var source = @"Imports System
+Imports NSubstitute.Core
+
+Namespace MyNamespace
+    Public Class Foo
+        Public Sub New(ByVal x As Integer, ByVal y As Integer, ByVal z As Integer = 1)
+        End Sub
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Foo)}, New Object() {1, 2})
+            Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= New Type() {GetType(Foo)}, constructorArguments:= New Object() {1, 2})
+            Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= New Object() {1, 2}, typesToProxy:= New Type() {GetType(Foo)})
+        End Sub
+    End Class
+End Namespace
+";
+            await VerifyNoDiagnostic(source);
+        }
+
         [Fact]
         public override async Task ReturnsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters()
         {

@@ -18,6 +18,8 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
 
         Task ReturnsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount();
 
+        Task ReturnsNoDiagnostic_WhenPassedParametersCount_EqualsMandatoryCtorParametersCount();
+
         // even though parameters are optional, NSubstitute requires to pass all of them
         Task ReturnsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters();
 
