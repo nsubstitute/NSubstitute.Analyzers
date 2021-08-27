@@ -150,7 +150,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Func(Of {delegateArgType}, Integer))()
-            Dim x = substitute({arg})
+            Dim __ = substitute({arg})
         End Sub
     End Class
 End Namespace
@@ -301,7 +301,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            Dim x = substitute({arg})
+            Dim __ = substitute({arg})
         End Sub
     End Class
 End Namespace
@@ -332,7 +332,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            Dim x = substitute({arg})
+            Dim __ = substitute({arg})
         End Sub
     End Class
 End Namespace
@@ -383,6 +383,7 @@ End Namespace
         {
             var source = $@"Imports System
 Imports NSubstitute
+Imports System.Linq.Expressions
 Imports System.Runtime.CompilerServices
 
 Namespace MyNamespace
@@ -405,6 +406,10 @@ Namespace MyNamespace
             Return Nothing
         End Function
 
+        Public Shared Function [Is](Of T)(ByVal predicate As Expression(Of Predicate(Of T))) As T
+            Return Nothing
+        End Function
+
         Public Shared Function Invoke() As Action
             Return Nothing
         End Function
@@ -423,6 +428,10 @@ Namespace MyNamespace
             End Function
 
             Public Shared Function [Is](Of T)(ByVal value As T) As T
+                Return Nothing
+            End Function
+
+            Public Shared Function [Is](Of T)(ByVal predicate As Expression(Of Predicate(Of T))) As T
                 Return Nothing
             End Function
 
@@ -459,7 +468,7 @@ Imports NSubstitute
 Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
-            Dim x = {arg}
+            Dim __ = {arg}
         End Sub
     End Class
 End Namespace
@@ -565,7 +574,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            Dim x = substitute.FooBar({arg})
+            Dim __ = substitute.FooBar({arg})
         End Sub
     End Class
 End Namespace

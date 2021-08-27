@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.Shared.Extensions;
@@ -14,9 +15,9 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private readonly INonSubstitutableMemberAnalysis _nonSubstitutableMemberAnalysis;
 
-        protected abstract ImmutableArray<ImmutableArray<int>> AllowedAncestorPaths { get; }
+        protected abstract ImmutableHashSet<int> MaybeAllowedArgMatcherAncestors { get; }
 
-        protected abstract ImmutableArray<ImmutableArray<int>> IgnoredAncestorPaths { get; }
+        protected abstract ImmutableHashSet<int> IgnoredArgMatcherAncestors { get; }
 
         protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
@@ -59,16 +60,15 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private void AnalyzeArgLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax argInvocationExpression)
         {
-            // find allowed enclosing expression
-            var enclosingExpression = FindAllowedEnclosingExpression(argInvocationExpression);
+            var enclosingExpression = FindMaybeAllowedEnclosingExpression(argInvocationExpression);
 
             // if Arg is used with not allowed expression, find if it is used in ignored ones eg. var x = Arg.Any
             // as variable might be used later on
             if (enclosingExpression == null)
             {
-                var maybeIgnoredEnclosingExpression = FindMaybeIgnoredEnclosingExpression(argInvocationExpression);
+                var ignoredEnclosingExpression = FindIgnoredEnclosingExpression(argInvocationExpression);
 
-                if (maybeIgnoredEnclosingExpression == null)
+                if (ignoredEnclosingExpression == null)
                 {
                     var diagnostic = Diagnostic.Create(
                         DiagnosticDescriptorsProvider.NonSubstitutableMemberArgumentMatcherUsage,
@@ -108,14 +108,16 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
             }
         }
 
-        private SyntaxNode FindAllowedEnclosingExpression(TInvocationExpressionSyntax invocationExpression)
-        {
-            return invocationExpression.GetAncestorNode(AllowedAncestorPaths);
-        }
+        private SyntaxNode FindMaybeAllowedEnclosingExpression(TInvocationExpressionSyntax invocationExpression) =>
+            FindEnclosingExpression(invocationExpression, MaybeAllowedArgMatcherAncestors);
 
-        private SyntaxNode FindMaybeIgnoredEnclosingExpression(TInvocationExpressionSyntax invocationExpressionSyntax)
+        private SyntaxNode FindIgnoredEnclosingExpression(TInvocationExpressionSyntax invocationExpressionSyntax) =>
+            FindEnclosingExpression(invocationExpressionSyntax, IgnoredArgMatcherAncestors);
+
+        private static SyntaxNode FindEnclosingExpression(TInvocationExpressionSyntax invocationExpression, ImmutableHashSet<int> ancestors)
         {
-            return invocationExpressionSyntax.GetAncestorNode(IgnoredAncestorPaths);
+            return invocationExpression.Ancestors()
+                .FirstOrDefault(ancestor => ancestors.Contains(ancestor.RawKind));
         }
     }
 }
