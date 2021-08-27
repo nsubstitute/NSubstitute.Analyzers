@@ -35,19 +35,36 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         public bool MatchesInvocation(Compilation compilation, IMethodSymbol methodSymbol, IList<ITypeSymbol> invocationParameters)
         {
-            if (methodSymbol.Parameters.Length != invocationParameters.Count)
+            if (methodSymbol.Parameters.Length == 0)
             {
-                return false;
+                return true;
             }
 
-            return methodSymbol.Parameters.Length == 0 || methodSymbol.Parameters
-                       .Where((symbol, index) => ClasifyConversion(compilation, invocationParameters[index], symbol.Type))
-                       .Count() == methodSymbol.Parameters.Length;
+            return methodSymbol.Parameters.All(parameter =>
+                MatchesInvocation(compilation, parameter, invocationParameters));
         }
 
         protected abstract bool IsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination);
 
-        private bool ClasifyConversion(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)
+        // TODO simplify once https://github.com/nsubstitute/NSubstitute.Analyzers/issues/153 is implemented
+        private bool MatchesInvocation(Compilation compilation, IParameterSymbol symbol, IList<ITypeSymbol> invocationParameters)
+        {
+            if (!symbol.IsParams)
+            {
+                return symbol.Ordinal < invocationParameters.Count &&
+                       ClassifyConversion(compilation, invocationParameters[symbol.Ordinal], symbol.Type);
+            }
+
+            if (symbol.Type is IArrayTypeSymbol arrayTypeSymbol)
+            {
+                return symbol.Ordinal >= invocationParameters.Count ||
+                       ClassifyConversion(compilation, invocationParameters[symbol.Ordinal], arrayTypeSymbol.ElementType);
+            }
+
+            return false;
+        }
+
+        private bool ClassifyConversion(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)
         {
             if (source == null || source.Equals(destination))
             {
