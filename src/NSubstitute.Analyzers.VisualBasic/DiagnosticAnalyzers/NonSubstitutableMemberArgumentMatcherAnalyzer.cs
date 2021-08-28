@@ -13,7 +13,9 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
         internal static ImmutableHashSet<int> MaybeAllowedAncestors { get; } = ImmutableHashSet.Create(
             (int)SyntaxKind.InvocationExpression,
             (int)SyntaxKind.AddHandlerStatement,
-            (int)SyntaxKind.ObjectCreationExpression);
+            (int)SyntaxKind.ObjectCreationExpression,
+            (int)SyntaxKind.EqualsExpression,
+            (int)SyntaxKind.SimpleAssignmentStatement);
 
         private static ImmutableHashSet<int> IgnoredAncestors { get; } = ImmutableHashSet.Create(
             (int)SyntaxKind.VariableDeclarator);
