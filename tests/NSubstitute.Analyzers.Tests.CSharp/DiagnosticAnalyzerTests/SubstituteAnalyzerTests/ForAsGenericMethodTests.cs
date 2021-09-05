@@ -1,10 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using NSubstitute.Analyzers.CSharp;
-using NSubstitute.Analyzers.Shared;
-using NSubstitute.Analyzers.Tests.Shared;
-using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
-using NSubstitute.Analyzers.Tests.Shared.Extensions;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.SubstituteAnalyzerTests
@@ -12,7 +6,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.SubstituteA
     public class ForAsGenericMethodTests : SubstituteDiagnosticVerifier
     {
         [Fact]
-        public async Task ReturnsNoDiagnostic_WhenUsedForInterface()
+        public async Task ReportsNoDiagnostic_WhenUsedForInterface()
         {
             var source = @"using NSubstitute;
 
@@ -35,7 +29,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsDiagnostic_WhenUsedForInterface_AndConstructorParametersUsed()
+        public async Task ReportsDiagnostic_WhenUsedForInterface_AndConstructorParametersUsed()
         {
             var source = @"using NSubstitute;
 
@@ -57,7 +51,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsNoDiagnostic_WhenUsedForDelegate()
+        public async Task ReportsNoDiagnostic_WhenUsedForDelegate()
         {
             var source = @"using NSubstitute;
 using System;
@@ -79,7 +73,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsDiagnostic_WhenUsedForDelegate_AndConstructorParametersUsed()
+        public async Task ReportsDiagnostic_WhenUsedForDelegate_AndConstructorParametersUsed()
         {
             var source = @"using NSubstitute;
 using System;
@@ -97,7 +91,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsDiagnostic_WhenMultipleGenericTypeParameters_ContainsMultipleClasses()
+        public async Task ReportsDiagnostic_WhenMultipleGenericTypeParameters_ContainsMultipleClasses()
         {
             var source = @"using NSubstitute;
 
@@ -123,7 +117,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsNoDiagnostic_WhenMultipleGenericTypeParameters_ContainsMultipleSameClasses()
+        public async Task ReportsNoDiagnostic_WhenMultipleGenericTypeParameters_ContainsMultipleSameClasses()
         {
             var source = @"using NSubstitute;
 
@@ -146,7 +140,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsNoDiagnostic_WhenMultipleGenericTypeParameters_ContainsMultipleInterfaces()
+        public async Task ReportsNoDiagnostic_WhenMultipleGenericTypeParameters_ContainsMultipleInterfaces()
         {
             var source = @"using NSubstitute;
 
@@ -173,7 +167,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsNoDiagnostic_WhenMultipleGenericTypeParameters_ContainsInterfaceNotImplementedByClass()
+        public async Task ReportsNoDiagnostic_WhenMultipleGenericTypeParameters_ContainsInterfaceNotImplementedByClass()
         {
             var source = @"using NSubstitute;
 
@@ -200,7 +194,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public async Task ReturnsDiagnostic_WhenMultipleGenericTypeParameters_ContainsClassWithoutMatchingConstructor()
+        public async Task ReportsDiagnostic_WhenMultipleGenericTypeParameters_ContainsClassWithoutMatchingConstructor()
         {
             var source = @"using NSubstitute;
 
@@ -226,7 +220,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public override async Task ReturnsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor()
+        public override async Task ReportsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor()
         {
             var source = @"using NSubstitute;
 
@@ -250,7 +244,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
         }
 
-        public override async Task ReturnsDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToNotApplied()
+        public override async Task ReportsDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToNotApplied()
         {
             var source = @"using NSubstitute;
 
@@ -274,7 +268,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
         }
 
-        public override async Task ReturnsDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToNotApplied()
+        public override async Task ReportsDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToNotApplied()
         {
             var source = @"using NSubstitute;
 
@@ -298,7 +292,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
         }
 
-        public override async Task ReturnsNoDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToApplied()
+        public override async Task ReportsNoDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToApplied()
         {
             var source = @"using NSubstitute;
 using System.Runtime.CompilerServices;
@@ -324,7 +318,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReturnsNoDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToApplied()
+        public override async Task ReportsNoDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToApplied()
         {
             var source = @"using NSubstitute;
 using System.Runtime.CompilerServices;
@@ -351,7 +345,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public override async Task ReturnsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount()
+        public override async Task ReportsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount()
         {
             var source = @"using NSubstitute;
 
@@ -376,7 +370,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public override async Task ReturnsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount()
+        public override async Task ReportsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount()
         {
             var source = @"using NSubstitute;
 
@@ -401,7 +395,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public override async Task ReturnsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters()
+        public override async Task ReportsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters()
         {
             var source = @"using NSubstitute;
 
@@ -426,7 +420,7 @@ namespace MyNamespace
         }
 
         [Fact]
-        public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToNotApplied()
+        public override async Task ReportsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToNotApplied()
         {
             var source = @"using NSubstitute;
 namespace MyNamespace
@@ -446,7 +440,7 @@ namespace MyNamespace
             await VerifyDiagnostic(source, SubstituteForInternalMemberDescriptor);
         }
 
-        public override async Task ReturnsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2(string assemblyAttributes)
+        public override async Task ReportsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2(string assemblyAttributes)
         {
             var source = $@"using NSubstitute;
 using System.Runtime.CompilerServices;
@@ -468,7 +462,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReturnsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly(string assemblyAttributes)
+        public override async Task ReportsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly(string assemblyAttributes)
         {
             var source = $@"using NSubstitute;
 using System.Runtime.CompilerServices;
@@ -495,9 +489,11 @@ namespace MyNamespace
         [InlineData("int x", "1m")]
         [InlineData("int x", "1D")]
         [InlineData("List<int> x", "new List<int>().AsReadOnly()")]
+        [InlineData("params int[] x", "1m")]
         [InlineData("int x", "new [] { 1 }")]
         [InlineData("int x", "new object()")]
-        public override async Task ReturnsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues)
+        [InlineData("params int[] x", "new [] { 1m }")]
+        public override async Task ReportsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"using NSubstitute;
 using System.Collections.Generic;
@@ -529,6 +525,7 @@ namespace MyNamespace
         [InlineData("IEnumerable<int> x", "new List<int>()")]
         [InlineData("IEnumerable<int> x", "new List<int>().AsReadOnly()")]
         [InlineData("IEnumerable<char> x", @"""value""")]
+        [InlineData("int x, params string[] y", "1, \"foo\"")]
         [InlineData("int x", @"new object[] { 1 }")]
         [InlineData("int[] x", @"new int[] { 1 }")]
         [InlineData("object[] x , int y", @"new object[] { 1 }, 1")]
@@ -538,7 +535,8 @@ namespace MyNamespace
         [InlineData("int x", "new object[] { null }")] // even though we pass null as first arg, this works fine with NSubstitute
         [InlineData("int x, int y", "new object[] { null, null }")] // even though we pass null as first arg, this works fine with NSubstitute
         [InlineData("int x, int y", "new object[] { 1, null }")] // even though we pass null as first arg, this works fine with NSubstitute
-        public override async Task ReturnsNoDiagnostic_WhenConstructorArgumentsDoNotRequireImplicitConversion(string ctorValues, string invocationValues)
+        [InlineData("int x, params string[] y", "new object[] { 1, \"foo\" }")]
+        public override async Task ReportsNoDiagnostic_WhenConstructorArgumentsDoNotRequireImplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"using NSubstitute;
 using System.Collections.Generic;
@@ -563,7 +561,7 @@ namespace MyNamespace
             await VerifyNoDiagnostic(source);
         }
 
-        public override async Task ReturnsNoDiagnostic_WhenUsedWithGenericArgument()
+        public override async Task ReportsNoDiagnostic_WhenUsedWithGenericArgument()
         {
             var source = @"using NSubstitute;
 namespace MyNamespace
@@ -578,6 +576,78 @@ namespace MyNamespace
     }
 }";
             await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsNoDiagnostic_WhenParamsParametersNotProvided()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public Foo(int x, params object[] y)
+        {
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>(1);
+        }
+    }
+}";
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsNoDiagnostic_WhenParamsParametersProvided()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public Foo(int x, params object[] y)
+        {
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>(1, 2, 3);
+        }
+    }
+}";
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount_AndParamsParameterDefined()
+        {
+            var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        public Foo(int x, int y, params object[] z)
+        {
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = [|NSubstitute.Substitute.For<Foo>(1)|];
+        }
+    }
+}";
+            await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.For<MyNamespace.Foo> do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
         }
     }
 }
