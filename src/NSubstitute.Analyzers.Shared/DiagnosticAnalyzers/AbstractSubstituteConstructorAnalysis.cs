@@ -18,8 +18,21 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
             var accessibleConstructors = GetAccessibleConstructors(proxyTypeSymbol);
             var invocationParameterTypes = GetInvocationInfo(substituteContext);
+
+            bool IsPossibleConstructor(IMethodSymbol methodSymbol)
+            {
+                var nonParamsParametersCount = methodSymbol.Parameters.Count(parameter => !parameter.IsParams);
+
+                if (nonParamsParametersCount == methodSymbol.Parameters.Length)
+                {
+                    return methodSymbol.Parameters.Length == invocationParameterTypes.Length;
+                }
+
+                return invocationParameterTypes.Length >= nonParamsParametersCount;
+            }
+
             var possibleConstructors = invocationParameterTypes != null && accessibleConstructors != null
-                ? accessibleConstructors.Where(ctor => ctor.Parameters.Length == invocationParameterTypes.Length)
+                ? accessibleConstructors.Where(IsPossibleConstructor)
                     .ToArray()
                 : null;
 
