@@ -145,10 +145,14 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
                 yield return new object[] { "TryCast(Arg.Is(1), Object)" };
                 yield return new object[] { "CType(Arg.Is(1), Integer)" };
                 yield return new object[] { "DirectCast(Arg.Is(1), Integer)" };
+                yield return new object[] { "Arg.Is(Function(ByVal x As Integer) x > 0)" };
+                yield return new object[] { "If(True, Arg.Is(Function(ByVal x As Integer) x > 0), 0)" };
                 yield return new object[] { "Arg.Compat.Is(1)" };
                 yield return new object[] { "TryCast(Arg.Compat.Is(1), Object)" };
                 yield return new object[] { "CType(Arg.Compat.Is(1), Integer)" };
                 yield return new object[] { "DirectCast(Arg.Compat.Is(1), Integer)" };
+                yield return new object[] { "Arg.Compat.Is(Function(ByVal x As Integer) x > 0)" };
+                yield return new object[] { "If(True, Arg.Compat.Is(Function(ByVal x As Integer) x > 0), 0)" };
                 yield return new object[] { "Arg.Invoke()" };
                 yield return new object[] { "Arg.Compat.Invoke()" };
                 yield return new object[] { "Arg.InvokeDelegate(Of Integer)()" };

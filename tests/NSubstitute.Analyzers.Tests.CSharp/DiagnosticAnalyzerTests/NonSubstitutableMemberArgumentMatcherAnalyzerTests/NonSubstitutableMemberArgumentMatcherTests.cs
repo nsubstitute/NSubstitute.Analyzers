@@ -299,7 +299,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<IFoo>();
-            var x = substitute[{arg}];
+            var _ = substitute[{arg}];
         }}
     }}
 }}";
@@ -325,7 +325,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute[{arg}];
+            var _ = substitute[{arg}];
         }}
     }}
 }}";
@@ -362,6 +362,7 @@ namespace MyNamespace
         public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string arg)
         {
             var source = $@"using System;
+using System.Linq.Expressions;
 using NSubstitute;
 
 namespace MyNamespace
@@ -391,6 +392,11 @@ namespace MyNamespace
             return default(T);
         }}
 
+        public static T Is<T>(Expression<Predicate<T>> predicate)
+        {{
+            return default(T);
+        }}
+
         public static Action Invoke()
         {{
             return default(Action);
@@ -414,6 +420,11 @@ namespace MyNamespace
             }}
 
             public static T Is<T>(T value)
+            {{
+                return default(T);
+            }}
+
+            public static T Is<T>(Expression<Predicate<T>> predicate)
             {{
                 return default(T);
             }}
@@ -575,7 +586,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute.FooBar({arg});
+            var _ = substitute.FooBar({arg});
         }}
     }}
 }}";
