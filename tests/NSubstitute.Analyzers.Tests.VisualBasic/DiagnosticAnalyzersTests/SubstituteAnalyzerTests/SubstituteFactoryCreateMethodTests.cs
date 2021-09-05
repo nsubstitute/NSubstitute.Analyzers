@@ -430,6 +430,9 @@ End Namespace";
         [InlineData("ByVal x As Integer", "New Object() { 1R }")]
         [InlineData("ByVal x As List(Of Integer)", "New Object() { New List(Of Integer)().AsReadOnly() }")]
         [InlineData("ParamArray z As Integer()", "New Object() { 1D }")]
+        [InlineData("ParamArray z As Integer()", "New Object() { 1, 1D }")]
+        [InlineData("ParamArray z As Integer()", "{ 1D }")]
+        [InlineData("ParamArray z As Integer()", "{ 1, 1D }")]
 
         // [InlineData("ByVal x As Integer", "New Object()")] This gives runtime error on VB level, not even NSubstitute level (but compiles just fine)
         public override async Task ReportsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues)
@@ -464,7 +467,7 @@ End Namespace";
         [InlineData("ByVal x As IEnumerable(Of Char)", @"New Object() {""value""}")]
         [InlineData("", @"New Object() {}")]
         [InlineData("", "New Object() {1, 2}.ToArray()")] // actual values known at runtime only so constructor analysys skipped
-        [InlineData("ByVal x As Integer, ParamArray z As String()", "New Object() { 1, \"foo\" }")]
+        [InlineData("ByVal x As Integer, ParamArray z As String()", "New Object() { 1, \"foo\", \"foo\" }")]
         public override async Task ReportsNoDiagnostic_WhenConstructorArgumentsDoNotRequireImplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"Imports NSubstitute
