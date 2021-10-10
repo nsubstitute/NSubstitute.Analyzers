@@ -100,15 +100,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         private ITypeSymbol[] GetArgumentTypeInfo(SubstituteContext<TInvocationExpression> substituteContext, TArgumentSyntax arrayArgument)
         {
-            var typeInfo = GetTypeInfo(substituteContext, arrayArgument.DescendantNodes().First());
-
-            if (typeInfo.ConvertedType != null &&
-                typeInfo.ConvertedType.TypeKind == TypeKind.Array &&
-                typeInfo.Type == null)
-            {
-                return null;
-            }
-
             // new object[] { }; // means we dont pass any arguments
             var parameterExpressionsFromArrayArgument = GetParameterExpressionsFromArrayArgument(arrayArgument);
             if (parameterExpressionsFromArrayArgument == null)

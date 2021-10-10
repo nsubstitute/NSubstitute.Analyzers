@@ -321,9 +321,13 @@ namespace MyNamespace
         [InlineData("int x", "1m")]
         [InlineData("int x", "1D")]
         [InlineData("params int[] x", "1m")]
+        [InlineData("params int[] x", "1, 1m")]
         [InlineData("List<int> x", "new List<int>().AsReadOnly()")]
         [InlineData("int x", "new object()")]
         [InlineData("params int[] x", "new [] { 1m }")]
+        [InlineData("params int[] x", "new [] { 1, 1m }")]
+        [InlineData("params int[] x", "new object[] { 1m }")]
+        [InlineData("params int[] x", "new object[] { 1, 1m }")]
         public override async Task ReportsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"using NSubstitute;
@@ -356,14 +360,14 @@ namespace MyNamespace
         [InlineData("IEnumerable<int> x", "new List<int>()")]
         [InlineData("IEnumerable<int> x", "new List<int>().AsReadOnly()")]
         [InlineData("IEnumerable<char> x", @"""value""")]
-        [InlineData("int x, params string[] y", "1, \"foo\"")]
+        [InlineData("int x, params string[] y", "1, \"foo\", \"foo\"")]
         [InlineData("int x", @"new object[] { 1 }")]
         [InlineData("int[] x", @"new int[] { 1 }")]
         [InlineData("object[] x , int y", @"new object[] { 1 }, 1")]
         [InlineData("int[] x , int y", @"new int[] { 1 }, 1")]
         [InlineData("", @"new object[] { }")]
         [InlineData("", "new object[] { 1, 2 }.ToArray()")] // actual values known at runtime only
-        [InlineData("int x, params string[] y", "new object[] { 1, \"foo\" }")]
+        [InlineData("int x, params string[] y", "new object[] { 1, \"foo\", \"foo\" }")]
         public override async Task ReportsNoDiagnostic_WhenConstructorArgumentsDoNotRequireImplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"using NSubstitute;
