@@ -6,8 +6,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
     internal abstract class AbstractSubstituteConstructorMatcher : ISubstituteConstructorMatcher
     {
-        // even though conversion returns that key -> value is convertible it fails on the runtime when runninig through substitute creation
-        protected virtual Dictionary<SpecialType, SpecialType> WellKnownUnsupportedConversions { get; } =
+        // even though conversion returns that key -> value is convertible it fails on the runtime when running through substitute creation
+        private static IReadOnlyDictionary<SpecialType, SpecialType> WellKnownUnsupportedConversions { get; } =
             new Dictionary<SpecialType, SpecialType>
             {
                 [SpecialType.System_Int16] = SpecialType.System_Decimal,
@@ -18,7 +18,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 [SpecialType.System_UInt64] = SpecialType.System_Decimal
             };
 
-        protected virtual Dictionary<SpecialType, HashSet<SpecialType>> WellKnownSupportedConversions { get; } =
+        private static IReadOnlyDictionary<SpecialType, HashSet<SpecialType>> WellKnownSupportedConversions { get; } =
             new Dictionary<SpecialType, HashSet<SpecialType>>
             {
                 [SpecialType.System_Char] = new HashSet<SpecialType>
@@ -55,13 +55,19 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                        ClassifyConversion(compilation, invocationParameters[symbol.Ordinal], symbol.Type);
             }
 
-            if (symbol.Type is IArrayTypeSymbol arrayTypeSymbol)
+            if (!(symbol.Type is IArrayTypeSymbol arrayTypeSymbol))
             {
-                return symbol.Ordinal >= invocationParameters.Count ||
-                       ClassifyConversion(compilation, invocationParameters[symbol.Ordinal], arrayTypeSymbol.ElementType);
+                return false;
             }
 
-            return false;
+            if (symbol.Ordinal >= invocationParameters.Count)
+            {
+                return true;
+            }
+
+            return invocationParameters
+                .Where((typeSymbol, index) => index >= symbol.Ordinal).All(invocationSymbol =>
+                    ClassifyConversion(compilation, invocationSymbol, arrayTypeSymbol.ElementType));
         }
 
         private bool ClassifyConversion(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)

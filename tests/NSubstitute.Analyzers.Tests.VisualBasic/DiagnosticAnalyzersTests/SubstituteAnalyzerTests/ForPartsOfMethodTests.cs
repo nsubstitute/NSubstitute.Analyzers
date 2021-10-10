@@ -271,9 +271,13 @@ End Namespace
         [InlineData("ByVal x As Integer", "1D")]
         [InlineData("ByVal x As Integer", "1R")]
         [InlineData("ParamArray z As Integer()", "1D")]
+        [InlineData("ParamArray z As Integer()", "1, 1D")]
         [InlineData("ByVal x As List(Of Integer)", "New List(Of Integer)().AsReadOnly()")]
         [InlineData("ByVal x As Integer", "New Object()")]
         [InlineData("ParamArray z As Integer()", "New Object() { 1D }")]
+        [InlineData("ParamArray z As Integer()", "New Object() { 1, 1D }")]
+        [InlineData("ParamArray z As Integer()", "{ 1D }")]
+        [InlineData("ParamArray z As Integer()", "{ 1, 1D }")]
         public override async Task ReportsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"Imports NSubstitute
@@ -303,10 +307,10 @@ End Namespace
         [InlineData("ByVal x As IEnumerable(Of Integer)", "New Object() {New List(Of Integer)()}")]
         [InlineData("ByVal x As IEnumerable(Of Integer)", "New Object() {New List(Of Integer)().AsReadOnly()}")]
         [InlineData("ByVal x As IEnumerable(Of Char)", @"New Object() {""value""}")]
-        [InlineData("ByVal x As Integer, ParamArray z As String()", "1, \"foo\"")]
+        [InlineData("ByVal x As Integer, ParamArray z As String()", "1, \"foo\", \"foo\"")]
         [InlineData("", @"New Object() {}")]
         [InlineData("", "New Object() {1, 2}.ToArray()")] // actual values known at runtime only so constructor analysys skipped
-        [InlineData("ByVal x As Integer, ParamArray z As String()", "New Object() {1, \"foo\"}")]
+        [InlineData("ByVal x As Integer, ParamArray z As String()", "New Object() {1, \"foo\", \"foo\" }")]
         public override async Task ReportsNoDiagnostic_WhenConstructorArgumentsDoNotRequireImplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"Imports NSubstitute

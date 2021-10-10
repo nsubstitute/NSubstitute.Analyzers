@@ -417,9 +417,13 @@ End Namespace
         [InlineData("ByVal x As Integer", "1D")]
         [InlineData("ByVal x As Integer", "1R")]
         [InlineData("ParamArray z As Integer()", "1D")]
+        [InlineData("ParamArray z As Integer()", "1, 1D")]
         [InlineData("ByVal x As List(Of Integer)", "New List(Of Integer)().AsReadOnly()")]
         [InlineData("ByVal x As Integer", "New Object()")]
         [InlineData("ParamArray z As Integer()", "New Object() { 1D }")]
+        [InlineData("ParamArray z As Integer()", "New Object() { 1, 1D }")]
+        [InlineData("ParamArray z As Integer()", "{ 1D }")]
+        [InlineData("ParamArray z As Integer()", "{ 1, 1D }")]
         public override async Task ReportsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"Imports NSubstitute
@@ -449,7 +453,7 @@ End Namespace
         [InlineData("ByVal x As IEnumerable(Of Integer)", "New List(Of Integer)()")]
         [InlineData("ByVal x As IEnumerable(Of Integer)", "New List(Of Integer)().AsReadOnly()")]
         [InlineData("ByVal x As IEnumerable(Of Char)", @"""value""")]
-        [InlineData("ByVal x As Integer, ParamArray z As String()", "1, \"foo\"")]
+        [InlineData("ByVal x As Integer, ParamArray z As String()", "1, \"foo\", \"foo\"")]
         [InlineData("ByVal x As Integer", @"New Object() {1}")]
         [InlineData("ByVal x As Integer()", @"New Integer() {1}")]
         [InlineData("ByVal x As Object(), ByVal y As Integer", @"New Object() {1}, 1")]
@@ -459,7 +463,7 @@ End Namespace
         [InlineData("ByVal x As Integer", "New Object() {Nothing}")] // even though we pass null as first arg, this works fine with NSubstitute
         [InlineData("ByVal x As Integer, ByVal y As Integer", "New Object() { Nothing, Nothing }")] // even though we pass null as first arg, this works fine with NSubstitute
         [InlineData("ByVal x As Integer, ByVal y As Integer", "New Object() {1, Nothing}")] // even though we pass null as last arg, this works fine with NSubstitute
-        [InlineData("ByVal x As Integer, ParamArray z As String()", "New Object() {1, \"foo\"}")]
+        [InlineData("ByVal x As Integer, ParamArray z As String()", "New Object() {1, \"foo\", \"foo\"}")]
         public override async Task ReportsNoDiagnostic_WhenConstructorArgumentsDoNotRequireImplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"Imports NSubstitute

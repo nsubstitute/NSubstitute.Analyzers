@@ -490,9 +490,13 @@ namespace MyNamespace
         [InlineData("int x", "1D")]
         [InlineData("List<int> x", "new List<int>().AsReadOnly()")]
         [InlineData("params int[] x", "1m")]
+        [InlineData("params int[] x", "1, 1m")]
         [InlineData("int x", "new [] { 1 }")]
         [InlineData("int x", "new object()")]
         [InlineData("params int[] x", "new [] { 1m }")]
+        [InlineData("params int[] x", "new [] { 1, 1m }")]
+        [InlineData("params int[] x", "new object[] { 1m }")]
+        [InlineData("params int[] x", "new object[] { 1, 1m }")]
         public override async Task ReportsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"using NSubstitute;
@@ -535,7 +539,7 @@ namespace MyNamespace
         [InlineData("int x", "new object[] { null }")] // even though we pass null as first arg, this works fine with NSubstitute
         [InlineData("int x, int y", "new object[] { null, null }")] // even though we pass null as first arg, this works fine with NSubstitute
         [InlineData("int x, int y", "new object[] { 1, null }")] // even though we pass null as first arg, this works fine with NSubstitute
-        [InlineData("int x, params string[] y", "new object[] { 1, \"foo\" }")]
+        [InlineData("int x, params string[] y", "new object[] { 1, \"foo\", \"foo\"  }")]
         public override async Task ReportsNoDiagnostic_WhenConstructorArgumentsDoNotRequireImplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"using NSubstitute;

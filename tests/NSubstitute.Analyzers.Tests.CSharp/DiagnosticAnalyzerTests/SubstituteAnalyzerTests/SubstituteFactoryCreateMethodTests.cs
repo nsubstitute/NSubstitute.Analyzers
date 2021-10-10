@@ -511,6 +511,9 @@ namespace MyNamespace
         [InlineData("List<int> x", "new List<int>().AsReadOnly()")]
         [InlineData("int x", "new object()")]
         [InlineData("params int[] x", "new [] { 1m }")]
+        [InlineData("params int[] x", "new [] { 1, 1m }")]
+        [InlineData("params int[] x", "new object[] { 1m }")]
+        [InlineData("params int[] x", "new object[] { 1, 1m }")]
         public override async Task ReportsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"using System.Collections.Generic;
@@ -547,7 +550,7 @@ namespace MyNamespace
         [InlineData("IEnumerable<char> x", @"new object [] { ""value"" }")]
         [InlineData("", @"new object[] { }")]
         [InlineData("", "new object[] { 1, 2 }.ToArray()")] // actual values known at runtime only so constructor analysys skipped
-        [InlineData("int x, params string[] y", "new object[] { 1, \"foo\" }")]
+        [InlineData("int x, params string[] y", "new object[] { 1, \"foo\", \"foo\" }")]
         public override async Task ReportsNoDiagnostic_WhenConstructorArgumentsDoNotRequireImplicitConversion(string ctorValues, string invocationValues)
         {
             var source = $@"using System.Collections.Generic;
