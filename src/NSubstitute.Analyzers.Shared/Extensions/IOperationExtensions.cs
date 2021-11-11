@@ -13,6 +13,8 @@ namespace NSubstitute.Analyzers.Shared.Extensions
                     return assignmentOperation.Kind == OperationKind.EventAssignment;
                 case IEventAssignmentOperation _:
                     return true;
+                case IExpressionStatementOperation expressionStatementOperation:
+                    return IsEventAssignmentOperation(expressionStatementOperation.Operation);
                 default:
                     return false;
             }

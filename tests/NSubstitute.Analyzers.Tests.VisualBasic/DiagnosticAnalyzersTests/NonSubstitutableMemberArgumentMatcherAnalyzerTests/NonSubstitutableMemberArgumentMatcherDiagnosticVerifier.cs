@@ -7,6 +7,7 @@ using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Shared.Settings;
 using NSubstitute.Analyzers.Shared.TinyJson;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using NSubstitute.Analyzers.VisualBasic;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 using Xunit;
@@ -110,6 +111,30 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
         [Fact]
         public abstract Task ReportsNoDiagnostics_WhenSubscribingToEvent();
 
+        [Theory]
+        [MemberData(nameof(AssignableArgMatchers))]
+        public abstract Task ReportsNoDiagnostics_WhenAssigningAllowedArgMatchersToSubstitutableMember(string arg);
+
+        [CombinatoryTheory]
+        [MemberData(nameof(MisusedArgTestCasesWithoutDelegates))]
+        public abstract Task ReportsDiagnostics_WhenAssigningArgMatchersToNonSubstitutableMember(string arg);
+
+        [Theory]
+        [MemberData(nameof(NotAssignableArgMatchers))]
+        public abstract Task ReportsDiagnostics_WhenDirectlyAssigningNotAllowedArgMatchersToMember(string arg);
+
+        [CombinatoryTheory]
+        [MemberData(nameof(CorrectlyUsedArgTestCasesWithoutDelegates))]
+        public abstract Task ReportsNoDiagnostics_WhenAssigningArgMatchersToSubstitutableMemberPrecededByReceivedLikeMethod(string receivedMethod, string arg);
+
+        [CombinatoryTheory]
+        [MemberData(nameof(MisusedArgTestCasesWithoutDelegates))]
+        public abstract Task ReportsDiagnostics_WhenAssigningArgMatchersToNonSubstitutableMember_InWhenLikeMethod(string whenMethod, string arg);
+
+        [CombinatoryTheory]
+        [MemberData(nameof(CorrectlyUsedArgTestCasesWithoutDelegates))]
+        public abstract Task ReportsNoDiagnostics_WhenAssigningArgMatchersToSubstitutableMember_InWhenLikeMethod(string whenMethod, string arg);
+
         // VisualBasic specific case
         [Fact]
         public abstract Task ReportsNoDiagnostic_WhenOverloadCannotBeInferred();
@@ -129,6 +154,9 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
             }
         }
 
+        public static IEnumerable<object[]> MisusedArgTestCasesWithoutDelegates =>
+                    MisusedArgTestCases.Where(arguments => arguments.All(argument => !argument.ToString().Contains("Invoke")));
+
         public static IEnumerable<object[]> CorrectlyUsedArgTestCases
         {
             get
@@ -145,14 +173,14 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
                 yield return new object[] { "TryCast(Arg.Is(1), Object)" };
                 yield return new object[] { "CType(Arg.Is(1), Integer)" };
                 yield return new object[] { "DirectCast(Arg.Is(1), Integer)" };
-                yield return new object[] { "Arg.Is(Function(ByVal x As Integer) x > 0)" };
-                yield return new object[] { "If(True, Arg.Is(Function(ByVal x As Integer) x > 0), 0)" };
+                yield return new object[] { "Arg.Is(Function(ByVal __ As Integer) __ > 0)" };
+                yield return new object[] { "If(True, Arg.Is(Function(ByVal __ As Integer) __ > 0), 0)" };
                 yield return new object[] { "Arg.Compat.Is(1)" };
                 yield return new object[] { "TryCast(Arg.Compat.Is(1), Object)" };
                 yield return new object[] { "CType(Arg.Compat.Is(1), Integer)" };
                 yield return new object[] { "DirectCast(Arg.Compat.Is(1), Integer)" };
-                yield return new object[] { "Arg.Compat.Is(Function(ByVal x As Integer) x > 0)" };
-                yield return new object[] { "If(True, Arg.Compat.Is(Function(ByVal x As Integer) x > 0), 0)" };
+                yield return new object[] { "Arg.Compat.Is(Function(ByVal __ As Integer) __ > 0)" };
+                yield return new object[] { "If(True, Arg.Compat.Is(Function(ByVal __ As Integer) __ > 0), 0)" };
                 yield return new object[] { "Arg.Invoke()" };
                 yield return new object[] { "Arg.Compat.Invoke()" };
                 yield return new object[] { "Arg.InvokeDelegate(Of Integer)()" };
@@ -169,6 +197,10 @@ End Function)"
                 };
             }
         }
+
+        public static IEnumerable<object[]> CorrectlyUsedArgTestCasesWithoutDelegates =>
+            CorrectlyUsedArgTestCases.Where(arguments =>
+                arguments.All(argument => !argument.ToString().Contains("Invoke")));
 
         public static IEnumerable<object[]> CorrectlyUsedArgTestCasesWithoutCasts
         {
@@ -229,6 +261,34 @@ End Function)|]"
                     @"[|Arg.Compat.Do(Of Integer)(Function(doValue)
 End Function)|]"
                 };
+            }
+        }
+
+        public static IEnumerable<object[]> AssignableArgMatchers
+        {
+            get
+            {
+                yield return new object[]
+                {
+                    @"Arg.Do(Of Integer)(Function(doValue)
+End Function)"
+                };
+                yield return new object[]
+                {
+                    @"Arg.Compat.Do(Of Integer)(Function(doValue)
+End Function)"
+                };
+            }
+        }
+
+        public static IEnumerable<object[]> NotAssignableArgMatchers
+        {
+            get
+            {
+                yield return new object[] { "[|Arg.Any(Of Integer)()|]" };
+                yield return new object[] { "[|Arg.Compat.Any(Of Integer)()|]" };
+                yield return new object[] { "[|Arg.Is(1)|]" };
+                yield return new object[] { "[|Arg.Compat.Is(1)|]" };
             }
         }
     }

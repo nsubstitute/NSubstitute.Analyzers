@@ -63,6 +63,12 @@ namespace NSubstitute.Analyzers.Shared.Extensions
             return IsMember(symbol, MetadataNames.ArgMatchersMethodNames) || IsMember(symbol, MetadataNames.ArgMatchersCompatMethodNames);
         }
 
+        public static bool IsArgDoLikeMethod(this ISymbol symbol)
+        {
+            return IsMember(symbol, MetadataNames.ArgDoMethodName, MetadataNames.NSubstituteArgFullTypeName) ||
+                   IsMember(symbol, MetadataNames.ArgDoMethodName, MetadataNames.NSubstituteArgCompatFullTypeName);
+        }
+
         public static bool IsSubstituteCreateLikeMethod(this ISymbol symbol)
         {
             return IsMember(symbol, MetadataNames.CreateSubstituteMethodNames);
@@ -70,12 +76,7 @@ namespace NSubstitute.Analyzers.Shared.Extensions
 
         private static bool IsMember(this ISymbol symbol, IReadOnlyDictionary<string, string> memberTypeMap)
         {
-            if (symbol == null)
-            {
-                return false;
-            }
-
-            return memberTypeMap.TryGetValue(symbol.Name, out var containingType) && IsMember(symbol, containingType);
+            return symbol != null && memberTypeMap.TryGetValue(symbol.Name, out var containingType) && IsMember(symbol, containingType);
         }
 
         private static bool IsMember(ISymbol symbol, string memberName, string containingType)

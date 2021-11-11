@@ -47,5 +47,17 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
         Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod(string arg);
 
         Task ReportsNoDiagnostics_WhenSubscribingToEvent();
+
+        Task ReportsNoDiagnostics_WhenAssigningAllowedArgMatchersToSubstitutableMember(string arg);
+
+        Task ReportsDiagnostics_WhenAssigningArgMatchersToNonSubstitutableMember(string arg);
+
+        Task ReportsDiagnostics_WhenDirectlyAssigningNotAllowedArgMatchersToMember(string arg);
+
+        Task ReportsNoDiagnostics_WhenAssigningArgMatchersToSubstitutableMemberPrecededByReceivedLikeMethod(string receivedMethod, string arg);
+
+        Task ReportsDiagnostics_WhenAssigningArgMatchersToNonSubstitutableMember_InWhenLikeMethod(string whenMethod, string arg);
+
+        Task ReportsNoDiagnostics_WhenAssigningArgMatchersToSubstitutableMember_InWhenLikeMethod(string whenMethod, string arg);
     }
 }

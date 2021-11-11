@@ -3,7 +3,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.CSharp.Extensions;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 {
@@ -14,7 +16,8 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
             (int)SyntaxKind.InvocationExpression,
             (int)SyntaxKind.ElementAccessExpression,
             (int)SyntaxKind.AddAssignmentExpression,
-            (int)SyntaxKind.ObjectCreationExpression);
+            (int)SyntaxKind.ObjectCreationExpression,
+            (int)SyntaxKind.SimpleAssignmentExpression);
 
         private static ImmutableHashSet<int> IgnoredAncestors { get; } =
             ImmutableHashSet.Create(
