@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NSubstitute.Analyzers.Shared.Settings;
+using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSubstitutableMemberArgumentMatcherAnalyzerTests
 {
@@ -32,6 +33,7 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.Bar({arg})
+            substitute.When(sub(x) x.Bar({arg}))
         End Sub
     End Class
 End Namespace";
@@ -93,9 +95,11 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.Bar({arg})
+            substitute.When(sub(x) x.Bar({arg}))
         End Sub
     End Class
 End Namespace";
+
             await VerifyNoDiagnostic(source);
         }
 
@@ -132,6 +136,7 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo2)()
             substitute.Bar({arg})
+            substitute.When(sub(x) x.Bar({arg}))
         End Sub
     End Class
 End Namespace
@@ -150,7 +155,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Func(Of {delegateArgType}, Integer))()
-            Dim x = substitute({arg})
+            Dim ___ = substitute({arg})
+            substitute.When(sub(x) x({arg}))
         End Sub
     End Class
 End Namespace
@@ -225,6 +231,7 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.Bar({arg})
+            substitute.When(sub(x) x.Bar({arg}))
         End Sub
     End Class
 End Namespace";
@@ -250,6 +257,7 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             substitute.Bar({arg})
+            substitute.When(sub(x) x.Bar({arg}))
         End Sub
     End Class
 End Namespace
@@ -277,6 +285,7 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo(Of Integer))()
             substitute.Bar(Of Integer)({arg})
+            substitute.When(sub(x) x.Bar(Of Integer)({arg}))
         End Sub
     End Class
 End Namespace";
@@ -301,7 +310,9 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            Dim x = substitute({arg})
+            substitute.When(Function(x)
+                Dim y =  x({arg})
+            End Function)
         End Sub
     End Class
 End Namespace
@@ -332,7 +343,10 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            Dim x = substitute({arg})
+            Dim ___ = substitute({arg})
+            substitute.When(Function(x)
+                Dim y =  x({arg})
+            End Function)
         End Sub
     End Class
 End Namespace
@@ -370,7 +384,10 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            Dim x = substitute({arg})
+            Dim ___ = substitute({arg})
+            substitute.When(Function(x)
+                Dim y =  x({arg})
+            End Function)
         End Sub
     End Class
 End Namespace
@@ -383,6 +400,7 @@ End Namespace
         {
             var source = $@"Imports System
 Imports NSubstitute
+Imports System.Linq.Expressions
 Imports System.Runtime.CompilerServices
 
 Namespace MyNamespace
@@ -402,6 +420,10 @@ Namespace MyNamespace
         End Function
 
         Public Shared Function [Is](Of T)(ByVal value As T) As T
+            Return Nothing
+        End Function
+
+        Public Shared Function [Is](Of T)(ByVal predicate As Expression(Of Predicate(Of T))) As T
             Return Nothing
         End Function
 
@@ -426,6 +448,10 @@ Namespace MyNamespace
                 Return Nothing
             End Function
 
+            Public Shared Function [Is](Of T)(ByVal predicate As Expression(Of Predicate(Of T))) As T
+                Return Nothing
+            End Function
+
             Public Shared Function Invoke() As Action
                 Return Nothing
             End Function
@@ -444,6 +470,7 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.Bar({arg})
+            substitute.When(sub(x) x.Bar({arg}))
         End Sub
     End Class
 End Namespace
@@ -459,7 +486,7 @@ Imports NSubstitute
 Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
-            Dim x = {arg}
+            Dim ___ = {arg}
         End Sub
     End Class
 End Namespace
@@ -534,6 +561,7 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.FooBar({arg})
+            substitute.When(sub(x) x.FooBar({arg}))
         End Sub
     End Class
 End Namespace
@@ -565,7 +593,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            Dim x = substitute.FooBar({arg})
+            substitute.FooBar({arg})
+            substitute.When(sub(x) x.FooBar({arg}))
         End Sub
     End Class
 End Namespace
@@ -600,7 +629,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            Dim x = substitute.FooBar({arg})
+            substitute.FooBar({arg})
+            substitute.When(sub(x) x.FooBar({arg}))
         End Sub
     End Class
 End Namespace
@@ -629,6 +659,7 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.FooBar({arg})
+            substitute.When(sub(x) x.FooBar({arg}))
         End Sub
     End Class
 End Namespace
@@ -706,6 +737,175 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsNoDiagnostics_WhenAssigningAllowedArgMatchersToSubstitutableMember(string arg)
+        {
+            var source = $@"Imports System
+Imports NSubstitute
+
+Namespace MyNamespace
+    Interface IFoo
+        Property Foo As Integer
+        Default Property Item(ByVal x As Integer) As Integer
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
+            substitute.Foo = {arg}
+            substitute(1) = {arg}
+        End Sub
+    End Class
+End Namespace
+";
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsDiagnostics_WhenAssigningArgMatchersToNonSubstitutableMember(string arg)
+        {
+            var source = $@"Imports System
+Imports NSubstitute
+
+Namespace MyNamespace
+    Public Class Foo
+        Public Property Bar As Integer?
+
+        Default Public Property Item(ByVal x As Integer?) As Integer?
+            Get
+                Return Bar
+            End Get
+            Set(ByVal value As Integer?)
+                Bar = value
+            End Set
+        End Property
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            substitute.Bar = {arg}
+            substitute(1) = {arg}
+        End Sub
+    End Class
+End Namespace
+";
+            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
+        }
+
+        public override async Task ReportsDiagnostics_WhenDirectlyAssigningNotAllowedArgMatchersToMember(string arg)
+        {
+            var source = $@"Imports System
+Imports NSubstitute
+Imports NSubstitute.ReceivedExtensions
+
+Namespace MyNamespace
+    Interface IFoo
+        Property Foo As Integer?
+        Default Property Item(ByVal x As Integer?) As Integer?
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
+            substitute.Foo = {arg}
+            substitute(1) = {arg}
+        End Sub
+    End Class
+End Namespace
+";
+            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
+        }
+
+        [CombinatoryData(
+            "Received(Quantity.None())",
+            "Received()",
+            "ReceivedWithAnyArgs(Quantity.None())",
+            "ReceivedWithAnyArgs()",
+            "DidNotReceive()",
+            "DidNotReceiveWithAnyArgs()")]
+        public override async Task ReportsNoDiagnostics_WhenAssigningArgMatchersToSubstitutableMemberPrecededByReceivedLikeMethod(string receivedMethod, string arg)
+        {
+            var source = $@"Imports System
+Imports NSubstitute
+Imports NSubstitute.ReceivedExtensions
+
+Namespace MyNamespace
+    Interface IFoo
+        Property Foo As Integer?
+        Default Property Item(ByVal x As Integer?) As Integer?
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
+            substitute.{receivedMethod}.Foo = {arg}
+            substitute.{receivedMethod}(1) = {arg}
+        End Sub
+    End Class
+End Namespace
+";
+            await VerifyNoDiagnostic(source);
+        }
+
+        [CombinatoryData("When", "WhenForAnyArgs")]
+        public override async Task ReportsDiagnostics_WhenAssigningArgMatchersToNonSubstitutableMember_InWhenLikeMethod(string whenMethod, string arg)
+        {
+            var source = $@"Imports System
+Imports NSubstitute
+
+Namespace MyNamespace
+Public Class Foo
+    Public Property Bar As Integer?
+
+    Default Public Property Item(ByVal x As Integer?) As Integer?
+        Get
+            Return Bar
+        End Get
+        Set(ByVal value As Integer?)
+            Bar = value
+        End Set
+    End Property
+End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.For(Of Foo)
+            substitute.{whenMethod}(Function(x)
+                Dim y = x.Bar = {arg}
+            End Function)
+            substitute.{whenMethod}(sub(x) x(1) = {arg})
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
+        }
+
+        [CombinatoryData("When", "WhenForAnyArgs")]
+        public override async Task ReportsNoDiagnostics_WhenAssigningArgMatchersToSubstitutableMember_InWhenLikeMethod(string whenMethod, string arg)
+        {
+            var source = $@"Imports System
+Imports NSubstitute
+
+Namespace MyNamespace
+    Interface Foo
+        Property Bar As Integer?
+        Default Property Item(ByVal x As Integer?) As Integer?
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.For(Of Foo)
+            substitute.{whenMethod}(Function(x)
+                Dim y = x.Bar = {arg}
+            End Function)
+            substitute.{whenMethod}(sub(x) x(1) = {arg})
+        End Sub
+    End Class
+End Namespace";
+
             await VerifyNoDiagnostic(source);
         }
 

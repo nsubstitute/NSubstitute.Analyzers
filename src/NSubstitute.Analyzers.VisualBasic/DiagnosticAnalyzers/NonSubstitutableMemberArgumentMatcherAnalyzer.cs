@@ -10,53 +10,24 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
     [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
     internal sealed class NonSubstitutableMemberArgumentMatcherAnalyzer : AbstractNonSubstitutableMemberArgumentMatcherAnalyzer<SyntaxKind, InvocationExpressionSyntax>
     {
-        internal static ImmutableArray<ImmutableArray<int>> AllowedPaths { get; } = ImmutableArray.Create(
-            ImmutableArray.Create(
-                (int)SyntaxKind.SimpleArgument,
-                (int)SyntaxKind.ArgumentList,
-                (int)SyntaxKind.InvocationExpression),
-            ImmutableArray.Create(
-                (int)SyntaxKind.TryCastExpression,
-                (int)SyntaxKind.SimpleArgument,
-                (int)SyntaxKind.ArgumentList,
-                (int)SyntaxKind.InvocationExpression),
-            ImmutableArray.Create(
-                (int)SyntaxKind.DirectCastExpression,
-                (int)SyntaxKind.SimpleArgument,
-                (int)SyntaxKind.ArgumentList,
-                (int)SyntaxKind.InvocationExpression),
-            ImmutableArray.Create(
-                (int)SyntaxKind.CTypeExpression,
-                (int)SyntaxKind.SimpleArgument,
-                (int)SyntaxKind.ArgumentList,
-                (int)SyntaxKind.InvocationExpression),
-            ImmutableArray.Create((int)SyntaxKind.AddHandlerStatement));
+        internal static ImmutableHashSet<int> MaybeAllowedAncestors { get; } = ImmutableHashSet.Create(
+            (int)SyntaxKind.InvocationExpression,
+            (int)SyntaxKind.AddHandlerStatement,
+            (int)SyntaxKind.ObjectCreationExpression,
+            (int)SyntaxKind.EqualsExpression,
+            (int)SyntaxKind.SimpleAssignmentStatement);
 
-        private static ImmutableArray<ImmutableArray<int>> IgnoredPaths { get; } = ImmutableArray.Create(
-            ImmutableArray.Create(
-                (int)SyntaxKind.EqualsValue,
-                (int)SyntaxKind.VariableDeclarator),
-            ImmutableArray.Create(
-                (int)SyntaxKind.TryCastExpression,
-                (int)SyntaxKind.EqualsValue,
-                (int)SyntaxKind.VariableDeclarator),
-            ImmutableArray.Create(
-                (int)SyntaxKind.DirectCastExpression,
-                (int)SyntaxKind.EqualsValue,
-                (int)SyntaxKind.VariableDeclarator),
-            ImmutableArray.Create(
-                (int)SyntaxKind.CTypeExpression,
-                (int)SyntaxKind.EqualsValue,
-                (int)SyntaxKind.VariableDeclarator));
+        private static ImmutableHashSet<int> IgnoredAncestors { get; } = ImmutableHashSet.Create(
+            (int)SyntaxKind.VariableDeclarator);
 
         public NonSubstitutableMemberArgumentMatcherAnalyzer()
             : base(NonSubstitutableMemberAnalysis.Instance, NSubstitute.Analyzers.VisualBasic.DiagnosticDescriptorsProvider.Instance)
         {
         }
 
-        protected override ImmutableArray<ImmutableArray<int>> AllowedAncestorPaths { get; } = AllowedPaths;
+        protected override ImmutableHashSet<int> MaybeAllowedArgMatcherAncestors { get; } = MaybeAllowedAncestors;
 
-        protected override ImmutableArray<ImmutableArray<int>> IgnoredAncestorPaths { get; } = IgnoredPaths;
+        protected override ImmutableHashSet<int> IgnoredArgMatcherAncestors { get; } = IgnoredAncestors;
 
         protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
     }

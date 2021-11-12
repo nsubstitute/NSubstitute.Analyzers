@@ -4,10 +4,11 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
 {
-    internal class CallInfoCallFinder : ICallInfoFinder<InvocationExpressionSyntax, ElementAccessExpressionSyntax>
+    internal class CallInfoCallFinder : AbstractCallInfoFinder<InvocationExpressionSyntax, ElementAccessExpressionSyntax>
     {
         public static CallInfoCallFinder Instance { get; } = new CallInfoCallFinder();
 
@@ -15,12 +16,15 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
         {
         }
 
-        public CallInfoContext<InvocationExpressionSyntax, ElementAccessExpressionSyntax> GetCallInfoContext(SemanticModel semanticModel, SyntaxNode syntaxNode)
+        protected override CallInfoContext<InvocationExpressionSyntax, ElementAccessExpressionSyntax> GetCallInfoContextInternal(SemanticModel semanticModel, SyntaxNode syntaxNode)
         {
             var visitor = new CallInfoVisitor(semanticModel);
             visitor.Visit(syntaxNode);
 
-            return new CallInfoContext<InvocationExpressionSyntax, ElementAccessExpressionSyntax>(visitor.ArgAtInvocations, visitor.ArgInvocations, visitor.DirectIndexerAccesses);
+            return new CallInfoContext<InvocationExpressionSyntax, ElementAccessExpressionSyntax>(
+                argAtInvocations: visitor.ArgAtInvocations,
+                argInvocations: visitor.ArgInvocations,
+                indexerAccesses: visitor.DirectIndexerAccesses);
         }
 
         private class CallInfoVisitor : CSharpSyntaxWalker
@@ -45,7 +49,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
             {
                 var symbolInfo = _semanticModel.GetSymbolInfo(node);
 
-                if (symbolInfo.Symbol != null && symbolInfo.Symbol.ContainingType.ToString().Equals(MetadataNames.NSubstituteCallInfoFullTypeName))
+                if (symbolInfo.Symbol != null && symbolInfo.Symbol.ContainingType.IsCallInfoSymbol())
                 {
                     switch (symbolInfo.Symbol.Name)
                     {
@@ -64,7 +68,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
             public override void VisitElementAccessExpression(ElementAccessExpressionSyntax node)
             {
                 var symbolInfo = ModelExtensions.GetSymbolInfo(_semanticModel, node).Symbol ?? ModelExtensions.GetSymbolInfo(_semanticModel, node.Expression).Symbol;
-                if (symbolInfo != null && symbolInfo.ContainingType.ToString().Equals(MetadataNames.NSubstituteCallInfoFullTypeName))
+                if (symbolInfo != null && symbolInfo.ContainingType.IsCallInfoSymbol())
                 {
                     DirectIndexerAccesses.Add(node);
                 }

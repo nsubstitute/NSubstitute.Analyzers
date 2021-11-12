@@ -1,8 +1,10 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
+using NSubstitute.Analyzers.Tests.Shared.Extensions;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallInfoAnalyzerTests
@@ -115,6 +117,90 @@ Namespace MyNamespace
 End Namespace
 ";
             await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBoundsForNestedCall(string method)
+        {
+            var source = $@"Imports System
+Imports NSubstitute
+Imports NSubstitute.ExceptionExtensions
+
+Namespace MyNamespace
+    Interface IFoo
+        Function Bar(ByVal x As Integer) As Integer
+    End Interface
+
+    Interface IFooBar
+        Function FooBaz(ByVal x As Integer, ByVal y As Integer) As Integer
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of IFooBar)()
+            {method}(substitute.FooBaz(Arg.Any(Of Integer)(), Arg.Any(Of Integer)()), Function(outerCallInfo)
+                Dim otherSubstitute = NSubstitute.Substitute.[For](Of IFoo)()
+                {method}(otherSubstitute.Bar(Arg.Any (Of Integer)()), Function(innerCallInfo)
+                    Dim x = outerCallInfo.ArgAt(Of Integer)(1)
+                    Dim y = outerCallInfo(1)
+                    Dim xx = innerCallInfo.ArgAt(Of Integer)(0)
+                    Dim yy = innerCallInfo(0)
+                    Return New Exception()
+                End Function)
+                Return New Exception() 
+            End Function)
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBoundsForNestedCall(string method)
+        {
+            var source = $@"Imports System
+Imports NSubstitute
+Imports NSubstitute.ExceptionExtensions
+
+Namespace MyNamespace
+    Interface IFoo
+        Function Bar(ByVal x As Integer) As Integer
+    End Interface
+
+    Interface IFooBar
+        Function FooBaz(ByVal x As Integer, ByVal y As Integer) As Integer
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For] (Of IFooBar)()
+            {method}(substitute.FooBaz(Arg.Any (Of Integer)(), Arg.Any (Of Integer)()), Function(outerCallInfo)
+                Dim otherSubstitute = NSubstitute.Substitute.[For] (Of IFoo)()
+                {method}(otherSubstitute.Bar(Arg.Any (Of Integer)()), Function(innerCallInfo)
+                    Dim x = [|outerCallInfo.ArgAt (Of Integer)(2)|]
+                    Dim y = [|outerCallInfo(2)|]
+                    Dim z = outerCallInfo(1)
+                    Dim xx = [|innerCallInfo.ArgAt (Of Integer)(1)|]
+                    Dim yy = [|innerCallInfo(1)|]
+                    Dim zz = innerCallInfo(0)
+                    Return New Exception()
+                End Function)
+                Return New Exception()
+            End Function)
+        End Sub
+    End Class
+End Namespace";
+            var textParserResult = TextParser.GetSpans(source);
+
+            var diagnosticMessages = new[]
+            {
+                "There is no argument at position 2",
+                "There is no argument at position 2",
+                "There is no argument at position 1",
+                "There is no argument at position 1"
+            };
+
+            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(CallInfoArgumentOutOfRangeDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
+            await VerifyDiagnostic(textParserResult.Text, diagnostics);
         }
 
         public override async Task ReportsNoDiagnostic_WhenManuallyCasting_ToSupportedType(string method, string call, string argAccess)
@@ -376,6 +462,40 @@ End Namespace
             await VerifyNoDiagnostic(source);
         }
 
+        public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInvocationForNestedCall(string method)
+        {
+            var source = $@"Imports System
+Imports NSubstitute
+Imports NSubstitute.ExceptionExtensions
+
+Namespace MyNamespace
+    Interface IFoo
+        Function Bar(ByVal x As Integer) As Integer
+    End Interface
+
+    Interface IFooBar
+        Function FooBaz(ByVal x As String) As Integer
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of IFooBar)()
+            {method}(substitute.FooBaz(Arg.Any (Of String)()), Function(outerCallInfo)
+                Dim otherSubstitute = NSubstitute.Substitute.[For](Of IFoo)()
+                {method}(otherSubstitute.Bar(Arg.Any(Of Integer)()), Function(innerCallInfo)
+                    Dim x = outerCallInfo.Arg(Of String)()
+                    Dim y = innerCallInfo.Arg(Of Integer)()
+                    Return New Exception()
+                End Function)
+                Return New Exception()
+            End Function)
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifyNoDiagnostic(source);
+        }
+
         public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string method, string call, string argAccess, string message)
         {
             var source = $@"Imports System
@@ -603,6 +723,40 @@ End Namespace
 ";
 
             await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocationForNestedCall(string method)
+        {
+            var source = $@"Imports System
+Imports NSubstitute
+Imports NSubstitute.ExceptionExtensions
+
+Namespace MyNamespace
+    Interface IFoo
+        Function Bar(ByVal x As Integer) As Integer
+    End Interface
+
+    Interface IFooBar
+        Function FooBaz(ByVal x As Integer) As Integer
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of IFooBar)()
+            {method}(substitute.FooBaz(Arg.Any(Of Integer)()), Function(outerCallInfo)
+                Dim otherSubstitute = NSubstitute.Substitute.[For](Of IFoo)()
+                {method}(otherSubstitute.Bar(Arg.Any(Of Integer)()), Function(innerCallInfo)
+                    Dim x = [|outerCallInfo.Arg(Of String)()|]
+                    Dim y = [|innerCallInfo.Arg(Of String)()|]
+                    Return New Exception()
+                End Function)
+                Return New Exception()
+            End Function)
+        End Sub
+    End Class
+End Namespace";
+
+            await VerifyDiagnostic(source, CallInfoCouldNotFindArgumentToThisCallDescriptor, "Can not find an argument of type String to this call.");
         }
     }
 }

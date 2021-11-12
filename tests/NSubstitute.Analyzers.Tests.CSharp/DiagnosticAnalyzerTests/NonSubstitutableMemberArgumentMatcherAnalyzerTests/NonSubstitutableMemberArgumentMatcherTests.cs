@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NSubstitute.Analyzers.Shared.Settings;
+using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitutableMemberArgumentMatcherAnalyzerTests
 {
@@ -32,6 +33,7 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             substitute.Bar({arg});
+            substitute.When(x => x.Bar({arg}));
         }}
     }}
 }}";
@@ -96,6 +98,7 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             substitute.Bar({arg});
+            substitute.When(x => x.Bar({arg}));
         }}
     }}
 }}";
@@ -135,6 +138,7 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo2>();
             substitute.Bar({arg});
+            substitute.When(x => x.Bar({arg}));
         }}
     }}
 }}";
@@ -155,6 +159,7 @@ namespace MyNamespace
         {{
             var substitute = Substitute.For<Func<{funcArgType}, int>>();
             substitute({arg});
+            substitute.When(x => x({arg}));
         }}
     }}
 }}";
@@ -194,6 +199,7 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo2>();
             substitute.Bar({arg});
+            substitute.When(x => x.Bar({arg}));
         }}
     }}
 }}";
@@ -221,6 +227,7 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             substitute.Bar({arg});
+            substitute.When(x => x.Bar({arg}));
         }}
     }}
 }}";
@@ -248,6 +255,7 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<IFoo>();
             substitute.Bar({arg});
+            substitute.When(x => x.Bar({arg}));
         }}
     }}
 }}";
@@ -274,6 +282,7 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<IFoo<int>>();
             substitute.Bar<int>({arg});
+            substitute.When(x => x.Bar<int>({arg}));
         }}
     }}
 }}";
@@ -299,7 +308,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<IFoo>();
-            var x = substitute[{arg}];
+            var _ = substitute[{arg}];
+            substitute.When(x => _ = x[{arg}]);
         }}
     }}
 }}";
@@ -325,7 +335,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute[{arg}];
+            var _ = substitute[{arg}];
+            substitute.When(x => _ = x[{arg}]);
         }}
     }}
 }}";
@@ -351,7 +362,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute[{arg}];
+            var _ = substitute[{arg}];
+            substitute.When(x => _ = x[{arg}]);
         }}
     }}
 }}";
@@ -362,6 +374,7 @@ namespace MyNamespace
         public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string arg)
         {
             var source = $@"using System;
+using System.Linq.Expressions;
 using NSubstitute;
 
 namespace MyNamespace
@@ -387,6 +400,11 @@ namespace MyNamespace
         }}
       
         public static T Is<T>(T value)
+        {{
+            return default(T);
+        }}
+
+        public static T Is<T>(Expression<Predicate<T>> predicate)
         {{
             return default(T);
         }}
@@ -418,6 +436,11 @@ namespace MyNamespace
                 return default(T);
             }}
 
+            public static T Is<T>(Expression<Predicate<T>> predicate)
+            {{
+                return default(T);
+            }}
+
             public static Action Invoke()
             {{
                 return default(Action);
@@ -441,6 +464,7 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             substitute.Bar({arg});
+            substitute.When(x => x.Bar({arg}));
         }}
     }}
 }}";
@@ -507,6 +531,7 @@ namespace MyNamespace
         public void Test()
         {{
             var x = new FooTests({arg});
+            new FooTests({arg});
         }}
     }}
 }}";
@@ -539,6 +564,7 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             substitute.FooBar({arg});
+            substitute.When(x => x.FooBar({arg}));
         }}
     }}
 }}";
@@ -575,7 +601,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute.FooBar({arg});
+            substitute.FooBar({arg});
+            substitute.When(x => x.FooBar({arg}));
         }}
     }}
 }}";
@@ -610,7 +637,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            var x = substitute.FooBar({arg});
+            substitute.FooBar({arg});
+            substitute.When(x => x.FooBar({arg}));
         }}
     }}
 }}";
@@ -644,6 +672,7 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             substitute.FooBar({arg});
+            substitute.When(x => x.FooBar({arg}));
         }}
     }}
 }}";
@@ -725,6 +754,175 @@ namespace MyNamespace
         }
     }
 }";
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsNoDiagnostics_WhenAssigningAllowedArgMatchersToSubstitutableMember(string arg)
+        {
+            var source = $@"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        int Foo {{ get; set; }}
+        int this[int x] {{ get; set; }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = Substitute.For<IFoo>();
+            substitute.Foo = {arg};
+            substitute[1] = {arg};
+        }}
+    }}
+}}";
+            await VerifyNoDiagnostic(source);
+        }
+
+        [CombinatoryData("When", "WhenForAnyArgs")]
+        public override async Task ReportsDiagnostics_WhenAssigningArgMatchersToNonSubstitutableMember_InWhenLikeMethod(string whenMethod, string arg)
+        {
+            var source = $@"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public class Foo
+    {{
+        public int? Bar {{ get; set; }}
+
+        public int? this[int? x] {{ get {{ return Bar; }} set {{ Bar = value; }} }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = Substitute.For<Foo>();
+            substitute.{whenMethod}(x => _ = x.Bar = {arg});
+            substitute.{whenMethod}(x => x[1] = {arg});
+        }}
+    }}
+}}";
+            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
+        }
+
+        [CombinatoryData("When", "WhenForAnyArgs")]
+        public override async Task ReportsNoDiagnostics_WhenAssigningArgMatchersToSubstitutableMember_InWhenLikeMethod(string whenMethod, string arg)
+        {
+            var source = $@"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public interface Foo
+    {{
+        int? Bar {{ get; set; }}
+
+        int? this[int? x] {{ get; set; }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = Substitute.For<Foo>();
+            substitute.{whenMethod}(x => _ = x.Bar = {arg});
+            substitute.{whenMethod}(x => x[1] = {arg});
+        }}
+    }}
+}}";
+            await VerifyNoDiagnostic(source);
+        }
+
+        public override async Task ReportsDiagnostics_WhenAssigningArgMatchersToNonSubstitutableMember(string arg)
+        {
+            var source = $@"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public class Foo
+    {{
+        public int? Bar {{ get; set; }}
+
+        public int? this[int? x] {{ get {{ return Bar; }} set {{ Bar = value; }} }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = Substitute.For<Foo>();
+            substitute.Bar = {arg};
+            substitute[1] = {arg};
+        }}
+    }}
+}}";
+            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
+        }
+
+        public override async Task ReportsDiagnostics_WhenDirectlyAssigningNotAllowedArgMatchersToMember(string arg)
+        {
+            var source = $@"using System;
+using NSubstitute;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        int Foo {{ get; set; }}
+        int this[int x] {{ get; set; }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = Substitute.For<IFoo>();
+            substitute.Foo = {arg};
+            substitute[1] = {arg};
+        }}
+    }}
+}}";
+            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
+        }
+
+        [CombinatoryData(
+            "Received(Quantity.None())",
+            "Received()",
+            "ReceivedWithAnyArgs(Quantity.None())",
+            "ReceivedWithAnyArgs()",
+            "DidNotReceive()",
+            "DidNotReceiveWithAnyArgs()")]
+        public override async Task ReportsNoDiagnostics_WhenAssigningArgMatchersToSubstitutableMemberPrecededByReceivedLikeMethod(string receivedMethod, string arg)
+        {
+            var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ReceivedExtensions;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        int? Foo {{ get; set; }}
+        int? this[int? x] {{ get; set; }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = Substitute.For<IFoo>();
+            substitute.{receivedMethod}.Foo = {arg};
+            substitute.{receivedMethod}[1] = {arg};
+        }}
+    }}
+}}";
             await VerifyNoDiagnostic(source);
         }
     }

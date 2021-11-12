@@ -6,8 +6,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 {
     internal abstract class AbstractSubstituteConstructorMatcher : ISubstituteConstructorMatcher
     {
-        // even though conversion returns that key -> value is convertible it fails on the runtime when runninig through substitute creation
-        protected virtual Dictionary<SpecialType, SpecialType> WellKnownUnsupportedConversions { get; } =
+        // even though conversion returns that key -> value is convertible it fails on the runtime when running through substitute creation
+        private static IReadOnlyDictionary<SpecialType, SpecialType> WellKnownUnsupportedConversions { get; } =
             new Dictionary<SpecialType, SpecialType>
             {
                 [SpecialType.System_Int16] = SpecialType.System_Decimal,
@@ -18,7 +18,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
                 [SpecialType.System_UInt64] = SpecialType.System_Decimal
             };
 
-        protected virtual Dictionary<SpecialType, HashSet<SpecialType>> WellKnownSupportedConversions { get; } =
+        private static IReadOnlyDictionary<SpecialType, HashSet<SpecialType>> WellKnownSupportedConversions { get; } =
             new Dictionary<SpecialType, HashSet<SpecialType>>
             {
                 [SpecialType.System_Char] = new HashSet<SpecialType>
@@ -35,19 +35,42 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
 
         public bool MatchesInvocation(Compilation compilation, IMethodSymbol methodSymbol, IList<ITypeSymbol> invocationParameters)
         {
-            if (methodSymbol.Parameters.Length != invocationParameters.Count)
+            if (methodSymbol.Parameters.Length == 0)
             {
-                return false;
+                return true;
             }
 
-            return methodSymbol.Parameters.Length == 0 || methodSymbol.Parameters
-                       .Where((symbol, index) => ClasifyConversion(compilation, invocationParameters[index], symbol.Type))
-                       .Count() == methodSymbol.Parameters.Length;
+            return methodSymbol.Parameters.All(parameter =>
+                MatchesInvocation(compilation, parameter, invocationParameters));
         }
 
         protected abstract bool IsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination);
 
-        private bool ClasifyConversion(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)
+        // TODO simplify once https://github.com/nsubstitute/NSubstitute.Analyzers/issues/153 is implemented
+        private bool MatchesInvocation(Compilation compilation, IParameterSymbol symbol, IList<ITypeSymbol> invocationParameters)
+        {
+            if (!symbol.IsParams)
+            {
+                return symbol.Ordinal < invocationParameters.Count &&
+                       ClassifyConversion(compilation, invocationParameters[symbol.Ordinal], symbol.Type);
+            }
+
+            if (!(symbol.Type is IArrayTypeSymbol arrayTypeSymbol))
+            {
+                return false;
+            }
+
+            if (symbol.Ordinal >= invocationParameters.Count)
+            {
+                return true;
+            }
+
+            return invocationParameters
+                .Where((typeSymbol, index) => index >= symbol.Ordinal).All(invocationSymbol =>
+                    ClassifyConversion(compilation, invocationSymbol, arrayTypeSymbol.ElementType));
+        }
+
+        private bool ClassifyConversion(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)
         {
             if (source == null || source.Equals(destination))
             {

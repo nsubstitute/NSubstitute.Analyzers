@@ -96,24 +96,10 @@ namespace NSubstitute.Analyzers.CSharp.CodeFixProviders
         private static ArrayTypeSyntax CreateArrayTypeNode(SyntaxGenerator syntaxGenerator, ITypeSymbol type)
         {
             var typeSyntax = (TypeSyntax)syntaxGenerator.TypeExpression(type);
-            var typeArgumentListSyntax = TypeArgumentList(
-                SeparatedList<TypeSyntax>(
-                    new SyntaxNodeOrToken[]
-                    {
-                        QualifiedName(
-                            QualifiedName(
-                                IdentifierName("NSubstitute"),
-                                IdentifierName("Core")),
-                            IdentifierName("CallInfo")),
-                        Token(SyntaxKind.CommaToken),
-                        typeSyntax
-                    }));
-
-            var qualifiedNameSyntax = QualifiedName(IdentifierName("System"), GenericName(Identifier("Func"), typeArgumentListSyntax));
 
             var arrayRankSpecifierSyntaxes = SingletonList(ArrayRankSpecifier(SingletonSeparatedList<ExpressionSyntax>(OmittedArraySizeExpression())));
 
-            return ArrayType(qualifiedNameSyntax, arrayRankSpecifierSyntaxes).WithAdditionalAnnotations(Simplifier.Annotation);
+            return ArrayType(typeSyntax, arrayRankSpecifierSyntaxes).WithAdditionalAnnotations(Simplifier.Annotation);
         }
     }
 }
