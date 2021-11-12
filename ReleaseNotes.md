@@ -1,3 +1,9 @@
+### 1.0.14 (10 November 2020)
+
+- [#147](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/147) - NS1004 false positive when subscribing to event
+- [#144](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/144) - NS2001 false positive for internal class with protected internal constructor
+- [#108](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/108) - Detect non-virtual calls in Received.InOrder
+
 ### 1.0.13 (8 April 2020)
 
 - [#142](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/142) - Simplify InternalVisibilityTo when System.Runtime.CompilerServices in scope
