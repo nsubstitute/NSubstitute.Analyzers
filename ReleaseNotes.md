@@ -1,3 +1,15 @@
+### 1.0.15 (12 November 2021)
+
+- [#172](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/172) - NS1004 false positive when using arg matchers with properties
+- [#171](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/171) - NS1004 false positive when using arg matchers with properties
+- [#163](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/163) - NS1004 false positive when using arg matchers with ternary operator
+- [#162](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/162) - NS2002, NS2004 false positive when using Substitute.For, Substitute.ForPartsOf with constructor with params
+- [#160](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/160) - NS1004 false positive when using arg matchers with properties for When calls
+- [#159](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/159) - NS1004 false positive when using Arg.Do with properties
+- [#157](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/157) - Handling generic CallInfo&lt;T&gt; for incoming NSubstitute releases
+- [#152](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/152) - Marking analyzers as development dependency
+- [#150](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/150) - NS3002 false positive when using arg matchers with nested returns
+
 ### 1.0.14 (10 November 2020)
 
 - [#147](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/147) - NS1004 false positive when subscribing to event
