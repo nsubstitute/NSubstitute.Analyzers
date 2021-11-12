@@ -1,4 +1,4 @@
-### 1.0.15 (12 November 2021)
+### 1.0.15 (13 November 2021)
 
 - [#172](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/172) - NS1004 false positive when using arg matchers with properties
 - [#171](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/171) - NS1004 false positive when using arg matchers with properties
