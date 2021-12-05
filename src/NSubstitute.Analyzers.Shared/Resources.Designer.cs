@@ -471,5 +471,23 @@ namespace NSubstitute.Analyzers.Shared {
                 return ResourceManager.GetString("NonVirtualReceivedInOrderSetupSpecificationTitle", resourceCulture);
             }
         }
+        
+        internal static string AsyncThrowsDescription {
+            get {
+                return ResourceManager.GetString("AsyncThrowsDescription", resourceCulture);
+            }
+        }
+        
+        internal static string AsyncThrowsMessageFormat {
+            get {
+                return ResourceManager.GetString("AsyncThrowsMessageFormat", resourceCulture);
+            }
+        }
+        
+        internal static string AsyncThrowsTitle {
+            get {
+                return ResourceManager.GetString("AsyncThrowsTitle", resourceCulture);
+            }
+        }
     }
 }
