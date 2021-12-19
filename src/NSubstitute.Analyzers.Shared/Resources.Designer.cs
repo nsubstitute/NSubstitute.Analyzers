@@ -472,21 +472,21 @@ namespace NSubstitute.Analyzers.Shared {
             }
         }
         
-        internal static string AsyncThrowsDescription {
+        internal static string SyncOverAsyncThrowsDescription {
             get {
-                return ResourceManager.GetString("AsyncThrowsDescription", resourceCulture);
+                return ResourceManager.GetString("SyncOverAsyncThrowsDescription", resourceCulture);
             }
         }
         
-        internal static string AsyncThrowsMessageFormat {
+        internal static string SyncOverAsyncThrowsMessageFormat {
             get {
-                return ResourceManager.GetString("AsyncThrowsMessageFormat", resourceCulture);
+                return ResourceManager.GetString("SyncOverAsyncThrowsMessageFormat", resourceCulture);
             }
         }
         
-        internal static string AsyncThrowsTitle {
+        internal static string SyncOverAsyncThrowsTitle {
             get {
-                return ResourceManager.GetString("AsyncThrowsTitle", resourceCulture);
+                return ResourceManager.GetString("SyncOverAsyncThrowsTitle", resourceCulture);
             }
         }
     }

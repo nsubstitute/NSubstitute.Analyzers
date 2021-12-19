@@ -31,6 +31,8 @@ public class CSharpDiagnosticAnalyzersBenchmarks : AbstractDiagnosticAnalyzersBe
 
     protected override AnalyzerBenchmark AsyncReceivedInOrderCallbackAnalyzerBenchmark { get; }
 
+    protected override AnalyzerBenchmark SyncOverAsyncThrowsAnalyzerBenchmark { get; }
+
     protected override AbstractSolutionLoader SolutionLoader { get; }
 
     protected override string SourceProjectFolderName { get; }
@@ -55,5 +57,6 @@ public class CSharpDiagnosticAnalyzersBenchmarks : AbstractDiagnosticAnalyzersBe
         ArgumentMatcherAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new NonSubstitutableMemberArgumentMatcherAnalyzer());
         ReceivedInReceivedInOrderAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new ReceivedInReceivedInOrderAnalyzer());
         AsyncReceivedInOrderCallbackAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new AsyncReceivedInOrderCallbackAnalyzer());
-    }
+        SyncOverAsyncThrowsAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new SyncOverAsyncThrowsAnalyzer());
+        }
 }

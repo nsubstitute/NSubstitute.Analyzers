@@ -38,6 +38,8 @@ public abstract class AbstractDiagnosticAnalyzersBenchmarks
 
     protected abstract AnalyzerBenchmark AsyncReceivedInOrderCallbackAnalyzerBenchmark { get; }
 
+    protected abstract AnalyzerBenchmark SyncOverAsyncThrowsAnalyzerBenchmark { get; }
+
     protected abstract AbstractSolutionLoader SolutionLoader { get; }
 
     protected abstract string SourceProjectFolderName { get; }
@@ -123,6 +125,12 @@ public abstract class AbstractDiagnosticAnalyzersBenchmarks
         AsyncReceivedInOrderCallbackAnalyzerBenchmark.Run();
     }
 
+    [Benchmark]
+    public void SyncOverAsyncThrowsAnalyzer()
+    {
+        SyncOverAsyncThrowsAnalyzerBenchmark.Run();
+    }
+
     [IterationCleanup(Target = nameof(ArgumentMatcherAnalyzer))]
     public void CleanUp()
     {
@@ -165,7 +173,8 @@ public abstract class AbstractDiagnosticAnalyzersBenchmarks
 
     private MetadataReference[] GetMetadataReferences(Assembly assembly)
     {
-        var portableExecutableReferences = RecursiveReferencedAssemblies(assembly).Select(referencedAssembly => MetadataReference.CreateFromFile(referencedAssembly.Location))
+        var portableExecutableReferences = RecursiveReferencedAssemblies(assembly).Select(referencedAssembly =>
+                MetadataReference.CreateFromFile(referencedAssembly.Location))
             .ToArray();
 
         return portableExecutableReferences;
@@ -207,7 +216,8 @@ public abstract class AbstractDiagnosticAnalyzersBenchmarks
                 var result = projectCompilation.Emit(stream);
                 if (result.Success == false)
                 {
-                    throw new InvalidOperationException($"Compilation for benchmark source failed {Environment.NewLine} {string.Join(Environment.NewLine, result.Diagnostics.Select(diag => diag.ToString()))}");
+                    throw new InvalidOperationException(
+                        $"Compilation for benchmark source failed {Environment.NewLine} {string.Join(Environment.NewLine, result.Diagnostics.Select(diag => diag.ToString()))}");
                 }
             }
         }

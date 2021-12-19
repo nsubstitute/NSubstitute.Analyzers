@@ -219,9 +219,9 @@ internal class DiagnosticDescriptors<T>
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
-    public static DiagnosticDescriptor AsyncThrows { get; } = CreateDiagnosticDescriptor(
-            name: nameof(AsyncThrows),
-            id: DiagnosticIdentifiers.AsyncThrows,
+    public static DiagnosticDescriptor SyncOverAsyncThrows { get; } = CreateDiagnosticDescriptor(
+            name: nameof(SyncOverAsyncThrows),
+            id: DiagnosticIdentifiers.SyncOverAsyncThrows,
             category: DiagnosticCategory.Usage.GetDisplayName(),
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true);

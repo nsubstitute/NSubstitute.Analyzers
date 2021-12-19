@@ -409,13 +409,13 @@
     <value>Non-virtual setup specification.</value>
         <comment>The title of the diagnostic.</comment>
   </data>
-    <data name="AsyncThrowsDescription" xml:space="preserve">
-      <value>Sync throws used.</value>
+    <data name="SyncOverAsyncThrowsDescription" xml:space="preserve">
+      <value>Synchronous exception thrown from async method.</value>
     </data>
-    <data name="AsyncThrowsMessageFormat" xml:space="preserve">
-      <value>Sync throws used.</value>
+    <data name="SyncOverAsyncThrowsMessageFormat" xml:space="preserve">
+      <value>Synchronous exception thrown from async method.</value>
     </data>
-    <data name="AsyncThrowsTitle" xml:space="preserve">
-      <value>Sync throws used.</value>
+    <data name="SyncOverAsyncThrowsTitle" xml:space="preserve">
+      <value>Synchronous exception thrown from async method.</value>
     </data>
 </root>
