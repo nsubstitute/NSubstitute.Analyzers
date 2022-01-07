@@ -1,16 +1,14 @@
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using NSubstitute.Analyzers.Shared;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.SubstituteForInternalMemberCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.SubstituteForInternalMemberCodeFixProviderTests;
+
+public class SubstituteFactoryCreatePartialMethodTests : SubstituteForInternalMemberCodeFixVerifier
 {
-    public class SubstituteFactoryCreatePartialMethodTests : SubstituteForInternalMemberCodeFixVerifier
+    [Fact]
+    public override async Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalClass()
     {
-        [Fact]
-        public override async Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalClass()
-        {
-            var oldSource = @"using NSubstitute.Core;
+        var oldSource = @"using NSubstitute.Core;
 namespace MyNamespace
 {
     namespace MyInnerNamespace
@@ -28,7 +26,7 @@ namespace MyNamespace
         }
     }
 }";
-            var newSource = @"using NSubstitute.Core;
+        var newSource = @"using NSubstitute.Core;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
 
@@ -49,13 +47,13 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyFix(oldSource, newSource);
-        }
+        await VerifyFix(oldSource, newSource);
+    }
 
-        [Fact]
-        public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass()
-        {
-            var oldSource = @"using NSubstitute.Core;
+    [Fact]
+    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass()
+    {
+        var oldSource = @"using NSubstitute.Core;
 namespace MyNamespace
 {
     internal class Foo
@@ -70,7 +68,7 @@ namespace MyNamespace
         }
     }
 }";
-            var newSource = @"using NSubstitute.Core;
+        var newSource = @"using NSubstitute.Core;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
 
@@ -88,13 +86,13 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyFix(oldSource, newSource);
-        }
+        await VerifyFix(oldSource, newSource);
+    }
 
-        [Fact]
-        public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass_AndArgumentListNotEmpty()
-        {
-            var oldSource = @"using System.Reflection;
+    [Fact]
+    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass_AndArgumentListNotEmpty()
+    {
+        var oldSource = @"using System.Reflection;
 using NSubstitute.Core;
 [assembly: AssemblyVersion(""1.0.0"")]
 namespace MyNamespace
@@ -111,7 +109,7 @@ namespace MyNamespace
         }
     }
 }";
-            var newSource = @"using System.Reflection;
+        var newSource = @"using System.Reflection;
 using NSubstitute.Core;
 [assembly: AssemblyVersion(""1.0.0"")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
@@ -130,13 +128,13 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyFix(oldSource, newSource);
-        }
+        await VerifyFix(oldSource, newSource);
+    }
 
-        [Fact]
-        public override async Task AppendsInternalsVisibleTo_WhenUsedWithNestedInternalClass()
-        {
-            var oldSource = @"using NSubstitute.Core;
+    [Fact]
+    public override async Task AppendsInternalsVisibleTo_WhenUsedWithNestedInternalClass()
+    {
+        var oldSource = @"using NSubstitute.Core;
 namespace MyNamespace
 {
     internal class Foo
@@ -155,7 +153,7 @@ namespace MyNamespace
         }
     }
 }";
-            var newSource = @"using NSubstitute.Core;
+        var newSource = @"using NSubstitute.Core;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
 
@@ -177,13 +175,13 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyFix(oldSource, newSource);
-        }
+        await VerifyFix(oldSource, newSource);
+    }
 
-        [Fact]
-        public override async Task DoesNot_AppendsInternalsVisibleTo_WhenUsedWithPublicClass()
-        {
-            var oldSource = @"using NSubstitute.Core;
+    [Fact]
+    public override async Task DoesNot_AppendsInternalsVisibleTo_WhenUsedWithPublicClass()
+    {
+        var oldSource = @"using NSubstitute.Core;
 namespace MyNamespace
 {
     public class Foo
@@ -198,13 +196,13 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyFix(oldSource, oldSource);
-        }
+        await VerifyFix(oldSource, oldSource);
+    }
 
-        [Fact]
-        public override async Task DoesNot_AppendsInternalsVisibleTo_WhenInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
-        {
-            var oldSource = @"using NSubstitute.Core;
+    [Fact]
+    public override async Task DoesNot_AppendsInternalsVisibleTo_WhenInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
+    {
+        var oldSource = @"using NSubstitute.Core;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""OtherFirstAssembly"")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""DynamicProxyGenAssembly2"")]
@@ -229,7 +227,6 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyFix(oldSource, oldSource);
-        }
+        await VerifyFix(oldSource, oldSource);
     }
 }

@@ -1,26 +1,25 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Operations;
 
-namespace NSubstitute.Analyzers.Shared.Extensions
+namespace NSubstitute.Analyzers.Shared.Extensions;
+
+internal static class IArgumentOperationExtensions
 {
-    internal static class IArgumentOperationExtensions
+    public static ITypeSymbol GetArgumentOperationActualTypeSymbol(this IArgumentOperation argumentOperation)
     {
-        public static ITypeSymbol GetArgumentOperationActualTypeSymbol(this IArgumentOperation argumentOperation)
+        ITypeSymbol conversionTypeSymbol = null;
+        switch (argumentOperation.Value)
         {
-            ITypeSymbol conversionTypeSymbol = null;
-            switch (argumentOperation.Value)
-            {
-                case IConversionOperation conversionOperation:
-                    conversionTypeSymbol = conversionOperation.Operand.Type;
-                    break;
-            }
-
-            return conversionTypeSymbol ?? argumentOperation.GetArgumentOperationDeclaredTypeSymbol();
+            case IConversionOperation conversionOperation:
+                conversionTypeSymbol = conversionOperation.Operand.Type;
+                break;
         }
 
-        public static ITypeSymbol GetArgumentOperationDeclaredTypeSymbol(this IArgumentOperation argumentOperation)
-        {
-            return argumentOperation.Parameter.Type;
-        }
+        return conversionTypeSymbol ?? argumentOperation.GetArgumentOperationDeclaredTypeSymbol();
+    }
+
+    public static ITypeSymbol GetArgumentOperationDeclaredTypeSymbol(this IArgumentOperation argumentOperation)
+    {
+        return argumentOperation.Parameter.Type;
     }
 }

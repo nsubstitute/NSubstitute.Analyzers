@@ -1,20 +1,19 @@
-﻿namespace NSubstitute.Analyzers.Shared
+﻿namespace NSubstitute.Analyzers.Shared;
+
+internal enum DiagnosticCategory
 {
-    internal enum DiagnosticCategory
-    {
-        [DisplayName("Non-substitutable member")]
-        NonVirtualSubstitution = 1,
+    [DisplayName("Non-substitutable member")]
+    NonVirtualSubstitution = 1,
 
-        [DisplayName("Substitute creation")]
-        SubstituteCreation,
+    [DisplayName("Substitute creation")]
+    SubstituteCreation,
 
-        [DisplayName("Argument specification")]
-        ArgumentSpecification,
+    [DisplayName("Argument specification")]
+    ArgumentSpecification,
 
-        [DisplayName("Call configuration")]
-        CallConfiguration,
+    [DisplayName("Call configuration")]
+    CallConfiguration,
 
-        [DisplayName("Usage")]
-        Usage
-    }
+    [DisplayName("Usage")]
+    Usage
 }

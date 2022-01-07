@@ -7,21 +7,21 @@ using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.ReEntrantSetupCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.ReEntrantSetupCodeFixProviderTests;
+
+public class ReEntrantSetupCodeFixActionsTests : CSharpCodeFixActionsVerifier, IReEntrantSetupCodeFixActionsVerifier
 {
-    public class ReEntrantSetupCodeFixActionsTests : CSharpCodeFixActionsVerifier, IReEntrantSetupCodeFixActionsVerifier
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new ReEntrantSetupAnalyzer();
+
+    protected override CodeFixProvider CodeFixProvider { get; } = new ReEntrantSetupCodeFixProvider();
+
+    [Theory]
+    [InlineData("await CreateReEntrantSubstituteAsync(), await CreateDefaultValue()")]
+    [InlineData("CreateReEntrantSubstitute(), await CreateDefaultValue()")]
+    [InlineData("CreateReEntrantSubstitute(), new int[] { 1, await CreateDefaultValue() }")]
+    public async Task DoesNotCreateCodeFixAction_WhenAnyArgumentSyntaxIsAsync(string arguments)
     {
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new ReEntrantSetupAnalyzer();
-
-        protected override CodeFixProvider CodeFixProvider { get; } = new ReEntrantSetupCodeFixProvider();
-
-        [Theory]
-        [InlineData("await CreateReEntrantSubstituteAsync(), await CreateDefaultValue()")]
-        [InlineData("CreateReEntrantSubstitute(), await CreateDefaultValue()")]
-        [InlineData("CreateReEntrantSubstitute(), new int[] { 1, await CreateDefaultValue() }")]
-        public async Task DoesNotCreateCodeFixAction_WhenAnyArgumentSyntaxIsAsync(string arguments)
-        {
-            var source = $@"using System.Threading.Tasks;
+        var source = $@"using System.Threading.Tasks;
 using NSubstitute;
 
 namespace MyNamespace
@@ -59,15 +59,15 @@ namespace MyNamespace
         }}}}
     }} 
 }}";
-            await VerifyCodeActions(source, Array.Empty<string>());
-        }
+        await VerifyCodeActions(source, Array.Empty<string>());
+    }
 
-        [Theory]
-        [InlineData("someArray")]
-        [InlineData("Array.Empty<int>()")]
-        public async Task DoesNotCreateCodeFixAction_WhenArrayParamsArgumentExpressionsCantBeRewritten(string paramsArgument)
-        {
-            var source = $@"using System;
+    [Theory]
+    [InlineData("someArray")]
+    [InlineData("Array.Empty<int>()")]
+    public async Task DoesNotCreateCodeFixAction_WhenArrayParamsArgumentExpressionsCantBeRewritten(string paramsArgument)
+    {
+        var source = $@"using System;
 using NSubstitute;
 
 namespace MyNamespace
@@ -94,7 +94,6 @@ namespace MyNamespace
         }}
     }} 
 }}";
-            await VerifyCodeActions(source, Array.Empty<string>());
-        }
+        await VerifyCodeActions(source, Array.Empty<string>());
     }
 }

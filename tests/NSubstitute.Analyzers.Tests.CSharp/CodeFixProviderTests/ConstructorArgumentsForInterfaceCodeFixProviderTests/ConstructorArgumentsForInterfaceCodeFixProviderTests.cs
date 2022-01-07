@@ -6,18 +6,18 @@ using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.ConstructorArgumentsForInterfaceCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.ConstructorArgumentsForInterfaceCodeFixProviderTests;
+
+public class ConstructorArgumentsForInterfaceCodeFixProviderTests : CSharpCodeFixVerifier, IConstructorArgumentsForInterfaceCodeFixVerifier
 {
-    public class ConstructorArgumentsForInterfaceCodeFixProviderTests : CSharpCodeFixVerifier, IConstructorArgumentsForInterfaceCodeFixVerifier
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
+
+    protected override CodeFixProvider CodeFixProvider { get; } = new ConstructorArgumentsForInterfaceCodeFixProvider();
+
+    [Fact]
+    public async Task RemovesInvocationArguments_WhenGenericFor_UsedWithParametersForInterface()
     {
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
-
-        protected override CodeFixProvider CodeFixProvider { get; } = new ConstructorArgumentsForInterfaceCodeFixProvider();
-
-        [Fact]
-        public async Task RemovesInvocationArguments_WhenGenericFor_UsedWithParametersForInterface()
-        {
-            var source = @"using NSubstitute;
+        var source = @"using NSubstitute;
 
 namespace MyNamespace
 {
@@ -33,7 +33,7 @@ namespace MyNamespace
         }
     }
 }";
-            var newSource = @"using NSubstitute;
+        var newSource = @"using NSubstitute;
 
 namespace MyNamespace
 {
@@ -50,13 +50,13 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyFix(source, newSource);
-        }
+        await VerifyFix(source, newSource);
+    }
 
-        [Fact]
-        public async Task RemovesInvocationArguments_WhenNonGenericFor_UsedWithParametersForInterface()
-        {
-            var source = @"using NSubstitute;
+    [Fact]
+    public async Task RemovesInvocationArguments_WhenNonGenericFor_UsedWithParametersForInterface()
+    {
+        var source = @"using NSubstitute;
 
 namespace MyNamespace
 {
@@ -72,7 +72,7 @@ namespace MyNamespace
         }
     }
 }";
-            var newSource = @"using NSubstitute;
+        var newSource = @"using NSubstitute;
 
 namespace MyNamespace
 {
@@ -88,13 +88,13 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyFix(source, newSource);
-        }
+        await VerifyFix(source, newSource);
+    }
 
-        [Fact]
-        public async Task RemovesInvocationArguments_WhenSubstituteFactoryCreate_UsedWithParametersForInterface()
-        {
-            var source = @"using NSubstitute;
+    [Fact]
+    public async Task RemovesInvocationArguments_WhenSubstituteFactoryCreate_UsedWithParametersForInterface()
+    {
+        var source = @"using NSubstitute;
 using NSubstitute.Core;
 
 namespace MyNamespace
@@ -111,7 +111,7 @@ namespace MyNamespace
         }
     }
 }";
-            var newSource = @"using NSubstitute;
+        var newSource = @"using NSubstitute;
 using NSubstitute.Core;
 
 namespace MyNamespace
@@ -128,7 +128,6 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyFix(source, newSource);
-        }
+        await VerifyFix(source, newSource);
     }
 }

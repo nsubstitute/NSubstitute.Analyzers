@@ -1,33 +1,33 @@
 ﻿using System.Threading.Tasks;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.UnusedReceivedAnalyzerTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.UnusedReceivedAnalyzerTests;
+
+[CombinatoryData(
+    "ReceivedExtensions.Received(substitute, Quantity.None())",
+    "ReceivedExtensions.Received(Of Foo)(substitute, Quantity.None())",
+    "SubstituteExtensions.Received(substitute)",
+    "SubstituteExtensions.Received(Of Foo)(substitute)",
+    "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
+    "ReceivedExtensions.ReceivedWithAnyArgs(Of Foo)(substitute, Quantity.None())",
+    "SubstituteExtensions.ReceivedWithAnyArgs(substitute)",
+    "SubstituteExtensions.ReceivedWithAnyArgs(Of Foo)(substitute)",
+    "SubstituteExtensions.DidNotReceive(substitute)",
+    "SubstituteExtensions.DidNotReceive(Of Foo)(substitute)",
+    "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute)",
+    "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Foo)(substitute)")]
+public class ReceivedAsOrdinaryMethodTests : UnusedReceivedDiagnosticVerifier
 {
-    [CombinatoryData(
-        "ReceivedExtensions.Received(substitute, Quantity.None())",
-        "ReceivedExtensions.Received(Of Foo)(substitute, Quantity.None())",
-        "SubstituteExtensions.Received(substitute)",
-        "SubstituteExtensions.Received(Of Foo)(substitute)",
-        "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
-        "ReceivedExtensions.ReceivedWithAnyArgs(Of Foo)(substitute, Quantity.None())",
-        "SubstituteExtensions.ReceivedWithAnyArgs(substitute)",
-        "SubstituteExtensions.ReceivedWithAnyArgs(Of Foo)(substitute)",
-        "SubstituteExtensions.DidNotReceive(substitute)",
-        "SubstituteExtensions.DidNotReceive(Of Foo)(substitute)",
-        "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute)",
-        "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Foo)(substitute)")]
-    public class ReceivedAsOrdinaryMethodTests : UnusedReceivedDiagnosticVerifier
+    public override async Task ReportDiagnostics_WhenUsedWithoutMemberCall(string method)
     {
-        public override async Task ReportDiagnostics_WhenUsedWithoutMemberCall(string method)
-        {
-            var plainMethodName = method.Replace("(Of Foo)", string.Empty)
-                .Replace("(substitute, Quantity.None())", string.Empty)
-                .Replace("(substitute)", string.Empty);
+        var plainMethodName = method.Replace("(Of Foo)", string.Empty)
+            .Replace("(substitute, Quantity.None())", string.Empty)
+            .Replace("(substitute)", string.Empty);
 
-            var planMethodNameWithoutNamespace = plainMethodName.Replace("SubstituteExtensions.", string.Empty)
-                .Replace("ReceivedExtensions.", string.Empty);
+        var planMethodNameWithoutNamespace = plainMethodName.Replace("SubstituteExtensions.", string.Empty)
+            .Replace("ReceivedExtensions.", string.Empty);
 
-            var source = $@"Imports NSubstitute
+        var source = $@"Imports NSubstitute
 Imports NSubstitute.ReceivedExtensions
 
 Namespace MyNamespace
@@ -43,12 +43,12 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source, Descriptor, $@"Unused received check. To fix, make sure there is a call after ""{planMethodNameWithoutNamespace}"". Correct: ""{plainMethodName}(sub).SomeCall();"". Incorrect: ""{plainMethodName}(sub);""");
-        }
+        await VerifyDiagnostic(source, Descriptor, $@"Unused received check. To fix, make sure there is a call after ""{planMethodNameWithoutNamespace}"". Correct: ""{plainMethodName}(sub).SomeCall();"". Incorrect: ""{plainMethodName}(sub);""");
+    }
 
-        public override async Task ReportNoDiagnostics_WhenUsedWithMethodMemberAccess(string method)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportNoDiagnostics_WhenUsedWithMethodMemberAccess(string method)
+    {
+        var source = $@"Imports NSubstitute
 Imports NSubstitute.ReceivedExtensions
 
 Namespace MyNamespace
@@ -68,12 +68,12 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportNoDiagnostics_WhenUsedWithPropertyMemberAccess(string method)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportNoDiagnostics_WhenUsedWithPropertyMemberAccess(string method)
+    {
+        var source = $@"Imports NSubstitute
 Imports NSubstitute.ReceivedExtensions
 
 Namespace MyNamespace
@@ -90,12 +90,12 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportNoDiagnostics_WhenUsedWithIndexerMemberAccess(string method)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportNoDiagnostics_WhenUsedWithIndexerMemberAccess(string method)
+    {
+        var source = $@"Imports NSubstitute
 Imports NSubstitute.ReceivedExtensions
 
 Namespace MyNamespace
@@ -112,25 +112,25 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [CombinatoryData(
-            "ReceivedExtensions.Received(substitute, Quantity.None())",
-            "ReceivedExtensions.Received(Of Func(Of Integer))(substitute, Quantity.None())",
-            "SubstituteExtensions.Received(substitute)",
-            "SubstituteExtensions.Received(Of Func(Of Integer))(substitute)",
-            "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
-            "ReceivedExtensions.ReceivedWithAnyArgs(Of Func(Of Integer))(substitute, Quantity.None())",
-            "SubstituteExtensions.ReceivedWithAnyArgs(substitute)",
-            "SubstituteExtensions.ReceivedWithAnyArgs(Of Func(Of Integer))(substitute)",
-            "SubstituteExtensions.DidNotReceive(substitute)",
-            "SubstituteExtensions.DidNotReceive(Of Func(Of Integer))(substitute)",
-            "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute)",
-            "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Func(Of Integer))(substitute)")]
-        public override async Task ReportNoDiagnostics_WhenUsedWithInvokingDelegate(string method)
-        {
-            var source = $@"Imports NSubstitute
+    [CombinatoryData(
+        "ReceivedExtensions.Received(substitute, Quantity.None())",
+        "ReceivedExtensions.Received(Of Func(Of Integer))(substitute, Quantity.None())",
+        "SubstituteExtensions.Received(substitute)",
+        "SubstituteExtensions.Received(Of Func(Of Integer))(substitute)",
+        "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(Of Func(Of Integer))(substitute, Quantity.None())",
+        "SubstituteExtensions.ReceivedWithAnyArgs(substitute)",
+        "SubstituteExtensions.ReceivedWithAnyArgs(Of Func(Of Integer))(substitute)",
+        "SubstituteExtensions.DidNotReceive(substitute)",
+        "SubstituteExtensions.DidNotReceive(Of Func(Of Integer))(substitute)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Func(Of Integer))(substitute)")]
+    public override async Task ReportNoDiagnostics_WhenUsedWithInvokingDelegate(string method)
+    {
+        var source = $@"Imports NSubstitute
 Imports NSubstitute.ReceivedExtensions
 Imports System
 
@@ -145,25 +145,25 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [CombinatoryData(
-            "ReceivedExtensions.Received(substitute, Quantity.None())",
-            "ReceivedExtensions.Received(Of Foo)(substitute, Quantity.None())",
-            "SubstituteExtensions.Received(substitute, 1, 1)",
-            "SubstituteExtensions.Received(Of Foo)(substitute, 1, 1)",
-            "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
-            "ReceivedExtensions.ReceivedWithAnyArgs(Of Foo)(substitute, Quantity.None())",
-            "SubstituteExtensions.ReceivedWithAnyArgs(substitute, 1, 1)",
-            "SubstituteExtensions.ReceivedWithAnyArgs(Of Foo)(substitute, 1, 1)",
-            "SubstituteExtensions.DidNotReceive(substitute, 1, 1)",
-            "SubstituteExtensions.DidNotReceive(Of Foo)(substitute, 1, 1)",
-            "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute, 1, 1)",
-            "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Foo)(substitute, 1, 1)")]
-        public override async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod(string method)
-        {
-            var source = $@"Imports System
+    [CombinatoryData(
+        "ReceivedExtensions.Received(substitute, Quantity.None())",
+        "ReceivedExtensions.Received(Of Foo)(substitute, Quantity.None())",
+        "SubstituteExtensions.Received(substitute, 1, 1)",
+        "SubstituteExtensions.Received(Of Foo)(substitute, 1, 1)",
+        "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(Of Foo)(substitute, Quantity.None())",
+        "SubstituteExtensions.ReceivedWithAnyArgs(substitute, 1, 1)",
+        "SubstituteExtensions.ReceivedWithAnyArgs(Of Foo)(substitute, 1, 1)",
+        "SubstituteExtensions.DidNotReceive(substitute, 1, 1)",
+        "SubstituteExtensions.DidNotReceive(Of Foo)(substitute, 1, 1)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute, 1, 1)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Foo)(substitute, 1, 1)")]
+    public override async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod(string method)
+    {
+        var source = $@"Imports System
 Imports System.Runtime.CompilerServices
 
 Namespace NSubstitute
@@ -228,7 +228,6 @@ Namespace NSubstitute
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
     }
 }

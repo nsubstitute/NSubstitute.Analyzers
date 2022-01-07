@@ -6,31 +6,30 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.CSharp.Extensions;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers
+namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
+
+[DiagnosticAnalyzer(LanguageNames.CSharp)]
+internal sealed class ReEntrantSetupAnalyzer : AbstractReEntrantSetupAnalyzer<SyntaxKind, InvocationExpressionSyntax, ArgumentSyntax>
 {
-    [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    internal sealed class ReEntrantSetupAnalyzer : AbstractReEntrantSetupAnalyzer<SyntaxKind, InvocationExpressionSyntax, ArgumentSyntax>
+    public ReEntrantSetupAnalyzer()
+        : base(NSubstitute.Analyzers.CSharp.DiagnosticDescriptorsProvider.Instance, ReEntrantCallFinder.Instance)
     {
-        public ReEntrantSetupAnalyzer()
-            : base(NSubstitute.Analyzers.CSharp.DiagnosticDescriptorsProvider.Instance, ReEntrantCallFinder.Instance)
-        {
-        }
+    }
 
-        protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
+    protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
-        protected override IEnumerable<SyntaxNode> GetExpressionsFromArrayInitializer(ArgumentSyntax syntaxNode)
-        {
-            return syntaxNode.Expression.GetParameterExpressionsFromArrayArgument();
-        }
+    protected override IEnumerable<SyntaxNode> GetExpressionsFromArrayInitializer(ArgumentSyntax syntaxNode)
+    {
+        return syntaxNode.Expression.GetParameterExpressionsFromArrayArgument();
+    }
 
-        protected override IEnumerable<ArgumentSyntax> GetArguments(InvocationExpressionSyntax invocationExpressionSyntax)
-        {
-            return invocationExpressionSyntax.ArgumentList.Arguments;
-        }
+    protected override IEnumerable<ArgumentSyntax> GetArguments(InvocationExpressionSyntax invocationExpressionSyntax)
+    {
+        return invocationExpressionSyntax.ArgumentList.Arguments;
+    }
 
-        protected override SyntaxNode GetArgumentExpression(ArgumentSyntax argumentSyntax)
-        {
-            return argumentSyntax.Expression;
-        }
+    protected override SyntaxNode GetArgumentExpression(ArgumentSyntax argumentSyntax)
+    {
+        return argumentSyntax.Expression;
     }
 }

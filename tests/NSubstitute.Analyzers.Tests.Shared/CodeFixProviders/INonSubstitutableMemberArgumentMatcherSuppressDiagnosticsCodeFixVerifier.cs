@@ -1,6 +1,5 @@
-namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
+namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
+
+public interface INonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixVerifier
 {
-    public interface INonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixVerifier
-    {
-    }
 }

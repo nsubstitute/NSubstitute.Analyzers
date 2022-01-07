@@ -1,26 +1,26 @@
 using System.Threading.Tasks;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ReceivedInReceivedInOrderAnalyzerTests
+namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ReceivedInReceivedInOrderAnalyzerTests;
+
+[CombinatoryData(
+    "ReceivedExtensions.Received(substitute, Quantity.None())",
+    "ReceivedExtensions.Received<IFoo>(substitute, Quantity.None())",
+    "SubstituteExtensions.Received(substitute)",
+    "SubstituteExtensions.Received<IFoo>(substitute)",
+    "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
+    "ReceivedExtensions.ReceivedWithAnyArgs<IFoo>(substitute, Quantity.None())",
+    "SubstituteExtensions.ReceivedWithAnyArgs(substitute)",
+    "SubstituteExtensions.ReceivedWithAnyArgs<IFoo>(substitute)",
+    "SubstituteExtensions.DidNotReceive(substitute)",
+    "SubstituteExtensions.DidNotReceive<IFoo>(substitute)",
+    "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute)",
+    "SubstituteExtensions.DidNotReceiveWithAnyArgs<IFoo>(substitute)")]
+public class ReceivedAsOrdinaryMethodTests : ReceivedInReceivedInOrderDiagnosticVerifier
 {
-    [CombinatoryData(
-        "ReceivedExtensions.Received(substitute, Quantity.None())",
-        "ReceivedExtensions.Received<IFoo>(substitute, Quantity.None())",
-        "SubstituteExtensions.Received(substitute)",
-        "SubstituteExtensions.Received<IFoo>(substitute)",
-        "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
-        "ReceivedExtensions.ReceivedWithAnyArgs<IFoo>(substitute, Quantity.None())",
-        "SubstituteExtensions.ReceivedWithAnyArgs(substitute)",
-        "SubstituteExtensions.ReceivedWithAnyArgs<IFoo>(substitute)",
-        "SubstituteExtensions.DidNotReceive(substitute)",
-        "SubstituteExtensions.DidNotReceive<IFoo>(substitute)",
-        "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute)",
-        "SubstituteExtensions.DidNotReceiveWithAnyArgs<IFoo>(substitute)")]
-    public class ReceivedAsOrdinaryMethodTests : ReceivedInReceivedInOrderDiagnosticVerifier
+    public override async Task ReportsDiagnostic_WhenUsingReceivedLikeMethodInReceivedInOrderBlock_ForMethod(string method)
     {
-        public override async Task ReportsDiagnostic_WhenUsingReceivedLikeMethodInReceivedInOrderBlock_ForMethod(string method)
-        {
-            var source = $@"using NSubstitute;
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
@@ -43,12 +43,12 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source, method);
-        }
+        await VerifyDiagnostic(source, method);
+    }
 
-        public override async Task ReportsDiagnostic_WhenUsingReceivedLikeMethodInReceivedInOrderBlock_ForProperty(string method)
-        {
-            var source = $@"using NSubstitute;
+    public override async Task ReportsDiagnostic_WhenUsingReceivedLikeMethodInReceivedInOrderBlock_ForProperty(string method)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
@@ -71,12 +71,12 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source, method);
-        }
+        await VerifyDiagnostic(source, method);
+    }
 
-        public override async Task ReportsDiagnostic_WhenUsingReceivedLikeMethodInReceivedInOrderBlock_ForIndexer(string method)
-        {
-            var source = $@"using NSubstitute;
+    public override async Task ReportsDiagnostic_WhenUsingReceivedLikeMethodInReceivedInOrderBlock_ForIndexer(string method)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
@@ -99,12 +99,12 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source, method);
-        }
+        await VerifyDiagnostic(source, method);
+    }
 
-        public override async Task ReportsNoDiagnostic_WhenUsingReceivedLikeMethodOutsideOfReceivedInOrderBlock(string method)
-        {
-            var source = $@"using NSubstitute;
+    public override async Task ReportsNoDiagnostic_WhenUsingReceivedLikeMethodOutsideOfReceivedInOrderBlock(string method)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
@@ -137,25 +137,25 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [CombinatoryData(
-            "ReceivedExtensions.Received(substitute, Quantity.None())",
-            "ReceivedExtensions.Received<Foo>(substitute, Quantity.None())",
-            "SubstituteExtensions.Received(substitute, 1, 1)",
-            "SubstituteExtensions.Received<Foo>(substitute, 1, 1)",
-            "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
-            "ReceivedExtensions.ReceivedWithAnyArgs<Foo>(substitute, Quantity.None())",
-            "SubstituteExtensions.ReceivedWithAnyArgs(substitute, 1, 1)",
-            "SubstituteExtensions.ReceivedWithAnyArgs<Foo>(substitute, 1, 1)",
-            "SubstituteExtensions.DidNotReceive(substitute, 1, 1)",
-            "SubstituteExtensions.DidNotReceive<Foo>(substitute, 1, 1)",
-            "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute, 1, 1)",
-            "SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo>(substitute, 1, 1)")]
-        public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method)
-        {
-            var source = $@"
+    [CombinatoryData(
+        "ReceivedExtensions.Received(substitute, Quantity.None())",
+        "ReceivedExtensions.Received<Foo>(substitute, Quantity.None())",
+        "SubstituteExtensions.Received(substitute, 1, 1)",
+        "SubstituteExtensions.Received<Foo>(substitute, 1, 1)",
+        "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs<Foo>(substitute, Quantity.None())",
+        "SubstituteExtensions.ReceivedWithAnyArgs(substitute, 1, 1)",
+        "SubstituteExtensions.ReceivedWithAnyArgs<Foo>(substitute, 1, 1)",
+        "SubstituteExtensions.DidNotReceive(substitute, 1, 1)",
+        "SubstituteExtensions.DidNotReceive<Foo>(substitute, 1, 1)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute, 1, 1)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs<Foo>(substitute, 1, 1)")]
+    public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method)
+    {
+        var source = $@"
 
 namespace NSubstitute
 {{
@@ -230,27 +230,26 @@ namespace NSubstitute
         }}
     }}
 }}";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        private static string GetPlainMethodName(string methodName)
-        {
-            var plainMethodName = methodName.Replace("<IFoo>", string.Empty)
-                .Replace("(substitute, Quantity.None())", string.Empty)
-                .Replace("(substitute)", string.Empty);
+    private static string GetPlainMethodName(string methodName)
+    {
+        var plainMethodName = methodName.Replace("<IFoo>", string.Empty)
+            .Replace("(substitute, Quantity.None())", string.Empty)
+            .Replace("(substitute)", string.Empty);
 
-            var planMethodNameWithoutNamespace =
-                plainMethodName.Replace("ReceivedExtensions.", string.Empty)
-                    .Replace("SubstituteExtensions.", string.Empty);
+        var planMethodNameWithoutNamespace =
+            plainMethodName.Replace("ReceivedExtensions.", string.Empty)
+                .Replace("SubstituteExtensions.", string.Empty);
 
-            return planMethodNameWithoutNamespace;
-        }
+        return planMethodNameWithoutNamespace;
+    }
 
-        private async Task VerifyDiagnostic(string source, string methodName)
-        {
-            var plainMethodName = GetPlainMethodName(methodName);
+    private async Task VerifyDiagnostic(string source, string methodName)
+    {
+        var plainMethodName = GetPlainMethodName(methodName);
 
-            await VerifyDiagnostic(source, Descriptor, $"{plainMethodName} method used in Received.InOrder block.");
-        }
+        await VerifyDiagnostic(source, Descriptor, $"{plainMethodName} method used in Received.InOrder block.");
     }
 }

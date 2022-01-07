@@ -1,12 +1,11 @@
 ﻿using NSubstitute.Analyzers.Tests.Shared.CodeRefactoringProviders;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.CodeRefactoringProvidersTests
+namespace NSubstitute.Analyzers.Tests.CSharp.CodeRefactoringProvidersTests;
+
+public abstract class CSharpCodeRefactoringProviderActionsVerifier : CodeRefactoringProviderActionsVerifier
 {
-    public abstract class CSharpCodeRefactoringProviderActionsVerifier : CodeRefactoringProviderActionsVerifier
+    protected CSharpCodeRefactoringProviderActionsVerifier()
+        : base(CSharpWorkspaceFactory.Default)
     {
-        protected CSharpCodeRefactoringProviderActionsVerifier()
-            : base(CSharpWorkspaceFactory.Default)
-        {
-        }
     }
 }

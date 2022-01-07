@@ -6,18 +6,18 @@ using NSubstitute.Analyzers.VisualBasic.CodeFixProviders;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.ConstructorArgumentsForInterfaceCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.ConstructorArgumentsForInterfaceCodeFixProviderTests;
+
+public class ConstructorArgumentsForInterfaceCodeFixProviderTests : VisualBasicCodeFixVerifier, IConstructorArgumentsForInterfaceCodeFixVerifier
 {
-    public class ConstructorArgumentsForInterfaceCodeFixProviderTests : VisualBasicCodeFixVerifier, IConstructorArgumentsForInterfaceCodeFixVerifier
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
+
+    protected override CodeFixProvider CodeFixProvider { get; } = new ConstructorArgumentsForInterfaceCodeFixProvider();
+
+    [Fact]
+    public async Task RemovesInvocationArguments_WhenGenericFor_UsedWithParametersForInterface()
     {
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
-
-        protected override CodeFixProvider CodeFixProvider { get; } = new ConstructorArgumentsForInterfaceCodeFixProvider();
-
-        [Fact]
-        public async Task RemovesInvocationArguments_WhenGenericFor_UsedWithParametersForInterface()
-        {
-            var source = @"Imports NSubstitute
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Interface IFoo
@@ -30,7 +30,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            var newSource = @"Imports NSubstitute
+        var newSource = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Interface IFoo
@@ -44,13 +44,13 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyFix(source, newSource);
-        }
+        await VerifyFix(source, newSource);
+    }
 
-        [Fact]
-        public async Task RemovesInvocationArguments_WhenNonGenericFor_UsedWithParametersForInterface()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task RemovesInvocationArguments_WhenNonGenericFor_UsedWithParametersForInterface()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Interface IFoo
@@ -63,7 +63,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            var newSource = @"Imports NSubstitute
+        var newSource = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Interface IFoo
@@ -76,13 +76,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyFix(source, newSource);
-        }
+        await VerifyFix(source, newSource);
+    }
 
-        [Fact]
-        public async Task RemovesInvocationArguments_WhenSubstituteFactoryCreate_UsedWithParametersForInterface()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task RemovesInvocationArguments_WhenSubstituteFactoryCreate_UsedWithParametersForInterface()
+    {
+        var source = @"Imports NSubstitute
 Imports NSubstitute.Core
 
 Namespace MyNamespace
@@ -96,7 +96,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            var newSource = @"Imports NSubstitute
+        var newSource = @"Imports NSubstitute
 Imports NSubstitute.Core
 
 Namespace MyNamespace
@@ -110,7 +110,6 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyFix(source, newSource);
-        }
+        await VerifyFix(source, newSource);
     }
 }

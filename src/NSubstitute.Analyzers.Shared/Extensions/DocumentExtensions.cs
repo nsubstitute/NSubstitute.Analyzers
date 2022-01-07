@@ -2,21 +2,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 
-namespace NSubstitute.Analyzers.Shared.Extensions
+namespace NSubstitute.Analyzers.Shared.Extensions;
+
+internal static class DocumentExtensions
 {
-    internal static class DocumentExtensions
+    public static async Task<Document> ReplaceNodeAsync(
+        this Document document,
+        SyntaxNode oldNode,
+        SyntaxNode newNode,
+        CancellationToken cancellationToken = default)
     {
-        public static async Task<Document> ReplaceNodeAsync(
-            this Document document,
-            SyntaxNode oldNode,
-            SyntaxNode newNode,
-            CancellationToken cancellationToken = default)
-        {
-            var root = await document.GetSyntaxRootAsync(cancellationToken);
+        var root = await document.GetSyntaxRootAsync(cancellationToken);
 
-            var newRoot = root.ReplaceNode(oldNode, newNode);
+        var newRoot = root.ReplaceNode(oldNode, newNode);
 
-            return document.WithSyntaxRoot(newRoot);
-        }
+        return document.WithSyntaxRoot(newRoot);
     }
 }

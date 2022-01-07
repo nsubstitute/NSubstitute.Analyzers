@@ -6,18 +6,18 @@ using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.PartialSubstituteUsedForUnsupportedTypeCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.PartialSubstituteUsedForUnsupportedTypeCodeFixProviderTests;
+
+public class PartialSubstituteUsedForUnsupportedTypeCodeFixProviderTests : CSharpCodeFixVerifier, IForPartsOfUsedForUnsupportedTypeCodeFixVerifier
 {
-    public class PartialSubstituteUsedForUnsupportedTypeCodeFixProviderTests : CSharpCodeFixVerifier, IForPartsOfUsedForUnsupportedTypeCodeFixVerifier
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
+
+    protected override CodeFixProvider CodeFixProvider { get; } = new PartialSubstituteUsedForUnsupportedTypeCodeFixProvider();
+
+    [Fact]
+    public async Task ReplacesForPartsOf_WithFor_WhenUsedWithInterface()
     {
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
-
-        protected override CodeFixProvider CodeFixProvider { get; } = new PartialSubstituteUsedForUnsupportedTypeCodeFixProvider();
-
-        [Fact]
-        public async Task ReplacesForPartsOf_WithFor_WhenUsedWithInterface()
-        {
-            var oldSource = @"using NSubstitute;
+        var oldSource = @"using NSubstitute;
 
 namespace MyNamespace
 {
@@ -33,7 +33,7 @@ namespace MyNamespace
         }
     }
 }";
-            var newSource = @"using NSubstitute;
+        var newSource = @"using NSubstitute;
 
 namespace MyNamespace
 {
@@ -50,13 +50,13 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyFix(oldSource, newSource);
-        }
+        await VerifyFix(oldSource, newSource);
+    }
 
-        [Fact]
-        public async Task ReplacesForPartsOf_WithFor_WhenUsedWithDelegate()
-        {
-            var oldSource = @"using NSubstitute;
+    [Fact]
+    public async Task ReplacesForPartsOf_WithFor_WhenUsedWithDelegate()
+    {
+        var oldSource = @"using NSubstitute;
 
 namespace MyNamespace
 {
@@ -68,7 +68,7 @@ namespace MyNamespace
         }
     }
 }";
-            var newSource = @"using NSubstitute;
+        var newSource = @"using NSubstitute;
 
 namespace MyNamespace
 {
@@ -81,13 +81,13 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyFix(oldSource, newSource);
-        }
+        await VerifyFix(oldSource, newSource);
+    }
 
-        [Fact]
-        public async Task ReplacesSubstituteFactoryCreatePartial_WithSubstituteFactoryCreate_WhenUsedWithDelegate()
-        {
-            var oldSource = @"using NSubstitute;
+    [Fact]
+    public async Task ReplacesSubstituteFactoryCreatePartial_WithSubstituteFactoryCreate_WhenUsedWithDelegate()
+    {
+        var oldSource = @"using NSubstitute;
 using NSubstitute.Core;
 
 namespace MyNamespace
@@ -100,7 +100,7 @@ namespace MyNamespace
         }
     }
 }";
-            var newSource = @"using NSubstitute;
+        var newSource = @"using NSubstitute;
 using NSubstitute.Core;
 
 namespace MyNamespace
@@ -114,13 +114,13 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyFix(oldSource, newSource);
-        }
+        await VerifyFix(oldSource, newSource);
+    }
 
-        [Fact]
-        public async Task ReplacesSubstituteFactoryCreatePartial_WithSubstituteFactoryCreate_WhenUsedWithInterface()
-        {
-            var oldSource = @"using NSubstitute;
+    [Fact]
+    public async Task ReplacesSubstituteFactoryCreatePartial_WithSubstituteFactoryCreate_WhenUsedWithInterface()
+    {
+        var oldSource = @"using NSubstitute;
 using NSubstitute.Core;
 
 namespace MyNamespace
@@ -137,7 +137,7 @@ namespace MyNamespace
         }
     }
 }";
-            var newSource = @"using NSubstitute;
+        var newSource = @"using NSubstitute;
 using NSubstitute.Core;
 
 namespace MyNamespace
@@ -155,7 +155,6 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyFix(oldSource, newSource);
-        }
+        await VerifyFix(oldSource, newSource);
     }
 }

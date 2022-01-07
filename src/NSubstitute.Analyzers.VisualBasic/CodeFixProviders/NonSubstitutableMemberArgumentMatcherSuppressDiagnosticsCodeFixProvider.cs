@@ -4,11 +4,10 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using NSubstitute.Analyzers.Shared.CodeFixProviders;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 
-namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders
+namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders;
+
+[ExportCodeFixProvider(LanguageNames.VisualBasic)]
+internal sealed class NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider : AbstractNonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider
 {
-    [ExportCodeFixProvider(LanguageNames.VisualBasic)]
-    internal sealed class NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider : AbstractNonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider
-    {
-        protected override ImmutableHashSet<int> MaybeAllowedArgMatcherAncestors { get; } = NonSubstitutableMemberArgumentMatcherAnalyzer.MaybeAllowedAncestors;
-    }
+    protected override ImmutableHashSet<int> MaybeAllowedArgMatcherAncestors { get; } = NonSubstitutableMemberArgumentMatcherAnalyzer.MaybeAllowedAncestors;
 }

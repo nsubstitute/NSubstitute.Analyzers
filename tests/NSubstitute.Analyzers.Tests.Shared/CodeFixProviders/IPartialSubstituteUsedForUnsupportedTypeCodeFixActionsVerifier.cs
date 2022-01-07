@@ -1,11 +1,10 @@
 using System.Threading.Tasks;
 
-namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
-{
-    public interface IPartialSubstituteUsedForUnsupportedTypeCodeFixActionsVerifier
-    {
-        Task CreatesCorrectCodeFixActions_ForSubstituteForPartsOf();
+namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 
-        Task CreatesCorrectCodeFixActions_ForSubstituteFactoryCreatePartial();
-    }
+public interface IPartialSubstituteUsedForUnsupportedTypeCodeFixActionsVerifier
+{
+    Task CreatesCorrectCodeFixActions_ForSubstituteForPartsOf();
+
+    Task CreatesCorrectCodeFixActions_ForSubstituteFactoryCreatePartial();
 }

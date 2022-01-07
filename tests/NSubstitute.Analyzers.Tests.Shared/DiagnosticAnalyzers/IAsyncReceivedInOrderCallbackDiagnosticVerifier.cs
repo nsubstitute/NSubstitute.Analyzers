@@ -1,17 +1,16 @@
 using System.Threading.Tasks;
 
-namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
+namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
+
+public interface IAsyncReceivedInOrderCallbackDiagnosticVerifier
 {
-    public interface IAsyncReceivedInOrderCallbackDiagnosticVerifier
-    {
-        Task ReportsDiagnostic_WhenAsyncLambdaCallbackUsedInReceivedInOrder();
+    Task ReportsDiagnostic_WhenAsyncLambdaCallbackUsedInReceivedInOrder();
 
-        Task ReportsDiagnostic_WhenAsyncDelegateCallbackUsedInReceivedInOrder();
+    Task ReportsDiagnostic_WhenAsyncDelegateCallbackUsedInReceivedInOrder();
 
-        Task ReportsNoDiagnostic_WhenNonAsyncLambdaCallbackUsedInReceivedInOrder();
+    Task ReportsNoDiagnostic_WhenNonAsyncLambdaCallbackUsedInReceivedInOrder();
 
-        Task ReportsNoDiagnostic_WhenNonAsyncDelegateCallbackUsedInReceivedInOrder();
+    Task ReportsNoDiagnostic_WhenNonAsyncDelegateCallbackUsedInReceivedInOrder();
 
-        Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod();
-    }
+    Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod();
 }

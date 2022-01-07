@@ -1,28 +1,21 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using NSubstitute.Analyzers.Shared.Extensions;
+﻿using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
+namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
+
+internal abstract class AbstractDiagnosticAnalyzer : DiagnosticAnalyzer
 {
-    internal abstract class AbstractDiagnosticAnalyzer : DiagnosticAnalyzer
+    protected IDiagnosticDescriptorsProvider DiagnosticDescriptorsProvider { get; }
+
+    protected AbstractDiagnosticAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
     {
-        protected IDiagnosticDescriptorsProvider DiagnosticDescriptorsProvider { get; }
-
-        protected AbstractDiagnosticAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
-        {
-            DiagnosticDescriptorsProvider = diagnosticDescriptorsProvider;
-        }
-
-        public sealed override void Initialize(AnalysisContext context)
-        {
-            context.EnableConcurrentExecution();
-            InitializeAnalyzer(context);
-        }
-
-        protected abstract void InitializeAnalyzer(AnalysisContext context);
+        DiagnosticDescriptorsProvider = diagnosticDescriptorsProvider;
     }
+
+    public sealed override void Initialize(AnalysisContext context)
+    {
+        context.EnableConcurrentExecution();
+        InitializeAnalyzer(context);
+    }
+
+    protected abstract void InitializeAnalyzer(AnalysisContext context);
 }

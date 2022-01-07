@@ -1,22 +1,21 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
+namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
+
+internal struct SubstituteContext<TInvocationExpression>
+    where TInvocationExpression : SyntaxNode
 {
-    internal struct SubstituteContext<TInvocationExpression>
-        where TInvocationExpression : SyntaxNode
+    public SyntaxNodeAnalysisContext SyntaxNodeAnalysisContext { get; }
+
+    public TInvocationExpression InvocationExpression { get; }
+
+    public IMethodSymbol MethodSymbol { get; }
+
+    public SubstituteContext(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TInvocationExpression invocationExpression, IMethodSymbol methodSymbol)
     {
-        public SyntaxNodeAnalysisContext SyntaxNodeAnalysisContext { get; }
-
-        public TInvocationExpression InvocationExpression { get; }
-
-        public IMethodSymbol MethodSymbol { get; }
-
-        public SubstituteContext(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TInvocationExpression invocationExpression, IMethodSymbol methodSymbol)
-        {
-            SyntaxNodeAnalysisContext = syntaxNodeAnalysisContext;
-            InvocationExpression = invocationExpression;
-            MethodSymbol = methodSymbol;
-        }
+        SyntaxNodeAnalysisContext = syntaxNodeAnalysisContext;
+        InvocationExpression = invocationExpression;
+        MethodSymbol = methodSymbol;
     }
 }

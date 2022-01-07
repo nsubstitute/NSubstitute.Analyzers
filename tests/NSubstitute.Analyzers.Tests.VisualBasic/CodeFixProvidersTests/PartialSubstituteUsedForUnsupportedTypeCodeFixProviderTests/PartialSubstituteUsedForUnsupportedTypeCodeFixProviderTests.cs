@@ -6,18 +6,18 @@ using NSubstitute.Analyzers.VisualBasic.CodeFixProviders;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.PartialSubstituteUsedForUnsupportedTypeCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.PartialSubstituteUsedForUnsupportedTypeCodeFixProviderTests;
+
+public class PartialSubstituteUsedForUnsupportedTypeCodeFixProviderTests : VisualBasicCodeFixVerifier, IForPartsOfUsedForUnsupportedTypeCodeFixVerifier
 {
-    public class PartialSubstituteUsedForUnsupportedTypeCodeFixProviderTests : VisualBasicCodeFixVerifier, IForPartsOfUsedForUnsupportedTypeCodeFixVerifier
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
+
+    protected override CodeFixProvider CodeFixProvider { get; } = new PartialSubstituteUsedForUnsupportedTypeCodeFixProvider();
+
+    [Fact]
+    public async Task ReplacesForPartsOf_WithFor_WhenUsedWithInterface()
     {
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
-
-        protected override CodeFixProvider CodeFixProvider { get; } = new PartialSubstituteUsedForUnsupportedTypeCodeFixProvider();
-
-        [Fact]
-        public async Task ReplacesForPartsOf_WithFor_WhenUsedWithInterface()
-        {
-            var oldSource = @"Imports NSubstitute
+        var oldSource = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Interface IFoo
@@ -30,7 +30,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            var newSource = @"Imports NSubstitute
+        var newSource = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Interface IFoo
@@ -44,13 +44,13 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyFix(oldSource, newSource);
-        }
+        await VerifyFix(oldSource, newSource);
+    }
 
-        [Fact]
-        public async Task ReplacesForPartsOf_WithFor_WhenUsedWithDelegate()
-        {
-            var oldSource = @"Imports NSubstitute
+    [Fact]
+    public async Task ReplacesForPartsOf_WithFor_WhenUsedWithDelegate()
+    {
+        var oldSource = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class FooTests
@@ -60,7 +60,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            var newSource = @"Imports NSubstitute
+        var newSource = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class FooTests
@@ -71,13 +71,13 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyFix(oldSource, newSource);
-        }
+        await VerifyFix(oldSource, newSource);
+    }
 
-        [Fact]
-        public async Task ReplacesSubstituteFactoryCreatePartial_WithSubstituteFactoryCreate_WhenUsedWithDelegate()
-        {
-            var oldSource = @"Imports NSubstitute
+    [Fact]
+    public async Task ReplacesSubstituteFactoryCreatePartial_WithSubstituteFactoryCreate_WhenUsedWithDelegate()
+    {
+        var oldSource = @"Imports NSubstitute
 Imports NSubstitute.Core
 
 Namespace MyNamespace
@@ -88,7 +88,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            var newSource = @"Imports NSubstitute
+        var newSource = @"Imports NSubstitute
 Imports NSubstitute.Core
 
 Namespace MyNamespace
@@ -100,13 +100,13 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyFix(oldSource, newSource);
-        }
+        await VerifyFix(oldSource, newSource);
+    }
 
-        [Fact]
-        public async Task ReplacesSubstituteFactoryCreatePartial_WithSubstituteFactoryCreate_WhenUsedWithInterface()
-        {
-            var oldSource = @"Imports NSubstitute
+    [Fact]
+    public async Task ReplacesSubstituteFactoryCreatePartial_WithSubstituteFactoryCreate_WhenUsedWithInterface()
+    {
+        var oldSource = @"Imports NSubstitute
 Imports NSubstitute.Core
 
 Namespace MyNamespace
@@ -120,7 +120,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            var newSource = @"Imports NSubstitute
+        var newSource = @"Imports NSubstitute
 Imports NSubstitute.Core
 
 Namespace MyNamespace
@@ -134,7 +134,6 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyFix(oldSource, newSource);
-        }
+        await VerifyFix(oldSource, newSource);
     }
 }

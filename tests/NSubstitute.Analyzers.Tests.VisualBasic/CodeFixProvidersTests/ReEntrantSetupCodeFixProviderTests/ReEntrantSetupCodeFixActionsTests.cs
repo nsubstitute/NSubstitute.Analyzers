@@ -7,21 +7,21 @@ using NSubstitute.Analyzers.VisualBasic.CodeFixProviders;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.ReEntrantSetupCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.ReEntrantSetupCodeFixProviderTests;
+
+public class ReEntrantSetupCodeFixActionsTests : VisualBasicCodeFixActionsVerifier, IReEntrantSetupCodeFixActionsVerifier
 {
-    public class ReEntrantSetupCodeFixActionsTests : VisualBasicCodeFixActionsVerifier, IReEntrantSetupCodeFixActionsVerifier
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new ReEntrantSetupAnalyzer();
+
+    protected override CodeFixProvider CodeFixProvider { get; } = new ReEntrantSetupCodeFixProvider();
+
+    [Theory]
+    [InlineData("Await CreateReEntrantSubstituteAsync(), Await CreateDefaultValue()")]
+    [InlineData("CreateReEntrantSubstitute(), Await CreateDefaultValue()")]
+    [InlineData("CreateReEntrantSubstitute(), new Integer() { 1, await CreateDefaultValue() }")]
+    public async Task DoesNotCreateCodeFixAction_WhenAnyArgumentSyntaxIsAsync(string arguments)
     {
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new ReEntrantSetupAnalyzer();
-
-        protected override CodeFixProvider CodeFixProvider { get; } = new ReEntrantSetupCodeFixProvider();
-
-        [Theory]
-        [InlineData("Await CreateReEntrantSubstituteAsync(), Await CreateDefaultValue()")]
-        [InlineData("CreateReEntrantSubstitute(), Await CreateDefaultValue()")]
-        [InlineData("CreateReEntrantSubstitute(), new Integer() { 1, await CreateDefaultValue() }")]
-        public async Task DoesNotCreateCodeFixAction_WhenAnyArgumentSyntaxIsAsync(string arguments)
-        {
-            var source = $@"Imports System.Threading.Tasks
+        var source = $@"Imports System.Threading.Tasks
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -55,15 +55,15 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyCodeActions(source, Array.Empty<string>());
-        }
+        await VerifyCodeActions(source, Array.Empty<string>());
+    }
 
-        [Theory]
-        [InlineData("someArray")]
-        [InlineData("Array.Empty(Of Integer)()")]
-        public async Task DoesNotCreateCodeFixAction_WhenArrayParamsArgumentExpressionsCantBeRewritten(string paramsArgument)
-        {
-            var source = $@"Imports System
+    [Theory]
+    [InlineData("someArray")]
+    [InlineData("Array.Empty(Of Integer)()")]
+    public async Task DoesNotCreateCodeFixAction_WhenArrayParamsArgumentExpressionsCantBeRewritten(string paramsArgument)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -86,7 +86,6 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyCodeActions(source, Array.Empty<string>());
-        }
+        await VerifyCodeActions(source, Array.Empty<string>());
     }
 }

@@ -1,15 +1,14 @@
 using System;
 
-namespace NSubstitute.Analyzers.Shared
-{
-    [AttributeUsage(AttributeTargets.Field)]
-    internal class DisplayNameAttribute : Attribute
-    {
-        public string Name { get; }
+namespace NSubstitute.Analyzers.Shared;
 
-        public DisplayNameAttribute(string name)
-        {
-            Name = name;
-        }
+[AttributeUsage(AttributeTargets.Field)]
+internal class DisplayNameAttribute : Attribute
+{
+    public string Name { get; }
+
+    public DisplayNameAttribute(string name)
+    {
+        Name = name;
     }
 }

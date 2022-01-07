@@ -1,12 +1,11 @@
 ﻿using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests
+namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests;
+
+public abstract class CSharpDiagnosticVerifier : DiagnosticVerifier
 {
-    public abstract class CSharpDiagnosticVerifier : DiagnosticVerifier
+    protected CSharpDiagnosticVerifier()
+        : base(CSharpWorkspaceFactory.Default)
     {
-        protected CSharpDiagnosticVerifier()
-            : base(CSharpWorkspaceFactory.Default)
-        {
-        }
     }
 }

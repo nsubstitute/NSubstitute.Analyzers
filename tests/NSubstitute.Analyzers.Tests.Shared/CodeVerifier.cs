@@ -7,43 +7,42 @@ using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Tests.Shared.Extensions;
 using NSubstitute.Analyzers.Tests.Shared.Text;
 
-namespace NSubstitute.Analyzers.Tests.Shared
+namespace NSubstitute.Analyzers.Tests.Shared;
+
+public abstract class CodeVerifier
 {
-    public abstract class CodeVerifier
+    protected WorkspaceFactory WorkspaceFactory { get; }
+
+    protected virtual string AnalyzerSettings { get; }
+
+    protected CodeVerifier(WorkspaceFactory workspaceFactory)
     {
-        protected WorkspaceFactory WorkspaceFactory { get; }
+        WorkspaceFactory = workspaceFactory;
+        Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture =
+            CultureInfo.GetCultureInfoByIetfLanguageTag("en-US");
+    }
 
-        protected virtual string AnalyzerSettings { get; }
+    protected static TextParser TextParser { get; } = TextParser.Default;
 
-        protected CodeVerifier(WorkspaceFactory workspaceFactory)
+    protected Project AddProject(Solution solution, string source)
+    {
+        return WorkspaceFactory.AddProject(solution, source, AnalyzerSettings);
+    }
+
+    protected Project AddProject(Solution solution, string[] sources)
+    {
+        return WorkspaceFactory.AddProject(solution, sources, AnalyzerSettings);
+    }
+
+    protected static void VerifyNoCompilerDiagnosticErrors(ImmutableArray<Diagnostic> diagnostics)
+    {
+        var compilationErrorDiagnostics = diagnostics.Where(diagnostic =>
+                diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error)
+            .ToList();
+
+        if (compilationErrorDiagnostics.Any())
         {
-            WorkspaceFactory = workspaceFactory;
-            Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture =
-                CultureInfo.GetCultureInfoByIetfLanguageTag("en-US");
-        }
-
-        protected static TextParser TextParser { get; } = TextParser.Default;
-
-        protected Project AddProject(Solution solution, string source)
-        {
-            return WorkspaceFactory.AddProject(solution, source, AnalyzerSettings);
-        }
-
-        protected Project AddProject(Solution solution, string[] sources)
-        {
-            return WorkspaceFactory.AddProject(solution, sources, AnalyzerSettings);
-        }
-
-        protected static void VerifyNoCompilerDiagnosticErrors(ImmutableArray<Diagnostic> diagnostics)
-        {
-            var compilationErrorDiagnostics = diagnostics.Where(diagnostic =>
-                    diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error)
-                .ToList();
-
-            if (compilationErrorDiagnostics.Any())
-            {
-                Execute.Assertion.Fail($"Compilation failed. Errors encountered {compilationErrorDiagnostics.ToDebugString()}");
-            }
+            Execute.Assertion.Fail($"Compilation failed. Errors encountered {compilationErrorDiagnostics.ToDebugString()}");
         }
     }
 }

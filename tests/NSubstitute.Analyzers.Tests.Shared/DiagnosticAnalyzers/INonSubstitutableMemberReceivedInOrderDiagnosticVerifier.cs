@@ -1,49 +1,48 @@
 using System.Threading.Tasks;
 
-namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
+namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
+
+public interface INonSubstitutableMemberReceivedInOrderDiagnosticVerifier
 {
-    public interface INonSubstitutableMemberReceivedInOrderDiagnosticVerifier
-    {
-        Task ReportsDiagnostics_WhenInvokingNonVirtualMethodWithoutAssignment();
+    Task ReportsDiagnostics_WhenInvokingNonVirtualMethodWithoutAssignment();
 
-        Task ReportsDiagnostics_WhenInvokingNonVirtualMethodWithNonUsedAssignment();
+    Task ReportsDiagnostics_WhenInvokingNonVirtualMethodWithNonUsedAssignment();
 
-        Task ReportsDiagnostics_WhenInvokingNonVirtualPropertyWithoutAssignment();
+    Task ReportsDiagnostics_WhenInvokingNonVirtualPropertyWithoutAssignment();
 
-        Task ReportsDiagnostics_WhenInvokingNonVirtualPropertyWithNonUsedAssignment();
+    Task ReportsDiagnostics_WhenInvokingNonVirtualPropertyWithNonUsedAssignment();
 
-        Task ReportsDiagnostics_WhenInvokingNonVirtualIndexerWithoutAssignment();
+    Task ReportsDiagnostics_WhenInvokingNonVirtualIndexerWithoutAssignment();
 
-        Task ReportsDiagnostics_WhenInvokingNonVirtualIndexerWithNonUsedAssignment();
+    Task ReportsDiagnostics_WhenInvokingNonVirtualIndexerWithNonUsedAssignment();
 
-        Task ReportsNoDiagnostics_WhenSubscribingToEvent();
+    Task ReportsNoDiagnostics_WhenSubscribingToEvent();
 
-        Task ReportsNoDiagnostics_WhenInvokingNonVirtualMethodWithUsedAssignment();
+    Task ReportsNoDiagnostics_WhenInvokingNonVirtualMethodWithUsedAssignment();
 
-        Task ReportsNoDiagnostics_WhenInvokingNonVirtualPropertyWithUsedAssignment();
+    Task ReportsNoDiagnostics_WhenInvokingNonVirtualPropertyWithUsedAssignment();
 
-        Task ReportsNoDiagnostics_WhenInvokingNonVirtualIndexerWithUsedAssignment();
+    Task ReportsNoDiagnostics_WhenInvokingNonVirtualIndexerWithUsedAssignment();
 
-        Task ReportsNoDiagnostics_WhenNonVirtualMethodIsCalledAsArgument();
+    Task ReportsNoDiagnostics_WhenNonVirtualMethodIsCalledAsArgument();
 
-        Task ReportsNoDiagnostics_WhenNonVirtualPropertyIsCalledAsArgument();
+    Task ReportsNoDiagnostics_WhenNonVirtualPropertyIsCalledAsArgument();
 
-        Task ReportsNoDiagnostics_WhenNonVirtualIndexerIsCalledAsArgument();
+    Task ReportsNoDiagnostics_WhenNonVirtualIndexerIsCalledAsArgument();
 
-        Task ReportsNoDiagnostics_WhenInvokingProtectedInternalVirtualMember();
+    Task ReportsNoDiagnostics_WhenInvokingProtectedInternalVirtualMember();
 
-        Task ReportsNoDiagnostics_WhenInvokingVirtualMember();
+    Task ReportsNoDiagnostics_WhenInvokingVirtualMember();
 
-        Task ReportsDiagnostics_WhenInvokingInternalVirtualMember_AndInternalsVisibleToNotApplied();
+    Task ReportsDiagnostics_WhenInvokingInternalVirtualMember_AndInternalsVisibleToNotApplied();
 
-        Task ReportsNoDiagnostics_WhenInvokingInternalVirtualMember_AndInternalsVisibleToApplied();
+    Task ReportsNoDiagnostics_WhenInvokingInternalVirtualMember_AndInternalsVisibleToApplied();
 
-        Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod();
+    Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod();
 
-        Task ReportsDiagnostics_WhenNonVirtualMethodUsedAsPartOfExpression_WithoutAssignment();
+    Task ReportsDiagnostics_WhenNonVirtualMethodUsedAsPartOfExpression_WithoutAssignment();
 
-        Task ReportsNoDiagnostics_WhenNonVirtualMethodUsedAsPartOfExpression_WithAssignment();
+    Task ReportsNoDiagnostics_WhenNonVirtualMethodUsedAsPartOfExpression_WithAssignment();
 
-        Task ReportsNoDiagnostics_WhenAccessingVirtualMemberViaNonVirtualAccessor();
-    }
+    Task ReportsNoDiagnostics_WhenAccessingVirtualMemberViaNonVirtualAccessor();
 }

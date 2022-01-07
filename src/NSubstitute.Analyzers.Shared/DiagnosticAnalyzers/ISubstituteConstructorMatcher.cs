@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
-namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
+namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
+
+internal interface ISubstituteConstructorMatcher
 {
-    internal interface ISubstituteConstructorMatcher
-    {
-        bool MatchesInvocation(Compilation compilation, IMethodSymbol methodSymbol, IList<ITypeSymbol> invocationParameters);
-    }
+    bool MatchesInvocation(Compilation compilation, IMethodSymbol methodSymbol, IList<ITypeSymbol> invocationParameters);
 }

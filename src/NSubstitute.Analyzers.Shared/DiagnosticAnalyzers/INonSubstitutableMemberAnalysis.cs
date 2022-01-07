@@ -1,13 +1,12 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
+namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
+
+internal interface INonSubstitutableMemberAnalysis
 {
-    internal interface INonSubstitutableMemberAnalysis
-    {
-        NonSubstitutableMemberAnalysisResult Analyze(
-            in SyntaxNodeAnalysisContext syntaxNodeContext,
-            SyntaxNode accessedMember,
-            ISymbol symbol = null);
-    }
+    NonSubstitutableMemberAnalysisResult Analyze(
+        in SyntaxNodeAnalysisContext syntaxNodeContext,
+        SyntaxNode accessedMember,
+        ISymbol symbol = null);
 }

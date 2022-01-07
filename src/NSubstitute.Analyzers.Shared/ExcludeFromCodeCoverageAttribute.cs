@@ -1,8 +1,7 @@
 using System;
 
-namespace NSubstitute.Analyzers.Shared
+namespace NSubstitute.Analyzers.Shared;
+
+internal class ExcludeFromCodeCoverageAttribute : Attribute
 {
-    internal class ExcludeFromCodeCoverageAttribute : Attribute
-    {
-    }
 }

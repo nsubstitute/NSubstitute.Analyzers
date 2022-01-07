@@ -11,28 +11,28 @@ using NSubstitute.Analyzers.VisualBasic.CodeFixProviders;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.InternalSetupSpecificationCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.InternalSetupSpecificationCodeFixProviderTests;
+
+public class InternalSetupSpecificationCodeFixActionsTests : VisualBasicCodeFixActionsVerifier, IInternalSetupSpecificationCodeFixActionsVerifier
 {
-    public class InternalSetupSpecificationCodeFixActionsTests : VisualBasicCodeFixActionsVerifier, IInternalSetupSpecificationCodeFixActionsVerifier
+    private static readonly MetadataReference[] AdditionalMetadataReferences =
     {
-        private static readonly MetadataReference[] AdditionalMetadataReferences =
-        {
-            GetInternalLibraryMetadataReference()
-        };
+        GetInternalLibraryMetadataReference()
+    };
 
-        public InternalSetupSpecificationCodeFixActionsTests()
-            : base(VisualBasicWorkspaceFactory.Default.WithAdditionalMetadataReferences(AdditionalMetadataReferences))
-        {
-        }
+    public InternalSetupSpecificationCodeFixActionsTests()
+        : base(VisualBasicWorkspaceFactory.Default.WithAdditionalMetadataReferences(AdditionalMetadataReferences))
+    {
+    }
 
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberAnalyzer();
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberAnalyzer();
 
-        protected override CodeFixProvider CodeFixProvider { get; } = new InternalSetupSpecificationCodeFixProvider();
+    protected override CodeFixProvider CodeFixProvider { get; } = new InternalSetupSpecificationCodeFixProvider();
 
-        [Fact]
-        public async Task CreateCodeActions_InProperOrder()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task CreateCodeActions_InProperOrder()
+    {
+        var source = @"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 Namespace MyNamespace
@@ -50,13 +50,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyCodeActions(source, "Add protected modifier", "Replace friend with public modifier", "Add InternalsVisibleTo attribute");
-        }
+        await VerifyCodeActions(source, "Add protected modifier", "Replace friend with public modifier", "Add InternalsVisibleTo attribute");
+    }
 
-        [Fact]
-        public async Task DoesNotCreateCodeActions_WhenSymbol_DoesNotBelongToCompilation()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task DoesNotCreateCodeActions_WhenSymbol_DoesNotBelongToCompilation()
+    {
+        var source = @"Imports NSubstitute
 Imports ExternalNamespace
 
 Namespace MyNamespace
@@ -68,12 +68,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyCodeActions(source);
-        }
+        await VerifyCodeActions(source);
+    }
 
-        private static MetadataReference GetInternalLibraryMetadataReference()
-        {
-            var syntaxTree = VisualBasicSyntaxTree.ParseText($@"Imports System.Runtime.CompilerServices
+    private static MetadataReference GetInternalLibraryMetadataReference()
+    {
+        var syntaxTree = VisualBasicSyntaxTree.ParseText($@"Imports System.Runtime.CompilerServices
 
 <Assembly: InternalsVisibleTo(""{Shared.WorkspaceFactory.DefaultProjectName}"")>
 Namespace ExternalNamespace
@@ -85,23 +85,22 @@ Namespace ExternalNamespace
 End Namespace
 ");
 
-            var references = new[] { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) };
-            var compilationOptions = new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
-            var compilation = VisualBasicCompilation.Create("Internal", new[] { syntaxTree }, references, compilationOptions);
+        var references = new[] { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) };
+        var compilationOptions = new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
+        var compilation = VisualBasicCompilation.Create("Internal", new[] { syntaxTree }, references, compilationOptions);
 
-            using (var ms = new MemoryStream())
+        using (var ms = new MemoryStream())
+        {
+            var result = compilation.Emit(ms);
+
+            if (result.Success == false)
             {
-                var result = compilation.Emit(ms);
-
-                if (result.Success == false)
-                {
-                    var errors = result.Diagnostics.Where(diag => diag.IsWarningAsError || diag.Severity == DiagnosticSeverity.Error);
-                    throw new InvalidOperationException($"Internal library compilation failed: {string.Join(",", errors)}");
-                }
-
-                ms.Seek(0, SeekOrigin.Begin);
-                return MetadataReference.CreateFromStream(ms);
+                var errors = result.Diagnostics.Where(diag => diag.IsWarningAsError || diag.Severity == DiagnosticSeverity.Error);
+                throw new InvalidOperationException($"Internal library compilation failed: {string.Join(",", errors)}");
             }
+
+            ms.Seek(0, SeekOrigin.Begin);
+            return MetadataReference.CreateFromStream(ms);
         }
     }
 }

@@ -1,14 +1,14 @@
 ﻿using System.Threading.Tasks;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSubstitutableMemberWhenAnalyzerTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSubstitutableMemberWhenAnalyzerTests;
+
+[CombinatoryData("SubstituteExtensions.When", "SubstituteExtensions.When(Of Foo)", "SubstituteExtensions.WhenForAnyArgs", "SubstituteExtensions.WhenForAnyArgs(Of Foo)")]
+public class WhenAsOrdinaryMethodTests : NonSubstitutableMemberWhenDiagnosticVerifier
 {
-    [CombinatoryData("SubstituteExtensions.When", "SubstituteExtensions.When(Of Foo)", "SubstituteExtensions.WhenForAnyArgs", "SubstituteExtensions.WhenForAnyArgs(Of Foo)")]
-    public class WhenAsOrdinaryMethodTests : NonSubstitutableMemberWhenDiagnosticVerifier
+    public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method, string whenAction)
     {
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method, string whenAction)
-        {
-            var source = $@"Imports NSubstitute
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -27,12 +27,12 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
-        }
+        await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+    }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMemberFromBaseClass(string method, string whenAction)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMemberFromBaseClass(string method, string whenAction)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public MustInherit Class FooBar
@@ -54,12 +54,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
-        }
+        await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string method, string whenAction)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string method, string whenAction)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -78,12 +78,12 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string method, string whenAction)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string method, string whenAction)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class FooBar
@@ -109,13 +109,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [CombinatoryData("SubstituteExtensions.When", "SubstituteExtensions.When(Of Func(Of Integer))", "SubstituteExtensions.WhenForAnyArgs", "SubstituteExtensions.WhenForAnyArgs(Of Func(Of Integer))")]
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string method, string whenAction)
-        {
-            var source = $@"Imports NSubstitute
+    [CombinatoryData("SubstituteExtensions.When", "SubstituteExtensions.When(Of Func(Of Integer))", "SubstituteExtensions.WhenForAnyArgs", "SubstituteExtensions.WhenForAnyArgs(Of Func(Of Integer))")]
+    public override async Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string method, string whenAction)
+    {
+        var source = $@"Imports NSubstitute
 Imports System
 
 Namespace MyNamespace
@@ -128,12 +128,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string method, string whenAction)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string method, string whenAction)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class FooBar
@@ -159,12 +159,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
-        }
+        await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string method, string whenAction)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string method, string whenAction)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public MustInherit Class Foo
@@ -181,12 +181,12 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod(string method, string whenAction)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod(string method, string whenAction)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface Foo
@@ -201,12 +201,12 @@ Namespace MyNamespace
         End Sub
     End Class
 End Namespace";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string method, string whenAction)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string method, string whenAction)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface Foo
@@ -222,13 +222,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [CombinatoryData("SubstituteExtensions.When", "SubstituteExtensions.When(Of Foo(Of Integer))", "SubstituteExtensions.WhenForAnyArgs", "SubstituteExtensions.WhenForAnyArgs(Of Foo(Of Integer))")]
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod(string method, string whenAction)
-        {
-            var source = $@"Imports NSubstitute
+    [CombinatoryData("SubstituteExtensions.When", "SubstituteExtensions.When(Of Foo(Of Integer))", "SubstituteExtensions.WhenForAnyArgs", "SubstituteExtensions.WhenForAnyArgs(Of Foo(Of Integer))")]
+    public override async Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod(string method, string whenAction)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -246,12 +246,12 @@ Namespace MyNamespace
         End Sub
     End Class
 End Namespace";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string method, string whenAction)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string method, string whenAction)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public MustInherit Class Foo
@@ -268,12 +268,12 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer(string method, string whenAction)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer(string method, string whenAction)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface Foo
@@ -289,12 +289,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method, string whenAction)
-        {
-            var source = $@"Imports System.Runtime.CompilerServices
+    public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method, string whenAction)
+    {
+        var source = $@"Imports System.Runtime.CompilerServices
 
 Namespace NSubstitute
     Public Class Foo
@@ -323,12 +323,12 @@ Namespace NSubstitute
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string method, string whenAction)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string method, string whenAction)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public MustInherit Class Foo
@@ -344,12 +344,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
-        }
+        await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string method, string whenAction)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string method, string whenAction)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public MustInherit Class Foo
@@ -365,12 +365,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string method, string whenAction)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string method, string whenAction)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
      Public Class Foo
@@ -392,12 +392,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
-        }
+        await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+    }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularFunction(string method)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMember_InRegularFunction(string method)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -420,12 +420,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
-        }
+        await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularFunction(string method)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMember_InRegularFunction(string method)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -449,12 +449,12 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -480,12 +480,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source, InternalSetupSpecificationDescriptor, message);
-        }
+        await VerifyDiagnostic(source, InternalSetupSpecificationDescriptor, message);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call)
+    {
+        var source = $@"Imports NSubstitute
 
 <Assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""OtherFirstAssembly"")>
 <Assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""DynamicProxyGenAssembly2"")>
@@ -515,12 +515,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message)
+    {
+        var source = $@"Imports NSubstitute
 
 <Assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""FirstAssembly"")>
 
@@ -548,12 +548,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source, InternalSetupSpecificationDescriptor, message);
-        }
+        await VerifyDiagnostic(source, InternalSetupSpecificationDescriptor, message);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -579,7 +579,6 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
     }
 }

@@ -1,13 +1,13 @@
 using System.Threading.Tasks;
 using NSubstitute.Analyzers.Tests.Shared;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.ReEntrantSetupCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.ReEntrantSetupCodeFixProviderTests;
+
+public class ReturnsAsOrdinaryMethodTests : ReEntrantSetupCodeFixVerifier
 {
-    public class ReturnsAsOrdinaryMethodTests : ReEntrantSetupCodeFixVerifier
+    public override async Task ReplacesArgumentExpression_WithLambda(string arguments, string rewrittenArguments)
     {
-        public override async Task ReplacesArgumentExpression_WithLambda(string arguments, string rewrittenArguments)
-        {
-            var oldSource = $@"Imports NSubstitute
+        var oldSource = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class FooTests
@@ -39,7 +39,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            var newSource = $@"Imports NSubstitute
+        var newSource = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class FooTests
@@ -70,12 +70,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyFix(oldSource, newSource);
-        }
+        await VerifyFix(oldSource, newSource);
+    }
 
-        public override async Task ReplacesArgumentExpression_WithLambdaWithReducedTypes_WhenGeneratingArrayParamsArgument()
-        {
-            var oldSource = @"Imports NSubstitute
+    public override async Task ReplacesArgumentExpression_WithLambdaWithReducedTypes_WhenGeneratingArrayParamsArgument()
+    {
+        var oldSource = @"Imports NSubstitute
 Imports NSubstitute.Core
 Imports System
 
@@ -106,7 +106,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            var newSource = @"Imports NSubstitute
+        var newSource = @"Imports NSubstitute
 Imports NSubstitute.Core
 Imports System
 
@@ -136,12 +136,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyFix(oldSource, newSource);
-        }
+        await VerifyFix(oldSource, newSource);
+    }
 
-        public override async Task ReplacesArgumentExpression_WithLambdaWithNonGenericCallInfo_WhenGeneratingArrayParamsArgument()
-        {
-            var oldSource = @"Imports NSubstitute
+    public override async Task ReplacesArgumentExpression_WithLambdaWithNonGenericCallInfo_WhenGeneratingArrayParamsArgument()
+    {
+        var oldSource = @"Imports NSubstitute
 Imports NSubstitute.Core
 Imports System
 
@@ -172,7 +172,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            var newSource = @"Imports NSubstitute
+        var newSource = @"Imports NSubstitute
 Imports NSubstitute.Core
 Imports System
 
@@ -202,7 +202,6 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyFix(oldSource, newSource, version: NSubstituteVersion.NSubstitute4_2_2);
-        }
+        await VerifyFix(oldSource, newSource, version: NSubstituteVersion.NSubstitute4_2_2);
     }
 }

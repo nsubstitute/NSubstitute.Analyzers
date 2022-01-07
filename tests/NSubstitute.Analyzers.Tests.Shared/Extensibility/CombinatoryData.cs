@@ -1,15 +1,14 @@
 using System;
 
-namespace NSubstitute.Analyzers.Tests.Shared.Extensibility
-{
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-    public class CombinatoryData : Attribute
-    {
-        internal object[] Data { get; }
+namespace NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
-        public CombinatoryData(params object[] data)
-        {
-            Data = data;
-        }
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+public class CombinatoryData : Attribute
+{
+    internal object[] Data { get; }
+
+    public CombinatoryData(params object[] data)
+    {
+        Data = data;
     }
 }

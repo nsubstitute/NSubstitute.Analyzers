@@ -1,26 +1,26 @@
 ﻿using System.Threading.Tasks;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitutableMemberReceivedAnalyzerTests
+namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitutableMemberReceivedAnalyzerTests;
+
+[CombinatoryData(
+    "Received(Quantity.None())",
+    "Received<Foo>(Quantity.None())",
+    "Received()",
+    "Received<Foo>()",
+    "ReceivedWithAnyArgs(Quantity.None())",
+    "ReceivedWithAnyArgs<Foo>(Quantity.None())",
+    "ReceivedWithAnyArgs()",
+    "ReceivedWithAnyArgs<Foo>()",
+    "DidNotReceive()",
+    "DidNotReceive<Foo>()",
+    "DidNotReceiveWithAnyArgs()",
+    "DidNotReceiveWithAnyArgs<Foo>()")]
+public class ReceivedAsExtensionMethodTests : NonSubstitutableMemberReceivedDiagnosticVerifier
 {
-    [CombinatoryData(
-        "Received(Quantity.None())",
-        "Received<Foo>(Quantity.None())",
-        "Received()",
-        "Received<Foo>()",
-        "ReceivedWithAnyArgs(Quantity.None())",
-        "ReceivedWithAnyArgs<Foo>(Quantity.None())",
-        "ReceivedWithAnyArgs()",
-        "ReceivedWithAnyArgs<Foo>()",
-        "DidNotReceive()",
-        "DidNotReceive<Foo>()",
-        "DidNotReceiveWithAnyArgs()",
-        "DidNotReceiveWithAnyArgs<Foo>()")]
-    public class ReceivedAsExtensionMethodTests : NonSubstitutableMemberReceivedDiagnosticVerifier
+    public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualMethod(string method)
     {
-        public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualMethod(string method)
-        {
-            var source = $@"using NSubstitute;
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
@@ -43,12 +43,12 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
-        }
+        await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualMethod(string method)
-        {
-            var source = $@"using NSubstitute;
+    public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualMethod(string method)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
@@ -70,12 +70,12 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForNonSealedMethod(string method)
-        {
-            var source = $@"using NSubstitute;
+    public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForNonSealedMethod(string method)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
@@ -102,25 +102,25 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [CombinatoryData(
-            "Received(Quantity.None())",
-            "Received<Func<Foo>>(Quantity.None())",
-            "Received",
-            "Received<Func<Foo>>",
-            "ReceivedWithAnyArgs(Quantity.None())",
-            "ReceivedWithAnyArgs<Func<Foo>>(Quantity.None())",
-            "ReceivedWithAnyArgs",
-            "ReceivedWithAnyArgs<Func<Foo>>",
-            "DidNotReceive",
-            "DidNotReceive<Func<Foo>>",
-            "DidNotReceiveWithAnyArgs",
-            "DidNotReceiveWithAnyArgs<Func<Foo>>")]
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForDelegate(string method)
-        {
-            var source = $@"using NSubstitute;
+    [CombinatoryData(
+        "Received(Quantity.None())",
+        "Received<Func<Foo>>(Quantity.None())",
+        "Received",
+        "Received<Func<Foo>>",
+        "ReceivedWithAnyArgs(Quantity.None())",
+        "ReceivedWithAnyArgs<Func<Foo>>(Quantity.None())",
+        "ReceivedWithAnyArgs",
+        "ReceivedWithAnyArgs<Func<Foo>>",
+        "DidNotReceive",
+        "DidNotReceive<Func<Foo>>",
+        "DidNotReceiveWithAnyArgs",
+        "DidNotReceiveWithAnyArgs<Func<Foo>>")]
+    public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForDelegate(string method)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 using System;
 
@@ -139,12 +139,12 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForSealedMethod(string method)
-        {
-            var source = $@"using NSubstitute;
+    public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForSealedMethod(string method)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
@@ -172,12 +172,12 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
-        }
+        await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractMethod(string method)
-        {
-            var source = $@"using NSubstitute;
+    public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractMethod(string method)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
@@ -197,12 +197,12 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceMethod(string method)
-        {
-            var source = $@"using NSubstitute;
+    public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceMethod(string method)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
@@ -221,12 +221,12 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceProperty(string method)
-        {
-            var source = $@"using NSubstitute;
+    public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceProperty(string method)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
@@ -245,25 +245,25 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [CombinatoryData(
-            "Received(Quantity.None())",
-            "Received<Foo<int>>(Quantity.None())",
-            "Received()",
-            "Received<Foo<int>>()",
-            "ReceivedWithAnyArgs(Quantity.None())",
-            "ReceivedWithAnyArgs<Foo<int>>(Quantity.None())",
-            "ReceivedWithAnyArgs()",
-            "ReceivedWithAnyArgs<Foo<int>>()",
-            "DidNotReceive()",
-            "DidNotReceive<Foo<int>>()",
-            "DidNotReceiveWithAnyArgs()",
-            "DidNotReceiveWithAnyArgs<Foo<int>>()")]
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForGenericInterfaceMethod(string method)
-        {
-            var source = $@"using NSubstitute;
+    [CombinatoryData(
+        "Received(Quantity.None())",
+        "Received<Foo<int>>(Quantity.None())",
+        "Received()",
+        "Received<Foo<int>>()",
+        "ReceivedWithAnyArgs(Quantity.None())",
+        "ReceivedWithAnyArgs<Foo<int>>(Quantity.None())",
+        "ReceivedWithAnyArgs()",
+        "ReceivedWithAnyArgs<Foo<int>>()",
+        "DidNotReceive()",
+        "DidNotReceive<Foo<int>>()",
+        "DidNotReceiveWithAnyArgs()",
+        "DidNotReceiveWithAnyArgs<Foo<int>>()")]
+    public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForGenericInterfaceMethod(string method)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
@@ -282,12 +282,12 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractProperty(string method)
-        {
-            var source = $@"using NSubstitute;
+    public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractProperty(string method)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
@@ -307,12 +307,12 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceIndexer(string method)
-        {
-            var source = $@"using NSubstitute;
+    public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceIndexer(string method)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
@@ -331,12 +331,12 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualProperty(string method)
-        {
-            var source = $@"using NSubstitute;
+    public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualProperty(string method)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
@@ -356,12 +356,12 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualProperty(string method)
-        {
-            var source = $@"using NSubstitute;
+    public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualProperty(string method)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
@@ -381,12 +381,12 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
-        }
+        await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualIndexer(string method)
-        {
-            var source = $@"using NSubstitute;
+    public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualIndexer(string method)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
@@ -405,12 +405,12 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualIndexer(string method)
-        {
-            var source = $@"using NSubstitute;
+    public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualIndexer(string method)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
@@ -430,25 +430,25 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
-        }
+        await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
+    }
 
-        [CombinatoryData(
-            "Received(Quantity.None())",
-            "Received<Foo>(Quantity.None())",
-            "Received(1, 1)",
-            "Received<Foo>(1, 1)",
-            "ReceivedWithAnyArgs(Quantity.None())",
-            "ReceivedWithAnyArgs<Foo>(Quantity.None())",
-            "ReceivedWithAnyArgs(1, 1)",
-            "ReceivedWithAnyArgs<Foo>(1, 1)",
-            "DidNotReceive(1, 1)",
-            "DidNotReceive<Foo>(1, 1)",
-            "DidNotReceiveWithAnyArgs(1, 1)",
-            "DidNotReceiveWithAnyArgs<Foo>(1, 1)")]
-        public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method)
-        {
-            var source = $@"
+    [CombinatoryData(
+        "Received(Quantity.None())",
+        "Received<Foo>(Quantity.None())",
+        "Received(1, 1)",
+        "Received<Foo>(1, 1)",
+        "ReceivedWithAnyArgs(Quantity.None())",
+        "ReceivedWithAnyArgs<Foo>(Quantity.None())",
+        "ReceivedWithAnyArgs(1, 1)",
+        "ReceivedWithAnyArgs<Foo>(1, 1)",
+        "DidNotReceive(1, 1)",
+        "DidNotReceive<Foo>(1, 1)",
+        "DidNotReceiveWithAnyArgs(1, 1)",
+        "DidNotReceiveWithAnyArgs<Foo>(1, 1)")]
+    public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method)
+    {
+        var source = $@"
 
 namespace NSubstitute
 {{
@@ -520,12 +520,12 @@ namespace NSubstitute
         }}
     }}
 }}";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message)
-        {
-            var source = $@"using NSubstitute;
+    public override async Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
@@ -555,12 +555,12 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source, InternalSetupSpecificationDescriptor, message);
-        }
+        await VerifyDiagnostic(source, InternalSetupSpecificationDescriptor, message);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call)
-        {
-            var source = $@"using NSubstitute;
+    public override async Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo(""OtherFirstAssembly"")]
@@ -594,12 +594,12 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message)
-        {
-            var source = $@"using NSubstitute;
+    public override async Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo(""OtherAssembly"")]
@@ -631,12 +631,12 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source, InternalSetupSpecificationDescriptor, message);
-        }
+        await VerifyDiagnostic(source, InternalSetupSpecificationDescriptor, message);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call)
-        {
-            var source = $@"using NSubstitute;
+    public override async Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call)
+    {
+        var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
 
 namespace MyNamespace
@@ -666,7 +666,6 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
     }
 }

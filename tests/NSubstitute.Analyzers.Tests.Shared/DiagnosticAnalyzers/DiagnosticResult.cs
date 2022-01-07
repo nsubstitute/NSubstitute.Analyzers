@@ -1,60 +1,59 @@
 using Microsoft.CodeAnalysis;
 
-namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers
+namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
+
+/// <summary>
+/// Struct that stores information about a Diagnostic appearing in a source
+/// </summary>
+public struct DiagnosticResult
 {
-    /// <summary>
-    /// Struct that stores information about a Diagnostic appearing in a source
-    /// </summary>
-    public struct DiagnosticResult
+    private DiagnosticResultLocation[] _locations;
+
+    public DiagnosticResultLocation[] Locations
     {
-        private DiagnosticResultLocation[] _locations;
-
-        public DiagnosticResultLocation[] Locations
+        get
         {
-            get
+            if (_locations == null)
             {
-                if (_locations == null)
-                {
-                    _locations = new DiagnosticResultLocation[] { };
-                }
-
-                return _locations;
+                _locations = new DiagnosticResultLocation[] { };
             }
 
-            set
-            {
-                _locations = value;
-            }
+            return _locations;
         }
 
-        public DiagnosticSeverity Severity { get; set; }
-
-        public string Id { get; set; }
-
-        public string Message { get; set; }
-
-        public string Path
+        set
         {
-            get
-            {
-                return Locations.Length > 0 ? Locations[0].Path : string.Empty;
-            }
+            _locations = value;
         }
+    }
 
-        public int Line
+    public DiagnosticSeverity Severity { get; set; }
+
+    public string Id { get; set; }
+
+    public string Message { get; set; }
+
+    public string Path
+    {
+        get
         {
-            get
-            {
-                return Locations.Length > 0 ? Locations[0].Line : -1;
-            }
+            return Locations.Length > 0 ? Locations[0].Path : string.Empty;
         }
+    }
 
-        public int Column
+    public int Line
+    {
+        get
         {
-            get
-            {
-                return Locations.Length > 0 ? Locations[0].Column : -1;
-            }
+            return Locations.Length > 0 ? Locations[0].Line : -1;
+        }
+    }
+
+    public int Column
+    {
+        get
+        {
+            return Locations.Length > 0 ? Locations[0].Column : -1;
         }
     }
 }
