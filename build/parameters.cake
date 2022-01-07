@@ -39,7 +39,7 @@ public class BuildParameters
             IsDev = StringComparer.OrdinalIgnoreCase.Equals("dev", buildSystem.AppVeyor.Environment.Repository.Branch),
             IsTagged = IsBuildTagged(buildSystem),
             IsPullRequest = IsPullRequestBuild(buildSystem),
-            TargetFramework = "netcoreapp2.0",
+            TargetFramework = "net6",
             IsRunningOnWindows = context.IsRunningOnWindows()
         };
     }

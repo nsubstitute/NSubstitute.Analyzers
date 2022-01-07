@@ -10,7 +10,6 @@ using Markdig.Renderers.Normalize;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 using Microsoft.CodeAnalysis;
-using MoreLinq.Extensions;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.Shared.DocumentationTests

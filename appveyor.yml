@@ -1,6 +1,6 @@
 image:
   - Ubuntu
-  - Visual Studio 2017
+  - Visual Studio 2022
 # Build script
 init:
   - git config --global core.autocrlf true
@@ -11,20 +11,20 @@ for:
         - image: Ubuntu
     test: off      
     build_script:
-      - sudo mv global.json _global.json #workaround for missing AppVeyor images
-      - dotnet new globaljson --sdk-version 2.2.401
       - cd build
       - chmod +xxx ./build.sh
+      - export IGNORE_NORMALISATION_GIT_HEAD_MOVE=1
       - ./build.sh --target="AppVeyor" --configuration=Release --UploadCoverageReport=False
   -
     matrix:
       only:
-        - image: Visual Studio 2017
+        - image: Visual Studio 2022
     test: off
     build_script:
       - move global.json _global.json #workaround for missing AppVeyor images
-      - dotnet new globaljson --sdk-version 2.2.301
+      - dotnet new globaljson --sdk-version 6.0.101
       - cd Build
+      - set IGNORE_NORMALISATION_GIT_HEAD_MOVE=1
       - ps: >-
           .\build.ps1 --target="AppVeyor" --configuration=Release --UploadCoverageReport=True
           

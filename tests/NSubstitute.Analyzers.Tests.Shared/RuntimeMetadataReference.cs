@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -24,9 +25,9 @@ namespace NSubstitute.Analyzers.Tests.Shared
 
         static RuntimeMetadataReference()
         {
-            var referencedAssemblies = typeof(DiagnosticVerifier).Assembly.GetReferencedAssemblies();
-            var systemRuntimeReference = GetAssemblyReference(referencedAssemblies, "System.Runtime");
-            var systemThreadingTasksReference = GetAssemblyReference(referencedAssemblies, "System.Threading.Tasks");
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            var systemRuntimeReference = GetAssemblyMetadataReference(assemblies, "System.Runtime");
+            var systemThreadingTasksReference = GetAssemblyMetadataReference(assemblies, "System.Threading.Tasks");
 
             Default = ImmutableArray.Create(
                 CorlibReference,
@@ -48,9 +49,9 @@ namespace NSubstitute.Analyzers.Tests.Shared
         public static MetadataReference NSubstituteLatestReference { get; } =
             MetadataReference.CreateFromFile("nsubstitute-latest/NSubstitute.dll");
 
-        private static MetadataReference GetAssemblyReference(IEnumerable<AssemblyName> assemblies, string name)
+        private static MetadataReference GetAssemblyMetadataReference(IReadOnlyList<Assembly> assemblies, string name)
         {
-            return MetadataReference.CreateFromFile(Assembly.Load(assemblies.First(n => n.Name == name)).Location);
+            return MetadataReference.CreateFromFile(assemblies.First(n => n.GetName().Name == name).Location);
         }
     }
 }

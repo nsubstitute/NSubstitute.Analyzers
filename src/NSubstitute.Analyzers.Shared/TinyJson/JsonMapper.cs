@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using Decoder = System.Func<System.Type, object, object>;
 using Encoder = System.Action<object, NSubstitute.Analyzers.Shared.TinyJson.JsonBuilder>;
@@ -233,7 +234,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson
                 var first = true;
                 while (type != null)
                 {
-                    foreach (var field in type.GetTypeInfo().DeclaredFields)
+                    foreach (var field in type.GetTypeInfo().DeclaredFields.Where(field => field.IsStatic == false))
                     {
                         if (first)
                             first = false;
