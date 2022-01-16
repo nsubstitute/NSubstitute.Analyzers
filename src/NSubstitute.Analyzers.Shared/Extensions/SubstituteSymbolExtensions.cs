@@ -42,6 +42,14 @@ internal static class SubstituteSymbolExtensions
         return IsMember(symbol, MetadataNames.ThrowsMethodNames);
     }
 
+    public static bool IsThrowsForAnyArgsMethod(this ISymbol symbol)
+    {
+        return IsMember(
+            symbol,
+            MetadataNames.NSubstituteThrowsForAnyArgsMethod,
+            MetadataNames.NSubstituteExceptionExtensionsFullTypeName);
+    }
+
     public static bool IsReceivedLikeMethod(this ISymbol symbol)
     {
         return IsMember(symbol, MetadataNames.ReceivedMethodNames) ||

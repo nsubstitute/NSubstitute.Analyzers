@@ -28,3 +28,4 @@
 | [NS5000](NS5000.md) | Usage | Checking received calls without specifying member. |
 | [NS5001](NS5001.md) | Usage | Usage of received-like method in `Received.InOrder` callback. |
 | [NS5002](NS5002.md) | Usage | Usage of async callback in `Received.InOrder` method. |
+| [NS5003](NS5003.md) | Usage | Sync `Throws` used in async method. |

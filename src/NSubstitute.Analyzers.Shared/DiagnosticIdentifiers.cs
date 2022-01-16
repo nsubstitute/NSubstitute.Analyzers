@@ -31,4 +31,5 @@ internal class DiagnosticIdentifiers
     public const string UnusedReceived = "NS5000";
     public const string ReceivedUsedInReceivedInOrder = "NS5001";
     public const string AsyncCallbackUsedInReceivedInOrder = "NS5002";
+    public const string SyncOverAsyncThrows = "NS5003";
 }

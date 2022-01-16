@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
@@ -69,6 +70,16 @@ internal abstract class AbstractSubstitutionNodeFinder<TInvocationExpressionSynt
     public abstract SyntaxNode FindForAndDoesExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpression, IMethodSymbol invocationExpressionSymbol = null);
 
     public abstract SyntaxNode FindForStandardExpression(TInvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol invocationExpressionSymbol = null);
+
+    public SyntaxNode FindForStandardExpression(IInvocationOperation invocationOperation)
+        {
+            if (invocationOperation.Instance != null)
+            {
+                return invocationOperation.Instance.Syntax;
+            }
+
+            return invocationOperation.Arguments.First(arg => arg.Parameter.Ordinal == 0).Value.Syntax;
+        }
 
     public abstract IEnumerable<SyntaxNode> FindForReceivedInOrderExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax receivedInOrderExpression, IMethodSymbol receivedInOrderInvocationSymbol = null);
 

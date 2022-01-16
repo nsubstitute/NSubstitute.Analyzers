@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using NSubstitute.Core;
 
 namespace NSubstitute.Analyzers.Benchmarks.Source.CSharp.Models
@@ -11,6 +12,16 @@ namespace NSubstitute.Analyzers.Benchmarks.Source.CSharp.Models
 
         public void VoidReturningMethodWithArguments(int a, int b, decimal c)
         {
+        }
+
+        public Task TaskReturningAsyncMethod()
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task<object> GenericTaskReturningAsyncMethod()
+        {
+            return Task.FromResult(new object());
         }
 
         public IFoo ObjectReturningMethod() => null;

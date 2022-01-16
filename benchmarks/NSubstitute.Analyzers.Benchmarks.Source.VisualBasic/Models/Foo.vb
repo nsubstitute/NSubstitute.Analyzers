@@ -1,5 +1,6 @@
 Imports System
 Imports NSubstitute.Core
+Imports System.Threading.Tasks
 
 Namespace Models
     Public Class Foo
@@ -10,6 +11,14 @@ Namespace Models
 
         Public Sub VoidReturningMethodWithArguments(a As Integer, b As Integer, c As Decimal) Implements IFoo.VoidReturningMethodWithArguments
         End Sub
+        
+        Public Function TaskReturningAsyncMethod() As Task
+            Return Task.CompletedTask
+        End Function
+
+        Public Function GenericTaskReturningAsyncMethod() As Task(Of Object)
+            Return Task.FromResult(New Object())
+        End Function
         
         Public Function ObjectReturningMethod() As IFoo Implements IFoo.ObjectReturningMethod
             Return Nothing

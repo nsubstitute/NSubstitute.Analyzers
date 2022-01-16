@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 
 namespace NSubstitute.Analyzers.Benchmarks.Source.CSharp.DiagnosticsSources
 {
-    public class AsyncReceivedInOrderCallbackDiagnosticsSource
+    public class AsyncReceivedInOrderCallbackDiagnosticSource
     {
         public void NS5002_AsyncCallbackUsedInReceivedInOrderMethod()
         {

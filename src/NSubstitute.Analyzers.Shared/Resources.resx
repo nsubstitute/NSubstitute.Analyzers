@@ -409,4 +409,13 @@
     <value>Non-virtual setup specification.</value>
         <comment>The title of the diagnostic.</comment>
   </data>
+    <data name="SyncOverAsyncThrowsDescription" xml:space="preserve">
+      <value>Synchronous exception thrown from async method.</value>
+    </data>
+    <data name="SyncOverAsyncThrowsMessageFormat" xml:space="preserve">
+      <value>Synchronous exception thrown from async method.</value>
+    </data>
+    <data name="SyncOverAsyncThrowsTitle" xml:space="preserve">
+      <value>Synchronous exception thrown from async method.</value>
+    </data>
 </root>

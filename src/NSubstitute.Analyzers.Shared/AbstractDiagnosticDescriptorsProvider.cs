@@ -55,4 +55,6 @@ internal class AbstractDiagnosticDescriptorsProvider<T> : IDiagnosticDescriptors
     public DiagnosticDescriptor ReceivedUsedInReceivedInOrder { get; } = DiagnosticDescriptors<T>.ReceivedUsedInReceivedInOrder;
 
     public DiagnosticDescriptor AsyncCallbackUsedInReceivedInOrder { get; } = DiagnosticDescriptors<T>.AsyncCallbackUsedInReceivedInOrder;
+
+    public DiagnosticDescriptor SyncOverAsyncThrows { get; } = DiagnosticDescriptors<T>.SyncOverAsyncThrows;
 }

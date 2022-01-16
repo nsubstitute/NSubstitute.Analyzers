@@ -55,4 +55,6 @@ internal interface IDiagnosticDescriptorsProvider
     DiagnosticDescriptor ReceivedUsedInReceivedInOrder { get; }
 
     DiagnosticDescriptor AsyncCallbackUsedInReceivedInOrder { get; }
+
+    DiagnosticDescriptor SyncOverAsyncThrows { get; }
 }

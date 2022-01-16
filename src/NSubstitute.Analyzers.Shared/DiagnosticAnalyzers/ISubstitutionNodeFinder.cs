@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
@@ -15,4 +16,6 @@ internal interface ISubstitutionNodeFinder<in TInvocationExpressionSyntax> where
     SyntaxNode FindForAndDoesExpression(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax invocationExpression, IMethodSymbol invocationExpressionSymbol = null);
 
     SyntaxNode FindForStandardExpression(TInvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol invocationExpressionSymbol = null);
+
+    SyntaxNode FindForStandardExpression(IInvocationOperation invocationOperation);
 }
