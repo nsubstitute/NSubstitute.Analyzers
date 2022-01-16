@@ -1,15 +1,14 @@
 using System.Threading.Tasks;
 
-namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
+namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
+
+public interface INonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixActionsVerifier
 {
-    public interface INonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixActionsVerifier
-    {
-        Task CreatesCorrectCodeFixActions_ForIndexer();
+    Task CreatesCorrectCodeFixActions_ForIndexer();
 
-        Task CreatesCorrectCodeFixActions_ForMethod();
+    Task CreatesCorrectCodeFixActions_ForMethod();
 
-        Task DoesNotCreateCodeFixActions_WhenArgMatchesIsUsedInStandaloneExpression();
+    Task DoesNotCreateCodeFixActions_WhenArgMatchesIsUsedInStandaloneExpression();
 
-        Task DoesNotCreateCodeFixActions_WhenArgMatchesIsUsedInConstructor();
-    }
+    Task DoesNotCreateCodeFixActions_WhenArgMatchesIsUsedInConstructor();
 }

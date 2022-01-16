@@ -1,17 +1,16 @@
 ﻿using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests
-{
-    public abstract class VisualBasicCodeFixActionsVerifier : CodeFixCodeActionsVerifier
-    {
-        protected VisualBasicCodeFixActionsVerifier()
-            : this(VisualBasicWorkspaceFactory.Default)
-        {
-        }
+namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests;
 
-        protected VisualBasicCodeFixActionsVerifier(VisualBasicWorkspaceFactory factory)
-            : base(factory)
-        {
-        }
+public abstract class VisualBasicCodeFixActionsVerifier : CodeFixCodeActionsVerifier
+{
+    protected VisualBasicCodeFixActionsVerifier()
+        : this(VisualBasicWorkspaceFactory.Default)
+    {
+    }
+
+    protected VisualBasicCodeFixActionsVerifier(VisualBasicWorkspaceFactory factory)
+        : base(factory)
+    {
     }
 }

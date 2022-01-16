@@ -5,80 +5,80 @@ using NSubstitute.Analyzers.Tests.Shared.CodeRefactoringProviders;
 using NSubstitute.Analyzers.VisualBasic.CodeRefactoringProviders;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeRefactoringProvidersTests.IntroduceSubstituteRefactoringProviderTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeRefactoringProvidersTests.IntroduceSubstituteRefactoringProviderTests;
+
+public class IntroduceSubstituteCodeRefactoringProviderTests : VisualBasicCodeRefactoringProviderVerifier, IIntroduceSubstituteCodeRefactoringProviderVerifier
 {
-    public class IntroduceSubstituteCodeRefactoringProviderTests : VisualBasicCodeRefactoringProviderVerifier, IIntroduceSubstituteCodeRefactoringProviderVerifier
+    public static IEnumerable<object[]> AllArgumentsMissingTestCases
     {
-        public static IEnumerable<object[]> AllArgumentsMissingTestCases
+        get
         {
-            get
-            {
-                yield return new object[] { "New Foo([||])", "New Foo(service, otherService)" };
-                yield return new object[] { "New Foo(, [||])", "New Foo(service, otherService)" };
-                yield return new object[] { "New Foo([||],)", "New Foo(service, otherService)" };
-                yield return new object[] { "New Foo([||]", "New Foo(service, otherService" };
-                yield return new object[] { "New Foo(, [||]", "New Foo(service, otherService" };
-                yield return new object[] { "New Foo([||],", "New Foo(service, otherService" };
-            }
+            yield return new object[] { "New Foo([||])", "New Foo(service, otherService)" };
+            yield return new object[] { "New Foo(, [||])", "New Foo(service, otherService)" };
+            yield return new object[] { "New Foo([||],)", "New Foo(service, otherService)" };
+            yield return new object[] { "New Foo([||]", "New Foo(service, otherService" };
+            yield return new object[] { "New Foo(, [||]", "New Foo(service, otherService" };
+            yield return new object[] { "New Foo([||],", "New Foo(service, otherService" };
         }
+    }
 
-        public static IEnumerable<object[]> SomeArgumentMissingTestCases
+    public static IEnumerable<object[]> SomeArgumentMissingTestCases
+    {
+        get
         {
-            get
+            yield return new object[]
             {
-                yield return new object[]
-                {
-                    "New Foo([||],someOtherService, someAnotherService, )",
-                    "New Foo(service, someOtherService, someAnotherService, yetAnotherService)"
-                };
-                yield return new object[]
-                {
-                    "New Foo([||],someOtherService, someAnotherService, )",
-                    "New Foo(service, someOtherService, someAnotherService, yetAnotherService)"
-                };
-                yield return new object[]
-                {
-                    "New Foo(,someOtherService, someAnotherService, [||])",
-                    "New Foo(service, someOtherService, someAnotherService, yetAnotherService)"
-                };
-                yield return new object[]
-                {
-                    "New Foo([||],someOtherService, someAnotherService,",
-                    "New Foo(service, someOtherService, someAnotherService, yetAnotherService"
-                };
-                yield return new object[]
-                {
-                    "New Foo(,someOtherService, someAnotherService, [||]",
-                    "New Foo(service, someOtherService, someAnotherService, yetAnotherService"
-                };
-            }
-        }
-
-        public static IEnumerable<object[]> SpecificArgumentMissingTestCases
-        {
-            get
+                "New Foo([||],someOtherService, someAnotherService, )",
+                "New Foo(service, someOtherService, someAnotherService, yetAnotherService)"
+            };
+            yield return new object[]
             {
-                yield return new object[]
-                {
-                    "New Foo(service, [||],, someYetAnotherService)",
-                    "New Foo(service, otherService,, someYetAnotherService)"
-                };
-
-                yield return new object[]
-                {
-                    "New Foo(service, [||],, someYetAnotherService)",
-                    "New Foo(service, otherService,, someYetAnotherService)"
-                };
-            }
+                "New Foo([||],someOtherService, someAnotherService, )",
+                "New Foo(service, someOtherService, someAnotherService, yetAnotherService)"
+            };
+            yield return new object[]
+            {
+                "New Foo(,someOtherService, someAnotherService, [||])",
+                "New Foo(service, someOtherService, someAnotherService, yetAnotherService)"
+            };
+            yield return new object[]
+            {
+                "New Foo([||],someOtherService, someAnotherService,",
+                "New Foo(service, someOtherService, someAnotherService, yetAnotherService"
+            };
+            yield return new object[]
+            {
+                "New Foo(,someOtherService, someAnotherService, [||]",
+                "New Foo(service, someOtherService, someAnotherService, yetAnotherService"
+            };
         }
+    }
 
-        protected override CodeRefactoringProvider CodeRefactoringProvider { get; } = new IntroduceSubstituteCodeRefactoringProvider();
-
-        [Theory]
-        [MemberData(nameof(AllArgumentsMissingTestCases))]
-        public async Task GeneratesConstructorArgumentListWithLocalVariables_WhenAllArgumentsMissing(string creationExpression, string expectedCreationExpression)
+    public static IEnumerable<object[]> SpecificArgumentMissingTestCases
+    {
+        get
         {
-            var source = $@"Imports NSubstitute
+            yield return new object[]
+            {
+                "New Foo(service, [||],, someYetAnotherService)",
+                "New Foo(service, otherService,, someYetAnotherService)"
+            };
+
+            yield return new object[]
+            {
+                "New Foo(service, [||],, someYetAnotherService)",
+                "New Foo(service, otherService,, someYetAnotherService)"
+            };
+        }
+    }
+
+    protected override CodeRefactoringProvider CodeRefactoringProvider { get; } = new IntroduceSubstituteCodeRefactoringProvider();
+
+    [Theory]
+    [MemberData(nameof(AllArgumentsMissingTestCases))]
+    public async Task GeneratesConstructorArgumentListWithLocalVariables_WhenAllArgumentsMissing(string creationExpression, string expectedCreationExpression)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IService
@@ -99,7 +99,7 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            var newSource = $@"Imports NSubstitute
+        var newSource = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IService
@@ -122,13 +122,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyRefactoring(source, newSource, refactoringIndex: 2);
-        }
+        await VerifyRefactoring(source, newSource, refactoringIndex: 2);
+    }
 
-        [Fact]
-        public async Task GeneratesConstructorArgumentListForAllArguments_WithFullyQualifiedName_WhenNamespaceNotImported()
-        {
-            var source = @"
+    [Fact]
+    public async Task GeneratesConstructorArgumentListForAllArguments_WithFullyQualifiedName_WhenNamespaceNotImported()
+    {
+        var source = @"
 Namespace MyNamespace
     Interface IService
     End Interface
@@ -148,7 +148,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            var newSource = @"
+        var newSource = @"
 Namespace MyNamespace
     Interface IService
     End Interface
@@ -170,13 +170,13 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyRefactoring(source, newSource, refactoringIndex: 2);
-        }
+        await VerifyRefactoring(source, newSource, refactoringIndex: 2);
+    }
 
-        [Fact]
-        public async Task GeneratesConstructorArgumentListForSpecificSubstitute_WithFullyQualifiedName_WhenNamespaceNotImported()
-        {
-            var source = @"Namespace MyNamespace
+    [Fact]
+    public async Task GeneratesConstructorArgumentListForSpecificSubstitute_WithFullyQualifiedName_WhenNamespaceNotImported()
+    {
+        var source = @"Namespace MyNamespace
     Interface IService
     End Interface
 
@@ -195,7 +195,7 @@ End Namespace";
     End Class
 End Namespace
 ";
-            var newSource = @"Namespace MyNamespace
+        var newSource = @"Namespace MyNamespace
     Interface IService
     End Interface
 
@@ -215,14 +215,14 @@ End Namespace
     End Class
 End Namespace
 ";
-            await VerifyRefactoring(source, newSource, refactoringIndex: 0);
-        }
+        await VerifyRefactoring(source, newSource, refactoringIndex: 0);
+    }
 
-        [Theory]
-        [MemberData(nameof(SomeArgumentMissingTestCases))]
-        public async Task GeneratesConstructorArgumentListWithLocalVariables_WhenSomeArgumentsMissing(string creationExpression, string expectedCreationExpression)
-        {
-            var source = $@"Imports NSubstitute
+    [Theory]
+    [MemberData(nameof(SomeArgumentMissingTestCases))]
+    public async Task GeneratesConstructorArgumentListWithLocalVariables_WhenSomeArgumentsMissing(string creationExpression, string expectedCreationExpression)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IService
@@ -251,7 +251,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            var newSource = $@"Imports NSubstitute
+        var newSource = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IService
@@ -282,14 +282,14 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyRefactoring(source, newSource, refactoringIndex: 2);
-        }
+        await VerifyRefactoring(source, newSource, refactoringIndex: 2);
+    }
 
-        [Theory]
-        [MemberData(nameof(AllArgumentsMissingTestCases))]
-        public async Task GeneratesConstructorArgumentListWithReadonlyFields_WhenAllArgumentsMissing(string creationExpression, string expectedCreationExpression)
-        {
-            var source = $@"Imports NSubstitute
+    [Theory]
+    [MemberData(nameof(AllArgumentsMissingTestCases))]
+    public async Task GeneratesConstructorArgumentListWithReadonlyFields_WhenAllArgumentsMissing(string creationExpression, string expectedCreationExpression)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IService
@@ -310,7 +310,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            var newSource = $@"Imports NSubstitute
+        var newSource = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IService
@@ -334,14 +334,14 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyRefactoring(source, newSource, refactoringIndex: 3);
-        }
+        await VerifyRefactoring(source, newSource, refactoringIndex: 3);
+    }
 
-        [Theory]
-        [MemberData(nameof(SomeArgumentMissingTestCases))]
-        public async Task GeneratesConstructorArgumentListWithReadonlyFields_WhenSomeArgumentsMissing(string creationExpression, string expectedCreationExpression)
-        {
-            var source = $@"Imports NSubstitute
+    [Theory]
+    [MemberData(nameof(SomeArgumentMissingTestCases))]
+    public async Task GeneratesConstructorArgumentListWithReadonlyFields_WhenSomeArgumentsMissing(string creationExpression, string expectedCreationExpression)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IService
@@ -370,7 +370,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            var newSource = $@"Imports NSubstitute
+        var newSource = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IService
@@ -402,14 +402,14 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyRefactoring(source, newSource, refactoringIndex: 3);
-        }
+        await VerifyRefactoring(source, newSource, refactoringIndex: 3);
+    }
 
-        [Theory]
-        [MemberData(nameof(SpecificArgumentMissingTestCases))]
-        public async Task GeneratesConstructorArgumentListWithLocalVariable_ForSpecificArgument_WhenArgumentMissing(string creationExpression, string expectedCreationExpression)
-        {
-            var source = $@"Imports NSubstitute
+    [Theory]
+    [MemberData(nameof(SpecificArgumentMissingTestCases))]
+    public async Task GeneratesConstructorArgumentListWithLocalVariable_ForSpecificArgument_WhenArgumentMissing(string creationExpression, string expectedCreationExpression)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IService
@@ -438,7 +438,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            var newSource = $@"Imports NSubstitute
+        var newSource = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IService
@@ -468,14 +468,14 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyRefactoring(source, newSource, refactoringIndex: 0);
-        }
+        await VerifyRefactoring(source, newSource, refactoringIndex: 0);
+    }
 
-        [Theory]
-        [MemberData(nameof(SpecificArgumentMissingTestCases))]
-        public async Task GeneratesConstructorArgumentListWithReadonlyFields_ForSpecificArgument_WhenArgumentMissing(string creationExpression, string expectedCreationExpression)
-        {
-            var source = $@"Imports NSubstitute
+    [Theory]
+    [MemberData(nameof(SpecificArgumentMissingTestCases))]
+    public async Task GeneratesConstructorArgumentListWithReadonlyFields_ForSpecificArgument_WhenArgumentMissing(string creationExpression, string expectedCreationExpression)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IService
@@ -505,7 +505,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            var newSource = $@"Imports NSubstitute
+        var newSource = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IService
@@ -536,7 +536,6 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyRefactoring(source, newSource, refactoringIndex: 1);
-        }
+        await VerifyRefactoring(source, newSource, refactoringIndex: 1);
     }
 }

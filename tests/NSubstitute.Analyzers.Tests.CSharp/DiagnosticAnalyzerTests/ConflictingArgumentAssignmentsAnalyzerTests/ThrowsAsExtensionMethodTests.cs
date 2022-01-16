@@ -1,15 +1,14 @@
 using System.Threading.Tasks;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
-using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ConflictingArgumentAssignmentsAnalyzerTests
+namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.ConflictingArgumentAssignmentsAnalyzerTests;
+
+[CombinatoryData("Throws", "ThrowsForAnyArgs")]
+public class ThrowsAsExtensionMethodTests : ConflictingArgumentAssignmentsDiagnosticVerifier
 {
-    [CombinatoryData("Throws", "ThrowsForAnyArgs")]
-    public class ThrowsAsExtensionMethodTests : ConflictingArgumentAssignmentsDiagnosticVerifier
+    public override async Task ReportsDiagnostic_When_AndDoesMethod_SetsSameArgument_AsPreviousSetupMethod(string method, string call, string previousCallArgAccess, string andDoesArgAccess)
     {
-        public override async Task ReportsDiagnostic_When_AndDoesMethod_SetsSameArgument_AsPreviousSetupMethod(string method, string call, string previousCallArgAccess, string andDoesArgAccess)
-        {
-            var source = $@"using System;
+        var source = $@"using System;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -41,12 +40,12 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyDiagnostic(source, Descriptor);
-        }
+        await VerifyDiagnostic(source, Descriptor);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string method)
-        {
-            var source = $@"using System;
+    public override async Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string method)
+    {
+        var source = $@"using System;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -75,12 +74,12 @@ namespace MyNamespace
         }}
     }}
 }}";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod(string method)
-        {
-            var source = $@"using System;
+    public override async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod(string method)
+    {
+        var source = $@"using System;
 using NSubstitute;
 using NSubstitute.Core;
 using NSubstitute.ExceptionExtensions;
@@ -116,12 +115,12 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_When_AndDoesMethod_SetsDifferentArgument_AsPreviousSetupMethod(string method, string call, string andDoesArgAccess)
-        {
-            var source = $@"using System;
+    public override async Task ReportsNoDiagnostics_When_AndDoesMethod_SetsDifferentArgument_AsPreviousSetupMethod(string method, string call, string andDoesArgAccess)
+    {
+        var source = $@"using System;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -153,12 +152,12 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_When_AndDoesMethod_AccessSameArguments_AsPreviousSetupMethod(string method, string call, string argAccess)
-        {
-            var source = $@"using System;
+    public override async Task ReportsNoDiagnostics_When_AndDoesMethod_AccessSameArguments_AsPreviousSetupMethod(string method, string call, string argAccess)
+    {
+        var source = $@"using System;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -190,12 +189,12 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_When_AndDoesMethod_SetSameArguments_AsPreviousSetupMethod_SetsIndirectly(string method)
-        {
-            var source = $@"using System;
+    public override async Task ReportsNoDiagnostics_When_AndDoesMethod_SetSameArguments_AsPreviousSetupMethod_SetsIndirectly(string method)
+    {
+        var source = $@"using System;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -225,12 +224,12 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostic_When_AndDoesMethod_SetArgument_AndPreviousMethod_IsNotUsedWithCallInfo(string method, string call, string andDoesArgAccess)
-        {
-            var source = $@"using System;
+    public override async Task ReportsNoDiagnostic_When_AndDoesMethod_SetArgument_AndPreviousMethod_IsNotUsedWithCallInfo(string method, string call, string andDoesArgAccess)
+    {
+        var source = $@"using System;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -258,7 +257,6 @@ namespace MyNamespace
     }}
 }}";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
     }
 }

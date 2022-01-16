@@ -1,13 +1,13 @@
 ﻿using System.Threading.Tasks;
 using NSubstitute.Analyzers.Shared;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.NonSubstitutableMemberAnalyzerSuppressDiagnosticsCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.NonSubstitutableMemberAnalyzerSuppressDiagnosticsCodeFixProviderTests;
+
+public class ReturnsForAnyArgsAsExtensionMethodTests : NonSubstitutableMemberSuppressDiagnosticsCodeFixVerifier
 {
-    public class ReturnsForAnyArgsAsExtensionMethodTests : NonSubstitutableMemberSuppressDiagnosticsCodeFixVerifier
+    public override async Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualMethod()
     {
-        public override async Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualMethod()
-        {
-            var source = @"Imports NSubstitute
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -27,12 +27,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifySuppressionSettings(source, "M:MyNamespace.Foo.Bar~System.Int32", DiagnosticIdentifiers.NonVirtualSetupSpecification);
-        }
+        await VerifySuppressionSettings(source, "M:MyNamespace.Foo.Bar~System.Int32", DiagnosticIdentifiers.NonVirtualSetupSpecification);
+    }
 
-        public override async Task SuppressesDiagnosticsInSettings_WhenSettingValueForStaticMethod()
-        {
-            var source = @"Imports NSubstitute
+    public override async Task SuppressesDiagnosticsInSettings_WhenSettingValueForStaticMethod()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -51,12 +51,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifySuppressionSettings(source, "M:MyNamespace.Foo.Bar~System.Int32", DiagnosticIdentifiers.NonVirtualSetupSpecification);
-        }
+        await VerifySuppressionSettings(source, "M:MyNamespace.Foo.Bar~System.Int32", DiagnosticIdentifiers.NonVirtualSetupSpecification);
+    }
 
-        public override async Task SuppressesDiagnosticsInSettings_WhenSettingValueForExtensionMethod()
-        {
-            var source = @"Imports NSubstitute
+    public override async Task SuppressesDiagnosticsInSettings_WhenSettingValueForExtensionMethod()
+    {
+        var source = @"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 Namespace MyNamespace
@@ -88,12 +88,12 @@ Namespace MyNamespace
     End Interface
 End Namespace";
 
-            await VerifySuppressionSettings(source, "M:MyNamespace.MyExtensions.GetBar(MyNamespace.IFoo)~System.Int32", DiagnosticIdentifiers.NonVirtualSetupSpecification);
-        }
+        await VerifySuppressionSettings(source, "M:MyNamespace.MyExtensions.GetBar(MyNamespace.IFoo)~System.Int32", DiagnosticIdentifiers.NonVirtualSetupSpecification);
+    }
 
-        public override async Task SuppressesDiagnosticsInSettings_WhenSettingValueForSealedOverrideMethod()
-        {
-            var source = @"Imports NSubstitute
+    public override async Task SuppressesDiagnosticsInSettings_WhenSettingValueForSealedOverrideMethod()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -121,12 +121,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifySuppressionSettings(source, "M:MyNamespace.Foo2.Bar~System.Int32", DiagnosticIdentifiers.NonVirtualSetupSpecification);
-        }
+        await VerifySuppressionSettings(source, "M:MyNamespace.Foo2.Bar~System.Int32", DiagnosticIdentifiers.NonVirtualSetupSpecification);
+    }
 
-        public override async Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualProperty()
-        {
-            var source = @"Imports NSubstitute
+    public override async Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualProperty()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -147,12 +147,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifySuppressionSettings(source, "P:MyNamespace.Foo.Bar", DiagnosticIdentifiers.NonVirtualSetupSpecification);
-        }
+        await VerifySuppressionSettings(source, "P:MyNamespace.Foo.Bar", DiagnosticIdentifiers.NonVirtualSetupSpecification);
+    }
 
-        public override async Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualIndexer()
-        {
-            var source = @"Imports System
+    public override async Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualIndexer()
+    {
+        var source = @"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -175,12 +175,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifySuppressionSettings(source, "P:MyNamespace.Foo.Item(System.Int32)", DiagnosticIdentifiers.NonVirtualSetupSpecification);
-        }
+        await VerifySuppressionSettings(source, "P:MyNamespace.Foo.Item(System.Int32)", DiagnosticIdentifiers.NonVirtualSetupSpecification);
+    }
 
-        public override async Task SuppressesDiagnosticsInSettingsForClass_WhenSettingsValueForNonVirtualMember_AndSelectingClassSuppression()
-        {
-            var source = @"Imports System
+    public override async Task SuppressesDiagnosticsInSettingsForClass_WhenSettingsValueForNonVirtualMember_AndSelectingClassSuppression()
+    {
+        var source = @"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -203,13 +203,13 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifySuppressionSettings(source, "T:MyNamespace.Foo", DiagnosticIdentifiers.NonVirtualSetupSpecification, 1);
-        }
+        await VerifySuppressionSettings(source, "T:MyNamespace.Foo", DiagnosticIdentifiers.NonVirtualSetupSpecification, 1);
+    }
 
-        public override async Task
-            SuppressesDiagnosticsInSettingsForNamespace_WhenSettingsValueForNonVirtualMember_AndSelectingNamespaceSuppression()
-        {
-            var source = @"Imports System
+    public override async Task
+        SuppressesDiagnosticsInSettingsForNamespace_WhenSettingsValueForNonVirtualMember_AndSelectingNamespaceSuppression()
+    {
+        var source = @"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -232,7 +232,6 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifySuppressionSettings(source, "N:MyNamespace", DiagnosticIdentifiers.NonVirtualSetupSpecification, 2);
-        }
+        await VerifySuppressionSettings(source, "N:MyNamespace", DiagnosticIdentifiers.NonVirtualSetupSpecification, 2);
     }
 }

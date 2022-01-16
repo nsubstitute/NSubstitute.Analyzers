@@ -6,18 +6,18 @@ using NSubstitute.Analyzers.VisualBasic.CodeFixProviders;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.PartialSubstituteUsedForUnsupportedTypeCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.PartialSubstituteUsedForUnsupportedTypeCodeFixProviderTests;
+
+public class PartialSubstituteUsedForUnsupportedTypeCodeFixActionsTests : VisualBasicCodeFixActionsVerifier, IPartialSubstituteUsedForUnsupportedTypeCodeFixActionsVerifier
 {
-    public class PartialSubstituteUsedForUnsupportedTypeCodeFixActionsTests : VisualBasicCodeFixActionsVerifier, IPartialSubstituteUsedForUnsupportedTypeCodeFixActionsVerifier
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
+
+    protected override CodeFixProvider CodeFixProvider { get; } = new PartialSubstituteUsedForUnsupportedTypeCodeFixProvider();
+
+    [Fact]
+    public async Task CreatesCorrectCodeFixActions_ForSubstituteForPartsOf()
     {
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
-
-        protected override CodeFixProvider CodeFixProvider { get; } = new PartialSubstituteUsedForUnsupportedTypeCodeFixProvider();
-
-        [Fact]
-        public async Task CreatesCorrectCodeFixActions_ForSubstituteForPartsOf()
-        {
-            var source = @"Imports NSubstitute
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Interface IFoo
@@ -30,13 +30,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyCodeActions(source, "Use Substitute.For");
-        }
+        await VerifyCodeActions(source, "Use Substitute.For");
+    }
 
-        [Fact]
-        public async Task CreatesCorrectCodeFixActions_ForSubstituteFactoryCreatePartial()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task CreatesCorrectCodeFixActions_ForSubstituteFactoryCreatePartial()
+    {
+        var source = @"Imports NSubstitute
 Imports NSubstitute.Core
 
 Namespace MyNamespace
@@ -50,7 +50,6 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyCodeActions(source, "Use SubstituteFactory.Create");
-        }
+        await VerifyCodeActions(source, "Use SubstituteFactory.Create");
     }
 }

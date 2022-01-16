@@ -7,19 +7,19 @@ using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProviderTests;
+
+public class NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixTests
+    : CSharpSuppressDiagnosticSettingsVerifier, INonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixVerifier
 {
-    public class NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixTests
-        : CSharpSuppressDiagnosticSettingsVerifier, INonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixVerifier
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberArgumentMatcherAnalyzer();
+
+    protected override CodeFixProvider CodeFixProvider { get; } = new NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider();
+
+    [Fact]
+    public async Task SuppressesDiagnosticsInSettings_WhenArgMatcherUsedInNonVirtualMethod()
     {
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberArgumentMatcherAnalyzer();
-
-        protected override CodeFixProvider CodeFixProvider { get; } = new NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider();
-
-        [Fact]
-        public async Task SuppressesDiagnosticsInSettings_WhenArgMatcherUsedInNonVirtualMethod()
-        {
-            var source = @"using NSubstitute;
+        var source = @"using NSubstitute;
 
 namespace MyNamespace
 {
@@ -41,13 +41,13 @@ namespace MyNamespace
     }
 }";
 
-            await VerifySuppressionSettings(source, "M:MyNamespace.Foo.Bar(System.Int32)~System.Int32", DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage);
-        }
+        await VerifySuppressionSettings(source, "M:MyNamespace.Foo.Bar(System.Int32)~System.Int32", DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage);
+    }
 
-        [Fact]
-        public async Task SuppressesDiagnosticsInSettings_WhenArgMatcherUsedInNonVirtualIndexer()
-        {
-            var source = @"using NSubstitute;
+    [Fact]
+    public async Task SuppressesDiagnosticsInSettings_WhenArgMatcherUsedInNonVirtualIndexer()
+    {
+        var source = @"using NSubstitute;
 
 namespace MyNamespace
 {
@@ -66,13 +66,13 @@ namespace MyNamespace
     }
 }";
 
-            await VerifySuppressionSettings(source, "P:MyNamespace.Foo.Item(System.Int32)", DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage);
-        }
+        await VerifySuppressionSettings(source, "P:MyNamespace.Foo.Item(System.Int32)", DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage);
+    }
 
-        [Fact]
-        public async Task SuppressesDiagnosticsInSettingsForClass_WhenSettingsValueForNonVirtualMember_AndSelectingClassSuppression()
-        {
-            var source = @"using NSubstitute;
+    [Fact]
+    public async Task SuppressesDiagnosticsInSettingsForClass_WhenSettingsValueForNonVirtualMember_AndSelectingClassSuppression()
+    {
+        var source = @"using NSubstitute;
 
 namespace MyNamespace
 {
@@ -91,13 +91,13 @@ namespace MyNamespace
     }
 }";
 
-            await VerifySuppressionSettings(source, "T:MyNamespace.Foo", DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage, codeFixIndex: 1);
-        }
+        await VerifySuppressionSettings(source, "T:MyNamespace.Foo", DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage, codeFixIndex: 1);
+    }
 
-        [Fact]
-        public async Task SuppressesDiagnosticsInSettingsForNamespace_WhenSettingsValueForNonVirtualMember_AndSelectingNamespaceSuppression()
-        {
-            var source = @"using NSubstitute;
+    [Fact]
+    public async Task SuppressesDiagnosticsInSettingsForNamespace_WhenSettingsValueForNonVirtualMember_AndSelectingNamespaceSuppression()
+    {
+        var source = @"using NSubstitute;
 
 namespace MyNamespace
 {
@@ -116,7 +116,6 @@ namespace MyNamespace
     }
 }";
 
-            await VerifySuppressionSettings(source, "N:MyNamespace", DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage, codeFixIndex: 2);
-        }
+        await VerifySuppressionSettings(source, "N:MyNamespace", DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage, codeFixIndex: 2);
     }
 }

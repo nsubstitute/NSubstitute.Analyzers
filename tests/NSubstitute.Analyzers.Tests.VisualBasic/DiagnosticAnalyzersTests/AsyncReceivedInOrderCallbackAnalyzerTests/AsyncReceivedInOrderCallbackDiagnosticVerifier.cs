@@ -7,18 +7,18 @@ using NSubstitute.Analyzers.VisualBasic;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.AsyncReceivedInOrderCallbackAnalyzerTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.AsyncReceivedInOrderCallbackAnalyzerTests;
+
+public class AsyncReceivedInOrderCallbackDiagnosticVerifier : VisualBasicDiagnosticVerifier, IAsyncReceivedInOrderCallbackDiagnosticVerifier
 {
-    public class AsyncReceivedInOrderCallbackDiagnosticVerifier : VisualBasicDiagnosticVerifier, IAsyncReceivedInOrderCallbackDiagnosticVerifier
+    private readonly DiagnosticDescriptor _descriptor = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.AsyncCallbackUsedInReceivedInOrder;
+
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new AsyncReceivedInOrderCallbackAnalyzer();
+
+    [Fact]
+    public async Task ReportsDiagnostic_WhenAsyncLambdaCallbackUsedInReceivedInOrder()
     {
-        private readonly DiagnosticDescriptor _descriptor = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.AsyncCallbackUsedInReceivedInOrder;
-
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new AsyncReceivedInOrderCallbackAnalyzer();
-
-        [Fact]
-        public async Task ReportsDiagnostic_WhenAsyncLambdaCallbackUsedInReceivedInOrder()
-        {
-           var source = @"Imports System.Threading.Tasks
+        var source = @"Imports System.Threading.Tasks
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -35,13 +35,13 @@ Namespace MyNamespace
 End Namespace
 ";
 
-           await VerifyDiagnostic(source, _descriptor);
-        }
+        await VerifyDiagnostic(source, _descriptor);
+    }
 
-        [Fact]
-        public async Task ReportsDiagnostic_WhenAsyncDelegateCallbackUsedInReceivedInOrder()
-        {
-            var source = @"Imports System.Threading.Tasks
+    [Fact]
+    public async Task ReportsDiagnostic_WhenAsyncDelegateCallbackUsedInReceivedInOrder()
+    {
+        var source = @"Imports System.Threading.Tasks
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -60,13 +60,13 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source, _descriptor);
-        }
+        await VerifyDiagnostic(source, _descriptor);
+    }
 
-        [Fact]
-        public async Task ReportsNoDiagnostic_WhenNonAsyncLambdaCallbackUsedInReceivedInOrder()
-        {
-            var source = @"Imports System.Threading.Tasks
+    [Fact]
+    public async Task ReportsNoDiagnostic_WhenNonAsyncLambdaCallbackUsedInReceivedInOrder()
+    {
+        var source = @"Imports System.Threading.Tasks
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -83,13 +83,13 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [Fact]
-        public async Task ReportsNoDiagnostic_WhenNonAsyncDelegateCallbackUsedInReceivedInOrder()
-        {
-            var source = @"Imports System.Threading.Tasks
+    [Fact]
+    public async Task ReportsNoDiagnostic_WhenNonAsyncDelegateCallbackUsedInReceivedInOrder()
+    {
+        var source = @"Imports System.Threading.Tasks
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -108,13 +108,13 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [Fact]
-        public async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod()
-        {
-            var source = @"Imports System
+    [Fact]
+    public async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod()
+    {
+        var source = @"Imports System
 Imports System.Threading.Tasks
 
 Namespace MyNamespace
@@ -138,7 +138,6 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
     }
 }

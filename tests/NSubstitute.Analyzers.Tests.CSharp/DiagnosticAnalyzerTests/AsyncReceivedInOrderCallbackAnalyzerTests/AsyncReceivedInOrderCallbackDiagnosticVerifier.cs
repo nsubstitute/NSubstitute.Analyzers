@@ -7,18 +7,18 @@ using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.AsyncReceivedInOrderCallbackAnalyzerTests
+namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.AsyncReceivedInOrderCallbackAnalyzerTests;
+
+public class AsyncReceivedInOrderCallbackDiagnosticVerifier : CSharpDiagnosticVerifier, IAsyncReceivedInOrderCallbackDiagnosticVerifier
 {
-    public class AsyncReceivedInOrderCallbackDiagnosticVerifier : CSharpDiagnosticVerifier, IAsyncReceivedInOrderCallbackDiagnosticVerifier
+    private readonly DiagnosticDescriptor _descriptor = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.AsyncCallbackUsedInReceivedInOrder;
+
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new AsyncReceivedInOrderCallbackAnalyzer();
+
+    [Fact]
+    public async Task ReportsDiagnostic_WhenAsyncLambdaCallbackUsedInReceivedInOrder()
     {
-        private readonly DiagnosticDescriptor _descriptor = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.AsyncCallbackUsedInReceivedInOrder;
-
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new AsyncReceivedInOrderCallbackAnalyzer();
-
-        [Fact]
-        public async Task ReportsDiagnostic_WhenAsyncLambdaCallbackUsedInReceivedInOrder()
-        {
-           var source = @"using System.Threading.Tasks;
+        var source = @"using System.Threading.Tasks;
 using NSubstitute;
 
 namespace MyNamespace
@@ -41,13 +41,13 @@ namespace MyNamespace
     }
 }";
 
-           await VerifyDiagnostic(source, _descriptor);
-        }
+        await VerifyDiagnostic(source, _descriptor);
+    }
 
-        [Fact]
-        public async Task ReportsDiagnostic_WhenAsyncDelegateCallbackUsedInReceivedInOrder()
-        {
-           var source = @"using System.Threading.Tasks;
+    [Fact]
+    public async Task ReportsDiagnostic_WhenAsyncDelegateCallbackUsedInReceivedInOrder()
+    {
+        var source = @"using System.Threading.Tasks;
 using NSubstitute;
 
 namespace MyNamespace
@@ -70,13 +70,13 @@ namespace MyNamespace
     }
 }";
 
-           await VerifyDiagnostic(source, _descriptor);
-        }
+        await VerifyDiagnostic(source, _descriptor);
+    }
 
-        [Fact]
-        public async Task ReportsNoDiagnostic_WhenNonAsyncLambdaCallbackUsedInReceivedInOrder()
-        {
-            var source = @"using NSubstitute;
+    [Fact]
+    public async Task ReportsNoDiagnostic_WhenNonAsyncLambdaCallbackUsedInReceivedInOrder()
+    {
+        var source = @"using NSubstitute;
 
 namespace MyNamespace
 {
@@ -97,13 +97,13 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [Fact]
-        public async Task ReportsNoDiagnostic_WhenNonAsyncDelegateCallbackUsedInReceivedInOrder()
-        {
-            var source = @"using NSubstitute;
+    [Fact]
+    public async Task ReportsNoDiagnostic_WhenNonAsyncDelegateCallbackUsedInReceivedInOrder()
+    {
+        var source = @"using NSubstitute;
 
 namespace MyNamespace
 {
@@ -124,13 +124,13 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [Fact]
-        public async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod()
-        {
-            var source = @"using System;
+    [Fact]
+    public async Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod()
+    {
+        var source = @"using System;
 using System.Threading.Tasks;
 
 namespace MyNamespace
@@ -160,7 +160,6 @@ namespace MyNamespace
     }
 }";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
     }
 }

@@ -7,18 +7,18 @@ using NSubstitute.Analyzers.VisualBasic.CodeFixProviders;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.NonSubstitutableMemberAnalyzerSuppressDiagnosticsCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.NonSubstitutableMemberAnalyzerSuppressDiagnosticsCodeFixProviderTests;
+
+public class NonSubstitutableMemberSuppressDiagnosticsCodeFixActionsTests : VisualBasicCodeFixActionsVerifier, INonSubstitutableMemberSuppressDiagnosticsCodeFixActionsVerifier
 {
-    public class NonSubstitutableMemberSuppressDiagnosticsCodeFixActionsTests : VisualBasicCodeFixActionsVerifier, INonSubstitutableMemberSuppressDiagnosticsCodeFixActionsVerifier
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberAnalyzer();
+
+    protected override CodeFixProvider CodeFixProvider { get; } = new NonSubstitutableMemberSuppressDiagnosticsCodeFixProvider();
+
+    [Fact]
+    public async Task CreatesCorrectCodeFixActions_ForIndexer()
     {
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberAnalyzer();
-
-        protected override CodeFixProvider CodeFixProvider { get; } = new NonSubstitutableMemberSuppressDiagnosticsCodeFixProvider();
-
-        [Fact]
-        public async Task CreatesCorrectCodeFixActions_ForIndexer()
-        {
-            var source = @"Imports System
+        var source = @"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -41,18 +41,18 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyCodeActions(source, new[]
-            {
-                $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for indexer Item in nsubstitute.json",
-                $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for class Foo in nsubstitute.json",
-                $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for namespace MyNamespace in nsubstitute.json"
-            });
-        }
-
-        [Fact]
-        public async Task CreatesCorrectCodeFixActions_ForProperty()
+        await VerifyCodeActions(source, new[]
         {
-            var source = @"Imports NSubstitute
+            $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for indexer Item in nsubstitute.json",
+            $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for class Foo in nsubstitute.json",
+            $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for namespace MyNamespace in nsubstitute.json"
+        });
+    }
+
+    [Fact]
+    public async Task CreatesCorrectCodeFixActions_ForProperty()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -73,18 +73,18 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyCodeActions(source, new[]
-            {
-                $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for property Bar in nsubstitute.json",
-                $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for class Foo in nsubstitute.json",
-                $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for namespace MyNamespace in nsubstitute.json"
-            });
-        }
-
-        [Fact]
-        public async Task CreatesCorrectCodeFixActions_ForMethod()
+        await VerifyCodeActions(source, new[]
         {
-            var source = @"Imports NSubstitute
+            $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for property Bar in nsubstitute.json",
+            $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for class Foo in nsubstitute.json",
+            $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for namespace MyNamespace in nsubstitute.json"
+        });
+    }
+
+    [Fact]
+    public async Task CreatesCorrectCodeFixActions_ForMethod()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -104,12 +104,11 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyCodeActions(source, new[]
-            {
-                $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for method Bar in nsubstitute.json",
-                $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for class Foo in nsubstitute.json",
-                $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for namespace MyNamespace in nsubstitute.json"
-            });
-        }
+        await VerifyCodeActions(source, new[]
+        {
+            $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for method Bar in nsubstitute.json",
+            $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for class Foo in nsubstitute.json",
+            $"Suppress {DiagnosticIdentifiers.NonVirtualSetupSpecification} for namespace MyNamespace in nsubstitute.json"
+        });
     }
 }

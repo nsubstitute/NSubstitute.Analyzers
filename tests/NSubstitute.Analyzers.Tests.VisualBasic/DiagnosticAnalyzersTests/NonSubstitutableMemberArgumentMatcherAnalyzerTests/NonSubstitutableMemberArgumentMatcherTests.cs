@@ -3,13 +3,13 @@ using System.Threading.Tasks;
 using NSubstitute.Analyzers.Shared.Settings;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSubstitutableMemberArgumentMatcherAnalyzerTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSubstitutableMemberArgumentMatcherAnalyzerTests;
+
+public class NonSubstitutableMemberArgumentMatcherTests : NonSubstitutableMemberArgumentMatcherDiagnosticVerifier
 {
-    public class NonSubstitutableMemberArgumentMatcherTests : NonSubstitutableMemberArgumentMatcherDiagnosticVerifier
+    public override async Task ReportsDiagnostics_WhenUsedInNonVirtualMethod(string arg)
     {
-        public override async Task ReportsDiagnostics_WhenUsedInNonVirtualMethod(string arg)
-        {
-            var source = $@"Imports System
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -38,12 +38,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
-        }
+        await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
+    }
 
-        public override async Task ReportsDiagnostics_WhenUsedInStaticMethod(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsDiagnostics_WhenUsedInStaticMethod(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -68,12 +68,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
-        }
+        await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenUsedInVirtualMethod(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsNoDiagnostics_WhenUsedInVirtualMethod(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -100,12 +100,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenUsedInNonSealedOverrideMethod(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsNoDiagnostics_WhenUsedInNonSealedOverrideMethod(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -141,14 +141,14 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenUsedInDelegate(string arg)
-        {
-            var delegateArgType = arg.EndsWith("Invoke()") ? "Action" : "Integer?";
+    public override async Task ReportsNoDiagnostics_WhenUsedInDelegate(string arg)
+    {
+        var delegateArgType = arg.EndsWith("Invoke()") ? "Action" : "Integer?";
 
-            var source = $@"Imports NSubstitute
+        var source = $@"Imports NSubstitute
 Imports System
 
 Namespace MyNamespace
@@ -161,12 +161,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsDiagnostics_WhenUsedInSealedOverrideMethod(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsDiagnostics_WhenUsedInSealedOverrideMethod(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -210,12 +210,12 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
-        }
+        await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenUsedInAbstractMethod(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsNoDiagnostics_WhenUsedInAbstractMethod(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -236,12 +236,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenUsedInInterfaceMethod(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsNoDiagnostics_WhenUsedInInterfaceMethod(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -262,12 +262,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenUsedInGenericInterfaceMethod(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsNoDiagnostics_WhenUsedInGenericInterfaceMethod(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -290,12 +290,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenUsedInInterfaceIndexer(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsNoDiagnostics_WhenUsedInInterfaceIndexer(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -317,12 +317,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenUsedInVirtualIndexer(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsNoDiagnostics_WhenUsedInVirtualIndexer(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -351,12 +351,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsDiagnostics_WhenUsedInNonVirtualIndexer(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsDiagnostics_WhenUsedInNonVirtualIndexer(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -393,12 +393,12 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
-        }
+        await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 Imports System.Linq.Expressions
 Imports System.Runtime.CompilerServices
@@ -475,12 +475,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenUsedWithPotentiallyValidAssignment(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsNoDiagnostics_WhenUsedWithPotentiallyValidAssignment(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -491,12 +491,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsDiagnostics_WhenUsedAsStandaloneExpression(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsDiagnostics_WhenUsedAsStandaloneExpression(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -507,12 +507,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
-        }
+        await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
+    }
 
-        public override async Task ReportsDiagnostics_WhenUsedInConstructor(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsDiagnostics_WhenUsedInConstructor(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -533,12 +533,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
-        }
+        await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
+    }
 
-        public override async Task ReportsDiagnostics_WhenUsedInInternalVirtualMember_AndInternalsVisibleToNotApplied(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsDiagnostics_WhenUsedInInternalVirtualMember_AndInternalsVisibleToNotApplied(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -567,12 +567,12 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
-        }
+        await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenUsedInInternalVirtualMember_AndInternalsVisibleToApplied(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsNoDiagnostics_WhenUsedInInternalVirtualMember_AndInternalsVisibleToApplied(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
@@ -600,12 +600,12 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsDiagnostics_WhenUsedInInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsDiagnostics_WhenUsedInInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
@@ -636,12 +636,12 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
-        }
+        await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenUsedInProtectedInternalVirtualMember(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsNoDiagnostics_WhenUsedInProtectedInternalVirtualMember(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -665,19 +665,19 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod(string arg)
+    public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod(string arg)
+    {
+        Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar(System.Int32,System.Int32)", ArgumentMatcherUsedWithoutSpecifyingCall.Id);
+        Settings.Suppressions.Add(new Suppression
         {
-            Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar(System.Int32,System.Int32)", ArgumentMatcherUsedWithoutSpecifyingCall.Id);
-            Settings.Suppressions.Add(new Suppression
-            {
-                Target = "M:MyNamespace.Foo.Bar(System.Action,System.Action)",
-                Rules = new List<string> { ArgumentMatcherUsedWithoutSpecifyingCall.Id }
-            });
+            Target = "M:MyNamespace.Foo.Bar(System.Action,System.Action)",
+            Rules = new List<string> { ArgumentMatcherUsedWithoutSpecifyingCall.Id }
+        });
 
-            var source = $@"Imports System
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -709,12 +709,12 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
-        }
+        await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenSubscribingToEvent()
-        {
-            var source = @"Imports NSubstitute
+    public override async Task ReportsNoDiagnostics_WhenSubscribingToEvent()
+    {
+        var source = @"Imports NSubstitute
 Imports System
 
 Namespace MyNamespace
@@ -737,12 +737,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenAssigningAllowedArgMatchersToSubstitutableMember(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsNoDiagnostics_WhenAssigningAllowedArgMatchersToSubstitutableMember(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -760,12 +760,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsDiagnostics_WhenAssigningArgMatchersToNonSubstitutableMember(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsDiagnostics_WhenAssigningArgMatchersToNonSubstitutableMember(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -791,12 +791,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
-        }
+        await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
+    }
 
-        public override async Task ReportsDiagnostics_WhenDirectlyAssigningNotAllowedArgMatchersToMember(string arg)
-        {
-            var source = $@"Imports System
+    public override async Task ReportsDiagnostics_WhenDirectlyAssigningNotAllowedArgMatchersToMember(string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 Imports NSubstitute.ReceivedExtensions
 
@@ -815,19 +815,19 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
-        }
+        await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
+    }
 
-        [CombinatoryData(
-            "Received(Quantity.None())",
-            "Received()",
-            "ReceivedWithAnyArgs(Quantity.None())",
-            "ReceivedWithAnyArgs()",
-            "DidNotReceive()",
-            "DidNotReceiveWithAnyArgs()")]
-        public override async Task ReportsNoDiagnostics_WhenAssigningArgMatchersToSubstitutableMemberPrecededByReceivedLikeMethod(string receivedMethod, string arg)
-        {
-            var source = $@"Imports System
+    [CombinatoryData(
+        "Received(Quantity.None())",
+        "Received()",
+        "ReceivedWithAnyArgs(Quantity.None())",
+        "ReceivedWithAnyArgs()",
+        "DidNotReceive()",
+        "DidNotReceiveWithAnyArgs()")]
+    public override async Task ReportsNoDiagnostics_WhenAssigningArgMatchersToSubstitutableMemberPrecededByReceivedLikeMethod(string receivedMethod, string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 Imports NSubstitute.ReceivedExtensions
 
@@ -846,13 +846,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [CombinatoryData("When", "WhenForAnyArgs")]
-        public override async Task ReportsDiagnostics_WhenAssigningArgMatchersToNonSubstitutableMember_InWhenLikeMethod(string whenMethod, string arg)
-        {
-            var source = $@"Imports System
+    [CombinatoryData("When", "WhenForAnyArgs")]
+    public override async Task ReportsDiagnostics_WhenAssigningArgMatchersToNonSubstitutableMember_InWhenLikeMethod(string whenMethod, string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -880,13 +880,13 @@ End Class
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
-        }
+        await VerifyDiagnostic(source, ArgumentMatcherUsedWithoutSpecifyingCall);
+    }
 
-        [CombinatoryData("When", "WhenForAnyArgs")]
-        public override async Task ReportsNoDiagnostics_WhenAssigningArgMatchersToSubstitutableMember_InWhenLikeMethod(string whenMethod, string arg)
-        {
-            var source = $@"Imports System
+    [CombinatoryData("When", "WhenForAnyArgs")]
+    public override async Task ReportsNoDiagnostics_WhenAssigningArgMatchersToSubstitutableMember_InWhenLikeMethod(string whenMethod, string arg)
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -906,12 +906,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostic_WhenOverloadCannotBeInferred()
-        {
-            var source = $@"Imports System
+    public override async Task ReportsNoDiagnostic_WhenOverloadCannotBeInferred()
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -934,7 +934,6 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
     }
 }

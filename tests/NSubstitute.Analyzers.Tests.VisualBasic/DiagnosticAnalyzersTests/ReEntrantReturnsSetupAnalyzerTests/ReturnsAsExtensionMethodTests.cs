@@ -3,14 +3,14 @@ using System.Threading.Tasks;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using NSubstitute.Analyzers.Tests.Shared.Extensions;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.ReEntrantReturnsSetupAnalyzerTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.ReEntrantReturnsSetupAnalyzerTests;
+
+[CombinatoryData("Returns", "ReturnsForAnyArgs")]
+public class ReturnsAsExtensionMethodTests : ReEntrantReturnsSetupDiagnosticVerifier
 {
-    [CombinatoryData("Returns", "ReturnsForAnyArgs")]
-    public class ReturnsAsExtensionMethodTests : ReEntrantReturnsSetupDiagnosticVerifier
+    public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsViaMethodCall(string method, string reEntrantCall)
     {
-        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsViaMethodCall(string method, string reEntrantCall)
-        {
-            var source = $@"Imports NSubstitute
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IFoo
@@ -40,22 +40,22 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            var textParserResult = TextParser.GetSpans(source);
+        var textParserResult = TextParser.GetSpans(source);
 
-            var diagnosticMessages = new[]
-            {
-                $"{method}() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) ReturnThis()).",
-                $"{method}() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) OtherReturn())."
-            };
-
-            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
-
-            await VerifyDiagnostic(textParserResult.Text, diagnostics);
-        }
-
-        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsForAnyArgsViaMethodCall(string method, string reEntrantCall)
+        var diagnosticMessages = new[]
         {
-            var source = $@"Imports NSubstitute
+            $"{method}() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) ReturnThis()).",
+            $"{method}() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) OtherReturn())."
+        };
+
+        var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
+
+        await VerifyDiagnostic(textParserResult.Text, diagnostics);
+    }
+
+    public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsForAnyArgsViaMethodCall(string method, string reEntrantCall)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IFoo
@@ -85,22 +85,22 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            var textParserResult = TextParser.GetSpans(source);
+        var textParserResult = TextParser.GetSpans(source);
 
-            var diagnosticMessages = new[]
-            {
-                $"{method}() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) ReturnThis()).",
-                $"{method}() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) OtherReturn())."
-            };
-
-            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
-
-            await VerifyDiagnostic(textParserResult.Text, diagnostics);
-        }
-
-        public override async Task ReportsDiagnostic_WhenUsingReEntrantWhenDo(string method, string reEntrantCall)
+        var diagnosticMessages = new[]
         {
-            var source = $@"Imports NSubstitute
+            $"{method}() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) ReturnThis()).",
+            $"{method}() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) OtherReturn())."
+        };
+
+        var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
+
+        await VerifyDiagnostic(textParserResult.Text, diagnostics);
+    }
+
+    public override async Task ReportsDiagnostic_WhenUsingReEntrantWhenDo(string method, string reEntrantCall)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IFoo
@@ -129,22 +129,22 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            var textParserResult = TextParser.GetSpans(source);
+        var textParserResult = TextParser.GetSpans(source);
 
-            var diagnosticMessages = new[]
-            {
-                $"{method}() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) ReturnThis()).",
-                $"{method}() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) OtherReturn())."
-            };
-
-            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
-
-            await VerifyDiagnostic(textParserResult.Text, diagnostics);
-        }
-
-        public override async Task ReportsDiagnostic_ForNestedReEntrantCall(string method)
+        var diagnosticMessages = new[]
         {
-            var source = $@"Imports NSubstitute
+            $"{method}() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) ReturnThis()).",
+            $"{method}() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) OtherReturn())."
+        };
+
+        var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
+
+        await VerifyDiagnostic(textParserResult.Text, diagnostics);
+    }
+
+    public override async Task ReportsDiagnostic_ForNestedReEntrantCall(string method)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IFoo
@@ -184,23 +184,23 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            var textParserResult = TextParser.GetSpans(source);
+        var textParserResult = TextParser.GetSpans(source);
 
-            var diagnosticMessages = new[]
-            {
-                $"{method}() is set with a method that itself calls {method}. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) ReturnThis()).",
-                $"{method}() is set with a method that itself calls {method}. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) OtherReturn()).",
-                $"{method}() is set with a method that itself calls {method}. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) NestedReturnThis())."
-            };
-
-            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
-
-            await VerifyDiagnostic(textParserResult.Text, diagnostics);
-        }
-
-        public override async Task ReportsDiagnostic_ForSpecificNestedReEntrantCall(string method)
+        var diagnosticMessages = new[]
         {
-            var source = $@"Imports NSubstitute
+            $"{method}() is set with a method that itself calls {method}. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) ReturnThis()).",
+            $"{method}() is set with a method that itself calls {method}. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) OtherReturn()).",
+            $"{method}() is set with a method that itself calls {method}. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) NestedReturnThis())."
+        };
+
+        var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
+
+        await VerifyDiagnostic(textParserResult.Text, diagnostics);
+    }
+
+    public override async Task ReportsDiagnostic_ForSpecificNestedReEntrantCall(string method)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IFoo
@@ -240,12 +240,12 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source, Descriptor, $"{method}() is set with a method that itself calls {method}. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) NestedReturnThis()).");
-        }
+        await VerifyDiagnostic(source, Descriptor, $"{method}() is set with a method that itself calls {method}. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) NestedReturnThis()).");
+    }
 
-        public override async Task ReportsNoDiagnostic_WhenReturnsValueIsCreated_BeforeSetup(string method, string localVariable)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostic_WhenReturnsValueIsCreated_BeforeSetup(string method, string localVariable)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Interface IFoo
@@ -271,12 +271,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsCallExists(string method, string rootCall, string reEntrantCall)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsCallExists(string method, string rootCall, string reEntrantCall)
+    {
+        var source = $@"Imports NSubstitute
 Imports NSubstitute.Core
 Imports System
 
@@ -321,12 +321,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsForAnyArgsCallExists(string method, string rootCall, string reEntrantCall)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegate_AndReEntrantReturnsForAnyArgsCallExists(string method, string rootCall, string reEntrantCall)
+    {
+        var source = $@"Imports NSubstitute
 Imports NSubstitute.Core
 Imports System
 
@@ -371,12 +371,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostic_WhenReEntrantSubstituteNotUsed(string method, string firstReturn, string secondReturn)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostic_WhenReEntrantSubstituteNotUsed(string method, string firstReturn, string secondReturn)
+    {
+        var source = $@"Imports NSubstitute
 Imports NSubstitute.Core
 
 Namespace MyNamespace
@@ -408,12 +408,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturns_AcrossMultipleFiles(string method)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsDiagnostic_WhenUsingReEntrantReturns_AcrossMultipleFiles(string method)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IFoo
@@ -433,7 +433,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            var secondSource = $@"
+        var secondSource = $@"
 
 Imports NSubstitute
 
@@ -448,12 +448,12 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostics(new[] { source, secondSource }, Descriptor, $"{method}() is set with a method that itself calls {method}. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) FooBar.ReturnThis()).");
-        }
+        await VerifyDiagnostics(new[] { source, secondSource }, Descriptor, $"{method}() is set with a method that itself calls {method}. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) FooBar.ReturnThis()).");
+    }
 
-        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturns_InAsyncMethod(string method)
-        {
-            var source = $@"Imports System.Threading.Tasks
+    public override async Task ReportsDiagnostic_WhenUsingReEntrantReturns_InAsyncMethod(string method)
+    {
+        var source = $@"Imports System.Threading.Tasks
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -479,12 +479,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source, Descriptor, $"{method}() is set with a method that itself calls {method}. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) Await ReturnThis()).");
-        }
+        await VerifyDiagnostic(source, Descriptor, $"{method}() is set with a method that itself calls {method}. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) Await ReturnThis()).");
+    }
 
-        public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsIn_InParamsArray(string method, string reEntrantArrayCall)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsDiagnostic_WhenUsingReEntrantReturnsIn_InParamsArray(string method, string reEntrantArrayCall)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IFoo
@@ -509,12 +509,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source, Descriptor, $"{method}() is set with a method that itself calls {method}. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) ReturnThis()).");
-        }
+        await VerifyDiagnostic(source, Descriptor, $"{method}() is set with a method that itself calls {method}. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) ReturnThis()).");
+    }
 
-        public override async Task ReportsNoDiagnostic_WhenUsingReEntrantReturnsIn_AndParamArrayIsNotCreatedInline(string method)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostic_WhenUsingReEntrantReturnsIn_AndParamArrayIsNotCreatedInline(string method)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IFoo
@@ -540,12 +540,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostic_WhenUsed_WithTypeofExpression(string method, string type)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostic_WhenUsed_WithTypeofExpression(string method, string type)
+    {
+        var source = $@"Imports NSubstitute
 Imports System
 Namespace MyNamespace
     Public Class Foo
@@ -576,12 +576,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenReturnsValueIsSet_InForEachLoop(string method)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostics_WhenReturnsValueIsSet_InForEachLoop(string method)
+    {
+        var source = $@"Imports NSubstitute
 Imports NSubstitute.Core
 
 Namespace MyNamespace
@@ -604,12 +604,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenElementUsedTwice_InForEachLoop(string method)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostics_WhenElementUsedTwice_InForEachLoop(string method)
+    {
+        var source = $@"Imports NSubstitute
 Imports System.Collections.Generic
 Imports System.Linq
 
@@ -633,12 +633,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsDiagnostics_WhenReturnValueIsCalledWhileBeingConfigured(string method)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsDiagnostics_WhenReturnValueIsCalledWhileBeingConfigured(string method)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class FooTests
@@ -656,12 +656,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source, Descriptor, $"{method}() is set with a method that itself calls Id. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) firstSubstitute.Id).");
-        }
+        await VerifyDiagnostic(source, Descriptor, $"{method}() is set with a method that itself calls Id. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) firstSubstitute.Id).");
+    }
 
-        public override async Task ReportsDiagnostics_WhenReturnValueIsCalledWhileBeingConfiguredInConstructorBody(string method)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsDiagnostics_WhenReturnValueIsCalledWhileBeingConfiguredInConstructorBody(string method)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class FooTests
@@ -682,12 +682,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, Descriptor, $"{method}() is set with a method that itself calls Id. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) firstSubstitute.Id).");
-        }
+        await VerifyDiagnostic(source, Descriptor, $"{method}() is set with a method that itself calls Id. This can cause problems with NSubstitute. Consider replacing with a lambda: {method}(Function(x) firstSubstitute.Id).");
+    }
 
-        public override async Task ReportsNoDiagnostics_WhenReturnValueIsCalledAfterIsConfigured(string method)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostics_WhenReturnValueIsCalledAfterIsConfigured(string method)
+    {
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class FooTests
@@ -711,12 +711,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegateInArrayParams_AndReEntrantReturnsForAnyArgsCallExists(string method)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostic_WhenRootCallCalledWithDelegateInArrayParams_AndReEntrantReturnsForAnyArgsCallExists(string method)
+    {
+        var source = $@"Imports NSubstitute
 Imports NSubstitute.Core
 Imports System
 
@@ -743,7 +743,6 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
     }
 }

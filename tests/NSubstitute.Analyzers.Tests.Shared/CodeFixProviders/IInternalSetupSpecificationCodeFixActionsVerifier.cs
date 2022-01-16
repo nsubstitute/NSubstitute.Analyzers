@@ -1,11 +1,10 @@
 using System.Threading.Tasks;
 
-namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
-{
-    public interface IInternalSetupSpecificationCodeFixActionsVerifier
-    {
-        Task CreateCodeActions_InProperOrder();
+namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 
-        Task DoesNotCreateCodeActions_WhenSymbol_DoesNotBelongToCompilation();
-    }
+public interface IInternalSetupSpecificationCodeFixActionsVerifier
+{
+    Task CreateCodeActions_InProperOrder();
+
+    Task DoesNotCreateCodeActions_WhenSymbol_DoesNotBelongToCompilation();
 }

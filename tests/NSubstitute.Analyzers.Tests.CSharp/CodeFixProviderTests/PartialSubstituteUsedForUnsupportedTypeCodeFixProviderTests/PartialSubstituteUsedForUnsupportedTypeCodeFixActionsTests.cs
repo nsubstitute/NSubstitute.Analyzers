@@ -6,18 +6,18 @@ using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.PartialSubstituteUsedForUnsupportedTypeCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.PartialSubstituteUsedForUnsupportedTypeCodeFixProviderTests;
+
+public class PartialSubstituteUsedForUnsupportedTypeCodeFixActionsTests : CSharpCodeFixActionsVerifier, IPartialSubstituteUsedForUnsupportedTypeCodeFixActionsVerifier
 {
-    public class PartialSubstituteUsedForUnsupportedTypeCodeFixActionsTests : CSharpCodeFixActionsVerifier, IPartialSubstituteUsedForUnsupportedTypeCodeFixActionsVerifier
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
+
+    protected override CodeFixProvider CodeFixProvider { get; } = new PartialSubstituteUsedForUnsupportedTypeCodeFixProvider();
+
+    [Fact]
+    public async Task CreatesCorrectCodeFixActions_ForSubstituteForPartsOf()
     {
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
-
-        protected override CodeFixProvider CodeFixProvider { get; } = new PartialSubstituteUsedForUnsupportedTypeCodeFixProvider();
-
-        [Fact]
-        public async Task CreatesCorrectCodeFixActions_ForSubstituteForPartsOf()
-        {
-            var source = @"using NSubstitute;
+        var source = @"using NSubstitute;
 
 namespace MyNamespace
 {
@@ -33,13 +33,13 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyCodeActions(source, "Use Substitute.For");
-        }
+        await VerifyCodeActions(source, "Use Substitute.For");
+    }
 
-        [Fact]
-        public async Task CreatesCorrectCodeFixActions_ForSubstituteFactoryCreatePartial()
-        {
-            var source = @"using NSubstitute;
+    [Fact]
+    public async Task CreatesCorrectCodeFixActions_ForSubstituteFactoryCreatePartial()
+    {
+        var source = @"using NSubstitute;
 using NSubstitute.Core;
 
 namespace MyNamespace
@@ -56,7 +56,6 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyCodeActions(source, "Use SubstituteFactory.Create");
-        }
+        await VerifyCodeActions(source, "Use SubstituteFactory.Create");
     }
 }

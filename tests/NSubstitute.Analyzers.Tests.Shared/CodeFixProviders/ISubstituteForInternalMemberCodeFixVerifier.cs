@@ -1,19 +1,18 @@
 using System.Threading.Tasks;
 
-namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
+namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
+
+public interface ISubstituteForInternalMemberCodeFixVerifier
 {
-    public interface ISubstituteForInternalMemberCodeFixVerifier
-    {
-        Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalClass();
+    Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalClass();
 
-        Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass();
+    Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass();
 
-        Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass_AndArgumentListNotEmpty();
+    Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass_AndArgumentListNotEmpty();
 
-        Task AppendsInternalsVisibleTo_WhenUsedWithNestedInternalClass();
+    Task AppendsInternalsVisibleTo_WhenUsedWithNestedInternalClass();
 
-        Task DoesNot_AppendsInternalsVisibleTo_WhenUsedWithPublicClass();
+    Task DoesNot_AppendsInternalsVisibleTo_WhenUsedWithPublicClass();
 
-        Task DoesNot_AppendsInternalsVisibleTo_WhenInternalsVisibleToAppliedToDynamicProxyGenAssembly2();
-    }
+    Task DoesNot_AppendsInternalsVisibleTo_WhenInternalsVisibleToAppliedToDynamicProxyGenAssembly2();
 }

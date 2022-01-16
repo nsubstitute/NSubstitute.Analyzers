@@ -1,23 +1,22 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Operations;
 
-namespace NSubstitute.Analyzers.Shared.Extensions
+namespace NSubstitute.Analyzers.Shared.Extensions;
+
+internal static class IOperationExtensions
 {
-    internal static class IOperationExtensions
+    public static bool IsEventAssignmentOperation(this IOperation operation)
     {
-        public static bool IsEventAssignmentOperation(this IOperation operation)
+        switch (operation)
         {
-            switch (operation)
-            {
-                case IAssignmentOperation assignmentOperation:
-                    return assignmentOperation.Kind == OperationKind.EventAssignment;
-                case IEventAssignmentOperation _:
-                    return true;
-                case IExpressionStatementOperation expressionStatementOperation:
-                    return IsEventAssignmentOperation(expressionStatementOperation.Operation);
-                default:
-                    return false;
-            }
+            case IAssignmentOperation assignmentOperation:
+                return assignmentOperation.Kind == OperationKind.EventAssignment;
+            case IEventAssignmentOperation _:
+                return true;
+            case IExpressionStatementOperation expressionStatementOperation:
+                return IsEventAssignmentOperation(expressionStatementOperation.Operation);
+            default:
+                return false;
         }
     }
 }

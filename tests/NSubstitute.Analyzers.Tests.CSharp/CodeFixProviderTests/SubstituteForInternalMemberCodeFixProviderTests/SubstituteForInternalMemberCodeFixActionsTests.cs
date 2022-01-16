@@ -11,28 +11,28 @@ using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.SubstituteForInternalMemberCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.SubstituteForInternalMemberCodeFixProviderTests;
+
+public class SubstituteForInternalMemberCodeFixActionsTests : CSharpCodeFixActionsVerifier, ISubstituteForInternalMemberCodeFixActionsVerifier
 {
-    public class SubstituteForInternalMemberCodeFixActionsTests : CSharpCodeFixActionsVerifier, ISubstituteForInternalMemberCodeFixActionsVerifier
+    private static readonly MetadataReference[] AdditionalMetadataReferences =
     {
-        private static readonly MetadataReference[] AdditionalMetadataReferences =
-        {
-            GetInternalLibraryMetadataReference()
-        };
+        GetInternalLibraryMetadataReference()
+    };
 
-        public SubstituteForInternalMemberCodeFixActionsTests()
-            : base(CSharpWorkspaceFactory.Default.WithAdditionalMetadataReferences(AdditionalMetadataReferences))
-        {
-        }
+    public SubstituteForInternalMemberCodeFixActionsTests()
+        : base(CSharpWorkspaceFactory.Default.WithAdditionalMetadataReferences(AdditionalMetadataReferences))
+    {
+    }
 
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SubstituteAnalyzer();
 
-        protected override CodeFixProvider CodeFixProvider { get; } = new SubstituteForInternalMemberCodeFixProvider();
+    protected override CodeFixProvider CodeFixProvider { get; } = new SubstituteForInternalMemberCodeFixProvider();
 
-        [Fact]
-        public async Task CreatesCorrectCodeFixActions_WhenSourceForInternalType_IsAvailable()
-        {
-            var source = @"using NSubstitute.Core;
+    [Fact]
+    public async Task CreatesCorrectCodeFixActions_WhenSourceForInternalType_IsAvailable()
+    {
+        var source = @"using NSubstitute.Core;
 namespace MyNamespace
 {
     namespace MyInnerNamespace
@@ -50,13 +50,13 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyCodeActions(source, "Add InternalsVisibleTo attribute");
-        }
+        await VerifyCodeActions(source, "Add InternalsVisibleTo attribute");
+    }
 
-        [Fact]
-        public async Task Does_Not_CreateCodeFixActions_WhenType_IsNotInternal()
-        {
-            var source = @"using NSubstitute.Core;
+    [Fact]
+    public async Task Does_Not_CreateCodeFixActions_WhenType_IsNotInternal()
+    {
+        var source = @"using NSubstitute.Core;
 namespace MyNamespace
 {
     namespace MyInnerNamespace
@@ -74,13 +74,13 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyCodeActions(source);
-        }
+        await VerifyCodeActions(source);
+    }
 
-        [Fact]
-        public async Task Does_Not_CreateCodeFixActions_WhenSourceForInternalType_IsNotAvailable()
-        {
-            var source = @"using NSubstitute.Core;
+    [Fact]
+    public async Task Does_Not_CreateCodeFixActions_WhenSourceForInternalType_IsNotAvailable()
+    {
+        var source = @"using NSubstitute.Core;
 using ExternalNamespace;
 namespace MyNamespace
 {
@@ -95,12 +95,12 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyCodeActions(source);
-        }
+        await VerifyCodeActions(source);
+    }
 
-        private static MetadataReference GetInternalLibraryMetadataReference()
-        {
-            var syntaxTree = CSharpSyntaxTree.ParseText($@"
+    private static MetadataReference GetInternalLibraryMetadataReference()
+    {
+        var syntaxTree = CSharpSyntaxTree.ParseText($@"
 using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo(""{Shared.WorkspaceFactory.DefaultProjectName}"")]
 namespace ExternalNamespace
@@ -110,23 +110,22 @@ namespace ExternalNamespace
     }}
 }}");
 
-            var references = new[] { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) };
-            var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
-            var compilation = CSharpCompilation.Create("Internal", new[] { syntaxTree }, references, compilationOptions);
+        var references = new[] { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) };
+        var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
+        var compilation = CSharpCompilation.Create("Internal", new[] { syntaxTree }, references, compilationOptions);
 
-            using (var ms = new MemoryStream())
+        using (var ms = new MemoryStream())
+        {
+            var result = compilation.Emit(ms);
+
+            if (result.Success == false)
             {
-                var result = compilation.Emit(ms);
-
-                if (result.Success == false)
-                {
-                    var errors = result.Diagnostics.Where(diag => diag.IsWarningAsError || diag.Severity == DiagnosticSeverity.Error);
-                    throw new InvalidOperationException($"Internal library compilation failed: {string.Join(",", errors)}");
-                }
-
-                ms.Seek(0, SeekOrigin.Begin);
-                return MetadataReference.CreateFromStream(ms);
+                var errors = result.Diagnostics.Where(diag => diag.IsWarningAsError || diag.Severity == DiagnosticSeverity.Error);
+                throw new InvalidOperationException($"Internal library compilation failed: {string.Join(",", errors)}");
             }
+
+            ms.Seek(0, SeekOrigin.Begin);
+            return MetadataReference.CreateFromStream(ms);
         }
     }
 }

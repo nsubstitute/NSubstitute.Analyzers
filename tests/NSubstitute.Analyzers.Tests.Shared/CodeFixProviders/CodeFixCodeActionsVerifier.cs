@@ -11,58 +11,57 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.Shared.TinyJson;
 using NSubstitute.Analyzers.Tests.Shared.Extensions;
 
-namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders
+namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
+
+public abstract class CodeFixCodeActionsVerifier : CodeVerifier
 {
-    public abstract class CodeFixCodeActionsVerifier : CodeVerifier
+    protected CodeFixCodeActionsVerifier(WorkspaceFactory workspaceFactory)
+        : base(workspaceFactory)
     {
-        protected CodeFixCodeActionsVerifier(WorkspaceFactory workspaceFactory)
-            : base(workspaceFactory)
+    }
+
+    protected abstract CodeFixProvider CodeFixProvider { get; }
+
+    protected abstract DiagnosticAnalyzer DiagnosticAnalyzer { get; }
+
+    protected override string AnalyzerSettings { get; } = Json.Encode(new object());
+
+    protected async Task VerifyCodeActions(string source, params string[] expectedCodeActionTitles)
+    {
+        var codeActions = await RegisterCodeFixes(source);
+
+        codeActions.Should().NotBeNull();
+        codeActions.Select(action => action.Title).Should().BeEquivalentTo(expectedCodeActionTitles ?? Array.Empty<string>());
+    }
+
+    private async Task<List<CodeAction>> RegisterCodeFixes(string source)
+    {
+        using (var workspace = new AdhocWorkspace())
         {
-        }
+            var actions = new List<CodeAction>();
+            var project = AddProject(workspace.CurrentSolution, source);
 
-        protected abstract CodeFixProvider CodeFixProvider { get; }
+            var document = project.Documents.Single();
 
-        protected abstract DiagnosticAnalyzer DiagnosticAnalyzer { get; }
+            var compilation = await document.Project.GetCompilationAsync();
+            var compilationDiagnostics = compilation.GetDiagnostics();
 
-        protected override string AnalyzerSettings { get; } = Json.Encode(new object());
+            VerifyNoCompilerDiagnosticErrors(compilationDiagnostics);
 
-        protected async Task VerifyCodeActions(string source, params string[] expectedCodeActionTitles)
-        {
-            var codeActions = await RegisterCodeFixes(source);
+            var analyzerDiagnostics = await compilation.GetSortedAnalyzerDiagnostics(
+                DiagnosticAnalyzer,
+                project.AnalyzerOptions);
 
-            codeActions.Should().NotBeNull();
-            codeActions.Select(action => action.Title).Should().BeEquivalentTo(expectedCodeActionTitles ?? Array.Empty<string>());
-        }
-
-        private async Task<List<CodeAction>> RegisterCodeFixes(string source)
-        {
-            using (var workspace = new AdhocWorkspace())
+            foreach (var context in analyzerDiagnostics.Select(diagnostic => new CodeFixContext(
+                         document,
+                         analyzerDiagnostics[0],
+                         (action, array) => actions.Add(action),
+                         CancellationToken.None)))
             {
-                var actions = new List<CodeAction>();
-                var project = AddProject(workspace.CurrentSolution, source);
-
-                var document = project.Documents.Single();
-
-                var compilation = await document.Project.GetCompilationAsync();
-                var compilationDiagnostics = compilation.GetDiagnostics();
-
-                VerifyNoCompilerDiagnosticErrors(compilationDiagnostics);
-
-                var analyzerDiagnostics = await compilation.GetSortedAnalyzerDiagnostics(
-                    DiagnosticAnalyzer,
-                    project.AnalyzerOptions);
-
-                foreach (var context in analyzerDiagnostics.Select(diagnostic => new CodeFixContext(
-                    document,
-                    analyzerDiagnostics[0],
-                    (action, array) => actions.Add(action),
-                    CancellationToken.None)))
-                {
-                    await CodeFixProvider.RegisterCodeFixesAsync(context);
-                }
-
-                return actions;
+                await CodeFixProvider.RegisterCodeFixesAsync(context);
             }
+
+            return actions;
         }
     }
 }

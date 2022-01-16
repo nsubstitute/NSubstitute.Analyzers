@@ -11,95 +11,94 @@ using NSubstitute.Analyzers.CSharp.Extensions;
 using NSubstitute.Analyzers.Shared.CodeFixProviders;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace NSubstitute.Analyzers.CSharp.CodeFixProviders
+namespace NSubstitute.Analyzers.CSharp.CodeFixProviders;
+
+[ExportCodeFixProvider(LanguageNames.CSharp)]
+internal sealed class ReEntrantSetupCodeFixProvider : AbstractReEntrantSetupCodeFixProvider<ArgumentListSyntax, ArgumentSyntax>
 {
-    [ExportCodeFixProvider(LanguageNames.CSharp)]
-    internal sealed class ReEntrantSetupCodeFixProvider : AbstractReEntrantSetupCodeFixProvider<ArgumentListSyntax, ArgumentSyntax>
+    protected override int AwaitExpressionRawKind { get; } = (int)SyntaxKind.AwaitExpression;
+
+    protected override ArgumentSyntax CreateUpdatedArgumentSyntaxNode(ArgumentSyntax argumentSyntaxNode)
     {
-        protected override int AwaitExpressionRawKind { get; } = (int)SyntaxKind.AwaitExpression;
+        return argumentSyntaxNode.WithExpression(CreateSimpleLambdaExpressionNode(argumentSyntaxNode.Expression));
+    }
 
-        protected override ArgumentSyntax CreateUpdatedArgumentSyntaxNode(ArgumentSyntax argumentSyntaxNode)
+    protected override IEnumerable<SyntaxNode> GetParameterExpressionsFromArrayArgument(ArgumentSyntax argumentSyntaxNode)
+    {
+        return argumentSyntaxNode.Expression.GetParameterExpressionsFromArrayArgument()?.Select<ExpressionSyntax, SyntaxNode>(syntax => syntax);
+    }
+
+    protected override ArgumentSyntax CreateUpdatedParamsArgumentSyntaxNode(
+        SyntaxGenerator syntaxGenerator,
+        ITypeSymbol typeSymbol,
+        ArgumentSyntax argumentSyntaxNode)
+    {
+        var expression = argumentSyntaxNode.Expression;
+        ArrayCreationExpressionSyntax resultArrayCreationExpressionSyntax;
+
+        switch (expression)
         {
-            return argumentSyntaxNode.WithExpression(CreateSimpleLambdaExpressionNode(argumentSyntaxNode.Expression));
+            case ArrayCreationExpressionSyntax arrayCreationExpressionSyntax:
+                resultArrayCreationExpressionSyntax = CreateArrayCreationExpression(
+                    syntaxGenerator,
+                    typeSymbol,
+                    arrayCreationExpressionSyntax.Initializer);
+                break;
+            case ImplicitArrayCreationExpressionSyntax implicitArrayCreationExpressionSyntax:
+                resultArrayCreationExpressionSyntax = CreateArrayCreationExpression(
+                    syntaxGenerator,
+                    typeSymbol,
+                    implicitArrayCreationExpressionSyntax.Initializer);
+                break;
+            default:
+                throw new ArgumentException($"{argumentSyntaxNode.Kind()} is not recognized as array initialization", nameof(argumentSyntaxNode));
         }
 
-        protected override IEnumerable<SyntaxNode> GetParameterExpressionsFromArrayArgument(ArgumentSyntax argumentSyntaxNode)
-        {
-            return argumentSyntaxNode.Expression.GetParameterExpressionsFromArrayArgument()?.Select<ExpressionSyntax, SyntaxNode>(syntax => syntax);
-        }
+        return argumentSyntaxNode.WithExpression(resultArrayCreationExpressionSyntax);
+    }
 
-        protected override ArgumentSyntax CreateUpdatedParamsArgumentSyntaxNode(
-            SyntaxGenerator syntaxGenerator,
-            ITypeSymbol typeSymbol,
-            ArgumentSyntax argumentSyntaxNode)
-        {
-            var expression = argumentSyntaxNode.Expression;
-            ArrayCreationExpressionSyntax resultArrayCreationExpressionSyntax;
+    protected override IEnumerable<ArgumentSyntax> GetArguments(ArgumentListSyntax argumentSyntax)
+    {
+        return argumentSyntax.Arguments;
+    }
 
-            switch (expression)
-            {
-                case ArrayCreationExpressionSyntax arrayCreationExpressionSyntax:
-                    resultArrayCreationExpressionSyntax = CreateArrayCreationExpression(
-                        syntaxGenerator,
-                        typeSymbol,
-                        arrayCreationExpressionSyntax.Initializer);
-                    break;
-                case ImplicitArrayCreationExpressionSyntax implicitArrayCreationExpressionSyntax:
-                    resultArrayCreationExpressionSyntax = CreateArrayCreationExpression(
-                        syntaxGenerator,
-                        typeSymbol,
-                        implicitArrayCreationExpressionSyntax.Initializer);
-                    break;
-                default:
-                    throw new ArgumentException($"{argumentSyntaxNode.Kind()} is not recognized as array initialization", nameof(argumentSyntaxNode));
-            }
+    protected override SyntaxNode GetArgumentExpressionSyntax(ArgumentSyntax argumentSyntax)
+    {
+        return argumentSyntax.Expression;
+    }
 
-            return argumentSyntaxNode.WithExpression(resultArrayCreationExpressionSyntax);
-        }
+    private static SimpleLambdaExpressionSyntax CreateSimpleLambdaExpressionNode(SyntaxNode content)
+    {
+        return SimpleLambdaExpression(
+            Parameter(Identifier("_").WithTrailingTrivia(Space)),
+            (CSharpSyntaxNode)content.WithLeadingTrivia(Space));
+    }
 
-        protected override IEnumerable<ArgumentSyntax> GetArguments(ArgumentListSyntax argumentSyntax)
-        {
-            return argumentSyntax.Arguments;
-        }
+    private static ArrayCreationExpressionSyntax CreateArrayCreationExpression(
+        SyntaxGenerator syntaxGenerator,
+        ITypeSymbol typeSymbol,
+        InitializerExpressionSyntax initializerExpressionSyntax)
+    {
+        var arrayType = CreateArrayTypeNode(syntaxGenerator, typeSymbol);
+        var syntaxes = CreateSimpleLambdaExpressions(initializerExpressionSyntax);
 
-        protected override SyntaxNode GetArgumentExpressionSyntax(ArgumentSyntax argumentSyntax)
-        {
-            return argumentSyntax.Expression;
-        }
+        var initializer = InitializerExpression(SyntaxKind.ArrayInitializerExpression, syntaxes);
 
-        private static SimpleLambdaExpressionSyntax CreateSimpleLambdaExpressionNode(SyntaxNode content)
-        {
-            return SimpleLambdaExpression(
-                Parameter(Identifier("_").WithTrailingTrivia(Space)),
-                (CSharpSyntaxNode)content.WithLeadingTrivia(Space));
-        }
+        return ArrayCreationExpression(arrayType, initializer);
+    }
 
-        private static ArrayCreationExpressionSyntax CreateArrayCreationExpression(
-            SyntaxGenerator syntaxGenerator,
-            ITypeSymbol typeSymbol,
-            InitializerExpressionSyntax initializerExpressionSyntax)
-        {
-            var arrayType = CreateArrayTypeNode(syntaxGenerator, typeSymbol);
-            var syntaxes = CreateSimpleLambdaExpressions(initializerExpressionSyntax);
+    private static SeparatedSyntaxList<ExpressionSyntax> CreateSimpleLambdaExpressions(InitializerExpressionSyntax initializerExpressionSyntax)
+    {
+        var expressions = initializerExpressionSyntax.Expressions.Select<ExpressionSyntax, ExpressionSyntax>(CreateSimpleLambdaExpressionNode);
+        return SeparatedList(expressions);
+    }
 
-            var initializer = InitializerExpression(SyntaxKind.ArrayInitializerExpression, syntaxes);
+    private static ArrayTypeSyntax CreateArrayTypeNode(SyntaxGenerator syntaxGenerator, ITypeSymbol type)
+    {
+        var typeSyntax = (TypeSyntax)syntaxGenerator.TypeExpression(type);
 
-            return ArrayCreationExpression(arrayType, initializer);
-        }
+        var arrayRankSpecifierSyntaxes = SingletonList(ArrayRankSpecifier(SingletonSeparatedList<ExpressionSyntax>(OmittedArraySizeExpression())));
 
-        private static SeparatedSyntaxList<ExpressionSyntax> CreateSimpleLambdaExpressions(InitializerExpressionSyntax initializerExpressionSyntax)
-        {
-            var expressions = initializerExpressionSyntax.Expressions.Select<ExpressionSyntax, ExpressionSyntax>(CreateSimpleLambdaExpressionNode);
-            return SeparatedList(expressions);
-        }
-
-        private static ArrayTypeSyntax CreateArrayTypeNode(SyntaxGenerator syntaxGenerator, ITypeSymbol type)
-        {
-            var typeSyntax = (TypeSyntax)syntaxGenerator.TypeExpression(type);
-
-            var arrayRankSpecifierSyntaxes = SingletonList(ArrayRankSpecifier(SingletonSeparatedList<ExpressionSyntax>(OmittedArraySizeExpression())));
-
-            return ArrayType(typeSyntax, arrayRankSpecifierSyntaxes).WithAdditionalAnnotations(Simplifier.Annotation);
-        }
+        return ArrayType(typeSyntax, arrayRankSpecifierSyntaxes).WithAdditionalAnnotations(Simplifier.Annotation);
     }
 }

@@ -58,6 +58,19 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "NSubstitute.Analyzers.Bench
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSubstitute.Analyzers.Tests.Benchmarks", "tests\NSubstitute.Analyzers.Tests.Benchmarks\NSubstitute.Analyzers.Tests.Benchmarks.csproj", "{88C71C2F-1752-492A-A44E-921C79AA8576}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{C8AD7A75-9928-4BAD-BD6E-305447D64F04}"
+	ProjectSection(SolutionItems) = preProject
+		build\build.cake = build\build.cake
+		build\build.config = build\build.config
+		build\build.ps1 = build\build.ps1
+		build\build.sh = build\build.sh
+		build\parameters.cake = build\parameters.cake
+		build\paths.cake = build\paths.cake
+		build\releasenotes.cake = build\releasenotes.cake
+		build\table-of-contents.cake = build\table-of-contents.cake
+		build\version.cake = build\version.cake
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

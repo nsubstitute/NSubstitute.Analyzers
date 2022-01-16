@@ -11,24 +11,24 @@ using NSubstitute.Analyzers.VisualBasic;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSubstitutableMemberReceivedInOrderAnalyzerTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSubstitutableMemberReceivedInOrderAnalyzerTests;
+
+public class NonSubstitutableMemberReceivedInOrderDiagnosticVerifier : VisualBasicDiagnosticVerifier, INonSubstitutableMemberReceivedInOrderDiagnosticVerifier
 {
-    public class NonSubstitutableMemberReceivedInOrderDiagnosticVerifier : VisualBasicDiagnosticVerifier, INonSubstitutableMemberReceivedInOrderDiagnosticVerifier
+    internal AnalyzersSettings Settings { get; set; }
+
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberReceivedInOrderAnalyzer();
+
+    private readonly DiagnosticDescriptor _internalSetupSpecificationDescriptor = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.InternalSetupSpecification;
+
+    private readonly DiagnosticDescriptor _nonVirtualReceivedInOrderSetupSpecificationDescriptor = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.NonVirtualReceivedInOrderSetupSpecification;
+
+    protected override string AnalyzerSettings => Settings != null ? Json.Encode(Settings) : null;
+
+    [Fact]
+    public async Task ReportsDiagnostics_WhenInvokingNonVirtualMethodWithoutAssignment()
     {
-        internal AnalyzersSettings Settings { get; set; }
-
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberReceivedInOrderAnalyzer();
-
-        private readonly DiagnosticDescriptor _internalSetupSpecificationDescriptor = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.InternalSetupSpecification;
-
-        private readonly DiagnosticDescriptor _nonVirtualReceivedInOrderSetupSpecificationDescriptor = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.NonVirtualReceivedInOrderSetupSpecification;
-
-        protected override string AnalyzerSettings => Settings != null ? Json.Encode(Settings) : null;
-
-        [Fact]
-        public async Task ReportsDiagnostics_WhenInvokingNonVirtualMethodWithoutAssignment()
-        {
-            var source = @"Imports NSubstitute
+        var source = @"Imports NSubstitute
 Imports System.Threading.Tasks
 Namespace MyNamespace
     Public Class Foo
@@ -70,13 +70,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
-        }
+        await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+    }
 
-        [Fact]
-        public async Task ReportsDiagnostics_WhenInvokingNonVirtualMethodWithNonUsedAssignment()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task ReportsDiagnostics_WhenInvokingNonVirtualMethodWithNonUsedAssignment()
+    {
+        var source = @"Imports NSubstitute
 Imports System.Threading.Tasks
 Namespace MyNamespace
     Public Class Foo
@@ -113,13 +113,13 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
-        }
+        await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+    }
 
-        [Fact]
-        public async Task ReportsDiagnostics_WhenInvokingNonVirtualPropertyWithoutAssignment()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task ReportsDiagnostics_WhenInvokingNonVirtualPropertyWithoutAssignment()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -141,13 +141,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
-        }
+        await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+    }
 
-        [Fact]
-        public async Task ReportsDiagnostics_WhenInvokingNonVirtualPropertyWithNonUsedAssignment()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task ReportsDiagnostics_WhenInvokingNonVirtualPropertyWithNonUsedAssignment()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -164,13 +164,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
-        }
+        await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+    }
 
-        [Fact]
-        public async Task ReportsDiagnostics_WhenInvokingNonVirtualIndexerWithoutAssignment()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task ReportsDiagnostics_WhenInvokingNonVirtualIndexerWithoutAssignment()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -196,13 +196,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
-        }
+        await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+    }
 
-        [Fact]
-        public async Task ReportsDiagnostics_WhenInvokingNonVirtualIndexerWithNonUsedAssignment()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task ReportsDiagnostics_WhenInvokingNonVirtualIndexerWithNonUsedAssignment()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -223,13 +223,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
-        }
+        await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+    }
 
-        [Fact]
-        public async Task ReportsNoDiagnostics_WhenSubscribingToEvent()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task ReportsNoDiagnostics_WhenSubscribingToEvent()
+    {
+        var source = @"Imports NSubstitute
 Imports System
 
 Namespace MyNamespace
@@ -252,13 +252,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [Fact]
-        public async Task ReportsNoDiagnostics_WhenInvokingNonVirtualMethodWithUsedAssignment()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task ReportsNoDiagnostics_WhenInvokingNonVirtualMethodWithUsedAssignment()
+    {
+        var source = @"Imports NSubstitute
 Imports System.Threading.Tasks
 Namespace MyNamespace
     Public Class Foo
@@ -289,13 +289,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [Fact]
-        public async Task ReportsNoDiagnostics_WhenInvokingNonVirtualPropertyWithUsedAssignment()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task ReportsNoDiagnostics_WhenInvokingNonVirtualPropertyWithUsedAssignment()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -313,13 +313,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [Fact]
-        public async Task ReportsNoDiagnostics_WhenInvokingNonVirtualIndexerWithUsedAssignment()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task ReportsNoDiagnostics_WhenInvokingNonVirtualIndexerWithUsedAssignment()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -349,13 +349,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [Fact]
-        public async Task ReportsNoDiagnostics_WhenNonVirtualMethodIsCalledAsArgument()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task ReportsNoDiagnostics_WhenNonVirtualMethodIsCalledAsArgument()
+    {
+        var source = @"Imports NSubstitute
 Imports System.Threading.Tasks
 Namespace MyNamespace
     Public Class Foo
@@ -396,13 +396,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [Fact]
-        public async Task ReportsNoDiagnostics_WhenNonVirtualPropertyIsCalledAsArgument()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task ReportsNoDiagnostics_WhenNonVirtualPropertyIsCalledAsArgument()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -424,13 +424,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [Fact]
-        public async Task ReportsNoDiagnostics_WhenNonVirtualIndexerIsCalledAsArgument()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task ReportsNoDiagnostics_WhenNonVirtualIndexerIsCalledAsArgument()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -456,13 +456,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [Fact]
-        public async Task ReportsNoDiagnostics_WhenInvokingProtectedInternalVirtualMember()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task ReportsNoDiagnostics_WhenInvokingProtectedInternalVirtualMember()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -491,13 +491,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [Fact]
-        public async Task ReportsNoDiagnostics_WhenInvokingVirtualMember()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task ReportsNoDiagnostics_WhenInvokingVirtualMember()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -528,13 +528,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [Fact]
-        public async Task ReportsDiagnostics_WhenInvokingInternalVirtualMember_AndInternalsVisibleToNotApplied()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task ReportsDiagnostics_WhenInvokingInternalVirtualMember_AndInternalsVisibleToNotApplied()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -564,24 +564,24 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            var textParserResult = TextParser.GetSpans(source);
+        var textParserResult = TextParser.GetSpans(source);
 
-            var diagnosticMessages = new[]
-            {
-                "Friend member FooBar can not be intercepted without InternalsVisibleToAttribute.",
-                "Friend member Bar can not be intercepted without InternalsVisibleToAttribute.",
-                "Friend member Item can not be intercepted without InternalsVisibleToAttribute."
-            };
-
-            var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(_internalSetupSpecificationDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
-
-            await VerifyDiagnostic(textParserResult.Text, diagnostics);
-        }
-
-        [Fact]
-        public async Task ReportsNoDiagnostics_WhenInvokingInternalVirtualMember_AndInternalsVisibleToApplied()
+        var diagnosticMessages = new[]
         {
-            var source = @"Imports System
+            "Friend member FooBar can not be intercepted without InternalsVisibleToAttribute.",
+            "Friend member Bar can not be intercepted without InternalsVisibleToAttribute.",
+            "Friend member Item can not be intercepted without InternalsVisibleToAttribute."
+        };
+
+        var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(_internalSetupSpecificationDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
+
+        await VerifyDiagnostic(textParserResult.Text, diagnostics);
+    }
+
+    [Fact]
+    public async Task ReportsNoDiagnostics_WhenInvokingInternalVirtualMember_AndInternalsVisibleToApplied()
+    {
+        var source = @"Imports System
 Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
@@ -615,15 +615,15 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [Fact]
-        public async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod()
-        {
-            Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar(System.Int32,System.Int32)", _nonVirtualReceivedInOrderSetupSpecificationDescriptor.Id);
+    [Fact]
+    public async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingNonVirtualMethod()
+    {
+        Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar(System.Int32,System.Int32)", _nonVirtualReceivedInOrderSetupSpecificationDescriptor.Id);
 
-            var source = @"Imports System
+        var source = @"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -652,13 +652,13 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
-        }
+        await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+    }
 
-        [Fact]
-        public async Task ReportsDiagnostics_WhenNonVirtualMethodUsedAsPartOfExpression_WithoutAssignment()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task ReportsDiagnostics_WhenNonVirtualMethodUsedAsPartOfExpression_WithoutAssignment()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -679,13 +679,13 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
-        }
+        await VerifyDiagnostic(source, _nonVirtualReceivedInOrderSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+    }
 
-        [Fact]
-        public async Task ReportsNoDiagnostics_WhenNonVirtualMethodUsedAsPartOfExpression_WithAssignment()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task ReportsNoDiagnostics_WhenNonVirtualMethodUsedAsPartOfExpression_WithAssignment()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -707,13 +707,13 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        [Fact]
-        public async Task ReportsNoDiagnostics_WhenAccessingVirtualMemberViaNonVirtualAccessor()
-        {
-            var source = @"Imports System
+    [Fact]
+    public async Task ReportsNoDiagnostics_WhenAccessingVirtualMemberViaNonVirtualAccessor()
+    {
+        var source = @"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -747,7 +747,6 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
     }
 }

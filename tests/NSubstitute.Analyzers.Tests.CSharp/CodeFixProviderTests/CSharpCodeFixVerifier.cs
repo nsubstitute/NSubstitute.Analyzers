@@ -1,17 +1,16 @@
 ﻿using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests
-{
-    public abstract class CSharpCodeFixVerifier : CodeFixVerifier
-    {
-        protected CSharpCodeFixVerifier()
-            : this(CSharpWorkspaceFactory.Default)
-        {
-        }
+namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests;
 
-        protected CSharpCodeFixVerifier(CSharpWorkspaceFactory workspaceFactory)
-            : base(workspaceFactory)
-        {
-        }
+public abstract class CSharpCodeFixVerifier : CodeFixVerifier
+{
+    protected CSharpCodeFixVerifier()
+        : this(CSharpWorkspaceFactory.Default)
+    {
+    }
+
+    protected CSharpCodeFixVerifier(CSharpWorkspaceFactory workspaceFactory)
+        : base(workspaceFactory)
+    {
     }
 }

@@ -5,25 +5,24 @@ using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.VisualBasic.Extensions;
 
-namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers
+namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
+
+internal class SubstituteConstructorAnalysis : AbstractSubstituteConstructorAnalysis<InvocationExpressionSyntax, ArgumentSyntax>
 {
-    internal class SubstituteConstructorAnalysis : AbstractSubstituteConstructorAnalysis<InvocationExpressionSyntax, ArgumentSyntax>
+    public static SubstituteConstructorAnalysis Instance { get; } = new SubstituteConstructorAnalysis();
+
+    private SubstituteConstructorAnalysis()
     {
-        public static SubstituteConstructorAnalysis Instance { get; } = new SubstituteConstructorAnalysis();
+    }
 
-        private SubstituteConstructorAnalysis()
-        {
-        }
+    protected override IList<ArgumentSyntax> GetInvocationArguments(InvocationExpressionSyntax invocationExpression)
+    {
+        return invocationExpression.ArgumentList?.Arguments.ToList();
+    }
 
-        protected override IList<ArgumentSyntax> GetInvocationArguments(InvocationExpressionSyntax invocationExpression)
-        {
-            return invocationExpression.ArgumentList?.Arguments.ToList();
-        }
-
-        protected override IList<SyntaxNode> GetParameterExpressionsFromArrayArgument(ArgumentSyntax syntaxNode)
-        {
-            return syntaxNode.GetExpression().GetParameterExpressionsFromArrayArgument()?
-                .Select<ExpressionSyntax, SyntaxNode>(syntax => syntax).ToList();
-        }
+    protected override IList<SyntaxNode> GetParameterExpressionsFromArrayArgument(ArgumentSyntax syntaxNode)
+    {
+        return syntaxNode.GetExpression().GetParameterExpressionsFromArrayArgument()?
+            .Select<ExpressionSyntax, SyntaxNode>(syntax => syntax).ToList();
     }
 }

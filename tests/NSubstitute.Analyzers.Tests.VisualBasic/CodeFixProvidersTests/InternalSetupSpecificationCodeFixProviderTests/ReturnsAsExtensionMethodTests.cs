@@ -1,14 +1,14 @@
 ﻿using System.Threading.Tasks;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.InternalSetupSpecificationCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.InternalSetupSpecificationCodeFixProviderTests;
+
+[CombinatoryData("Returns")]
+public class ReturnsAsExtensionMethodTests : InternalSetupSpecificationCodeFixProviderVerifier
 {
-    [CombinatoryData("Returns")]
-    public class ReturnsAsExtensionMethodTests : InternalSetupSpecificationCodeFixProviderVerifier
+    public override async Task ChangesInternalToPublic_ForIndexer_WhenUsedWithInternalMember(string method)
     {
-        public override async Task ChangesInternalToPublic_ForIndexer_WhenUsedWithInternalMember(string method)
-        {
-            var oldSource = $@"Imports NSubstitute
+        var oldSource = $@"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 Namespace MyNamespace
@@ -28,7 +28,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            var newSource = $@"Imports NSubstitute
+        var newSource = $@"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 Namespace MyNamespace
@@ -48,12 +48,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyFix(oldSource, newSource, 1);
-        }
+        await VerifyFix(oldSource, newSource, 1);
+    }
 
-        public override async Task ChangesInternalToPublic_ForProperty_WhenUsedWithInternalMember(string method)
-        {
-            var oldSource = $@"Imports NSubstitute
+    public override async Task ChangesInternalToPublic_ForProperty_WhenUsedWithInternalMember(string method)
+    {
+        var oldSource = $@"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 Namespace MyNamespace
@@ -73,7 +73,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            var newSource = $@"Imports NSubstitute
+        var newSource = $@"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 Namespace MyNamespace
@@ -93,12 +93,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyFix(oldSource, newSource, 1);
-        }
+        await VerifyFix(oldSource, newSource, 1);
+    }
 
-        public override async Task ChangesInternalToPublic_ForMethod_WhenUsedWithInternalMember(string method)
-        {
-            var oldSource = $@"Imports NSubstitute
+    public override async Task ChangesInternalToPublic_ForMethod_WhenUsedWithInternalMember(string method)
+    {
+        var oldSource = $@"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 Namespace MyNamespace
@@ -116,7 +116,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            var newSource = $@"Imports NSubstitute
+        var newSource = $@"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 Namespace MyNamespace
@@ -134,12 +134,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyFix(oldSource, newSource, 1);
-        }
+        await VerifyFix(oldSource, newSource, 1);
+    }
 
-        public override async Task AppendsProtectedInternal_ToIndexer_WhenUsedWithInternalMember(string method)
-        {
-            var oldSource = $@"Imports NSubstitute
+    public override async Task AppendsProtectedInternal_ToIndexer_WhenUsedWithInternalMember(string method)
+    {
+        var oldSource = $@"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 Namespace MyNamespace
@@ -160,7 +160,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            var newSource = $@"Imports NSubstitute
+        var newSource = $@"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 Namespace MyNamespace
@@ -181,12 +181,12 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyFix(oldSource, newSource, 0);
-        }
+        await VerifyFix(oldSource, newSource, 0);
+    }
 
-        public override async Task AppendsProtectedInternal_ToProperty_WhenUsedWithInternalMember(string method)
-        {
-            var oldSource = $@"Imports NSubstitute
+    public override async Task AppendsProtectedInternal_ToProperty_WhenUsedWithInternalMember(string method)
+    {
+        var oldSource = $@"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 Namespace MyNamespace
@@ -207,7 +207,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            var newSource = $@"Imports NSubstitute
+        var newSource = $@"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 Namespace MyNamespace
@@ -228,12 +228,12 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            await VerifyFix(oldSource, newSource, 0);
-        }
+        await VerifyFix(oldSource, newSource, 0);
+    }
 
-        public override async Task AppendsProtectedInternal_ToMethod_WhenUsedWithInternalMember(string method)
-        {
-            var oldSource = $@"Imports NSubstitute
+    public override async Task AppendsProtectedInternal_ToMethod_WhenUsedWithInternalMember(string method)
+    {
+        var oldSource = $@"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 Namespace MyNamespace
@@ -252,7 +252,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            var newSource = $@"Imports NSubstitute
+        var newSource = $@"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 Namespace MyNamespace
@@ -270,12 +270,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyFix(oldSource, newSource, 0);
-        }
+        await VerifyFix(oldSource, newSource, 0);
+    }
 
-        public override async Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalMember(string method, string call)
-        {
-            var oldSource = $@"Imports NSubstitute
+    public override async Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalMember(string method, string call)
+    {
+        var oldSource = $@"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 <Assembly: InternalsVisibleTo(""OtherAssembly"")>
@@ -303,7 +303,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            var newSource = $@"Imports NSubstitute
+        var newSource = $@"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 <Assembly: InternalsVisibleTo(""OtherAssembly"")>
@@ -331,12 +331,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyFix(oldSource, newSource, 2);
-        }
+        await VerifyFix(oldSource, newSource, 2);
+    }
 
-        public override async Task AppendsInternalsVisibleToWithFullyQualifiedName_WhenUsedWithInternalMemberAndCompilerServicesNotImported(string method)
-        {
-            var oldSource = $@"Imports NSubstitute
+    public override async Task AppendsInternalsVisibleToWithFullyQualifiedName_WhenUsedWithInternalMemberAndCompilerServicesNotImported(string method)
+    {
+        var oldSource = $@"Imports NSubstitute
 
 <Assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""OtherAssembly"")>
 Namespace MyNamespace
@@ -355,7 +355,7 @@ Namespace MyNamespace
 End Namespace
 ";
 
-            var newSource = $@"Imports NSubstitute
+        var newSource = $@"Imports NSubstitute
 
 <Assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""OtherAssembly"")>
 <Assembly: System.Runtime.CompilerServices.InternalsVisibleTo(""DynamicProxyGenAssembly2"")>
@@ -374,7 +374,6 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyFix(oldSource, newSource, 2);
-        }
+        await VerifyFix(oldSource, newSource, 2);
     }
 }

@@ -4,24 +4,23 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NSubstitute.Analyzers.Shared.Extensions;
 
-namespace NSubstitute.Analyzers.CSharp.Extensions
+namespace NSubstitute.Analyzers.CSharp.Extensions;
+
+internal static class SyntaxExtensions
 {
-    internal static class SyntaxExtensions
+    private static readonly int[] ParentInvocationKindHierarchy =
     {
-        private static readonly int[] ParentInvocationKindHierarchy =
-        {
-            (int)SyntaxKind.SimpleMemberAccessExpression,
-            (int)SyntaxKind.InvocationExpression
-        };
+        (int)SyntaxKind.SimpleMemberAccessExpression,
+        (int)SyntaxKind.InvocationExpression
+    };
 
-        public static InvocationExpressionSyntax GetParentInvocationExpression(this SyntaxNode node)
-        {
-            return node.GetParentNode(ParentInvocationKindHierarchy) as InvocationExpressionSyntax;
-        }
+    public static InvocationExpressionSyntax GetParentInvocationExpression(this SyntaxNode node)
+    {
+        return node.GetParentNode(ParentInvocationKindHierarchy) as InvocationExpressionSyntax;
+    }
 
-        public static SyntaxNode GetSubstitutionActualNode(this SyntaxNode node, Func<SyntaxNode, ISymbol> symbolProvider)
-        {
-            return node.GetSubstitutionActualNode<MemberAccessExpressionSyntax>(symbolProvider);
-        }
+    public static SyntaxNode GetSubstitutionActualNode(this SyntaxNode node, Func<SyntaxNode, ISymbol> symbolProvider)
+    {
+        return node.GetSubstitutionActualNode<MemberAccessExpressionSyntax>(symbolProvider);
     }
 }

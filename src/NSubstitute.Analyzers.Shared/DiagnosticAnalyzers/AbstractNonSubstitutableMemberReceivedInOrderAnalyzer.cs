@@ -6,142 +6,141 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.Extensions;
 
-namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers
+namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
+
+internal abstract class AbstractNonSubstitutableMemberReceivedInOrderAnalyzer<TSyntaxKind, TInvocationExpressionSyntax, TMemberAccessExpressionSyntax, TBlockStatementSyntax> : AbstractNonSubstitutableSetupAnalyzer
+    where TSyntaxKind : struct
+    where TInvocationExpressionSyntax : SyntaxNode
+    where TMemberAccessExpressionSyntax : SyntaxNode
+    where TBlockStatementSyntax : SyntaxNode
 {
-    internal abstract class AbstractNonSubstitutableMemberReceivedInOrderAnalyzer<TSyntaxKind, TInvocationExpressionSyntax, TMemberAccessExpressionSyntax, TBlockStatementSyntax> : AbstractNonSubstitutableSetupAnalyzer
-        where TSyntaxKind : struct
-        where TInvocationExpressionSyntax : SyntaxNode
-        where TMemberAccessExpressionSyntax : SyntaxNode
-        where TBlockStatementSyntax : SyntaxNode
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+
+    protected abstract TSyntaxKind InvocationExpressionKind { get; }
+
+    protected abstract ImmutableArray<int> IgnoredAncestorPaths { get; }
+
+    private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
+    private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
+
+    protected AbstractNonSubstitutableMemberReceivedInOrderAnalyzer(
+        ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder,
+        INonSubstitutableMemberAnalysis nonSubstitutableMemberAnalysis,
+        IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
+        : base(diagnosticDescriptorsProvider, nonSubstitutableMemberAnalysis)
     {
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+        _substitutionNodeFinder = substitutionNodeFinder;
+        SupportedDiagnostics = ImmutableArray.Create(
+            DiagnosticDescriptorsProvider.InternalSetupSpecification,
+            DiagnosticDescriptorsProvider.NonVirtualReceivedInOrderSetupSpecification);
+        _analyzeInvocationAction = AnalyzeInvocation;
+        NonVirtualSetupDescriptor = diagnosticDescriptorsProvider.NonVirtualReceivedInOrderSetupSpecification;
+    }
 
-        protected abstract TSyntaxKind InvocationExpressionKind { get; }
+    protected override DiagnosticDescriptor NonVirtualSetupDescriptor { get; }
 
-        protected abstract ImmutableArray<int> IgnoredAncestorPaths { get; }
+    protected sealed override void InitializeAnalyzer(AnalysisContext context)
+    {
+        context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
+    }
 
-        private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
-        private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
+    protected override Location GetSubstitutionNodeActualLocation(in NonSubstitutableMemberAnalysisResult analysisResult)
+    {
+        return analysisResult.Member.GetSubstitutionNodeActualLocation<TMemberAccessExpressionSyntax>(analysisResult.Symbol);
+    }
 
-        protected AbstractNonSubstitutableMemberReceivedInOrderAnalyzer(
-            ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder,
-            INonSubstitutableMemberAnalysis nonSubstitutableMemberAnalysis,
-            IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
-            : base(diagnosticDescriptorsProvider, nonSubstitutableMemberAnalysis)
+    private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
+    {
+        var invocationExpression = (TInvocationExpressionSyntax)syntaxNodeContext.Node;
+        var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
+
+        if (methodSymbolInfo.Symbol?.Kind != SymbolKind.Method)
         {
-            _substitutionNodeFinder = substitutionNodeFinder;
-            SupportedDiagnostics = ImmutableArray.Create(
-                DiagnosticDescriptorsProvider.InternalSetupSpecification,
-                DiagnosticDescriptorsProvider.NonVirtualReceivedInOrderSetupSpecification);
-            _analyzeInvocationAction = AnalyzeInvocation;
-            NonVirtualSetupDescriptor = diagnosticDescriptorsProvider.NonVirtualReceivedInOrderSetupSpecification;
+            return;
         }
 
-        protected override DiagnosticDescriptor NonVirtualSetupDescriptor { get; }
-
-        protected sealed override void InitializeAnalyzer(AnalysisContext context)
+        if (methodSymbolInfo.Symbol.IsReceivedInOrderMethod() == false)
         {
-            context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
+            return;
         }
 
-        protected override Location GetSubstitutionNodeActualLocation(in NonSubstitutableMemberAnalysisResult analysisResult)
+        foreach (var syntaxNode in _substitutionNodeFinder.FindForReceivedInOrderExpression(
+                     syntaxNodeContext,
+                     invocationExpression,
+                     (IMethodSymbol)methodSymbolInfo.Symbol).Where(node => ShouldAnalyzeNode(syntaxNodeContext.SemanticModel, node)))
         {
-            return analysisResult.Member.GetSubstitutionNodeActualLocation<TMemberAccessExpressionSyntax>(analysisResult.Symbol);
-        }
+            var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode);
 
-        private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
-        {
-            var invocationExpression = (TInvocationExpressionSyntax)syntaxNodeContext.Node;
-            var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
-
-            if (methodSymbolInfo.Symbol?.Kind != SymbolKind.Method)
+            if (symbolInfo.Symbol == null)
             {
                 return;
             }
 
-            if (methodSymbolInfo.Symbol.IsReceivedInOrderMethod() == false)
-            {
-                return;
-            }
-
-            foreach (var syntaxNode in _substitutionNodeFinder.FindForReceivedInOrderExpression(
-                syntaxNodeContext,
-                invocationExpression,
-                (IMethodSymbol)methodSymbolInfo.Symbol).Where(node => ShouldAnalyzeNode(syntaxNodeContext.SemanticModel, node)))
-            {
-                var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode);
-
-                if (symbolInfo.Symbol == null)
-                {
-                    return;
-                }
-
-                Analyze(syntaxNodeContext, syntaxNode, symbolInfo.Symbol);
-            }
+            Analyze(syntaxNodeContext, syntaxNode, symbolInfo.Symbol);
         }
+    }
 
-        private bool ShouldAnalyzeNode(SemanticModel semanticModel, SyntaxNode syntaxNode)
+    private bool ShouldAnalyzeNode(SemanticModel semanticModel, SyntaxNode syntaxNode)
+    {
+        var maybeIgnoredExpression = FindIgnoredEnclosingExpression(syntaxNode);
+        if (maybeIgnoredExpression == null)
         {
-            var maybeIgnoredExpression = FindIgnoredEnclosingExpression(syntaxNode);
-            if (maybeIgnoredExpression == null)
-            {
-                return true;
-            }
-
-            if (syntaxNode.Parent is TMemberAccessExpressionSyntax || semanticModel.GetOperation(syntaxNode.Parent) is IMemberReferenceOperation)
-            {
-                return false;
-            }
-
-            var operation = semanticModel.GetOperation(maybeIgnoredExpression);
-
-            if (operation is IArgumentOperation &&
-                operation.Parent is IInvocationOperation invocationOperation &&
-                invocationOperation.TargetMethod.IsReceivedInOrderMethod())
-            {
-                return true;
-            }
-
-            if (operation.IsEventAssignmentOperation())
-            {
-                return false;
-            }
-
-            var symbol = GetVariableDeclaratorSymbol(operation);
-
-            if (symbol == null)
-            {
-                return false;
-            }
-
-            var blockStatementSyntax =
-                maybeIgnoredExpression.Ancestors().OfType<TBlockStatementSyntax>().FirstOrDefault();
-
-            if (blockStatementSyntax == null)
-            {
-                return false;
-            }
-
-            var dataFlowAnalysis = semanticModel.AnalyzeDataFlow(blockStatementSyntax);
-            return !dataFlowAnalysis.ReadInside.Contains(symbol);
+            return true;
         }
 
-        private static ILocalSymbol GetVariableDeclaratorSymbol(IOperation operation)
+        if (syntaxNode.Parent is TMemberAccessExpressionSyntax || semanticModel.GetOperation(syntaxNode.Parent) is IMemberReferenceOperation)
         {
-            switch (operation)
-            {
-                case IVariableDeclaratorOperation declarator:
-                    return declarator.Symbol;
-                case IVariableDeclarationOperation declarationOperation:
-                    return declarationOperation.Declarators.FirstOrDefault()?.Symbol;
-                default:
-                    return null;
-            }
+            return false;
         }
 
-        private SyntaxNode FindIgnoredEnclosingExpression(SyntaxNode syntaxNode)
+        var operation = semanticModel.GetOperation(maybeIgnoredExpression);
+
+        if (operation is IArgumentOperation &&
+            operation.Parent is IInvocationOperation invocationOperation &&
+            invocationOperation.TargetMethod.IsReceivedInOrderMethod())
         {
-            return syntaxNode.Ancestors().FirstOrDefault(ancestor => IgnoredAncestorPaths.Contains(ancestor.RawKind));
+            return true;
         }
+
+        if (operation.IsEventAssignmentOperation())
+        {
+            return false;
+        }
+
+        var symbol = GetVariableDeclaratorSymbol(operation);
+
+        if (symbol == null)
+        {
+            return false;
+        }
+
+        var blockStatementSyntax =
+            maybeIgnoredExpression.Ancestors().OfType<TBlockStatementSyntax>().FirstOrDefault();
+
+        if (blockStatementSyntax == null)
+        {
+            return false;
+        }
+
+        var dataFlowAnalysis = semanticModel.AnalyzeDataFlow(blockStatementSyntax);
+        return !dataFlowAnalysis.ReadInside.Contains(symbol);
+    }
+
+    private static ILocalSymbol GetVariableDeclaratorSymbol(IOperation operation)
+    {
+        switch (operation)
+        {
+            case IVariableDeclaratorOperation declarator:
+                return declarator.Symbol;
+            case IVariableDeclarationOperation declarationOperation:
+                return declarationOperation.Declarators.FirstOrDefault()?.Symbol;
+            default:
+                return null;
+        }
+    }
+
+    private SyntaxNode FindIgnoredEnclosingExpression(SyntaxNode syntaxNode)
+    {
+        return syntaxNode.Ancestors().FirstOrDefault(ancestor => IgnoredAncestorPaths.Contains(ancestor.RawKind));
     }
 }

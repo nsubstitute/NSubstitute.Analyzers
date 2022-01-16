@@ -8,111 +8,110 @@ using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Shared.Extensions;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticIdentifierTests
+namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticIdentifierTests;
+
+public class DiagnosticIdentifierTests
 {
-    public class DiagnosticIdentifierTests
+    private const string IdentifierPrefix = "NS";
+
+    private static readonly FieldInfo[] DiagnosticIdentifierFields = typeof(DiagnosticIdentifiers)
+        .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
+        .Where(fieldInfo => fieldInfo.IsLiteral && fieldInfo.IsInitOnly == false)
+        .ToArray();
+
+    private static readonly PropertyInfo[] DiagnosticDescriptorsProperties = typeof(DiagnosticDescriptors<SharedResourceManager>)
+        .GetProperties(BindingFlags.Public | BindingFlags.Static)
+        .ToArray();
+
+    public static List<DiagnosticDescriptor> DiagnosticDescriptors { get; } = DiagnosticDescriptorsProperties.Select(desc => (DiagnosticDescriptor)desc.GetValue(null)).ToList();
+
+    [Fact]
+    public void DiagnosticIdentifiers_ShouldHaveConstantValue()
     {
-        private const string IdentifierPrefix = "NS";
+        DiagnosticIdentifierFields.Should().BeEquivalentTo(typeof(DiagnosticIdentifiers).GetFields());
+    }
 
-        private static readonly FieldInfo[] DiagnosticIdentifierFields = typeof(DiagnosticIdentifiers)
-            .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
-            .Where(fieldInfo => fieldInfo.IsLiteral && fieldInfo.IsInitOnly == false)
-            .ToArray();
+    [Fact]
+    public void DiagnosticIdentifiers_StartsWithProperPrefix()
+    {
+        var invalidDiagnosticNames = DiagnosticIdentifierFields.Where(info => ((string)info.GetRawConstantValue()).StartsWith(IdentifierPrefix) == false);
 
-        private static readonly PropertyInfo[] DiagnosticDescriptorsProperties = typeof(DiagnosticDescriptors<SharedResourceManager>)
-            .GetProperties(BindingFlags.Public | BindingFlags.Static)
-            .ToArray();
+        invalidDiagnosticNames.Should().BeEmpty($"because all diagnostics should start with {IdentifierPrefix} prefix");
+    }
 
-        public static List<DiagnosticDescriptor> DiagnosticDescriptors { get; } = DiagnosticDescriptorsProperties.Select(desc => (DiagnosticDescriptor)desc.GetValue(null)).ToList();
+    [Fact]
+    public void DiagnosticIdentifiers_ShouldBelongToSpecificCategory()
+    {
+        var invalidCategories = DiagnosticIdentifierFields.Where(info => GetCategoryId(info) == 0);
 
-        [Fact]
-        public void DiagnosticIdentifiers_ShouldHaveConstantValue()
-        {
-            DiagnosticIdentifierFields.Should().BeEquivalentTo(typeof(DiagnosticIdentifiers).GetFields());
-        }
+        invalidCategories.Should().BeEmpty("because all diagnostics should belong to specific category");
+    }
 
-        [Fact]
-        public void DiagnosticIdentifiers_StartsWithProperPrefix()
-        {
-            var invalidDiagnosticNames = DiagnosticIdentifierFields.Where(info => ((string)info.GetRawConstantValue()).StartsWith(IdentifierPrefix) == false);
+    [Fact]
+    public void DiagnosticIdentifiers_Categories_ShouldHaveConsecutiveNumbers()
+    {
+        var groupedCategories = DiagnosticIdentifierFields.Select(GetCategoryId)
+            .GroupBy(category => category)
+            .Select(group => group.Key)
+            .OrderBy(category => category)
+            .ToList();
 
-            invalidDiagnosticNames.Should().BeEmpty($"because all diagnostics should start with {IdentifierPrefix} prefix");
-        }
+        var expectedCategories = Enumerable.Range(1, groupedCategories.Count);
 
-        [Fact]
-        public void DiagnosticIdentifiers_ShouldBelongToSpecificCategory()
-        {
-            var invalidCategories = DiagnosticIdentifierFields.Where(info => GetCategoryId(info) == 0);
+        groupedCategories.Should().BeEquivalentTo(expectedCategories, "because category numbers should be consecutive");
+    }
 
-            invalidCategories.Should().BeEmpty("because all diagnostics should belong to specific category");
-        }
+    [Fact]
+    public void DiagnosticIdentifiers_WithinCategory_ShouldHaveConsecutiveNumbers()
+    {
+        var groupedIdentifiers = DiagnosticIdentifierFields
+            .GroupBy(GetCategoryId)
+            .Select(group => group.Select(GetDiagnosticId).OrderBy(diagnostic => diagnostic).ToList())
+            .ToList();
 
-        [Fact]
-        public void DiagnosticIdentifiers_Categories_ShouldHaveConsecutiveNumbers()
-        {
-            var groupedCategories = DiagnosticIdentifierFields.Select(GetCategoryId)
-                .GroupBy(category => category)
-                .Select(group => group.Key)
-                .OrderBy(category => category)
-                .ToList();
+        var expectedGroupedIdentifiers = groupedIdentifiers.Select(group => Enumerable.Range(0, group.Count));
 
-            var expectedCategories = Enumerable.Range(1, groupedCategories.Count);
+        groupedIdentifiers.Should().BeEquivalentTo(expectedGroupedIdentifiers);
+    }
 
-            groupedCategories.Should().BeEquivalentTo(expectedCategories, "because category numbers should be consecutive");
-        }
+    [Fact]
+    public void DiagnosticDescriptors_Categories_ShouldMatchDiagnosticIdentifiers()
+    {
+        var descriptionEnumMap = ((DiagnosticCategory[])Enum.GetValues(typeof(DiagnosticCategory))).ToDictionary(value => value.GetDisplayName());
 
-        [Fact]
-        public void DiagnosticIdentifiers_WithinCategory_ShouldHaveConsecutiveNumbers()
-        {
-            var groupedIdentifiers = DiagnosticIdentifierFields
-                .GroupBy(GetCategoryId)
-                .Select(group => group.Select(GetDiagnosticId).OrderBy(diagnostic => diagnostic).ToList())
-                .ToList();
+        var invalidCategoriesDescriptor = DiagnosticDescriptors.Where(desc => (int)descriptionEnumMap[desc.Category] != GetCategoryId(desc.Id));
 
-            var expectedGroupedIdentifiers = groupedIdentifiers.Select(group => Enumerable.Range(0, group.Count));
+        invalidCategoriesDescriptor.Should().BeEmpty("because descriptor category should match identifier category");
+    }
 
-            groupedIdentifiers.Should().BeEquivalentTo(expectedGroupedIdentifiers);
-        }
+    [Fact]
+    public void DiagnosticDescriptors_HelpLinkUri_ShouldPointToProperDiagnosticDocumentation()
+    {
+        var invalidHelpLinkDescriptors = DiagnosticDescriptors
+            .Where(diagnostic => diagnostic.HelpLinkUri != $"https://github.com/nsubstitute/NSubstitute.Analyzers/blob/master/documentation/rules/{diagnostic.Id}.md");
 
-        [Fact]
-        public void DiagnosticDescriptors_Categories_ShouldMatchDiagnosticIdentifiers()
-        {
-            var descriptionEnumMap = ((DiagnosticCategory[])Enum.GetValues(typeof(DiagnosticCategory))).ToDictionary(value => value.GetDisplayName());
+        invalidHelpLinkDescriptors.Should().BeEmpty();
+    }
 
-            var invalidCategoriesDescriptor = DiagnosticDescriptors.Where(desc => (int)descriptionEnumMap[desc.Category] != GetCategoryId(desc.Id));
+    private int GetCategoryId(FieldInfo fieldInfo)
+    {
+        return GetCategoryId((string)fieldInfo.GetRawConstantValue());
+    }
 
-            invalidCategoriesDescriptor.Should().BeEmpty("because descriptor category should match identifier category");
-        }
+    private int GetCategoryId(string diagnosticId)
+    {
+        var substringIndex = diagnosticId.IndexOf(IdentifierPrefix) + IdentifierPrefix.Length;
+        return int.Parse(diagnosticId.Substring(substringIndex, 1));
+    }
 
-        [Fact]
-        public void DiagnosticDescriptors_HelpLinkUri_ShouldPointToProperDiagnosticDocumentation()
-        {
-            var invalidHelpLinkDescriptors = DiagnosticDescriptors
-                .Where(diagnostic => diagnostic.HelpLinkUri != $"https://github.com/nsubstitute/NSubstitute.Analyzers/blob/master/documentation/rules/{diagnostic.Id}.md");
+    private int GetDiagnosticId(FieldInfo fieldInfo)
+    {
+        return GetDiagnosticId((string)fieldInfo.GetRawConstantValue());
+    }
 
-            invalidHelpLinkDescriptors.Should().BeEmpty();
-        }
-
-        private int GetCategoryId(FieldInfo fieldInfo)
-        {
-            return GetCategoryId((string)fieldInfo.GetRawConstantValue());
-        }
-
-        private int GetCategoryId(string diagnosticId)
-        {
-            var substringIndex = diagnosticId.IndexOf(IdentifierPrefix) + IdentifierPrefix.Length;
-            return int.Parse(diagnosticId.Substring(substringIndex, 1));
-        }
-
-        private int GetDiagnosticId(FieldInfo fieldInfo)
-        {
-            return GetDiagnosticId((string)fieldInfo.GetRawConstantValue());
-        }
-
-        private int GetDiagnosticId(string diagnosticId)
-        {
-            var substringIndex = diagnosticId.IndexOf(IdentifierPrefix) + IdentifierPrefix.Length + 1;
-            return int.Parse(diagnosticId.Substring(substringIndex));
-        }
+    private int GetDiagnosticId(string diagnosticId)
+    {
+        var substringIndex = diagnosticId.IndexOf(IdentifierPrefix) + IdentifierPrefix.Length + 1;
+        return int.Parse(diagnosticId.Substring(substringIndex));
     }
 }

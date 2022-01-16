@@ -1,14 +1,14 @@
 ﻿using System.Threading.Tasks;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.SubstituteAnalyzerTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.SubstituteAnalyzerTests;
+
+public class ForPartsOfMethodTests : SubstituteDiagnosticVerifier
 {
-    public class ForPartsOfMethodTests : SubstituteDiagnosticVerifier
+    [Fact]
+    public async Task ReportsDiagnostic_WhenUsedForInterface()
     {
-        [Fact]
-        public async Task ReportsDiagnostic_WhenUsedForInterface()
-        {
-            var source = @"Imports NSubstitute
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Interface IFoo
@@ -21,13 +21,13 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, PartialSubstituteForUnsupportedTypeDescriptor, "Can only substitute for parts of classes, not interfaces or delegates. Use NSubstitute.Substitute.For(Of IFoo)() instead of NSubstitute.Substitute.ForPartsOf(Of IFoo)() here.");
-        }
+        await VerifyDiagnostic(source, PartialSubstituteForUnsupportedTypeDescriptor, "Can only substitute for parts of classes, not interfaces or delegates. Use NSubstitute.Substitute.For(Of IFoo)() instead of NSubstitute.Substitute.ForPartsOf(Of IFoo)() here.");
+    }
 
-        [Fact]
-        public async Task ReportsDiagnostic_WhenUsedForDelegate()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task ReportsDiagnostic_WhenUsedForDelegate()
+    {
+        var source = @"Imports NSubstitute
 Imports System
 
 Namespace MyNamespace
@@ -41,12 +41,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, PartialSubstituteForUnsupportedTypeDescriptor, "Can only substitute for parts of classes, not interfaces or delegates. Use NSubstitute.Substitute.For(Of Func(Of Integer))() instead of NSubstitute.Substitute.ForPartsOf(Of Func(Of Integer))() here.");
-        }
+        await VerifyDiagnostic(source, PartialSubstituteForUnsupportedTypeDescriptor, "Can only substitute for parts of classes, not interfaces or delegates. Use NSubstitute.Substitute.For(Of Func(Of Integer))() instead of NSubstitute.Substitute.ForPartsOf(Of Func(Of Integer))() here.");
+    }
 
-        public override async Task ReportsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor()
-        {
-            var source = @"Imports NSubstitute
+    public override async Task ReportsDiagnostic_WhenUsedForClassWithoutPublicOrProtectedConstructor()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -61,12 +61,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
-        }
+        await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
+    }
 
-        public override async Task ReportsDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToNotApplied()
-        {
-            var source = @"Imports NSubstitute
+    public override async Task ReportsDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToNotApplied()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -81,12 +81,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
-        }
+        await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
+    }
 
-        public override async Task ReportsDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToNotApplied()
-        {
-            var source = @"Imports NSubstitute
+    public override async Task ReportsDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToNotApplied()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -101,12 +101,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
-        }
+        await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
+    }
 
-        public override async Task ReportsNoDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToApplied()
-        {
-            var source = @"Imports NSubstitute
+    public override async Task ReportsNoDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToApplied()
+    {
+        var source = @"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 <Assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")>
@@ -123,12 +123,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToApplied()
-        {
-            var source = @"Imports NSubstitute
+    public override async Task ReportsNoDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToApplied()
+    {
+        var source = @"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 <Assembly: InternalsVisibleTo(""DynamicProxyGenAssembly2"")>
@@ -145,12 +145,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount()
-        {
-            var source = @"Imports NSubstitute
+    public override async Task ReportsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -165,12 +165,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
-        }
+        await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
+    }
 
-        public override async Task ReportsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount()
-        {
-            var source = @"Imports NSubstitute
+    public override async Task ReportsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -185,12 +185,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
-        }
+        await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
+    }
 
-        public override async Task ReportsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters()
-        {
-            var source = @"Imports NSubstitute
+    public override async Task ReportsDiagnostic_WhenUsedWithWithoutProvidingOptionalParameters()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -205,12 +205,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
-        }
+        await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
+    }
 
-        public override async Task ReportsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToNotApplied()
-        {
-            var source = @"Imports NSubstitute
+    public override async Task ReportsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToNotApplied()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Friend Class Foo
@@ -223,12 +223,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, SubstituteForInternalMemberDescriptor);
-        }
+        await VerifyDiagnostic(source, SubstituteForInternalMemberDescriptor);
+    }
 
-        public override async Task ReportsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2(string assemblyAttributes)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsNoDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToDynamicProxyGenAssembly2(string assemblyAttributes)
+    {
+        var source = $@"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 {assemblyAttributes}
@@ -243,12 +243,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly(string assemblyAttributes)
-        {
-            var source = $@"Imports NSubstitute
+    public override async Task ReportsDiagnostic_WhenUsedWithInternalClass_AndInternalsVisibleToAppliedToWrongAssembly(string assemblyAttributes)
+    {
+        var source = $@"Imports NSubstitute
 Imports System.Runtime.CompilerServices
 
 {assemblyAttributes}
@@ -263,24 +263,24 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, SubstituteForInternalMemberDescriptor);
-        }
+        await VerifyDiagnostic(source, SubstituteForInternalMemberDescriptor);
+    }
 
-        [Theory]
-        [InlineData("ByVal x As Decimal", "1")] // valid c# but doesnt work in NSubstitute
-        [InlineData("ByVal x As Integer", "1D")]
-        [InlineData("ByVal x As Integer", "1R")]
-        [InlineData("ParamArray z As Integer()", "1D")]
-        [InlineData("ParamArray z As Integer()", "1, 1D")]
-        [InlineData("ByVal x As List(Of Integer)", "New List(Of Integer)().AsReadOnly()")]
-        [InlineData("ByVal x As Integer", "New Object()")]
-        [InlineData("ParamArray z As Integer()", "New Object() { 1D }")]
-        [InlineData("ParamArray z As Integer()", "New Object() { 1, 1D }")]
-        [InlineData("ParamArray z As Integer()", "{ 1D }")]
-        [InlineData("ParamArray z As Integer()", "{ 1, 1D }")]
-        public override async Task ReportsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues)
-        {
-            var source = $@"Imports NSubstitute
+    [Theory]
+    [InlineData("ByVal x As Decimal", "1")] // valid c# but doesnt work in NSubstitute
+    [InlineData("ByVal x As Integer", "1D")]
+    [InlineData("ByVal x As Integer", "1R")]
+    [InlineData("ParamArray z As Integer()", "1D")]
+    [InlineData("ParamArray z As Integer()", "1, 1D")]
+    [InlineData("ByVal x As List(Of Integer)", "New List(Of Integer)().AsReadOnly()")]
+    [InlineData("ByVal x As Integer", "New Object()")]
+    [InlineData("ParamArray z As Integer()", "New Object() { 1D }")]
+    [InlineData("ParamArray z As Integer()", "New Object() { 1, 1D }")]
+    [InlineData("ParamArray z As Integer()", "{ 1D }")]
+    [InlineData("ParamArray z As Integer()", "{ 1, 1D }")]
+    public override async Task ReportsDiagnostic_WhenConstructorArgumentsRequireExplicitConversion(string ctorValues, string invocationValues)
+    {
+        var source = $@"Imports NSubstitute
 Imports System.Collections.Generic
 
 Namespace MyNamespace
@@ -296,24 +296,24 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, SubstituteConstructorMismatchDescriptor, "Arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required arguments and argument types.");
-        }
+        await VerifyDiagnostic(source, SubstituteConstructorMismatchDescriptor, "Arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required arguments and argument types.");
+    }
 
-        [Theory]
-        [InlineData("ByVal x As Integer", "New Object() {1}")]
-        [InlineData("ByVal x As Single", "New Object() {\"c\"c}")]
-        [InlineData("ByVal x As Integer", "New Object() {\"c\"c}")]
-        [InlineData("ByVal x As IList(Of Integer)", "New Object() {New List(Of Integer)()}")]
-        [InlineData("ByVal x As IEnumerable(Of Integer)", "New Object() {New List(Of Integer)()}")]
-        [InlineData("ByVal x As IEnumerable(Of Integer)", "New Object() {New List(Of Integer)().AsReadOnly()}")]
-        [InlineData("ByVal x As IEnumerable(Of Char)", @"New Object() {""value""}")]
-        [InlineData("ByVal x As Integer, ParamArray z As String()", "1, \"foo\", \"foo\"")]
-        [InlineData("", @"New Object() {}")]
-        [InlineData("", "New Object() {1, 2}.ToArray()")] // actual values known at runtime only so constructor analysys skipped
-        [InlineData("ByVal x As Integer, ParamArray z As String()", "New Object() {1, \"foo\", \"foo\" }")]
-        public override async Task ReportsNoDiagnostic_WhenConstructorArgumentsDoNotRequireImplicitConversion(string ctorValues, string invocationValues)
-        {
-            var source = $@"Imports NSubstitute
+    [Theory]
+    [InlineData("ByVal x As Integer", "New Object() {1}")]
+    [InlineData("ByVal x As Single", "New Object() {\"c\"c}")]
+    [InlineData("ByVal x As Integer", "New Object() {\"c\"c}")]
+    [InlineData("ByVal x As IList(Of Integer)", "New Object() {New List(Of Integer)()}")]
+    [InlineData("ByVal x As IEnumerable(Of Integer)", "New Object() {New List(Of Integer)()}")]
+    [InlineData("ByVal x As IEnumerable(Of Integer)", "New Object() {New List(Of Integer)().AsReadOnly()}")]
+    [InlineData("ByVal x As IEnumerable(Of Char)", @"New Object() {""value""}")]
+    [InlineData("ByVal x As Integer, ParamArray z As String()", "1, \"foo\", \"foo\"")]
+    [InlineData("", @"New Object() {}")]
+    [InlineData("", "New Object() {1, 2}.ToArray()")] // actual values known at runtime only so constructor analysys skipped
+    [InlineData("ByVal x As Integer, ParamArray z As String()", "New Object() {1, \"foo\", \"foo\" }")]
+    public override async Task ReportsNoDiagnostic_WhenConstructorArgumentsDoNotRequireImplicitConversion(string ctorValues, string invocationValues)
+    {
+        var source = $@"Imports NSubstitute
 Imports System.Collections.Generic
 Imports System.Linq
 
@@ -330,12 +330,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostic_WhenUsedWithGenericArgument()
-        {
-            var source = @"Imports NSubstitute
+    public override async Task ReportsNoDiagnostic_WhenUsedWithGenericArgument()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class FooTests
@@ -345,12 +345,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostic_WhenParamsParametersNotProvided()
-        {
-            var source = @"Imports NSubstitute
+    public override async Task ReportsNoDiagnostic_WhenParamsParametersNotProvided()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -365,12 +365,12 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsNoDiagnostic_WhenParamsParametersProvided()
-        {
-            var source = @"Imports NSubstitute
+    public override async Task ReportsNoDiagnostic_WhenParamsParametersProvided()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -385,12 +385,12 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyNoDiagnostic(source);
-        }
+        await VerifyNoDiagnostic(source);
+    }
 
-        public override async Task ReportsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount_AndParamsParameterDefined()
-        {
-            var source = @"Imports NSubstitute
+    public override async Task ReportsDiagnostic_WhenPassedParametersCount_LessThanCtorParametersCount_AndParamsParameterDefined()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -405,7 +405,6 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
-        }
+        await VerifyDiagnostic(source, SubstituteForConstructorParametersMismatchDescriptor, "The number of arguments passed to NSubstitute.Substitute.ForPartsOf(Of MyNamespace.Foo) do not match the number of constructor arguments for MyNamespace.Foo. Check the constructors for MyNamespace.Foo and make sure you have passed the required number of arguments.");
     }
 }

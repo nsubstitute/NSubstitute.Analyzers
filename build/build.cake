@@ -8,9 +8,9 @@
 #module nuget:?package=Cake.DotNetTool.Module&version=0.1.0
 
 // Install tools.
-#tool "dotnet:https://api.nuget.org/v3/index.json?package=GitVersion.Tool&version=4.0.1-beta1-58"
+#tool "dotnet:https://api.nuget.org/v3/index.json?package=GitVersion.Tool&version=5.8.1"
 #tool "dotnet:https://api.nuget.org/v3/index.json?package=coveralls.net&version=1.0.0"
-#tool "nuget:https://www.nuget.org/api/v2?package=ReportGenerator&version=4.0.4"
+#tool "nuget:https://www.nuget.org/api/v2?package=ReportGenerator&version=5.0.2"
 #addin "nuget:https://www.nuget.org/api/v2?package=Cake.Incubator&version=4.0.1"
 #addin "nuget:https://www.nuget.org/api/v2?package=Newtonsoft.Json&version=9.0.1"
 #addin "nuget:https://www.nuget.org/api/v2?package=semver.core&version=2.0.0"
@@ -103,9 +103,9 @@ Task("Run-Tests")
     {
         var reportGeneratorWorkingDir = Context.Environment.WorkingDirectory
                                                        .Combine("tools")
-                                                       .Combine("ReportGenerator.4.0.4")
+                                                       .Combine("ReportGenerator.5.0.2")
                                                        .Combine("tools")
-                                                       .Combine(parameters.TargetFramework);
+                                                       .Combine("net6.0");
 
         var argumentBuilder = new ProcessArgumentBuilder()
         .Append("ReportGenerator.dll")

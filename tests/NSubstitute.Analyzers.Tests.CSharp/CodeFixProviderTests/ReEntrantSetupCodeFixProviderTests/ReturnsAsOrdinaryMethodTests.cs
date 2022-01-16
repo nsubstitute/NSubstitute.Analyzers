@@ -1,13 +1,13 @@
 using System.Threading.Tasks;
 using NSubstitute.Analyzers.Tests.Shared;
 
-namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.ReEntrantSetupCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.ReEntrantSetupCodeFixProviderTests;
+
+public class ReturnsAsOrdinaryMethodTests : ReEntrantSetupCodeFixVerifier
 {
-    public class ReturnsAsOrdinaryMethodTests : ReEntrantSetupCodeFixVerifier
+    public override async Task ReplacesArgumentExpression_WithLambda(string arguments, string rewrittenArguments)
     {
-        public override async Task ReplacesArgumentExpression_WithLambda(string arguments, string rewrittenArguments)
-        {
-            var oldSource = $@"using NSubstitute;
+        var oldSource = $@"using NSubstitute;
 
 namespace MyNamespace
 {{
@@ -45,7 +45,7 @@ namespace MyNamespace
     }} 
 }}";
 
-            var newSource = $@"using NSubstitute;
+        var newSource = $@"using NSubstitute;
 
 namespace MyNamespace
 {{
@@ -82,12 +82,12 @@ namespace MyNamespace
         }}
     }} 
 }}";
-            await VerifyFix(oldSource, newSource);
-        }
+        await VerifyFix(oldSource, newSource);
+    }
 
-        public override async Task ReplacesArgumentExpression_WithLambdaWithReducedTypes_WhenGeneratingArrayParamsArgument()
-        {
-            var oldSource = @"using NSubstitute;
+    public override async Task ReplacesArgumentExpression_WithLambdaWithReducedTypes_WhenGeneratingArrayParamsArgument()
+    {
+        var oldSource = @"using NSubstitute;
 using NSubstitute.Core;
 using System;
 
@@ -124,7 +124,7 @@ namespace MyNamespace
     }
 }";
 
-            var newSource = @"using NSubstitute;
+        var newSource = @"using NSubstitute;
 using NSubstitute.Core;
 using System;
 
@@ -160,12 +160,12 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyFix(oldSource, newSource);
-        }
+        await VerifyFix(oldSource, newSource);
+    }
 
-        public override async Task ReplacesArgumentExpression_WithLambdaWithNonGenericCallInfo_WhenGeneratingArrayParamsArgument()
-        {
-            var oldSource = @"using NSubstitute;
+    public override async Task ReplacesArgumentExpression_WithLambdaWithNonGenericCallInfo_WhenGeneratingArrayParamsArgument()
+    {
+        var oldSource = @"using NSubstitute;
 using NSubstitute.Core;
 using System;
 
@@ -202,7 +202,7 @@ namespace MyNamespace
     }
 }";
 
-            var newSource = @"using NSubstitute;
+        var newSource = @"using NSubstitute;
 using NSubstitute.Core;
 using System;
 
@@ -238,7 +238,6 @@ namespace MyNamespace
         }
     }
 }";
-            await VerifyFix(oldSource, newSource, version: NSubstituteVersion.NSubstitute4_2_2);
-        }
+        await VerifyFix(oldSource, newSource, version: NSubstituteVersion.NSubstitute4_2_2);
     }
 }

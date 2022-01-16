@@ -8,18 +8,18 @@ using NSubstitute.Analyzers.VisualBasic.CodeFixProviders;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProviderTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProviderTests;
+
+public class NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixActionsTests : VisualBasicCodeFixActionsVerifier, INonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixActionsVerifier
 {
-    public class NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixActionsTests : VisualBasicCodeFixActionsVerifier, INonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixActionsVerifier
+    protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberArgumentMatcherAnalyzer();
+
+    protected override CodeFixProvider CodeFixProvider { get; } = new NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider();
+
+    [Fact]
+    public async Task CreatesCorrectCodeFixActions_ForIndexer()
     {
-        protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberArgumentMatcherAnalyzer();
-
-        protected override CodeFixProvider CodeFixProvider { get; } = new NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider();
-
-        [Fact]
-        public async Task CreatesCorrectCodeFixActions_ForIndexer()
-        {
-            var source = @"Imports System
+        var source = @"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -42,18 +42,18 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyCodeActions(source, new[]
-            {
-                $"Suppress {DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage} for indexer Item in nsubstitute.json",
-                $"Suppress {DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage} for class Foo in nsubstitute.json",
-                $"Suppress {DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage} for namespace MyNamespace in nsubstitute.json"
-            });
-        }
-
-        [Fact]
-        public async Task CreatesCorrectCodeFixActions_ForMethod()
+        await VerifyCodeActions(source, new[]
         {
-            var source = @"Imports NSubstitute
+            $"Suppress {DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage} for indexer Item in nsubstitute.json",
+            $"Suppress {DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage} for class Foo in nsubstitute.json",
+            $"Suppress {DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage} for namespace MyNamespace in nsubstitute.json"
+        });
+    }
+
+    [Fact]
+    public async Task CreatesCorrectCodeFixActions_ForMethod()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
 
@@ -73,18 +73,18 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
-            await VerifyCodeActions(source, new[]
-            {
-                $"Suppress {DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage} for method Bar in nsubstitute.json",
-                $"Suppress {DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage} for class Foo in nsubstitute.json",
-                $"Suppress {DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage} for namespace MyNamespace in nsubstitute.json"
-            });
-        }
-
-        [Fact]
-        public async Task DoesNotCreateCodeFixActions_WhenArgMatchesIsUsedInStandaloneExpression()
+        await VerifyCodeActions(source, new[]
         {
-            var source = $@"Imports System
+            $"Suppress {DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage} for method Bar in nsubstitute.json",
+            $"Suppress {DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage} for class Foo in nsubstitute.json",
+            $"Suppress {DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage} for namespace MyNamespace in nsubstitute.json"
+        });
+    }
+
+    [Fact]
+    public async Task DoesNotCreateCodeFixActions_WhenArgMatchesIsUsedInStandaloneExpression()
+    {
+        var source = $@"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -95,13 +95,13 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyCodeActions(source, Array.Empty<string>());
-        }
+        await VerifyCodeActions(source, Array.Empty<string>());
+    }
 
-        [Fact]
-        public async Task DoesNotCreateCodeFixActions_WhenArgMatchesIsUsedInConstructor()
-        {
-            var source = @"Imports System
+    [Fact]
+    public async Task DoesNotCreateCodeFixActions_WhenArgMatchesIsUsedInConstructor()
+    {
+        var source = @"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
@@ -114,7 +114,6 @@ Namespace MyNamespace
         End Sub
     End Class
 End Namespace";
-            await VerifyCodeActions(source, Array.Empty<string>());
-        }
+        await VerifyCodeActions(source, Array.Empty<string>());
     }
 }

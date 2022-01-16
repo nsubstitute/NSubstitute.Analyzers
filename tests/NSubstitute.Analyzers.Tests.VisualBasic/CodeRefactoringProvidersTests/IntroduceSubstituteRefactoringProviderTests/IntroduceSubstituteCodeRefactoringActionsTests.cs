@@ -6,20 +6,20 @@ using NSubstitute.Analyzers.Tests.Shared.CodeRefactoringProviders;
 using NSubstitute.Analyzers.VisualBasic.CodeRefactoringProviders;
 using Xunit;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeRefactoringProvidersTests.IntroduceSubstituteRefactoringProviderTests
+namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeRefactoringProvidersTests.IntroduceSubstituteRefactoringProviderTests;
+
+public class IntroduceSubstituteCodeRefactoringActionsTests : VisualBasicCodeRefactoringProviderActionsVerifier, IIntroduceSubstituteCodeRefactoringActionsVerifier
 {
-    public class IntroduceSubstituteCodeRefactoringActionsTests : VisualBasicCodeRefactoringProviderActionsVerifier, IIntroduceSubstituteCodeRefactoringActionsVerifier
+    private static readonly string IntroduceReadonlySubstitutesTitle = "Introduce readonly substitutes for missing arguments";
+    private static readonly string IntroduceLocalSubstitutesTitle = "Introduce local substitutes for missing arguments";
+    private static readonly string IntroduceReadonlySubstituteForService = "Introduce readonly substitute for MyNamespace.IService";
+
+    protected override CodeRefactoringProvider CodeRefactoringProvider { get; } = new IntroduceSubstituteCodeRefactoringProvider();
+
+    [Fact]
+    public async Task DoesNotCreateCodeActions_WhenConstructorHasNoParameters()
     {
-        private static readonly string IntroduceReadonlySubstitutesTitle = "Introduce readonly substitutes for missing arguments";
-        private static readonly string IntroduceLocalSubstitutesTitle = "Introduce local substitutes for missing arguments";
-        private static readonly string IntroduceReadonlySubstituteForService = "Introduce readonly substitute for MyNamespace.IService";
-
-        protected override CodeRefactoringProvider CodeRefactoringProvider { get; } = new IntroduceSubstituteCodeRefactoringProvider();
-
-        [Fact]
-        public async Task DoesNotCreateCodeActions_WhenConstructorHasNoParameters()
-        {
-            var source = @"Imports NSubstitute
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Public Class Foo
@@ -34,13 +34,13 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyCodeActions(source, Array.Empty<string>());
-        }
+        await VerifyCodeActions(source, Array.Empty<string>());
+    }
 
-        [Fact]
-        public async Task DoesNotCreateCodeActions_WhenMultipleCandidateConstructorsAvailable()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task DoesNotCreateCodeActions_WhenMultipleCandidateConstructorsAvailable()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IService
@@ -64,13 +64,13 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyCodeActions(source, Array.Empty<string>());
-        }
+        await VerifyCodeActions(source, Array.Empty<string>());
+    }
 
-        [Fact]
-        public async Task DoesNotCreateCodeActions_WhenAllParametersProvided()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task DoesNotCreateCodeActions_WhenAllParametersProvided()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IService
@@ -90,13 +90,13 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyCodeActions(source, Array.Empty<string>());
-        }
+        await VerifyCodeActions(source, Array.Empty<string>());
+    }
 
-        [Fact]
-        public async Task DoesNotCreateCodeActionsForIntroducingSpecificSubstitute_WhenArgumentAtPositionProvided()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task DoesNotCreateCodeActionsForIntroducingSpecificSubstitute_WhenArgumentAtPositionProvided()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IService
@@ -118,13 +118,13 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyCodeActions(source, IntroduceLocalSubstitutesTitle, IntroduceReadonlySubstitutesTitle);
-        }
+        await VerifyCodeActions(source, IntroduceLocalSubstitutesTitle, IntroduceReadonlySubstitutesTitle);
+    }
 
-        [Fact]
-        public async Task DoesNotCreateCodeActionsForIntroducingLocalSubstitute_WhenLocalVariableCannotBeIntroduced()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task DoesNotCreateCodeActionsForIntroducingLocalSubstitute_WhenLocalVariableCannotBeIntroduced()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IService
@@ -143,21 +143,21 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyCodeActions(source, IntroduceReadonlySubstituteForService, IntroduceReadonlySubstitutesTitle);
-        }
+        await VerifyCodeActions(source, IntroduceReadonlySubstituteForService, IntroduceReadonlySubstitutesTitle);
+    }
 
-        [Theory]
-        [InlineData("New Foo([||],)", new[] { "Introduce local substitute for MyNamespace.IService", "Introduce readonly substitute for MyNamespace.IService" })]
-        [InlineData("New Foo(,[||])", new[] { "Introduce local substitute for MyNamespace.IOtherService", "Introduce readonly substitute for MyNamespace.IOtherService" })]
-        public async Task CreatesCodeActionsForIntroducingSpecificSubstitute_WhenArgumentAtPositionNotProvided(string creationExpression, string[] expectedSpecificSubstituteActions)
+    [Theory]
+    [InlineData("New Foo([||],)", new[] { "Introduce local substitute for MyNamespace.IService", "Introduce readonly substitute for MyNamespace.IService" })]
+    [InlineData("New Foo(,[||])", new[] { "Introduce local substitute for MyNamespace.IOtherService", "Introduce readonly substitute for MyNamespace.IOtherService" })]
+    public async Task CreatesCodeActionsForIntroducingSpecificSubstitute_WhenArgumentAtPositionNotProvided(string creationExpression, string[] expectedSpecificSubstituteActions)
+    {
+        var expectedAllActions = new[]
         {
-            var expectedAllActions = new[]
-            {
-                IntroduceLocalSubstitutesTitle,
-                IntroduceReadonlySubstitutesTitle
-            }.Concat(expectedSpecificSubstituteActions).ToArray();
+            IntroduceLocalSubstitutesTitle,
+            IntroduceReadonlySubstitutesTitle
+        }.Concat(expectedSpecificSubstituteActions).ToArray();
 
-            var source = $@"Imports NSubstitute
+        var source = $@"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IService
@@ -178,13 +178,13 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyCodeActions(source, expectedAllActions);
-        }
+        await VerifyCodeActions(source, expectedAllActions);
+    }
 
-        [Fact]
-        public async Task DoesNotCreateCodeActions_WhenSymbolIsNotConstructorInvocation()
-        {
-            var source = @"Imports NSubstitute
+    [Fact]
+    public async Task DoesNotCreateCodeActions_WhenSymbolIsNotConstructorInvocation()
+    {
+        var source = @"Imports NSubstitute
 
 Namespace MyNamespace
     Interface IService
@@ -213,7 +213,6 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-            await VerifyCodeActions(source, Array.Empty<string>());
-        }
+        await VerifyCodeActions(source, Array.Empty<string>());
     }
 }

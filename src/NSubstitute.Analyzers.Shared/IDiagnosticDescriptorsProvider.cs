@@ -1,59 +1,58 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace NSubstitute.Analyzers.Shared
+namespace NSubstitute.Analyzers.Shared;
+
+internal interface IDiagnosticDescriptorsProvider
 {
-    internal interface IDiagnosticDescriptorsProvider
-    {
-        DiagnosticDescriptor NonVirtualSetupSpecification { get; }
+    DiagnosticDescriptor NonVirtualSetupSpecification { get; }
 
-        DiagnosticDescriptor NonVirtualReceivedSetupSpecification { get; }
+    DiagnosticDescriptor NonVirtualReceivedSetupSpecification { get; }
 
-        DiagnosticDescriptor NonVirtualWhenSetupSpecification { get; }
+    DiagnosticDescriptor NonVirtualWhenSetupSpecification { get; }
 
-        DiagnosticDescriptor NonVirtualReceivedInOrderSetupSpecification { get; }
+    DiagnosticDescriptor NonVirtualReceivedInOrderSetupSpecification { get; }
 
-        DiagnosticDescriptor InternalSetupSpecification { get; }
+    DiagnosticDescriptor InternalSetupSpecification { get; }
 
-        DiagnosticDescriptor UnusedReceived { get; }
+    DiagnosticDescriptor UnusedReceived { get; }
 
-        DiagnosticDescriptor UnusedReceivedForOrdinaryMethod { get; }
+    DiagnosticDescriptor UnusedReceivedForOrdinaryMethod { get; }
 
-        DiagnosticDescriptor PartialSubstituteForUnsupportedType { get; }
+    DiagnosticDescriptor PartialSubstituteForUnsupportedType { get; }
 
-        DiagnosticDescriptor SubstituteForWithoutAccessibleConstructor { get; }
+    DiagnosticDescriptor SubstituteForWithoutAccessibleConstructor { get; }
 
-        DiagnosticDescriptor SubstituteForConstructorParametersMismatch { get; }
+    DiagnosticDescriptor SubstituteForConstructorParametersMismatch { get; }
 
-        DiagnosticDescriptor SubstituteForInternalMember { get; }
+    DiagnosticDescriptor SubstituteForInternalMember { get; }
 
-        DiagnosticDescriptor SubstituteConstructorMismatch { get; }
+    DiagnosticDescriptor SubstituteConstructorMismatch { get; }
 
-        DiagnosticDescriptor SubstituteMultipleClasses { get; }
+    DiagnosticDescriptor SubstituteMultipleClasses { get; }
 
-        DiagnosticDescriptor SubstituteConstructorArgumentsForInterface { get; }
+    DiagnosticDescriptor SubstituteConstructorArgumentsForInterface { get; }
 
-        DiagnosticDescriptor SubstituteConstructorArgumentsForDelegate { get; }
+    DiagnosticDescriptor SubstituteConstructorArgumentsForDelegate { get; }
 
-        DiagnosticDescriptor ReEntrantSubstituteCall { get; }
+    DiagnosticDescriptor ReEntrantSubstituteCall { get; }
 
-        DiagnosticDescriptor CallInfoArgumentOutOfRange { get; }
+    DiagnosticDescriptor CallInfoArgumentOutOfRange { get; }
 
-        DiagnosticDescriptor CallInfoCouldNotConvertParameterAtPosition { get; }
+    DiagnosticDescriptor CallInfoCouldNotConvertParameterAtPosition { get; }
 
-        DiagnosticDescriptor CallInfoCouldNotFindArgumentToThisCall { get; }
+    DiagnosticDescriptor CallInfoCouldNotFindArgumentToThisCall { get; }
 
-        DiagnosticDescriptor CallInfoMoreThanOneArgumentOfType { get; }
+    DiagnosticDescriptor CallInfoMoreThanOneArgumentOfType { get; }
 
-        DiagnosticDescriptor CallInfoArgumentSetWithIncompatibleValue { get; }
+    DiagnosticDescriptor CallInfoArgumentSetWithIncompatibleValue { get; }
 
-        DiagnosticDescriptor CallInfoArgumentIsNotOutOrRef { get; }
+    DiagnosticDescriptor CallInfoArgumentIsNotOutOrRef { get; }
 
-        DiagnosticDescriptor ConflictingArgumentAssignments { get; }
+    DiagnosticDescriptor ConflictingArgumentAssignments { get; }
 
-        DiagnosticDescriptor NonSubstitutableMemberArgumentMatcherUsage { get; }
+    DiagnosticDescriptor NonSubstitutableMemberArgumentMatcherUsage { get; }
 
-        DiagnosticDescriptor ReceivedUsedInReceivedInOrder { get; }
+    DiagnosticDescriptor ReceivedUsedInReceivedInOrder { get; }
 
-        DiagnosticDescriptor AsyncCallbackUsedInReceivedInOrder { get; }
-    }
+    DiagnosticDescriptor AsyncCallbackUsedInReceivedInOrder { get; }
 }
