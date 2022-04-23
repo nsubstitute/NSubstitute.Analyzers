@@ -2,34 +2,34 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Operations;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractCallInfoFinder<TInvocationExpressionSyntax, TIndexerSyntax> : ICallInfoFinder<TInvocationExpressionSyntax, TIndexerSyntax>
-    where TInvocationExpressionSyntax : SyntaxNode where TIndexerSyntax : SyntaxNode
+internal abstract class AbstractCallInfoFinder : ICallInfoFinder
 {
-    public CallInfoContext<TInvocationExpressionSyntax, TIndexerSyntax> GetCallInfoContext(
-        SemanticModel semanticModel, SyntaxNode syntaxNode)
-    {
-        var callInfoParameterSymbol = GetCallInfoParameterSymbol(semanticModel, syntaxNode);
-        if (callInfoParameterSymbol == null)
+    public CallInfoContext GetCallInfoContext(SemanticModel semanticModel, IArgumentOperation argumentOperation)
         {
-            return CallInfoContext<TInvocationExpressionSyntax, TIndexerSyntax>.Empty;
-        }
+            var callContext = CallInfoContext.Empty;
+            foreach (var syntaxNode in argumentOperation.GetSyntaxes())
+            {
+                var callInfoParameterSymbol = GetCallInfoParameterSymbol(semanticModel, syntaxNode);
+                var currentContext = GetCallInfoContextInternal(semanticModel, syntaxNode);
+                callContext =
+                    callContext.Merge(CreateFilteredCallInfoContext(semanticModel, currentContext, callInfoParameterSymbol));
+            }
 
-        var callContext = GetCallInfoContextInternal(semanticModel, syntaxNode);
-
-        return CreateFilteredCallInfoContext(semanticModel, callContext, callInfoParameterSymbol);
+            return callContext;
     }
 
-    protected abstract CallInfoContext<TInvocationExpressionSyntax, TIndexerSyntax> GetCallInfoContextInternal(SemanticModel semanticModel, SyntaxNode syntaxNode);
+    protected abstract CallInfoContext GetCallInfoContextInternal(SemanticModel semanticModel, SyntaxNode syntaxNode);
 
-    private static CallInfoContext<TInvocationExpressionSyntax, TIndexerSyntax> CreateFilteredCallInfoContext(
+    private static CallInfoContext CreateFilteredCallInfoContext(
         SemanticModel semanticModel,
-        CallInfoContext<TInvocationExpressionSyntax, TIndexerSyntax> callContext,
+        CallInfoContext callContext,
         IParameterSymbol callInfoParameterSymbol)
     {
-        return new CallInfoContext<TInvocationExpressionSyntax, TIndexerSyntax>(
+        return new CallInfoContext(
             argAtInvocations: GetMatchingNodes(semanticModel, callContext.ArgAtInvocations, callInfoParameterSymbol),
             argInvocations: GetMatchingNodes(semanticModel, callContext.ArgInvocations, callInfoParameterSymbol),
             indexerAccesses: GetMatchingNodes(semanticModel, callContext.IndexerAccesses, callInfoParameterSymbol));

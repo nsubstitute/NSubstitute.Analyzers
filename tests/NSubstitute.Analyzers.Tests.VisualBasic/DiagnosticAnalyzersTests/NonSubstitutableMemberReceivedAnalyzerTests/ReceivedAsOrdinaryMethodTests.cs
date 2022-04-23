@@ -5,17 +5,32 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
 
 [CombinatoryData(
     "ReceivedExtensions.Received(substitute, Quantity.None())",
+    "ReceivedExtensions.Received(substitute:= substitute, requiredQuantity:= Quantity.None())",
+    "ReceivedExtensions.Received(requiredQuantity:= Quantity.None(), substitute:= substitute)",
     "ReceivedExtensions.Received(Of Foo)(substitute, Quantity.None())",
+    "ReceivedExtensions.Received(Of Foo)(substitute:= substitute, requiredQuantity:= Quantity.None())",
+    "ReceivedExtensions.Received(Of Foo)(requiredQuantity:= Quantity.None(), substitute:= substitute)",
     "SubstituteExtensions.Received(substitute)",
+    "SubstituteExtensions.Received(substitute:= substitute)",
     "SubstituteExtensions.Received(Of Foo)(substitute)",
+    "SubstituteExtensions.Received(Of Foo)(substitute:= substitute)",
     "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
-    "ReceivedExtensions.ReceivedWithAnyArgs(Of Foo)(substitute, Quantity.None())",
+    "ReceivedExtensions.ReceivedWithAnyArgs(substitute:= substitute, requiredQuantity:= Quantity.None())",
+    "ReceivedExtensions.ReceivedWithAnyArgs(requiredQuantity:= Quantity.None(), substitute:= substitute)",
+    "ReceivedExtensions.ReceivedWithAnyArgs(Of Foo)(substitute:= substitute, requiredQuantity:= Quantity.None())",
+    "ReceivedExtensions.ReceivedWithAnyArgs(Of Foo)(requiredQuantity:= Quantity.None(), substitute:= substitute)",
     "SubstituteExtensions.ReceivedWithAnyArgs(substitute)",
+    "SubstituteExtensions.ReceivedWithAnyArgs(substitute:= substitute)",
     "SubstituteExtensions.ReceivedWithAnyArgs(Of Foo)(substitute)",
+    "SubstituteExtensions.ReceivedWithAnyArgs(Of Foo)(substitute:= substitute)",
     "SubstituteExtensions.DidNotReceive(substitute)",
+    "SubstituteExtensions.DidNotReceive(substitute:= substitute)",
     "SubstituteExtensions.DidNotReceive(Of Foo)(substitute)",
+    "SubstituteExtensions.DidNotReceive(Of Foo)(substitute:= substitute)",
     "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute)",
-    "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Foo)(substitute)")]
+    "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute:= substitute)",
+    "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Foo)(substitute)",
+    "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Foo)(substitute:= substitute)")]
 public class ReceivedAsOrdinaryMethodTests : NonSubstitutableMemberReceivedDiagnosticVerifier
 {
     public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualMethod(string method)
@@ -106,17 +121,33 @@ End Namespace
 
     [CombinatoryData(
         "ReceivedExtensions.Received(substitute, Quantity.None())",
+        "ReceivedExtensions.Received(substitute:= substitute, requiredQuantity:= Quantity.None())",
+        "ReceivedExtensions.Received(requiredQuantity:= Quantity.None(), substitute:= substitute)",
         "ReceivedExtensions.Received(Of Func(Of Foo))(substitute, Quantity.None())",
+        "ReceivedExtensions.Received(Of Func(Of Foo))(substitute:= substitute, requiredQuantity:= Quantity.None())",
+        "ReceivedExtensions.Received(Of Func(Of Foo))(requiredQuantity:= Quantity.None(), substitute:= substitute)",
         "SubstituteExtensions.Received(substitute)",
+        "SubstituteExtensions.Received(substitute:= substitute)",
         "SubstituteExtensions.Received(Of Func(Of Foo))(substitute)",
+        "SubstituteExtensions.Received(Of Func(Of Foo))(substitute:= substitute)",
         "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(substitute:= substitute, requiredQuantity:= Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(requiredQuantity:= Quantity.None(), substitute:= substitute)",
         "ReceivedExtensions.ReceivedWithAnyArgs(Of Func(Of Foo))(substitute, Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(Of Func(Of Foo))(substitute:= substitute, requiredQuantity:= Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(Of Func(Of Foo))(requiredQuantity:= Quantity.None(), substitute:= substitute)",
         "SubstituteExtensions.ReceivedWithAnyArgs(substitute)",
+        "SubstituteExtensions.ReceivedWithAnyArgs(substitute:= substitute)",
         "SubstituteExtensions.ReceivedWithAnyArgs(Of Func(Of Foo))(substitute)",
+        "SubstituteExtensions.ReceivedWithAnyArgs(Of Func(Of Foo))(substitute:= substitute)",
         "SubstituteExtensions.DidNotReceive(substitute)",
+        "SubstituteExtensions.DidNotReceive(substitute:= substitute)",
         "SubstituteExtensions.DidNotReceive(Of Func(Of Foo))(substitute)",
+        "SubstituteExtensions.DidNotReceive(Of Func(Of Foo))(substitute:= substitute)",
         "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute)",
-        "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Func(Of Foo))(substitute)")]
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute:= substitute)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Func(Of Foo))(substitute)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Func(Of Foo))(substitute:= substitute)")]
     public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForDelegate(string method)
     {
         var source = $@"Imports NSubstitute
@@ -251,17 +282,31 @@ End Namespace
 
     [CombinatoryData(
         "ReceivedExtensions.Received(substitute, Quantity.None())",
+        "ReceivedExtensions.Received(substitute:= substitute, requiredQuantity:= Quantity.None())",
+        "ReceivedExtensions.Received(requiredQuantity:= Quantity.None(), substitute:= substitute)",
         "ReceivedExtensions.Received(Of Foo(Of Integer))(substitute, Quantity.None())",
+        "ReceivedExtensions.Received(Of Foo(Of Integer))(substitute:= substitute, requiredQuantity:= Quantity.None())",
+        "ReceivedExtensions.Received(Of Foo(Of Integer))(requiredQuantity:= Quantity.None(), substitute:= substitute)",
         "SubstituteExtensions.Received(substitute)",
+        "SubstituteExtensions.Received(substitute:= substitute)",
         "SubstituteExtensions.Received(Of Foo(Of Integer))(substitute)",
+        "SubstituteExtensions.Received(Of Foo(Of Integer))(substitute:= substitute)",
         "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
-        "ReceivedExtensions.ReceivedWithAnyArgs(Of Foo(Of Integer))(substitute, Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(substitute:= substitute, requiredQuantity:= Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(requiredQuantity:= Quantity.None(), substitute:= substitute)",
+        "ReceivedExtensions.ReceivedWithAnyArgs(Of Foo(Of Integer))(substitute:= substitute, requiredQuantity:= Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(Of Foo(Of Integer))(requiredQuantity:= Quantity.None(), substitute:= substitute)",
         "SubstituteExtensions.ReceivedWithAnyArgs(substitute)",
+        "SubstituteExtensions.ReceivedWithAnyArgs(substitute:= substitute)",
         "SubstituteExtensions.ReceivedWithAnyArgs(Of Foo(Of Integer))(substitute)",
+        "SubstituteExtensions.ReceivedWithAnyArgs(Of Foo(Of Integer))(substitute:= substitute)",
         "SubstituteExtensions.DidNotReceive(substitute)",
+        "SubstituteExtensions.DidNotReceive(substitute:= substitute)",
         "SubstituteExtensions.DidNotReceive(Of Foo(Of Integer))(substitute)",
+        "SubstituteExtensions.DidNotReceive(Of Foo(Of Integer))(substitute:= substitute)",
         "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute)",
-        "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Foo(Of Integer))(substitute)")]
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute:= substitute)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Foo(Of Integer))(substitute:= substitute)")]
     public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForGenericInterfaceMethod(string method)
     {
         var source = $@"Imports NSubstitute

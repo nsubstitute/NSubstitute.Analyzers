@@ -12,7 +12,7 @@ internal class ReEntrantCallFinder : AbstractReEntrantCallFinder<InvocationExpre
 {
     public static ReEntrantCallFinder Instance { get; } = new ReEntrantCallFinder(SubstitutionNodeFinder.Instance);
 
-    private ReEntrantCallFinder(ISubstitutionNodeFinder<InvocationExpressionSyntax> substitutionNodeFinder)
+    private ReEntrantCallFinder(ISubstitutionNodeFinder substitutionNodeFinder)
         : base(substitutionNodeFinder)
     {
     }

@@ -56,6 +56,7 @@ Namespace MyNamespace
                                  [|substitute.Bar()|]
                              End Function)
             NSubstitute.Received.InOrder(Function() [|substitute.Bar()|])
+            NSubstitute.Received.InOrder(Async Function() Await [|otherSubstitute.Bar()|])
             NSubstitute.Received.InOrder(Sub() [|substitute.Bar()|])
             NSubstitute.Received.InOrder(Function()
                                  [|substitute.Nested.Bar()|]
@@ -104,6 +105,10 @@ Namespace MyNamespace
                                  Dim y = [|substitute.Bar()|]
                                  Dim z = CInt([|substitute.Bar()|])
                                  Dim zz = TryCast([|substitute.Bar()|], Object)
+                             End Function)
+            NSubstitute.Received.InOrder(Async Function()
+                                 Await [|otherSubstitute.Bar()|]
+                                 Dim y = Await [|otherSubstitute.Bar()|]
                              End Function)
             NSubstitute.Received.InOrder(Async Function()
                                  Await [|otherSubstitute.Bar()|]
@@ -388,6 +393,9 @@ Namespace MyNamespace
                                              substitute.Bar(CType(substitute.FooBar(), Integer))
                                              substitute.Bar(local)
                                              substitute.Bar(1)
+                                         End Function)
+            NSubstitute.Received.InOrder(Async Function()
+                                             Dim x = substitute.Bar(Await otherSubstitute.Bar())
                                          End Function)
             NSubstitute.Received.InOrder(Async Function()
                                              Dim x = substitute.Bar(Await otherSubstitute.Bar())

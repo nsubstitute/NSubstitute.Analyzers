@@ -1,31 +1,38 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal class CallInfoContext<TInvocationExpressionSyntax, TIndexerSyntax>
-    where TInvocationExpressionSyntax : SyntaxNode where TIndexerSyntax : SyntaxNode
+internal class CallInfoContext
 {
-    public IReadOnlyList<TIndexerSyntax> IndexerAccesses { get; }
+    public static CallInfoContext Empty { get; } = new CallInfoContext(
+        Array.Empty<SyntaxNode>(),
+        Array.Empty<SyntaxNode>(),
+        Array.Empty<SyntaxNode>());
 
-    public IReadOnlyList<TInvocationExpressionSyntax> ArgAtInvocations { get; }
+    public IReadOnlyList<SyntaxNode> IndexerAccesses { get; }
 
-    public IReadOnlyList<TInvocationExpressionSyntax> ArgInvocations { get; }
+    public IReadOnlyList<SyntaxNode> ArgAtInvocations { get; }
 
-    public static CallInfoContext<TInvocationExpressionSyntax, TIndexerSyntax> Empty { get; } =
-        new CallInfoContext<TInvocationExpressionSyntax, TIndexerSyntax>(
-            Array.Empty<TInvocationExpressionSyntax>(),
-            Array.Empty<TInvocationExpressionSyntax>(),
-            Array.Empty<TIndexerSyntax>());
+    public IReadOnlyList<SyntaxNode> ArgInvocations { get; }
 
     public CallInfoContext(
-        IReadOnlyList<TInvocationExpressionSyntax> argAtInvocations,
-        IReadOnlyList<TInvocationExpressionSyntax> argInvocations,
-        IReadOnlyList<TIndexerSyntax> indexerAccesses)
+        IReadOnlyList<SyntaxNode> argAtInvocations,
+        IReadOnlyList<SyntaxNode> argInvocations,
+        IReadOnlyList<SyntaxNode> indexerAccesses)
     {
         IndexerAccesses = indexerAccesses;
         ArgAtInvocations = argAtInvocations;
         ArgInvocations = argInvocations;
+    }
+
+    public CallInfoContext Merge(CallInfoContext callInfoContext)
+    {
+        return new CallInfoContext(
+            ArgAtInvocations.Concat(callInfoContext.ArgAtInvocations).ToList(),
+            ArgInvocations.Concat(callInfoContext.ArgInvocations).ToList(),
+            IndexerAccesses.Concat(callInfoContext.IndexerAccesses).ToList());
     }
 }

@@ -2,15 +2,15 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer<TSyntaxKind, TInvocationExpressionSyntax> : AbstractNonSubstitutableSetupAnalyzer
-    where TInvocationExpressionSyntax : SyntaxNode
+internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer<TSyntaxKind> : AbstractNonSubstitutableSetupAnalyzer
     where TSyntaxKind : struct, Enum
 {
-    private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
+    private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
@@ -20,7 +20,7 @@ internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer<TSyntaxKind, 
 
     protected AbstractNonSubstitutableMemberWhenAnalyzer(
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
-        ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder,
+        ISubstitutionNodeFinder substitutionNodeFinder,
         INonSubstitutableMemberAnalysis nonSubstitutableMemberAnalysis)
         : base(diagnosticDescriptorsProvider, nonSubstitutableMemberAnalysis)
     {
@@ -41,22 +41,19 @@ internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer<TSyntaxKind, 
 
     private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
     {
-        var invocationExpression = (TInvocationExpressionSyntax)syntaxNodeContext.Node;
-        var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
-
-        if (methodSymbolInfo.Symbol == null || methodSymbolInfo.Symbol.Kind != SymbolKind.Method)
+        if (!(syntaxNodeContext.SemanticModel.GetOperation(syntaxNodeContext.Node) is IInvocationOperation
+                invocationOperation))
         {
             return;
         }
 
-        var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
-
-        if (methodSymbol.IsWhenLikeMethod() == false)
+        if (invocationOperation.TargetMethod.IsWhenLikeMethod() == false)
         {
             return;
         }
 
-        var expressionsForAnalysys = _substitutionNodeFinder.FindForWhenExpression(syntaxNodeContext, invocationExpression, methodSymbol);
+        var expressionsForAnalysys =
+            _substitutionNodeFinder.FindForWhenExpression(syntaxNodeContext, invocationOperation);
         foreach (var analysedSyntax in expressionsForAnalysys)
         {
             var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(analysedSyntax);

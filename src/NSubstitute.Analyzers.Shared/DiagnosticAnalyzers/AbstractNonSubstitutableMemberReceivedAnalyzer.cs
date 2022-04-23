@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
@@ -26,8 +27,6 @@ internal abstract class AbstractNonSubstitutableMemberReceivedAnalyzer<TSyntaxKi
         NonVirtualSetupDescriptor = diagnosticDescriptorsProvider.NonVirtualReceivedSetupSpecification;
     }
 
-    protected abstract ImmutableHashSet<int> PossibleParentsRawKinds { get; }
-
     protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
     protected override DiagnosticDescriptor NonVirtualSetupDescriptor { get; }
@@ -45,39 +44,22 @@ internal abstract class AbstractNonSubstitutableMemberReceivedAnalyzer<TSyntaxKi
     private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
     {
         var invocationExpression = syntaxNodeContext.Node;
-        var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
-
-        if (methodSymbolInfo.Symbol?.Kind != SymbolKind.Method)
+        if (!(syntaxNodeContext.SemanticModel.GetOperation(invocationExpression) is IInvocationOperation
+                invocationOperation))
         {
             return;
         }
 
-        var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
-
-        if (methodSymbol.IsReceivedLikeMethod() == false)
+        if (invocationOperation.Parent == null)
         {
             return;
         }
 
-        var parentNode = GetKnownParent(invocationExpression);
-
-        if (parentNode == null)
+        if (invocationOperation.TargetMethod.IsReceivedLikeMethod() == false)
         {
             return;
         }
 
-        var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(parentNode);
-
-        if (symbolInfo.Symbol == null)
-        {
-            return;
-        }
-
-        Analyze(syntaxNodeContext, parentNode, symbolInfo.Symbol);
-    }
-
-    private SyntaxNode GetKnownParent(SyntaxNode receivedSyntaxNode)
-    {
-        return PossibleParentsRawKinds.Contains(receivedSyntaxNode.Parent.RawKind) ? receivedSyntaxNode.Parent : null;
+        Analyze(syntaxNodeContext, invocationOperation.Parent.Syntax);
     }
 }

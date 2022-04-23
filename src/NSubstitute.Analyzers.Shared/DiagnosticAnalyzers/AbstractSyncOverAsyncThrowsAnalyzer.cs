@@ -11,14 +11,14 @@ internal abstract class AbstractSyncOverAsyncThrowsAnalyzer<TSyntaxKind, TInvoca
     where TInvocationExpressionSyntax : SyntaxNode
     where TSyntaxKind : struct
 {
-    private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
+    private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
     private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
 
     protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
     protected AbstractSyncOverAsyncThrowsAnalyzer(
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
-        ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder)
+        ISubstitutionNodeFinder substitutionNodeFinder)
         : base(diagnosticDescriptorsProvider)
     {
         _substitutionNodeFinder = substitutionNodeFinder;
