@@ -2,21 +2,21 @@ using System;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractReceivedInReceivedInOrderAnalyzer<TSyntaxKind, TInvocationExpressionSyntax> : AbstractDiagnosticAnalyzer
-    where TSyntaxKind : struct
-    where TInvocationExpressionSyntax : SyntaxNode
+internal abstract class AbstractReceivedInReceivedInOrderAnalyzer<TSyntaxKind> : AbstractDiagnosticAnalyzer
+        where TSyntaxKind : struct
 {
-    private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
+    private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
     private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
     protected AbstractReceivedInReceivedInOrderAnalyzer(
-        ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder,
+        ISubstitutionNodeFinder substitutionNodeFinder,
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
         : base(diagnosticDescriptorsProvider)
     {
@@ -34,23 +34,19 @@ internal abstract class AbstractReceivedInReceivedInOrderAnalyzer<TSyntaxKind, T
 
     private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
     {
-        var invocationExpression = (TInvocationExpressionSyntax)syntaxNodeContext.Node;
-        var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
-
-        if (methodSymbolInfo.Symbol?.Kind != SymbolKind.Method)
+        if (!(syntaxNodeContext.SemanticModel.GetOperation(syntaxNodeContext.Node) is IInvocationOperation invocationOperation))
         {
             return;
         }
 
-        if (methodSymbolInfo.Symbol.IsReceivedInOrderMethod() == false)
+        if (invocationOperation.TargetMethod.IsReceivedInOrderMethod() == false)
         {
             return;
         }
 
         foreach (var syntaxNode in _substitutionNodeFinder.FindForReceivedInOrderExpression(
                      syntaxNodeContext,
-                     invocationExpression,
-                     (IMethodSymbol)methodSymbolInfo.Symbol))
+                     invocationOperation))
         {
             var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode);
 

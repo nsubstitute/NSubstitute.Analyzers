@@ -16,13 +16,13 @@ internal abstract class AbstractCallInfoAnalyzer<TSyntaxKind, TInvocationExpress
     where TSyntaxKind : struct
 {
     private readonly ICallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> _callInfoFinder;
-    private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
+    private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
     private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
 
     protected AbstractCallInfoAnalyzer(
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
         ICallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> callInfoFinder,
-        ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder)
+        ISubstitutionNodeFinder substitutionNodeFinder)
         : base(diagnosticDescriptorsProvider)
     {
         _callInfoFinder = callInfoFinder;

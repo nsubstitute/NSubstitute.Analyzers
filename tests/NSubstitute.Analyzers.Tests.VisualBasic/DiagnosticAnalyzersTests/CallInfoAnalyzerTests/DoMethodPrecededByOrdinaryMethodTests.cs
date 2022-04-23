@@ -26,8 +26,20 @@ Namespace MyNamespace
             Dim returnValue = {method}(mock, Function(substitute) 
                                                 Dim x = {call}
                                            End Function)
+            Dim otherValue = {method}(substitute:= mock, substituteCall:= Function(substitute) 
+                                                Dim x = {call}
+                                           End Function)
+            Dim yetAnotherValue = {method}(substituteCall:= Function(substitute) 
+                                                Dim x = {call}
+                                           End Function, substitute:= mock)
 
             returnValue.Do(Function(callInfo)
+                                {argAccess}
+                           End Function)
+            otherValue.Do(Function(callInfo)
+                                {argAccess}
+                           End Function)
+            yetAnotherValue.Do(Function(callInfo)
                                 {argAccess}
                            End Function)
         End Sub
@@ -57,6 +69,16 @@ Namespace MyNamespace
                           End Function).Do(Function(callInfo)
                                                {argAccess}
                                            End Function)
+            {method}(substitute:= mock, substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
+            {method}(substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function, substitute:= mock).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
         End Sub
     End Class
 End Namespace
@@ -84,6 +106,16 @@ Namespace MyNamespace
                           End Function).Do(Function(callInfo)
                                                {argAccess}
                                            End Function)
+            {method}(substitute:= mock, substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
+            {method}(substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function, substitute:= mock).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
         End Sub
     End Class
 End Namespace";
@@ -108,6 +140,16 @@ Namespace MyNamespace
             {method}(mock, Function(substitute) 
                              Dim x = {call}
                           End Function).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
+            {method}(substitute:= mock, substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
+            {method}(substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function, substitute:= mock).Do(Function(callInfo)
                                                {argAccess}
                                            End Function)
         End Sub
@@ -225,6 +267,16 @@ Namespace MyNamespace
                           End Function).Do(Function(callInfo)
                                                {argAccess}
                                            End Function)
+            {method}(substitute:= mock, substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
+            {method}(substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function, substitute:= mock).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
         End Sub
     End Class
 End Namespace";
@@ -260,6 +312,16 @@ Namespace MyNamespace
                           End Function).Do(Function(callInfo)
                                                {argAccess}
                                            End Function)
+            {method}(substitute:= mock, substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
+            {method}(substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function, substitute:= mock).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
         End Sub
     End Class
 End Namespace
@@ -292,6 +354,16 @@ Namespace MyNamespace
             {method}(mock, Function(substitute) 
                              Dim x = {call}
                           End Function).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
+            {method}(substitute:= mock, substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
+            {method}(substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function, substitute:= mock).Do(Function(callInfo)
                                                {argAccess}
                                            End Function)
         End Sub
@@ -329,6 +401,16 @@ Namespace MyNamespace
                           End Function).Do(Function(callInfo)
                                                {argAccess}
                                            End Function)
+            {method}(substitute:= mock, substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
+            {method}(substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function, substitute:= mock).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
         End Sub
     End Class
 End Namespace
@@ -356,6 +438,16 @@ Namespace MyNamespace
             {method}(mock, Function(substitute) 
                              Dim x = {call}
                           End Function).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
+            {method}(substitute:= mock, substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
+            {method}(substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function, substitute:= mock).Do(Function(callInfo)
                                                {argAccess}
                                            End Function)
         End Sub
@@ -387,6 +479,16 @@ Namespace MyNamespace
                           End Function).Do(Function(callInfo)
                                                {argAccess}
                                            End Function)
+            {method}(substitute:= mock, substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
+            {method}(substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function, substitute:= mock).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
         End Sub
     End Class
 End Namespace
@@ -413,6 +515,16 @@ Namespace MyNamespace
             {method}(mock, Function(substitute) 
                              Dim x = {call}
                           End Function).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
+            {method}(substitute:= mock, substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
+            {method}(substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function, substitute:= mock).Do(Function(callInfo)
                                                {argAccess}
                                            End Function)
         End Sub
@@ -451,6 +563,16 @@ Namespace MyNamespace
             {method}(mock, Function(substitute) 
                              Dim x = {call}
                           End Function).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
+            {method}(substitute:= mock, substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
+            {method}(substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function, substitute:= mock).Do(Function(callInfo)
                                                {argAccess}
                                            End Function)
         End Sub
@@ -516,6 +638,16 @@ Namespace MyNamespace
                           End Function).Do(Function(callInfo)
                                                {argAccess}
                                            End Function)
+            {method}(substitute:= mock, substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
+            {method}(substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function, substitute:= mock).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
         End Sub
     End Class
 End Namespace
@@ -546,6 +678,16 @@ Namespace MyNamespace
                           End Function).Do(Function(callInfo)
                                                {argAccess}
                                            End Function)
+            {method}(substitute:= mock, substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
+            {method}(substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function, substitute:= mock).Do(Function(callInfo)
+                                               {argAccess}
+                                           End Function)
         End Sub
     End Class
 End Namespace
@@ -572,6 +714,16 @@ Namespace MyNamespace
                           End Function).Do(Function(callInfo)
                                                [|callInfo(1)|] = 1
                                            End Function)
+            {method}(substitute:= mock, substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function).Do(Function(callInfo)
+                                               [|callInfo(1)|] = 1
+                                           End Function)
+            {method}(substituteCall:= Function(substitute) 
+                             Dim x = {call}
+                          End Function, substitute:= mock).Do(Function(callInfo)
+                                               [|callInfo(1)|] = 1
+                                           End Function)
         End Sub
     End Class
 End Namespace
@@ -595,6 +747,16 @@ Namespace MyNamespace
             {method}(mock, Function(substitute) 
                              Dim x = substitute.Bar(value)
                           End Function).Do(Function(callInfo)
+                                               callInfo(0) = 1
+                                           End Function)
+            {method}(substitute:= mock, substituteCall:= Function(substitute) 
+                             Dim x = substitute.Bar(value)
+                          End Function).Do(Function(callInfo)
+                                               callInfo(0) = 1
+                                           End Function)
+            {method}(substituteCall:= Function(substitute) 
+                             Dim x = substitute.Bar(value)
+                          End Function, substitute:= mock).Do(Function(callInfo)
                                                callInfo(0) = 1
                                            End Function)
         End Sub
@@ -623,6 +785,16 @@ Namespace MyNamespace
                           End Function).Do(Function(callInfo)
                                                callInfo(0) = 1
                                            End Function)
+            {method}(substitute:= mock, substituteCall:= Function(substitute) 
+                             Dim x = substitute.Bar(value)
+                          End Function).Do(Function(callInfo)
+                                               callInfo(0) = 1
+                                           End Function)
+            {method}(substituteCall:= Function(substitute) 
+                             Dim x = substitute.Bar(value)
+                          End Function, substitute:= mock).Do(Function(callInfo)
+                                               callInfo(0) = 1
+                                           End Function)
         End Sub
     End Class
 End Namespace
@@ -647,6 +819,16 @@ Namespace MyNamespace
             {method}(mock, Function(substitute) 
                              Dim x = substitute.Bar(value)
                           End Function).Do(Function(callInfo)
+                                               [|callInfo(1)|] = 1
+                                           End Function)
+            {method}(substitute:= mock, substituteCall:= Function(substitute) 
+                             Dim x = substitute.Bar(value)
+                          End Function).Do(Function(callInfo)
+                                               [|callInfo(1)|] = 1
+                                           End Function)
+            {method}(substituteCall:= Function(substitute) 
+                             Dim x = substitute.Bar(value)
+                          End Function, substitute:= mock).Do(Function(callInfo)
                                                [|callInfo(1)|] = 1
                                            End Function)
         End Sub
@@ -676,6 +858,16 @@ Namespace MyNamespace
                           End Function).Do(Function(callInfo)
                                                [|callInfo(0)|] = {right}
                                            End Function)
+            {method}(substitute:= mock, substituteCall:= Function(substitute) 
+                             Dim x = substitute.Bar(value)
+                          End Function).Do(Function(callInfo)
+                                               [|callInfo(0)|] = {right}
+                                           End Function)
+            {method}(substituteCall:= Function(substitute) 
+                             Dim x = substitute.Bar(value)
+                          End Function, substitute:= mock).Do(Function(callInfo)
+                                               [|callInfo(0)|] = {right}
+                                           End Function)
         End Sub
     End Class
 End Namespace
@@ -702,6 +894,16 @@ Namespace MyNamespace
             {method}(mock, Function(substitute) 
                              Dim x = substitute.Bar(value)
                           End Function).Do(Function(callInfo)
+                                               callInfo(0) = {right}
+                                           End Function)
+            {method}(substitute:= mock, substituteCall:= Function(substitute) 
+                             Dim x = substitute.Bar(value)
+                          End Function).Do(Function(callInfo)
+                                               callInfo(0) = {right}
+                                           End Function)
+            {method}(substituteCall:= Function(substitute) 
+                             Dim x = substitute.Bar(value)
+                          End Function, substitute:= mock).Do(Function(callInfo)
                                                callInfo(0) = {right}
                                            End Function)
         End Sub

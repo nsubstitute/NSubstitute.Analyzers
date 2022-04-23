@@ -9,7 +9,7 @@ using NSubstitute.Analyzers.VisualBasic.Extensions;
 
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 
-internal class SubstitutionNodeFinder : AbstractSubstitutionNodeFinder<InvocationExpressionSyntax>
+internal sealed class SubstitutionNodeFinder : AbstractSubstitutionNodeFinder
 {
     public static SubstitutionNodeFinder Instance { get; } = new SubstitutionNodeFinder();
 
@@ -17,57 +17,7 @@ internal class SubstitutionNodeFinder : AbstractSubstitutionNodeFinder<Invocatio
     {
     }
 
-    public override SyntaxNode FindForAndDoesExpression(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax invocationExpression, IMethodSymbol invocationExpressionSymbol)
-    {
-        var parentInvocationExpression = invocationExpression?.GetParentInvocationExpression();
-        if (parentInvocationExpression == null)
-        {
-            return null;
-        }
-
-        var symbol = syntaxNodeContext.SemanticModel.GetSymbolInfo(parentInvocationExpression);
-
-        return symbol.Symbol is IMethodSymbol methodSymbol && methodSymbol.ReducedFrom == null
-            ? parentInvocationExpression.ArgumentList.Arguments.First().GetExpression()
-            : parentInvocationExpression.Expression.DescendantNodes().First();
-    }
-
-    public override SyntaxNode FindForStandardExpression(InvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol invocationExpressionSymbol)
-    {
-        switch (invocationExpressionSymbol.MethodKind)
-        {
-            case MethodKind.ReducedExtension:
-                return invocationExpressionSyntax.Expression.DescendantNodes().First();
-            case MethodKind.Ordinary:
-                return invocationExpressionSyntax.ArgumentList.Arguments.First().GetExpression();
-            default:
-                return null;
-        }
-    }
-
-    public override IEnumerable<SyntaxNode> FindForReceivedInOrderExpression(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax receivedInOrderExpression, IMethodSymbol receivedInOrderInvocationSymbol = null)
-    {
-        var argumentExpression = receivedInOrderExpression.ArgumentList.Arguments.First();
-
-        return FindInvocations(syntaxNodeContext, argumentExpression.GetExpression()).Select(syntax =>
-            syntax.GetSubstitutionActualNode(node => syntaxNodeContext.SemanticModel.GetSymbolInfo(node).Symbol));
-    }
-
-    protected override InvocationExpressionSyntax GetParentInvocationExpression(InvocationExpressionSyntax invocationExpressionSyntax)
-    {
-        return invocationExpressionSyntax.GetParentInvocationExpression();
-    }
-
-    protected override IEnumerable<SyntaxNode> FindForWhenExpressionInternal(SyntaxNodeAnalysisContext syntaxNodeContext, InvocationExpressionSyntax whenInvocationExpression, IMethodSymbol whenInvocationSymbol)
-    {
-        var argumentExpression = whenInvocationSymbol.MethodKind == MethodKind.ReducedExtension
-            ? whenInvocationExpression.ArgumentList.Arguments.First().GetExpression()
-            : whenInvocationExpression.ArgumentList.Arguments.Skip(1).First().GetExpression();
-
-        return FindInvocations(syntaxNodeContext, argumentExpression).Select(syntax => syntax.GetSubstitutionActualNode(node => syntaxNodeContext.SemanticModel.GetSymbolInfo(node).Symbol));
-    }
-
-    private IEnumerable<SyntaxNode> FindInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode argumentSyntax)
+    protected override IEnumerable<SyntaxNode> FindInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode argumentSyntax)
     {
         SyntaxNode body = null;
         switch (argumentSyntax)
@@ -112,7 +62,7 @@ internal class SubstitutionNodeFinder : AbstractSubstitutionNodeFinder<Invocatio
                         innerNode = methodStatementSyntax.Parent;
                     }
 
-                    innerNode = innerNode ?? syntaxNode;
+                    innerNode ??= syntaxNode;
                     foreach (var expressionsForAnalysy in FindInvocations(syntaxNodeContext, innerNode))
                     {
                         yield return expressionsForAnalysy;
@@ -127,8 +77,10 @@ internal class SubstitutionNodeFinder : AbstractSubstitutionNodeFinder<Invocatio
             yield break;
         }
 
-        var memberAccessExpressions = body.DescendantNodes().Where(node => node.IsKind(SyntaxKind.SimpleMemberAccessExpression)).ToList();
-        var invocationExpressions = body.DescendantNodes().Where(node => node.IsKind(SyntaxKind.InvocationExpression)).ToList();
+        var memberAccessExpressions = body.DescendantNodes()
+            .Where(node => node.IsKind(SyntaxKind.SimpleMemberAccessExpression)).ToList();
+        var invocationExpressions =
+            body.DescendantNodes().Where(node => node.IsKind(SyntaxKind.InvocationExpression)).ToList();
 
         // rather ugly but prevents reporting two times the same thing
         // as VB syntax is based on statements, you can't access body of method directly
@@ -151,5 +103,10 @@ internal class SubstitutionNodeFinder : AbstractSubstitutionNodeFinder<Invocatio
         {
             return statements.SelectMany(statement => FindInvocations(syntaxNodeContext, statement));
         }
+    }
+
+    protected override SyntaxNode GetSubstitutionActualNode(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntaxNode)
+    {
+        return syntaxNode.GetSubstitutionActualNode(node => syntaxNodeContext.SemanticModel.GetSymbolInfo(node).Symbol);
     }
 }

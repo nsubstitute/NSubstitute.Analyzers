@@ -8,7 +8,7 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-internal sealed class NonSubstitutableMemberReceivedInOrderAnalyzer : AbstractNonSubstitutableMemberReceivedInOrderAnalyzer<SyntaxKind, InvocationExpressionSyntax, MemberAccessExpressionSyntax, BlockSyntax>
+internal sealed class NonSubstitutableMemberReceivedInOrderAnalyzer : AbstractNonSubstitutableMemberReceivedInOrderAnalyzer<SyntaxKind, MemberAccessExpressionSyntax, BlockSyntax>
 {
     private static ImmutableArray<int> IgnoredPaths { get; } =
         ImmutableArray.Create((int)SyntaxKind.Argument, (int)SyntaxKind.VariableDeclarator, (int)SyntaxKind.AddAssignmentExpression);
