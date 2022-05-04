@@ -8,7 +8,7 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 
-internal class CallInfoCallFinder : AbstractCallInfoFinder<InvocationExpressionSyntax, InvocationExpressionSyntax>
+internal class CallInfoCallFinder : AbstractCallInfoFinder
 {
     public static CallInfoCallFinder Instance { get; } = new CallInfoCallFinder();
 
@@ -16,12 +16,12 @@ internal class CallInfoCallFinder : AbstractCallInfoFinder<InvocationExpressionS
     {
     }
 
-    protected override CallInfoContext<InvocationExpressionSyntax, InvocationExpressionSyntax> GetCallInfoContextInternal(SemanticModel semanticModel, SyntaxNode syntaxNode)
+    protected override CallInfoContext GetCallInfoContextInternal(SemanticModel semanticModel, SyntaxNode syntaxNode)
     {
         var visitor = new CallInfoVisitor(semanticModel);
         visitor.Visit(syntaxNode);
 
-        return new CallInfoContext<InvocationExpressionSyntax, InvocationExpressionSyntax>(
+        return new CallInfoContext(
             argAtInvocations: visitor.ArgAtInvocations,
             argInvocations: visitor.ArgInvocations,
             indexerAccesses: visitor.DirectIndexerAccesses);

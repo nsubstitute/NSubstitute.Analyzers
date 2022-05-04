@@ -35,6 +35,16 @@ namespace MyNamespace
                 {argAccess}
                 return 1;
             }});
+            {method}(value: returnedValue, returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+            {method}(returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }}, value: returnedValue);
         }}
     }}
 }}";
@@ -68,6 +78,16 @@ namespace MyNamespace
                 {argAccess}
                 return 1;
             }});
+            {method}(value: {call}, returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+            {method}(returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }}, value: {call});
         }}
     }}
 }}";
@@ -101,6 +121,16 @@ namespace MyNamespace
                 {argAccess}
                 return 1;
             }});
+            {method}(value: {call}, returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+            {method}(returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }}, value: {call});
         }}
     }}
 }}";
@@ -133,6 +163,16 @@ namespace MyNamespace
                 {argAccess}
                 return 1;
             }});
+            {method}(value: {call}, returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+            {method}(returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }}, value: {call});
         }}
     }}
 }}";
@@ -216,6 +256,16 @@ namespace MyNamespace
                 {argAccess}
                 return 1;
             }});
+            {method}(value: {call}, returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+            {method}(returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }}, value: {call});
         }}
     }}
 }}";
@@ -263,6 +313,16 @@ namespace MyNamespace
                 {argAccess}
                 return 1;
             }});
+            {method}(value: {call}, returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+            {method}(returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }}, value: {call});
         }}
     }}
 }}";
@@ -305,6 +365,16 @@ namespace MyNamespace
                 {argAccess}
                 return 1;
             }});
+            {method}(value: {call}, returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+            {method}(returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }}, value: {call});
         }}
     }}
 }}";
@@ -352,6 +422,16 @@ namespace MyNamespace
                 {argAccess}
                 return 1;
             }});
+            {method}(value: {call}, returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+            {method}(returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }}, value: {call});
         }}
     }}
 }}";
@@ -386,6 +466,16 @@ namespace MyNamespace
                 {argAccess}
                 return 1;
             }});
+            {method}(value: {call}, returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+            {method}(returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }}, value: {call});
         }}
     }}
 }}";
@@ -420,6 +510,16 @@ namespace MyNamespace
                 {argAccess}
                 return 1;
             }});
+            {method}(value: {call}, returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+            {method}(returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }}, value: {call});
         }}
     }}
 }}";
@@ -452,6 +552,16 @@ namespace MyNamespace
                 {argAccess}
                 return 1;
             }});
+            {method}(value: {call}, returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+            {method}(returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }}, value: {call});
         }}
     }}
 }}";
@@ -598,6 +708,16 @@ namespace MyNamespace
                 {argAccess}
                 return 1;
             }});
+            {method}(value: {call}, returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+            {method}(returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }}, value: {call});
         }}
     }}
 }}";
@@ -676,6 +796,16 @@ namespace MyNamespace
                 {argAccess}
                 return 1;
             }});
+            {method}(value: {call}, returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+            {method}(returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }}, value: {call});
         }}
     }}
 }}";
@@ -713,6 +843,16 @@ namespace MyNamespace
                 {argAccess}
                 return 1;
             }});
+            {method}(value: {call}, returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }});
+            {method}(returnThis: callInfo =>
+            {{
+                {argAccess}
+                return 1;
+            }}, value: {call});
         }}
     }}
 }}";
@@ -743,6 +883,16 @@ namespace MyNamespace
                 [|callInfo[1]|] = 1;
                 return 1;
             }});
+            {method}(value: {call}, returnThis: callInfo =>
+            {{
+                [|callInfo[1]|] = 1;
+                return 1;
+            }});
+            {method}(returnThis: callInfo =>
+            {{
+                [|callInfo[1]|] = 1;
+                return 1;
+            }}, value: {call});
         }}
     }}
 }}";
@@ -771,6 +921,16 @@ namespace MyNamespace
                 callInfo[0] = 1;
                 return 1;
             }});
+            {method}(value: substitute.Bar(ref value), returnThis: callInfo =>
+            {{
+                callInfo[0] = 1;
+                return 1;
+            }});
+            {method}(returnThis: callInfo =>
+            {{
+                callInfo[0] = 1;
+                return 1;
+            }}, value: substitute.Bar(ref value));
         }}
     }}
 }}";
@@ -799,6 +959,16 @@ namespace MyNamespace
                 callInfo[0] = 1;
                 return 1;
             }});
+            {method}(value: substitute.Bar(out value), returnThis: callInfo =>
+            {{
+                callInfo[0] = 1;
+                return 1;
+            }});
+            {method}(returnThis: callInfo =>
+            {{
+                callInfo[0] = 1;
+                return 1;
+            }}, value: substitute.Bar(out value));
         }}
     }}
 }}";
@@ -827,6 +997,16 @@ namespace MyNamespace
                 [|callInfo[1]|] = 1;
                 return 1;
             }});
+            {method}(value: substitute.Bar(out value), returnThis:callInfo =>
+            {{
+                [|callInfo[1]|] = 1;
+                return 1;
+            }});
+            {method}(returnThis:callInfo =>
+            {{
+                [|callInfo[1]|] = 1;
+                return 1;
+            }}, value: substitute.Bar(out value));
         }}
     }}
 }}";
@@ -856,6 +1036,16 @@ namespace MyNamespace
                 [|callInfo[0]|] = {right};
                 return 1;
             }});
+            {method}(value: substitute.Bar(out value), returnThis: callInfo =>
+            {{
+                [|callInfo[0]|] = {right};
+                return 1;
+            }});
+            {method}(returnThis: callInfo =>
+            {{
+                [|callInfo[0]|] = {right};
+                return 1;
+            }}, value: substitute.Bar(out value));
         }}
     }}
 }}";
@@ -886,6 +1076,16 @@ namespace MyNamespace
                 callInfo[0] = {right};
                 return 1;
             }});
+            {method}(value: substitute.Bar(out value), returnThis: callInfo =>
+            {{
+                callInfo[0] = {right};
+                return 1;
+            }});
+            {method}(returnThis: callInfo =>
+            {{
+                callInfo[0] = {right};
+                return 1;
+            }}, value: substitute.Bar(out value));
         }}
     }}
 }}";

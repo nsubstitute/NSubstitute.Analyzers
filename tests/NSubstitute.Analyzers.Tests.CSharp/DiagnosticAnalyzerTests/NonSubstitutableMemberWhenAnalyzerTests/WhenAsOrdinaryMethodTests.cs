@@ -27,6 +27,8 @@ namespace MyNamespace
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
+            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -59,6 +61,8 @@ namespace MyNamespace
             var substitute = Substitute.For<Foo>();
 
             {method}(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
+            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -86,6 +90,8 @@ namespace MyNamespace
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
+            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -118,6 +124,8 @@ namespace MyNamespace
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
+            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -139,6 +147,8 @@ namespace MyNamespace
             int i = 1;
             var substitute = Substitute.For<Func<int>>();
             {method}(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
+            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -171,7 +181,8 @@ namespace MyNamespace
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute, {whenAction}).Do(callInfo => i++);
-
+            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
+            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -197,6 +208,8 @@ namespace MyNamespace
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
+            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -222,6 +235,8 @@ namespace MyNamespace
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
+            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -246,6 +261,8 @@ namespace MyNamespace
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
+            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -271,6 +288,8 @@ namespace MyNamespace
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo<int>>();
             {method}(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
+            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -295,6 +314,8 @@ namespace MyNamespace
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
+            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -320,6 +341,8 @@ namespace MyNamespace
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
+            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -383,6 +406,8 @@ namespace MyNamespace
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
+            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -408,6 +433,8 @@ namespace MyNamespace
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
+            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -433,6 +460,8 @@ namespace MyNamespace
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute, {whenAction}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
+            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -467,7 +496,21 @@ namespace MyNamespace
                 return Task.CompletedTask;
             }}
 
+            Task OtherSubstituteCall(Foo sub)
+            {{
+                [|sub.Bar(Arg.Any<int>())|];
+                return Task.CompletedTask;
+            }}
+
+            Task YetAnotherSubstituteCall(Foo sub)
+            {{
+                [|sub.Bar(Arg.Any<int>())|];
+                return Task.CompletedTask;
+            }}
+
             {method}(substitute, SubstituteCall).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: OtherSubstituteCall).Do(callInfo => i++);
+            {method}(substituteCall: YetAnotherSubstituteCall, substitute: substitute).Do(callInfo => i++);
             substitute.Bar(1);
         }}
     }}
@@ -497,8 +540,12 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
 
             Task SubstituteCall(Foo sub) => Task.FromResult([|sub.Bar(Arg.Any<int>())|]);
+            Task OtherSubstituteCall(Foo sub) => Task.FromResult([|sub.Bar(Arg.Any<int>())|]);
+            Task YetAnotherSubstituteCall(Foo sub) => Task.FromResult([|sub.Bar(Arg.Any<int>())|]);
 
             {method}(substitute, SubstituteCall).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: OtherSubstituteCall).Do(callInfo => i++);
+            {method}(substituteCall: YetAnotherSubstituteCall, substitute: substitute).Do(callInfo => i++);
             substitute.Bar(1);
         }}
     }}
@@ -529,10 +576,24 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
 
             {method}(substitute, SubstituteCall).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: OtherSubstituteCall).Do(callInfo => i++);
+            {method}(substituteCall: YetAnotherSubstituteCall, substitute: substitute).Do(callInfo => i++);
             substitute.Bar(1);
         }}
 
         private Task SubstituteCall(Foo sub)
+        {{
+            var objBarr = [|sub.Bar(Arg.Any<int>())|];
+            return Task.CompletedTask;
+        }}
+
+        private Task OtherSubstituteCall(Foo sub)
+        {{
+            var objBarr = [|sub.Bar(Arg.Any<int>())|];
+            return Task.CompletedTask;
+        }}
+
+        private Task YetAnotherSubstituteCall(Foo sub)
         {{
             var objBarr = [|sub.Bar(Arg.Any<int>())|];
             return Task.CompletedTask;
@@ -564,10 +625,16 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
 
             {method}(substitute, SubstituteCall).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: OtherSubstituteCall).Do(callInfo => i++);
+            {method}(substituteCall: YetAnotherSubstituteCall, substitute: substitute).Do(callInfo => i++);
             substitute.Bar(1);
         }}
 
         private Task SubstituteCall(Foo sub) => Task.FromResult([|sub.Bar(Arg.Any<int>())|]);
+
+        private Task OtherSubstituteCall(Foo sub) => Task.FromResult([|sub.Bar(Arg.Any<int>())|]);
+
+        private Task YetAnotherSubstituteCall(Foo sub) => Task.FromResult([|sub.Bar(Arg.Any<int>())|]);
     }}
 }}";
         await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
@@ -601,6 +668,8 @@ namespace MyNamespace
             }}
 
             {method}(substitute, SubstituteCall).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: SubstituteCall).Do(callInfo => i++);
+            {method}(substituteCall: SubstituteCall, substitute: substitute).Do(callInfo => i++);
             substitute.Bar(1);
         }}
     }}
@@ -633,6 +702,8 @@ namespace MyNamespace
             Task SubstituteCall(Foo sub) => Task.FromResult(sub.Bar(Arg.Any<int>()));
 
             {method}(substitute, SubstituteCall).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: SubstituteCall).Do(callInfo => i++);
+            {method}(substituteCall: SubstituteCall, substitute: substitute).Do(callInfo => i++);
             substitute.Bar(1);
         }}
     }}
@@ -662,6 +733,8 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
 
             {method}(substitute, SubstituteCall).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: SubstituteCall).Do(callInfo => i++);
+            {method}(substituteCall: SubstituteCall, substitute: substitute).Do(callInfo => i++);
             substitute.Bar(1);
         }}
 
@@ -697,6 +770,8 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
 
             {method}(substitute, SubstituteCall).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: SubstituteCall).Do(callInfo => i++);
+            {method}(substituteCall: SubstituteCall, substitute: substitute).Do(callInfo => i++);
             substitute.Bar(1);
         }}
 
@@ -734,6 +809,8 @@ namespace MyNamespace
             int i = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute, {call}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: {call}).Do(callInfo => i++);
+            {method}(substituteCall: {call}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -773,6 +850,8 @@ namespace MyNamespace
             int i = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute, {call}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: {call}).Do(callInfo => i++);
+            {method}(substituteCall: {call}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -810,6 +889,8 @@ namespace MyNamespace
             int i = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute, {call}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: {call}).Do(callInfo => i++);
+            {method}(substituteCall: {call}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -844,7 +925,8 @@ namespace MyNamespace
         {{
             int i = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}(substitute, {call}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: {call}).Do(callInfo => i++);
+            {method}(substituteCall: {call}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";

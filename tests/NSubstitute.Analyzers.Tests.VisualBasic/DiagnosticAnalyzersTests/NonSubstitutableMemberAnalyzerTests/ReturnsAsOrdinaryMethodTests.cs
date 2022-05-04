@@ -28,6 +28,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}([|substitute.Bar()|], 1)
+            {method}(value:= [|substitute.Bar()|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|substitute.Bar()|])
         End Sub
     End Class
 End Namespace
@@ -47,6 +49,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             {method}([|{literal}|], {literal})
+            {method}(value:= [|{literal}|], returnThis:= {literal})
+            {method}(returnThis:= {literal}, value:= [|{literal}|])
         End Sub
     End Class
 End Namespace
@@ -71,6 +75,8 @@ Namespace MyNamespace
 
         Public Sub Test()
             {method}([|Foo.Bar()|], 1)
+            {method}(value:= [|Foo.Bar()|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|Foo.Bar()|])
         End Sub
     End Class
 End Namespace
@@ -96,6 +102,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute.Bar(), 1)
+            {method}(value:= substitute.Bar(), returnThis:= 1)
+            {method}(returnThis:= 1, value:= substitute.Bar())
         End Sub
     End Class
 End Namespace
@@ -129,6 +137,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo2)()
             {method}(substitute.Bar(), 1)
+            {method}(value:= substitute.Bar(), returnThis:= 1)
+            {method}(returnThis:= 1, value:= substitute.Bar())
         End Sub
     End Class
 End Namespace
@@ -155,6 +165,8 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             Dim returnValue = substitute.Bar()
             {method}(returnValue, 1)
+            {method}(value:= returnValue, returnThis:= 1)
+            {method}(returnThis:= 1, value:= returnValue)
         End Sub
     End Class
 End Namespace
@@ -174,6 +186,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Func(Of Integer))()
             {method}(substitute(), 1)
+            {method}(value:= substitute(), returnThis:= 1)
+            {method}(returnThis:= 1, value:= substitute())
         End Sub
     End Class
 End Namespace
@@ -207,6 +221,7 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo2)()
             {method}([|substitute.Bar()|], 1)
+            {method}(value:= [|substitute.Bar()|], returnThis:= 1)
         End Sub
     End Class
 End Namespace
@@ -230,6 +245,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute.Bar(), 1)
+            {method}(value:= substitute.Bar(), returnThis:= 1)
+            {method}(returnThis:= 1, value:= substitute.Bar())
         End Sub
     End Class
 End Namespace
@@ -255,6 +272,7 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             {method}(substitute.Bar(), 1)
+            {method}(value:= substitute.Bar(), returnThis:= 1)
         End Sub
     End Class
 End Namespace
@@ -279,6 +297,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             {method}(substitute.Bar, 1)
+            {method}(value:= substitute.Bar, returnThis:= 1)
+            {method}(returnThis:= 1, value:= substitute.Bar)
         End Sub
     End Class
 End Namespace
@@ -302,6 +322,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo(Of Integer))()
             {method}(substitute.Bar(Of Integer), 1)
+            {method}(value:= substitute.Bar(Of Integer), returnThis:= 1)
+            {method}(returnThis:= 1, value:= substitute.Bar(Of Integer))
         End Sub
     End Class
 End Namespace";
@@ -325,6 +347,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
             {method}(substitute.Bar, 1)
+            {method}(value:= substitute.Bar, returnThis:= 1)
+            {method}(returnThis:= 1, value:= substitute.Bar)
         End Sub
     End Class
 End Namespace";
@@ -348,6 +372,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of IFoo)
             {method}(substitute(1), 1)
+            {method}(value:= substitute(1), returnThis:= 1)
+            {method}(returnThis:= 1, value:= substitute(1))
         End Sub
     End Class
 End Namespace";
@@ -373,6 +399,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
             {method}(substitute.Bar, 1)
+            {method}(value:= substitute.Bar, returnThis:= 1)
+            {method}(returnThis:= 1, value:= substitute.Bar)
         End Sub
     End Class
 End Namespace";
@@ -399,6 +427,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
             {method}([|substitute.Bar|], 1)
+            {method}(value:= [|substitute.Bar|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|substitute.Bar|])
         End Sub
     End Class
 End Namespace";
@@ -431,6 +461,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
             {method}(substitute(1), 1)
+            {method}(value:= substitute(1), returnThis:= 1)
+            {method}(returnThis:= 1, value:= substitute(1))
         End Sub
     End Class
 End Namespace";
@@ -459,6 +491,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
             {method}([|substitute(1)|], 1)
+            {method}(value:= [|substitute(1)|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|substitute(1)|])
         End Sub
     End Class
 End Namespace";
@@ -517,6 +551,8 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute.Bar, 1)
             {method}([|substitute.FooBar|], 1)
+            {method}(value:= [|substitute.FooBar|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|substitute.FooBar|])
         End Sub
     End Class
 End Namespace
@@ -542,6 +578,8 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo(Of Integer))()
             {method}(substitute.Bar, 1)
             {method}([|substitute.FooBar|], 1)
+            {method}(value:= [|substitute.FooBar|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|substitute.FooBar|])
         End Sub
     End Class
 End Namespace
@@ -572,6 +610,8 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute.Bar(1, 2), 1)
             {method}([|substitute.Bar(1)|], 1)
+            {method}(value:= [|substitute.Bar(1)|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|substitute.Bar(1)|])
         End Sub
     End Class
 End Namespace
@@ -602,6 +642,8 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute.Bar(Of Integer)(1, 2), 1)
             {method}([|substitute.Bar(1)|], 1)
+            {method}(value:= [|substitute.Bar(1)|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|substitute.Bar(1)|])
         End Sub
     End Class
 End Namespace
@@ -636,6 +678,8 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute(1 ,2), 1)
             {method}([|substitute(1)|], 1)
+            {method}(value:= [|substitute(1)|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|substitute(1)|])
         End Sub
     End Class
 End Namespace
@@ -670,6 +714,8 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo(Of Integer))()
             {method}(substitute(1 ,2), 1)
             {method}([|substitute(1)|], 1)
+            {method}(value:= [|substitute(1)|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|substitute(1)|])
         End Sub
     End Class
 End Namespace
@@ -719,6 +765,7 @@ Namespace MyNamespace
             {method}(substitute(1), 1)
             {method}(substitute.Bar, 1)
             {method}(substitute.FooBar(), 1)
+
             Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar)()
             {method}([|substituteFooBarBar(1)|], 1)
             {method}([|substituteFooBarBar.Bar|], 1)
@@ -783,6 +830,7 @@ Namespace MyNamespace
             {method}(substitute(1), 1)
             {method}(substitute.Bar, 1)
             {method}(substitute.FooBar(), 1)
+
             Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar(Of Integer))()
             {method}([|substituteFooBarBar(1)|], 1)
             {method}([|substituteFooBarBar.Bar|], 1)
@@ -850,6 +898,7 @@ Namespace MyNamespace
             {method}(substitute(1), 1)
             {method}(substitute.Bar, 1)
             {method}(substitute.FooBar(), 1)
+
             Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar)()
             {method}([|substituteFooBarBar(1)|], 1)
             {method}([|substituteFooBarBar.Bar|], 1)
@@ -887,6 +936,8 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             {method}(substitute.GetBar(), 1)
             {method}([|substitute.GetFooBar()|], 1)
+            {method}(value:= [|substitute.GetFooBar()|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|substitute.GetFooBar()|])
         End Sub
     End Class
 
@@ -940,6 +991,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             Dim x = {method}([|substitute{call}|], 1)
+            Dim y = {method}(value:= [|substitute{call}|], returnThis:= 1)
+            Dim z = {method}(returnThis:= 1, value:= [|substitute{call}|])
         End Sub
     End Class
 End Namespace";
@@ -974,6 +1027,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             Dim x = {method}(substitute{call}, 1)
+            Dim y = {method}(value:= substitute{call}, returnThis:= 1)
+            Dim z = {method}(returnThis:= 1, value:= substitute{call})
         End Sub
     End Class
 End Namespace";
@@ -1006,6 +1061,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             Dim x = {method}([|substitute{call}|], 1)
+            Dim y = {method}(value:= [|substitute{call}|], returnThis:= 1)
+            Dim z = {method}(returnThis:= 1, value:= [|substitute{call}|])
         End Sub
     End Class
 End Namespace";
@@ -1036,6 +1093,8 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             Dim x = {method}(substitute{call}, 1)
+            Dim y = {method}(value:= substitute{call}, returnThis:= 1)
+            Dim z = {method}(returnThis:= 1, value:= substitute{call})
         End Sub
     End Class
 End Namespace";

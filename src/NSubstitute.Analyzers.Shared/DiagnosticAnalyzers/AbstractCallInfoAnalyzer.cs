@@ -9,20 +9,17 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractCallInfoAnalyzer<TSyntaxKind, TInvocationExpressionSyntax, TExpressionSyntax, TIndexerExpressionSyntax> : AbstractDiagnosticAnalyzer
-    where TInvocationExpressionSyntax : SyntaxNode
-    where TExpressionSyntax : SyntaxNode
-    where TIndexerExpressionSyntax : SyntaxNode
+internal abstract class AbstractCallInfoAnalyzer<TSyntaxKind> : AbstractDiagnosticAnalyzer
     where TSyntaxKind : struct
 {
-    private readonly ICallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> _callInfoFinder;
-    private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
+    private readonly ICallInfoFinder _callInfoFinder;
+    private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
     private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
 
     protected AbstractCallInfoAnalyzer(
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
-        ICallInfoFinder<TInvocationExpressionSyntax, TIndexerExpressionSyntax> callInfoFinder,
-        ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder)
+        ICallInfoFinder callInfoFinder,
+        ISubstitutionNodeFinder substitutionNodeFinder)
         : base(diagnosticDescriptorsProvider)
     {
         _callInfoFinder = callInfoFinder;
@@ -47,42 +44,50 @@ internal abstract class AbstractCallInfoAnalyzer<TSyntaxKind, TInvocationExpress
 
     protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
-    protected abstract IEnumerable<TExpressionSyntax> GetArgumentExpressions(TInvocationExpressionSyntax invocationExpressionSyntax);
-
-    protected abstract SyntaxNode GetCastTypeExpression(TIndexerExpressionSyntax indexerExpressionSyntax);
-
-    protected abstract SyntaxNode GetAssignmentExpression(TIndexerExpressionSyntax indexerExpressionSyntax);
-
-    protected abstract ISymbol GetIndexerSymbol(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax);
-
-    protected abstract int? GetArgAtPosition(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TInvocationExpressionSyntax invocationExpressionSyntax);
-
-    protected abstract int? GetIndexerPosition(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax);
-
     protected abstract bool CanCast(Compilation compilation, ITypeSymbol sourceSymbol, ITypeSymbol destinationSymbol);
 
     protected abstract bool IsAssignableTo(Compilation compilation, ITypeSymbol fromSymbol, ITypeSymbol toSymbol);
 
-    private bool SupportsCallInfo(SyntaxNodeAnalysisContext syntaxNodeContext, TInvocationExpressionSyntax syntax, IMethodSymbol methodSymbol)
+    protected int? GetArgAtPosition(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, SyntaxNode invocationExpressionSyntax)
     {
-        if (methodSymbol.IsCallInfoSupportingMethod() == false)
+        var operation = syntaxNodeAnalysisContext.SemanticModel.GetOperation(invocationExpressionSyntax);
+
+        var literal = operation switch
+        {
+            IInvocationOperation invocationOperation =>
+                invocationOperation.Arguments.First().Value as ILiteralOperation,
+            IArrayElementReferenceOperation arrayElementReferenceOperation => arrayElementReferenceOperation.Indices
+                .First() as ILiteralOperation,
+            IPropertyReferenceOperation propertyReferenceOperation =>
+                propertyReferenceOperation.Arguments.First().Value as ILiteralOperation,
+            _ => null
+        };
+
+        if (literal == null || literal.ConstantValue.HasValue == false)
+        {
+            return null;
+        }
+
+        return (int)literal.ConstantValue.Value;
+    }
+
+    protected int? GetIndexerPosition(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, SyntaxNode indexerExpressionSyntax)
+    {
+        var operation = syntaxNodeAnalysisContext.SemanticModel.GetOperation(indexerExpressionSyntax);
+        return operation.GetIndexerPosition();
+    }
+
+    private bool SupportsCallInfo(SyntaxNodeAnalysisContext syntaxNodeContext, IInvocationOperation invocationOperation)
+    {
+        if (invocationOperation.TargetMethod.IsCallInfoSupportingMethod() == false)
         {
             return false;
         }
 
-        var allArguments = GetArgumentExpressions(syntax);
-        IEnumerable<TExpressionSyntax> argumentsForAnalysis;
-        if (methodSymbol.MethodKind == MethodKind.ReducedExtension)
-            argumentsForAnalysis = allArguments;
-        else if (methodSymbol.IsExtensionMethod)
-            argumentsForAnalysis = allArguments.Skip(1);
-        else
-            argumentsForAnalysis = allArguments;
-
         // perf - dont use linq in hotpath
-        foreach (var arg in argumentsForAnalysis)
+        foreach (var arg in invocationOperation.GetOrderedArgumentOperationsWithoutInstanceArgument())
         {
-            if (syntaxNodeContext.SemanticModel.GetTypeInfo(arg).IsCallInfoDelegate(syntaxNodeContext.SemanticModel))
+            if (arg.GetTypeSymbol().IsCallInfoDelegate(syntaxNodeContext.SemanticModel))
             {
                 return true;
             }
@@ -93,30 +98,29 @@ internal abstract class AbstractCallInfoAnalyzer<TSyntaxKind, TInvocationExpress
 
     private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
     {
-        var invocationExpression = (TInvocationExpressionSyntax)syntaxNodeContext.Node;
-        var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
-
-        if (methodSymbolInfo.Symbol?.Kind != SymbolKind.Method)
+        if (!(syntaxNodeContext.SemanticModel.GetOperation(syntaxNodeContext.Node) is IInvocationOperation
+                invocationOperation))
         {
             return;
         }
 
-        var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
-        if (SupportsCallInfo(syntaxNodeContext, invocationExpression, methodSymbol) == false)
+        if (SupportsCallInfo(syntaxNodeContext, invocationOperation) == false)
         {
             return;
         }
 
-        var substituteCallParameters = GetSubstituteCallArgumentOperations(syntaxNodeContext, methodSymbol, invocationExpression);
+        var substituteCallParameters = GetSubstituteCallArgumentOperations(syntaxNodeContext, invocationOperation);
 
         if (substituteCallParameters == null)
         {
             return;
         }
 
-        foreach (var argumentExpressionSyntax in GetArgumentExpressions(invocationExpression))
+        foreach (var argumentExpressionSyntax in
+                 invocationOperation.GetOrderedArgumentOperationsWithoutInstanceArgument())
         {
-            var callInfoContext = _callInfoFinder.GetCallInfoContext(syntaxNodeContext.SemanticModel, argumentExpressionSyntax);
+            var callInfoContext =
+                _callInfoFinder.GetCallInfoContext(syntaxNodeContext.SemanticModel, argumentExpressionSyntax);
 
             AnalyzeArgAtInvocations(syntaxNodeContext, callInfoContext, substituteCallParameters);
 
@@ -126,7 +130,7 @@ internal abstract class AbstractCallInfoAnalyzer<TSyntaxKind, TInvocationExpress
         }
     }
 
-    private void AnalyzeIndexerInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, CallInfoContext<TInvocationExpressionSyntax, TIndexerExpressionSyntax> callInfoContext, IList<IArgumentOperation> substituteCallParameters)
+    private void AnalyzeIndexerInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, CallInfoContext callInfoContext, IReadOnlyList<IArgumentOperation> substituteCallParameters)
     {
         foreach (var indexer in callInfoContext.IndexerAccesses)
         {
@@ -148,7 +152,7 @@ internal abstract class AbstractCallInfoAnalyzer<TSyntaxKind, TInvocationExpress
         }
     }
 
-    private void AnalyzeArgAtInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, CallInfoContext<TInvocationExpressionSyntax, TIndexerExpressionSyntax> callInfoContext, IList<IArgumentOperation> substituteCallParameters)
+    private void AnalyzeArgAtInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, CallInfoContext callInfoContext, IReadOnlyList<IArgumentOperation> substituteCallParameters)
     {
         foreach (var argAtInvocation in callInfoContext.ArgAtInvocations)
         {
@@ -169,7 +173,10 @@ internal abstract class AbstractCallInfoAnalyzer<TSyntaxKind, TInvocationExpress
                 var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(argAtInvocation);
                 if (symbolInfo.Symbol != null &&
                     symbolInfo.Symbol is IMethodSymbol argAtMethodSymbol &&
-                    IsAssignableTo(syntaxNodeContext.Compilation, substituteCallParameters[position.Value].GetArgumentOperationActualTypeSymbol(), argAtMethodSymbol.TypeArguments.First()) == false)
+                    IsAssignableTo(
+                        syntaxNodeContext.Compilation,
+                        substituteCallParameters[position.Value].GetTypeSymbol(),
+                        argAtMethodSymbol.TypeArguments.First()) == false)
                 {
                     var diagnostic = Diagnostic.Create(
                         DiagnosticDescriptorsProvider.CallInfoCouldNotConvertParameterAtPosition,
@@ -183,7 +190,7 @@ internal abstract class AbstractCallInfoAnalyzer<TSyntaxKind, TInvocationExpress
         }
     }
 
-    private void AnalyzeArgInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, CallInfoContext<TInvocationExpressionSyntax, TIndexerExpressionSyntax> callInfoContext, IList<IArgumentOperation> substituteCallParameters)
+    private void AnalyzeArgInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, CallInfoContext callInfoContext, IReadOnlyList<IArgumentOperation> substituteCallParameters)
     {
         foreach (var argInvocation in callInfoContext.ArgInvocations)
         {
@@ -191,7 +198,8 @@ internal abstract class AbstractCallInfoAnalyzer<TSyntaxKind, TInvocationExpress
             if (symbolInfo.Symbol != null && symbolInfo.Symbol is IMethodSymbol argMethodSymbol)
             {
                 var typeSymbol = argMethodSymbol.TypeArguments.First();
-                var parameterCount = GetMatchingParametersCount(syntaxNodeContext, substituteCallParameters, typeSymbol);
+                var parameterCount =
+                    GetMatchingParametersCount(syntaxNodeContext, substituteCallParameters, typeSymbol);
                 if (parameterCount == 0)
                 {
                     var diagnostic = Diagnostic.Create(
@@ -216,7 +224,7 @@ internal abstract class AbstractCallInfoAnalyzer<TSyntaxKind, TInvocationExpress
         }
     }
 
-    private bool AnalyzeArgumentAccess(SyntaxNodeAnalysisContext syntaxNodeContext, IList<IArgumentOperation> substituteCallParameters, TIndexerExpressionSyntax indexer, int? position)
+    private bool AnalyzeArgumentAccess(SyntaxNodeAnalysisContext syntaxNodeContext, IReadOnlyList<IArgumentOperation> substituteCallParameters, SyntaxNode indexer, int? position)
     {
         if (position.HasValue && position.Value > substituteCallParameters.Count - 1)
         {
@@ -232,34 +240,51 @@ internal abstract class AbstractCallInfoAnalyzer<TSyntaxKind, TInvocationExpress
         return false;
     }
 
-    private bool AnalyzeCast(SyntaxNodeAnalysisContext syntaxNodeContext, IList<IArgumentOperation> substituteCallParameters, TIndexerExpressionSyntax indexer, in IndexerInfo indexerInfo, int? position)
+    private bool AnalyzeCast(SyntaxNodeAnalysisContext syntaxNodeContext, IReadOnlyList<IArgumentOperation> substituteCallParameters, SyntaxNode indexer, in IndexerInfo indexerInfo, int? position)
     {
-        var castTypeExpression = GetCastTypeExpression(indexer);
-        if (position.HasValue && indexerInfo.VerifyIndexerCast && castTypeExpression != null)
+        if (!position.HasValue || !indexerInfo.VerifyIndexerCast)
         {
-            var typeInfo = syntaxNodeContext.SemanticModel.GetTypeInfo(castTypeExpression);
-            if (typeInfo.Type != null && CanCast(syntaxNodeContext.Compilation, substituteCallParameters[position.Value].GetArgumentOperationActualTypeSymbol(), typeInfo.Type) == false)
-            {
-                var diagnostic = Diagnostic.Create(
-                    DiagnosticDescriptorsProvider.CallInfoCouldNotConvertParameterAtPosition,
-                    indexer.GetLocation(),
-                    position.Value,
-                    typeInfo.Type);
-                syntaxNodeContext.ReportDiagnostic(diagnostic);
-                return true;
-            }
+            return false;
+        }
+
+        if (!(syntaxNodeContext.SemanticModel.GetOperation(indexer).Parent is IConversionOperation conversionOperation))
+        {
+            return false;
+        }
+
+        var type = conversionOperation.Type;
+        if (type != null && CanCast(syntaxNodeContext.Compilation, substituteCallParameters[position.Value].GetTypeSymbol(), type) == false)
+        {
+            var diagnostic = Diagnostic.Create(
+                DiagnosticDescriptorsProvider.CallInfoCouldNotConvertParameterAtPosition,
+                indexer.GetLocation(),
+                position.Value,
+                type);
+            syntaxNodeContext.ReportDiagnostic(diagnostic);
+            return true;
         }
 
         return false;
     }
 
-    private bool AnalyzeAssignment(SyntaxNodeAnalysisContext syntaxNodeContext, IList<IArgumentOperation> substituteCallParameters, TIndexerExpressionSyntax indexer, in IndexerInfo indexerInfo, int? position)
+    private bool AnalyzeAssignment(
+        SyntaxNodeAnalysisContext syntaxNodeContext,
+        IReadOnlyList<IArgumentOperation> substituteCallParameters,
+        SyntaxNode indexer,
+        in IndexerInfo indexerInfo,
+        int? position)
     {
-        var assignmentExpressionSyntax = GetAssignmentExpression(indexer);
-        if (indexerInfo.VerifyAssignment && assignmentExpressionSyntax != null && position.HasValue && position.Value < substituteCallParameters.Count)
+        if (!indexerInfo.VerifyAssignment || !position.HasValue || position.Value >= substituteCallParameters.Count)
+        {
+            return false;
+        }
+
+        if (syntaxNodeContext.SemanticModel.GetOperation(indexer) is IPropertyReferenceOperation referenceOperation &&
+            referenceOperation.Parent is ISimpleAssignmentOperation simpleAssignmentOperation)
         {
             var parameterSymbol = substituteCallParameters[position.Value];
-            if (parameterSymbol.Parameter.RefKind != RefKind.Out && parameterSymbol.Parameter.RefKind != RefKind.Ref)
+            if (parameterSymbol.Parameter.RefKind != RefKind.Out &&
+                parameterSymbol.Parameter.RefKind != RefKind.Ref)
             {
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.CallInfoArgumentIsNotOutOrRef,
@@ -270,14 +295,15 @@ internal abstract class AbstractCallInfoAnalyzer<TSyntaxKind, TInvocationExpress
                 return true;
             }
 
-            var typeInfo = syntaxNodeContext.SemanticModel.GetTypeInfo(assignmentExpressionSyntax);
+            var assignmentType = simpleAssignmentOperation.GetTypeSymbol();
             var typeSymbol = substituteCallParameters[position.Value].GetArgumentOperationDeclaredTypeSymbol();
-            if (typeInfo.Type != null && IsAssignableTo(syntaxNodeContext.Compilation, typeInfo.Type, typeSymbol) == false)
+            if (assignmentType != null &&
+                IsAssignableTo(syntaxNodeContext.Compilation, assignmentType, typeSymbol) == false)
             {
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.CallInfoArgumentSetWithIncompatibleValue,
                     indexer.GetLocation(),
-                    typeInfo.Type,
+                    assignmentType,
                     position.Value,
                     typeSymbol);
                 syntaxNodeContext.ReportDiagnostic(diagnostic);
@@ -288,9 +314,12 @@ internal abstract class AbstractCallInfoAnalyzer<TSyntaxKind, TInvocationExpress
         return false;
     }
 
-    private IList<IArgumentOperation> GetSubstituteCallArgumentOperations(SyntaxNodeAnalysisContext syntaxNodeContext, IMethodSymbol methodSymbol, TInvocationExpressionSyntax invocationExpression)
+    private IReadOnlyList<IArgumentOperation> GetSubstituteCallArgumentOperations(
+        SyntaxNodeAnalysisContext syntaxNodeContext,
+        IInvocationOperation invocationOperation)
     {
-        var parentMethodCallSyntax = _substitutionNodeFinder.Find(syntaxNodeContext, invocationExpression, methodSymbol).FirstOrDefault();
+        var parentMethodCallSyntax =
+            _substitutionNodeFinder.Find(syntaxNodeContext, invocationOperation).FirstOrDefault();
 
         if (parentMethodCallSyntax == null)
         {
@@ -298,25 +327,26 @@ internal abstract class AbstractCallInfoAnalyzer<TSyntaxKind, TInvocationExpress
         }
 
         var operation = syntaxNodeContext.SemanticModel.GetOperation(parentMethodCallSyntax);
-        IEnumerable<IArgumentOperation> argumentOperations;
-        switch (operation)
+        IEnumerable<IArgumentOperation> argumentOperations = operation switch
         {
-            case IInvocationOperation substituteMethodSymbol:
-                argumentOperations = substituteMethodSymbol.Arguments;
-                break;
-            case IPropertyReferenceOperation propertySymbol:
-                argumentOperations = propertySymbol.Arguments;
-                break;
-            default:
-                return null;
-        }
+            IInvocationOperation substituteMethodSymbol => substituteMethodSymbol.Arguments,
+            IPropertyReferenceOperation propertySymbol => propertySymbol.Arguments,
+            _ => null
+        };
 
-        return argumentOperations.OrderBy(argOperation => argOperation.Parameter.Ordinal).ToList();
+        return argumentOperations?.OrderBy(argOperation => argOperation.Parameter.Ordinal).ToList();
     }
 
-    private IndexerInfo GetIndexerInfo(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, TIndexerExpressionSyntax indexerExpressionSyntax)
+    private IndexerInfo GetIndexerInfo(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, SyntaxNode indexerExpressionSyntax)
     {
-        var info = GetIndexerSymbol(syntaxNodeAnalysisContext, indexerExpressionSyntax);
+        var operation = syntaxNodeAnalysisContext.SemanticModel.GetOperation(indexerExpressionSyntax);
+        ISymbol info = operation switch
+        {
+            IInvocationOperation inv => inv.TargetMethod,
+            IArrayElementReferenceOperation x => x.Type,
+            _ => null
+        };
+
         var symbol = info as IMethodSymbol;
         var verifyIndexerCast = symbol == null || symbol.Name != MetadataNames.CallInfoArgTypesMethod;
         var verifyAssignment = symbol == null;
@@ -327,7 +357,7 @@ internal abstract class AbstractCallInfoAnalyzer<TSyntaxKind, TInvocationExpress
 
     // See https://github.com/nsubstitute/NSubstitute/blob/26d0b0b880c623ef8cae8a0a71360ae2a9982f53/src/NSubstitute/Core/CallInfo.cs#L70
     // for the logic behind it
-    private int GetMatchingParametersCount(SyntaxNodeAnalysisContext syntaxNodeContext, IList<IArgumentOperation> substituteCallParameters, ITypeSymbol typeSymbol)
+    private int GetMatchingParametersCount(SyntaxNodeAnalysisContext syntaxNodeContext, IReadOnlyList<IArgumentOperation> substituteCallParameters, ITypeSymbol typeSymbol)
     {
         var declaringTypeMatchCount =
             substituteCallParameters.Count(param => param.GetArgumentOperationDeclaredTypeSymbol() == typeSymbol);
@@ -337,7 +367,8 @@ internal abstract class AbstractCallInfoAnalyzer<TSyntaxKind, TInvocationExpress
             return declaringTypeMatchCount;
         }
 
-        return substituteCallParameters.Count(param => IsAssignableTo(syntaxNodeContext.Compilation, param.GetArgumentOperationActualTypeSymbol(), typeSymbol));
+        return substituteCallParameters.Count(param =>
+            IsAssignableTo(syntaxNodeContext.Compilation, param.GetTypeSymbol(), typeSymbol));
     }
 
     private struct IndexerInfo

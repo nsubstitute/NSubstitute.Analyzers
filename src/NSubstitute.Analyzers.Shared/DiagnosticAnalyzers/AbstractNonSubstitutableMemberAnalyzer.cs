@@ -2,75 +2,88 @@ using System;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractNonSubstitutableMemberAnalyzer<TSyntaxKind, TInvocationExpressionSyntax> : AbstractNonSubstitutableSetupAnalyzer
-    where TInvocationExpressionSyntax : SyntaxNode
+internal abstract class AbstractNonSubstitutableMemberAnalyzer<TSyntaxKind> : AbstractNonSubstitutableSetupAnalyzer
     where TSyntaxKind : struct
 {
-    private readonly ISubstitutionNodeFinder<TInvocationExpressionSyntax> _substitutionNodeFinder;
+    private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
 
     private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
-    protected abstract ImmutableHashSet<int> SupportedMemberAccesses { get; }
-
     protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
     protected AbstractNonSubstitutableMemberAnalyzer(
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
-        ISubstitutionNodeFinder<TInvocationExpressionSyntax> substitutionNodeFinder,
+        ISubstitutionNodeFinder substitutionNodeFinder,
         INonSubstitutableMemberAnalysis nonSubstitutableMemberAnalysis)
         : base(diagnosticDescriptorsProvider, nonSubstitutableMemberAnalysis)
     {
         _analyzeInvocationAction = AnalyzeInvocation;
         _substitutionNodeFinder = substitutionNodeFinder;
-        SupportedDiagnostics = ImmutableArray.Create(DiagnosticDescriptorsProvider.NonVirtualSetupSpecification, DiagnosticDescriptorsProvider.InternalSetupSpecification);
         NonVirtualSetupDescriptor = diagnosticDescriptorsProvider.NonVirtualSetupSpecification;
+        SupportedDiagnostics = ImmutableArray.Create(
+            DiagnosticDescriptorsProvider.NonVirtualSetupSpecification,
+            DiagnosticDescriptorsProvider.InternalSetupSpecification);
     }
 
     protected override DiagnosticDescriptor NonVirtualSetupDescriptor { get; }
 
-    protected override void InitializeAnalyzer(AnalysisContext context)
+    protected sealed override void InitializeAnalyzer(AnalysisContext context)
     {
         context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
     }
 
     private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
     {
-        var invocationExpression = syntaxNodeContext.Node;
-        var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
-
-        if (methodSymbolInfo.Symbol?.Kind != SymbolKind.Method)
+        if (!(syntaxNodeContext.SemanticModel.GetOperation(syntaxNodeContext.Node) is IInvocationOperation
+                invocationOperation))
         {
             return;
         }
 
-        var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
-
-        if (methodSymbol.IsReturnOrThrowLikeMethod() == false)
+        if (invocationOperation.TargetMethod.IsReturnOrThrowLikeMethod() == false)
         {
             return;
         }
 
-        AnalyzeMember(syntaxNodeContext, _substitutionNodeFinder.FindForStandardExpression((TInvocationExpressionSyntax)invocationExpression, methodSymbol));
+        AnalyzeMember(syntaxNodeContext, _substitutionNodeFinder.FindOperationForStandardExpression(invocationOperation));
     }
 
-    private void AnalyzeMember(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode accessedMember)
+    private void AnalyzeMember(SyntaxNodeAnalysisContext syntaxNodeContext, IOperation accessedMember)
     {
         if (IsValidForAnalysis(accessedMember) == false)
         {
             return;
         }
 
-        Analyze(syntaxNodeContext, accessedMember);
+        Analyze(syntaxNodeContext, accessedMember.Syntax);
     }
 
-    private bool IsValidForAnalysis(SyntaxNode accessedMember)
+    // TODO use switch expressions/pattern matching when GH-179 merged
+    private bool IsValidForAnalysis(IOperation accessedMember)
     {
-        return accessedMember != null && SupportedMemberAccesses.Contains(accessedMember.RawKind);
+        if (accessedMember == null)
+        {
+            return false;
+        }
+
+        if (accessedMember is ILocalReferenceOperation)
+        {
+            return false;
+        }
+
+        if (accessedMember is IConversionOperation conversionOperation &&
+            conversionOperation.Operand is ILocalReferenceOperation)
+        {
+            return false;
+        }
+
+        return true;
     }
 }

@@ -24,7 +24,16 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             Dim returnedValue = SubstituteExtensions.Returns({call}, 1)
+            Dim otherValue  = SubstituteExtensions.Returns(value:= {call}, returnThis:= 1)
+            Dim yetAnotherValue  = SubstituteExtensions.Returns(returnThis:= 1, value:= {call})
+
             returnedValue.{method}(Function(callInfo)
+                                      {argAccess}
+                                  End Function)
+            otherValue.{method}(Function(callInfo)
+                                      {argAccess}
+                                  End Function)
+            yetAnotherValue.{method}(Function(callInfo)
                                       {argAccess}
                                   End Function)
         End Sub
@@ -52,6 +61,12 @@ Namespace MyNamespace
             SubstituteExtensions.Returns({call}, 1).{method}(Function(callInfo)
                                {argAccess}
                            End Function)
+            SubstituteExtensions.Returns(value:= {call}, returnThis:= 1).{method}(Function(callInfo)
+                               {argAccess}
+                           End Function)
+            SubstituteExtensions.Returns(returnThis:= 1, value:= {call}).{method}(Function(callInfo)
+                               {argAccess}
+                           End Function)
         End Sub
     End Class
 End Namespace
@@ -77,6 +92,12 @@ Namespace MyNamespace
             SubstituteExtensions.Returns({call}, 1).{method}(Function(callInfo)
                                    {argAccess}
                            End Function)
+            SubstituteExtensions.Returns(value:= {call}, returnThis:= 1).{method}(Function(callInfo)
+                                   {argAccess}
+                           End Function)
+            SubstituteExtensions.Returns(returnThis:= 1, value:= {call}).{method}(Function(callInfo)
+                                   {argAccess}
+                           End Function)
         End Sub
     End Class
 End Namespace";
@@ -99,6 +120,12 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             SubstituteExtensions.Returns({call}, 1).{method}(Function(callInfo)
+                                   {argAccess}
+                           End Function)
+            SubstituteExtensions.Returns(value:= {call}, returnThis:= 1).{method}(Function(callInfo)
+                                   {argAccess}
+                           End Function)
+            SubstituteExtensions.Returns(returnThis:= 1, value:= {call}).{method}(Function(callInfo)
                                    {argAccess}
                            End Function)
         End Sub
@@ -212,6 +239,12 @@ Namespace MyNamespace
             SubstituteExtensions.Returns({call}, 1).{method}(Function(callInfo)
                                    {argAccess}
                            End Function)
+            SubstituteExtensions.Returns(value:= {call}, returnThis:= 1).{method}(Function(callInfo)
+                                   {argAccess}
+                           End Function)
+            SubstituteExtensions.Returns(returnThis:= 1, value:= {call}).{method}(Function(callInfo)
+                                   {argAccess}
+                           End Function)
         End Sub
     End Class
 End Namespace";
@@ -245,6 +278,12 @@ Namespace MyNamespace
             SubstituteExtensions.Returns({call}, 1).{method}(Function(callInfo)
                                {argAccess}
                            End Function)
+            SubstituteExtensions.Returns(value:= {call}, returnThis:= 1).{method}(Function(callInfo)
+                               {argAccess}
+                           End Function)
+            SubstituteExtensions.Returns(returnThis:= 1, value:= {call}).{method}(Function(callInfo)
+                               {argAccess}
+                           End Function)
         End Sub
     End Class
 End Namespace
@@ -275,6 +314,12 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             SubstituteExtensions.Returns({call}, 1).{method}(Function(callInfo)
+                                   {argAccess}
+                           End Function)
+            SubstituteExtensions.Returns(value:= {call}, returnThis:= 1).{method}(Function(callInfo)
+                                   {argAccess}
+                           End Function)
+            SubstituteExtensions.Returns(returnThis:= 1, value:= {call}).{method}(Function(callInfo)
                                    {argAccess}
                            End Function)
         End Sub
@@ -310,6 +355,12 @@ Namespace MyNamespace
             SubstituteExtensions.Returns({call}, 1).{method}(Function(callInfo)
                                {argAccess}
                            End Function)
+            SubstituteExtensions.Returns(value:= {call}, returnThis:= 1).{method}(Function(callInfo)
+                               {argAccess}
+                           End Function)
+            SubstituteExtensions.Returns(returnThis:= 1, value:= {call}).{method}(Function(callInfo)
+                               {argAccess}
+                           End Function)
         End Sub
     End Class
 End Namespace
@@ -335,6 +386,12 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             SubstituteExtensions.Returns({call}, 1).{method}(Function(callInfo)
+                               {argAccess}
+                           End Function)
+            SubstituteExtensions.Returns(value:= {call}, returnThis:= 1).{method}(Function(callInfo)
+                               {argAccess}
+                           End Function)
+            SubstituteExtensions.Returns(returnThis:= 1, value:= {call}).{method}(Function(callInfo)
                                {argAccess}
                            End Function)
         End Sub
@@ -364,6 +421,12 @@ Namespace MyNamespace
             SubstituteExtensions.Returns({call}, 1).{method}(Function(callInfo)
                                {argAccess}
                            End Function)
+            SubstituteExtensions.Returns(value:= {call}, returnThis:= 1).{method}(Function(callInfo)
+                               {argAccess}
+                           End Function)
+            SubstituteExtensions.Returns(returnThis:= 1, value:= {call}).{method}(Function(callInfo)
+                               {argAccess}
+                           End Function)
         End Sub
     End Class
 End Namespace
@@ -388,6 +451,12 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             SubstituteExtensions.Returns({call}, 1).{method}(Function(callInfo)
+                               {argAccess}
+                           End Function)
+            SubstituteExtensions.Returns(value:= {call}, returnThis:= 1).{method}(Function(callInfo)
+                               {argAccess}
+                           End Function)
+            SubstituteExtensions.Returns(returnThis:= 1, value:= {call}).{method}(Function(callInfo)
                                {argAccess}
                            End Function)
         End Sub
@@ -424,6 +493,12 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             SubstituteExtensions.Returns({call}, 1).{method}(Function(callInfo)
+                               {argAccess}
+                           End Function)
+            SubstituteExtensions.Returns(value:= {call}, returnThis:= 1).{method}(Function(callInfo)
+                               {argAccess}
+                           End Function)
+            SubstituteExtensions.Returns(returnThis:= 1, value:= {call}).{method}(Function(callInfo)
                                {argAccess}
                            End Function)
         End Sub
@@ -486,6 +561,12 @@ Namespace MyNamespace
             SubstituteExtensions.Returns({call}, 1).{method}(Function(callInfo)
                                {argAccess}
                            End Function)
+            SubstituteExtensions.Returns(value:= {call}, returnThis:= 1).{method}(Function(callInfo)
+                               {argAccess}
+                           End Function)
+            SubstituteExtensions.Returns(returnThis:= 1, value:= {call}).{method}(Function(callInfo)
+                               {argAccess}
+                           End Function)
         End Sub
     End Class
 End Namespace
@@ -514,6 +595,12 @@ Namespace MyNamespace
             SubstituteExtensions.Returns({call}, 1).{method}(Function(callInfo)
                                {argAccess}
                            End Function)
+            SubstituteExtensions.Returns(value:= {call}, returnThis:= 1).{method}(Function(callInfo)
+                               {argAccess}
+                           End Function)
+            SubstituteExtensions.Returns(returnThis:= 1, value:= {call}).{method}(Function(callInfo)
+                               {argAccess}
+                           End Function)
         End Sub
     End Class
 End Namespace
@@ -538,6 +625,12 @@ Namespace MyNamespace
             SubstituteExtensions.Returns({call}, 1).{method}(Function(callInfo)
                                [|callInfo(1)|] = 1
                            End Function)
+            SubstituteExtensions.Returns(value:= {call}, returnThis:= 1).{method}(Function(callInfo)
+                               [|callInfo(1)|] = 1
+                           End Function)
+            SubstituteExtensions.Returns(returnThis:= 1, value:= {call}).{method}(Function(callInfo)
+                               [|callInfo(1)|] = 1
+                           End Function)
         End Sub
     End Class
 End Namespace
@@ -559,6 +652,12 @@ Namespace MyNamespace
             Dim value As Integer = 0
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             SubstituteExtensions.Returns(substitute.Bar(value), 1).{method}(Function(callInfo)
+                                              callInfo(0) = 1
+                                          End Function)
+            SubstituteExtensions.Returns(value:= substitute.Bar(value), returnThis:= 1).{method}(Function(callInfo)
+                                              callInfo(0) = 1
+                                          End Function)
+            SubstituteExtensions.Returns(returnThis:= 1, value:= substitute.Bar(value)).{method}(Function(callInfo)
                                               callInfo(0) = 1
                                           End Function)
         End Sub
@@ -585,6 +684,12 @@ Namespace MyNamespace
             SubstituteExtensions.Returns(substitute.Bar(value), 1).{method}(Function(callInfo)
                                               callInfo(0) = 1
                                           End Function)
+            SubstituteExtensions.Returns(value:= substitute.Bar(value), returnThis:= 1).{method}(Function(callInfo)
+                                              callInfo(0) = 1
+                                          End Function)
+            SubstituteExtensions.Returns(returnThis:= 1, value:= substitute.Bar(value)).{method}(Function(callInfo)
+                                              callInfo(0) = 1
+                                          End Function)
         End Sub
     End Class
 End Namespace
@@ -607,6 +712,12 @@ Namespace MyNamespace
             Dim value As Integer = 0
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             SubstituteExtensions.Returns(substitute.Bar(value), 1).{method}(Function(callInfo)
+                                              [|callInfo(1)|] = 1
+                                          End Function)
+            SubstituteExtensions.Returns(value:= substitute.Bar(value), returnThis:= 1).{method}(Function(callInfo)
+                                              [|callInfo(1)|] = 1
+                                          End Function)
+            SubstituteExtensions.Returns(returnThis:= 1, value:= substitute.Bar(value)).{method}(Function(callInfo)
                                               [|callInfo(1)|] = 1
                                           End Function)
         End Sub
@@ -634,6 +745,12 @@ Namespace MyNamespace
             SubstituteExtensions.Returns(substitute.Bar(value), 1).{method}(Function(callInfo)
                                               [|callInfo(0)|] = {right}
                                           End Function)
+            SubstituteExtensions.Returns(value:= substitute.Bar(value), returnThis:= 1).{method}(Function(callInfo)
+                                              [|callInfo(0)|] = {right}
+                                          End Function)
+            SubstituteExtensions.Returns(returnThis:= 1, value:= substitute.Bar(value)).{method}(Function(callInfo)
+                                              [|callInfo(0)|] = {right}
+                                          End Function)
         End Sub
     End Class
 End Namespace
@@ -658,6 +775,12 @@ Namespace MyNamespace
             Dim value As {left} = Nothing
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             SubstituteExtensions.Returns(substitute.Bar(value), 1).{method}(Function(callInfo)
+                                              callInfo(0) = {right}
+                                          End Function)
+            SubstituteExtensions.Returns(value:= substitute.Bar(value), returnThis:= 1).{method}(Function(callInfo)
+                                              callInfo(0) = {right}
+                                          End Function)
+            SubstituteExtensions.Returns(returnThis:= 1, value:= substitute.Bar(value)).{method}(Function(callInfo)
                                               callInfo(0) = {right}
                                           End Function)
         End Sub

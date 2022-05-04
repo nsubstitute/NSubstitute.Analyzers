@@ -8,7 +8,7 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 
 [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
-internal sealed class NonSubstitutableMemberReceivedInOrderAnalyzer : AbstractNonSubstitutableMemberReceivedInOrderAnalyzer<SyntaxKind, InvocationExpressionSyntax, MemberAccessExpressionSyntax, LambdaExpressionSyntax>
+internal sealed class NonSubstitutableMemberReceivedInOrderAnalyzer : AbstractNonSubstitutableMemberReceivedInOrderAnalyzer<SyntaxKind, MemberAccessExpressionSyntax, LambdaExpressionSyntax>
 {
     private static ImmutableArray<int> IgnoredPaths { get; } = ImmutableArray.Create(
         (int)SyntaxKind.SimpleArgument,

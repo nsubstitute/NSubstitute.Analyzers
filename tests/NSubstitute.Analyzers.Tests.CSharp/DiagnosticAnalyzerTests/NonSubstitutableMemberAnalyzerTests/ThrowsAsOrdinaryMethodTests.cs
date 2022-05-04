@@ -30,7 +30,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}([|substitute.Bar()|], new Exception());
+            {method}(value: [|substitute.Bar()|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|substitute.Bar()|]);
         }}
     }}
 }}";
@@ -51,6 +52,8 @@ namespace MyNamespace
         public void Test()
         {{
             {method}([|{literal}|], new Exception());
+            {method}(value: [|{literal}|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|{literal}|]);
         }}
     }}
 }}";
@@ -79,6 +82,8 @@ namespace MyNamespace
         public void Test()
         {{
             {method}([|Foo.Bar()|], new Exception());
+            {method}(value: [|Foo.Bar()|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|Foo.Bar()|]);
         }}
     }}
 }}";
@@ -108,6 +113,8 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute.Bar(), new Exception());
+            {method}(value: substitute.Bar(), ex: new Exception());
+            {method}(ex: new Exception(), value: substitute.Bar());
         }}
     }}
 }}";
@@ -141,6 +148,8 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo2>();
             {method}(substitute.Bar(), new Exception());
+            {method}(value: substitute.Bar(), ex: new Exception());
+            {method}(ex: new Exception(), value: substitute.Bar());
         }}
     }}
 }}";
@@ -170,6 +179,8 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
             var returnValue = substitute.Bar();
             {method}(returnValue, new Exception());
+            {method}(value: returnValue, ex: new Exception());
+            {method}(ex: new Exception(), value: returnValue);
         }}
     }}
 }}";
@@ -191,6 +202,8 @@ namespace MyNamespace
         {{
             var substitute = Substitute.For<Func<int>>();
             {method}(substitute(), new Exception());
+            {method}(value: substitute(), ex: new Exception());
+            {method}(ex: new Exception(), value: substitute());
         }}
     }}
 }}";
@@ -224,6 +237,8 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo2>();
             {method}([|substitute.Bar()|], new Exception());
+            {method}(value: [|substitute.Bar()|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|substitute.Bar()|]);
         }}
     }}
 }}";
@@ -250,6 +265,8 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute.Bar(), new Exception());
+            {method}(value: substitute.Bar(), ex: new Exception());
+            {method}(ex: new Exception(), value: substitute.Bar());
         }}
     }}
 }}";
@@ -276,6 +293,8 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<IFoo>();
             {method}(substitute.Bar(), new Exception());
+            {method}(value: substitute.Bar(), ex: new Exception());
+            {method}(ex: new Exception(), value: substitute.Bar());
         }}
     }}
 }}";
@@ -301,6 +320,8 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<IFoo>();
             {method}(substitute.Bar, new Exception());
+            {method}(value: substitute.Bar, ex: new Exception());
+            {method}(ex: new Exception(), value: substitute.Bar);
         }}
     }}
 }}";
@@ -326,6 +347,8 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<IFoo<int>>();
             {method}(substitute.Bar<int>(), new Exception());
+            {method}(value: substitute.Bar<int>(), ex: new Exception());
+            {method}(ex: new Exception(), value: substitute.Bar<int>());
         }}
     }}
 }}";
@@ -351,6 +374,8 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute.Bar, new Exception());
+            {method}(value: substitute.Bar, ex: new Exception());
+            {method}(ex: new Exception(), value: substitute.Bar);
         }}
     }}
 }}";
@@ -377,6 +402,8 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<IFoo>();
             {method}(substitute[1], new Exception());
+            {method}(value: substitute[1], ex: new Exception());
+            {method}(ex: new Exception(), value: substitute[1]);
         }}
     }}
 }}";
@@ -402,6 +429,8 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute.Bar, new Exception());
+            {method}(value: substitute.Bar, ex: new Exception());
+            {method}(ex: new Exception(), value: substitute.Bar);
         }}
     }}
 }}";
@@ -428,6 +457,8 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}([|substitute.Bar|], new Exception());
+            {method}(value: [|substitute.Bar|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|substitute.Bar|]);
         }}
     }}
 }}";
@@ -454,6 +485,8 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute[1], new Exception());
+            {method}(value: substitute[1], ex: new Exception());
+            {method}(ex: new Exception(), value: substitute[1]);
         }}
     }}
 }}";
@@ -479,6 +512,8 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}([|substitute[1]|], new Exception());
+            {method}(value: [|substitute[1]|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|substitute[1]|]);
         }}
     }}
 }}";
@@ -519,6 +554,8 @@ namespace NSubstitute
         {{
             Foo substitute = null;
             {method}(substitute.Bar(), new Exception());
+            {method}(value: substitute.Bar(), ex: new Exception());
+            {method}(ex: new Exception(), value: substitute.Bar());
         }}
     }}
 }}";
@@ -982,6 +1019,8 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             var x = {method}([|substitute{call}|], new Exception());
+            var y = {method}(value: [|substitute{call}|], ex: new Exception());
+            var z = {method}(ex: new Exception(), value: [|substitute{call}|]);
         }}
     }}
 }}";
@@ -1022,6 +1061,8 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             var x = {method}(substitute{call}, new Exception());
+            var y = {method}(value: substitute{call}, ex: new Exception());
+            var z = {method}(ex: new Exception(), value: substitute{call});
         }}
     }}
 }}";
@@ -1060,6 +1101,8 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             var x = {method}([|substitute{call}|], new Exception());
+            var y = {method}(value: [|substitute{call}|], ex: new Exception());
+            var z = {method}(ex: new Exception(), value: [|substitute{call}|]);
         }}
     }}
 }}";
@@ -1096,6 +1139,8 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             var x = {method}(substitute{call}, new Exception());
+            var y = {method}(value: substitute{call}, ex: new Exception());
+            var z = {method}(ex: new Exception(), value: substitute{call});
         }}
     }}
 }}";
