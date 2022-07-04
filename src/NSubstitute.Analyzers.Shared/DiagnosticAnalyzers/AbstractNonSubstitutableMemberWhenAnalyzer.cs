@@ -7,16 +7,13 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer<TSyntaxKind> : AbstractNonSubstitutableSetupAnalyzer
-    where TSyntaxKind : struct, Enum
+internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer : AbstractNonSubstitutableSetupAnalyzer
 {
     private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
-    private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
-
-    protected abstract TSyntaxKind InvocationExpressionKind { get; }
+    private readonly Action<OperationAnalysisContext> _analyzeInvocationAction;
 
     protected AbstractNonSubstitutableMemberWhenAnalyzer(
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
@@ -36,13 +33,12 @@ internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer<TSyntaxKind> 
 
     protected override void InitializeAnalyzer(AnalysisContext context)
     {
-        context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
+        context.RegisterOperationAction(_analyzeInvocationAction, OperationKind.Invocation);
     }
 
-    private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
+    private void AnalyzeInvocation(OperationAnalysisContext operationAnalysisContext)
     {
-        if (!(syntaxNodeContext.SemanticModel.GetOperation(syntaxNodeContext.Node) is IInvocationOperation
-                invocationOperation))
+        if (operationAnalysisContext.Operation is not IInvocationOperation invocationOperation)
         {
             return;
         }
@@ -52,15 +48,10 @@ internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer<TSyntaxKind> 
             return;
         }
 
-        var expressionsForAnalysys =
-            _substitutionNodeFinder.FindForWhenExpression(syntaxNodeContext, invocationOperation);
-        foreach (var analysedSyntax in expressionsForAnalysys)
+        var operations = _substitutionNodeFinder.FindForWhenExpression(operationAnalysisContext, invocationOperation);
+        foreach (var operation in operations)
         {
-            var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(analysedSyntax);
-            if (symbolInfo.Symbol != null)
-            {
-                Analyze(syntaxNodeContext, analysedSyntax, symbolInfo.Symbol);
-            }
+            Analyze(operationAnalysisContext, operation);
         }
     }
 }

@@ -7,11 +7,9 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractNonSubstitutableMemberReceivedAnalyzer<TSyntaxKind, TMemberAccessExpressionSyntax> : AbstractNonSubstitutableSetupAnalyzer
-    where TSyntaxKind : struct
-    where TMemberAccessExpressionSyntax : SyntaxNode
+internal abstract class AbstractNonSubstitutableMemberReceivedAnalyzer : AbstractNonSubstitutableSetupAnalyzer
 {
-    private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
+    private readonly Action<OperationAnalysisContext> _analyzeInvocationOperation;
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
@@ -20,34 +18,25 @@ internal abstract class AbstractNonSubstitutableMemberReceivedAnalyzer<TSyntaxKi
         INonSubstitutableMemberAnalysis nonSubstitutableMemberAnalysis)
         : base(diagnosticDescriptorsProvider, nonSubstitutableMemberAnalysis)
     {
-        _analyzeInvocationAction = AnalyzeInvocation;
+        _analyzeInvocationOperation = AnalyzeInvocation;
         SupportedDiagnostics = ImmutableArray.Create(
             DiagnosticDescriptorsProvider.NonVirtualReceivedSetupSpecification,
             DiagnosticDescriptorsProvider.InternalSetupSpecification);
         NonVirtualSetupDescriptor = diagnosticDescriptorsProvider.NonVirtualReceivedSetupSpecification;
     }
 
-    protected abstract TSyntaxKind InvocationExpressionKind { get; }
-
     protected override DiagnosticDescriptor NonVirtualSetupDescriptor { get; }
 
     protected override void InitializeAnalyzer(AnalysisContext context)
     {
-        context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
+        context.RegisterOperationAction(_analyzeInvocationOperation, OperationKind.Invocation);
     }
 
-    protected override Location GetSubstitutionNodeActualLocation(in NonSubstitutableMemberAnalysisResult analysisResult)
+    private void AnalyzeInvocation(OperationAnalysisContext syntaxNodeContext)
     {
-        return analysisResult.Member.GetSubstitutionNodeActualLocation<TMemberAccessExpressionSyntax>(analysisResult.Symbol);
-    }
-
-    private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
-    {
-        var invocationExpression = syntaxNodeContext.Node;
-        if (!(syntaxNodeContext.SemanticModel.GetOperation(invocationExpression) is IInvocationOperation
-                invocationOperation))
+        if (syntaxNodeContext.Operation is not IInvocationOperation invocationOperation)
         {
-            return;
+           return;
         }
 
         if (invocationOperation.Parent == null)
@@ -60,6 +49,6 @@ internal abstract class AbstractNonSubstitutableMemberReceivedAnalyzer<TSyntaxKi
             return;
         }
 
-        Analyze(syntaxNodeContext, invocationOperation.Parent.Syntax);
+        Analyze(syntaxNodeContext, invocationOperation.Parent);
     }
 }

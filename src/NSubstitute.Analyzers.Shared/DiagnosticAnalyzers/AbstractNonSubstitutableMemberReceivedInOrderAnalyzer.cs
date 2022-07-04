@@ -134,15 +134,12 @@ internal abstract class AbstractNonSubstitutableMemberReceivedInOrderAnalyzer<TS
 
     private static ILocalSymbol GetVariableDeclaratorSymbol(IOperation operation)
     {
-        switch (operation)
+        return operation switch
         {
-            case IVariableDeclaratorOperation declarator:
-                return declarator.Symbol;
-            case IVariableDeclarationOperation declarationOperation:
-                return declarationOperation.Declarators.FirstOrDefault()?.Symbol;
-            default:
-                return null;
-        }
+            IVariableDeclaratorOperation declarator => declarator.Symbol,
+            IVariableDeclarationOperation declarationOperation => declarationOperation.Declarators.FirstOrDefault()?.Symbol,
+            _ => null
+        };
     }
 
     private SyntaxNode FindIgnoredEnclosingExpression(SyntaxNode syntaxNode)

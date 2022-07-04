@@ -7,16 +7,13 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractNonSubstitutableMemberAnalyzer<TSyntaxKind> : AbstractNonSubstitutableSetupAnalyzer
-    where TSyntaxKind : struct
+internal abstract class AbstractNonSubstitutableMemberAnalyzer : AbstractNonSubstitutableSetupAnalyzer
 {
     private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
 
-    private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
+    private readonly Action<OperationAnalysisContext> _analyzeInvocationAction;
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
-
-    protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
     protected AbstractNonSubstitutableMemberAnalyzer(
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
@@ -36,13 +33,12 @@ internal abstract class AbstractNonSubstitutableMemberAnalyzer<TSyntaxKind> : Ab
 
     protected sealed override void InitializeAnalyzer(AnalysisContext context)
     {
-        context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
+        context.RegisterOperationAction(_analyzeInvocationAction, OperationKind.Invocation);
     }
 
-    private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
+    private void AnalyzeInvocation(OperationAnalysisContext operationAnalysisContext)
     {
-        if (!(syntaxNodeContext.SemanticModel.GetOperation(syntaxNodeContext.Node) is IInvocationOperation
-                invocationOperation))
+        if (operationAnalysisContext.Operation is not IInvocationOperation invocationOperation)
         {
             return;
         }
@@ -52,38 +48,25 @@ internal abstract class AbstractNonSubstitutableMemberAnalyzer<TSyntaxKind> : Ab
             return;
         }
 
-        AnalyzeMember(syntaxNodeContext, _substitutionNodeFinder.FindOperationForStandardExpression(invocationOperation));
+        AnalyzeMember(operationAnalysisContext, _substitutionNodeFinder.FindOperationForStandardExpression(invocationOperation));
     }
 
-    private void AnalyzeMember(SyntaxNodeAnalysisContext syntaxNodeContext, IOperation accessedMember)
+    private void AnalyzeMember(OperationAnalysisContext operationAnalysisContext, IOperation accessedMember)
     {
         if (IsValidForAnalysis(accessedMember) == false)
         {
             return;
         }
 
-        Analyze(syntaxNodeContext, accessedMember.Syntax);
+        Analyze(operationAnalysisContext, accessedMember);
     }
 
-    // TODO use switch expressions/pattern matching when GH-179 merged
     private bool IsValidForAnalysis(IOperation accessedMember)
     {
-        if (accessedMember == null)
-        {
-            return false;
-        }
-
-        if (accessedMember is ILocalReferenceOperation)
-        {
-            return false;
-        }
-
-        if (accessedMember is IConversionOperation conversionOperation &&
-            conversionOperation.Operand is ILocalReferenceOperation)
-        {
-            return false;
-        }
-
-        return true;
+        return accessedMember != null && accessedMember is not ILocalReferenceOperation &&
+               accessedMember is not IConversionOperation
+               {
+                   Operand: ILocalReferenceOperation
+               };
     }
 }

@@ -10,16 +10,6 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 internal abstract class AbstractSubstitutionNodeFinder : ISubstitutionNodeFinder
 {
-    public IEnumerable<SyntaxNode> Find(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode invocationExpression, IMethodSymbol invocationExpressionSymbol)
-    {
-        if (syntaxNodeContext.SemanticModel.GetOperation(invocationExpression) is IInvocationOperation invocationOperation)
-        {
-            return Find(syntaxNodeContext, invocationOperation, invocationExpressionSymbol);
-        }
-
-        return Enumerable.Empty<SyntaxNode>();
-    }
-
     public IEnumerable<SyntaxNode> Find(
         SyntaxNodeAnalysisContext syntaxNodeContext,
         IInvocationOperation invocationOperation,
@@ -64,7 +54,10 @@ internal abstract class AbstractSubstitutionNodeFinder : ISubstitutionNodeFinder
         return standardSubstitution != null ? new[] { standardSubstitution } : Enumerable.Empty<SyntaxNode>();
     }
 
-    public IEnumerable<SyntaxNode> FindForWhenExpression(SyntaxNodeAnalysisContext syntaxNodeContext, IInvocationOperation invocationOperation, IMethodSymbol whenInvocationSymbol = null)
+    public IEnumerable<SyntaxNode> FindForWhenExpression(
+        SyntaxNodeAnalysisContext syntaxNodeContext,
+        IInvocationOperation invocationOperation,
+        IMethodSymbol whenInvocationSymbol = null)
     {
         if (invocationOperation == null)
         {
@@ -93,12 +86,31 @@ internal abstract class AbstractSubstitutionNodeFinder : ISubstitutionNodeFinder
         }
     }
 
+    public IEnumerable<IOperation> FindForWhenExpression(OperationAnalysisContext operationAnalysisContext, IInvocationOperation invocationOperation)
+    {
+        var whenVisitor = new WhenVisitor(operationAnalysisContext, invocationOperation);
+        whenVisitor.Visit();
+
+        var typeSymbol = invocationOperation.TargetMethod.TypeArguments.FirstOrDefault() ??
+                         invocationOperation.TargetMethod.ReceiverType;
+
+        foreach (var operation in whenVisitor.Operations)
+        {
+            var symbol = ExtractSymbol(operation);
+
+            if (symbol != null && ContainsSymbol(typeSymbol, symbol))
+            {
+                yield return operation;
+            }
+        }
+    }
+
     public SyntaxNode FindForAndDoesExpression(
         SyntaxNodeAnalysisContext syntaxNodeContext,
         IInvocationOperation invocationOperation,
         IMethodSymbol invocationExpressionSymbol)
     {
-        if (!(invocationOperation.GetSubstituteOperation() is IInvocationOperation parentInvocationExpression))
+        if (invocationOperation.GetSubstituteOperation() is not IInvocationOperation parentInvocationExpression)
         {
             return null;
         }
@@ -144,6 +156,84 @@ internal abstract class AbstractSubstitutionNodeFinder : ISubstitutionNodeFinder
         {
             yield return current;
             current = current.BaseType;
+        }
+    }
+
+    private static ISymbol ExtractSymbol(IOperation operation)
+    {
+        var symbol = operation switch
+        {
+            IInvocationOperation invocationOperation => invocationOperation.TargetMethod,
+            IPropertyReferenceOperation propertyReferenceOperation => propertyReferenceOperation.Property,
+            IConversionOperation conversionOperation => ExtractSymbol(conversionOperation.Operand),
+            _ => null
+        };
+        return symbol;
+    }
+
+    private class WhenVisitor : OperationWalker
+    {
+        private readonly OperationAnalysisContext _operationAnalysisContext;
+        private readonly IInvocationOperation _whenInvocationOperation;
+        private readonly List<IOperation> _operations = new List<IOperation>();
+        private readonly IDictionary<SyntaxTree, SemanticModel>
+            _semanticModelCache = new Dictionary<SyntaxTree, SemanticModel>(1);
+
+        public WhenVisitor(
+            OperationAnalysisContext operationAnalysisContext,
+            IInvocationOperation whenInvocationOperation)
+        {
+            _operationAnalysisContext = operationAnalysisContext;
+            _whenInvocationOperation = whenInvocationOperation;
+        }
+
+        public IReadOnlyList<IOperation> Operations => _operations.AsReadOnly();
+
+        public void Visit() => Visit(_whenInvocationOperation);
+
+        public override void VisitInvocation(IInvocationOperation operation)
+        {
+            if (operation != _whenInvocationOperation)
+            {
+                _operations.Add(operation);
+            }
+
+            base.VisitInvocation(operation);
+        }
+
+        public override void VisitMethodReference(IMethodReferenceOperation operation)
+        {
+            foreach (var methodDeclaringSyntaxReference in operation.Method.DeclaringSyntaxReferences)
+            {
+                // TODO async?
+                var syntaxNode = methodDeclaringSyntaxReference.GetSyntax();
+                var semanticModel = GetSemanticModel(syntaxNode.Parent);
+                var referencedOperation = semanticModel.GetOperation(syntaxNode) ??
+                                          semanticModel.GetOperation(syntaxNode.Parent);
+                Visit(referencedOperation);
+            }
+
+            base.VisitMethodReference(operation);
+        }
+
+        public override void VisitPropertyReference(IPropertyReferenceOperation operation)
+        {
+            _operations.Add(operation);
+            base.VisitPropertyReference(operation);
+        }
+
+        private SemanticModel GetSemanticModel(SyntaxNode syntaxNode)
+        {
+            var syntaxTree = syntaxNode.SyntaxTree;
+            if (_semanticModelCache.TryGetValue(syntaxTree, out var semanticModel))
+            {
+                return semanticModel;
+            }
+
+            semanticModel = _operationAnalysisContext.Compilation.GetSemanticModel(syntaxTree);
+            _semanticModelCache[syntaxTree] = semanticModel;
+
+            return semanticModel;
         }
     }
 }

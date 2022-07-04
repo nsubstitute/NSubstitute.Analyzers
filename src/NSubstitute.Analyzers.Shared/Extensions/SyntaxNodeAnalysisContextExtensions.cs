@@ -20,7 +20,24 @@ internal static class SyntaxNodeAnalysisContextExtensions
         Diagnostic diagnostic,
         ISymbol symbol)
     {
-        if (IsSuppressed(syntaxNodeContext, diagnostic, symbol))
+        if (IsSuppressed(syntaxNodeContext.GetSettings(CancellationToken.None), syntaxNodeContext.Compilation, symbol, diagnostic.Id))
+        {
+            return;
+        }
+
+        syntaxNodeContext.ReportDiagnostic(diagnostic);
+    }
+
+    internal static void TryReportDiagnostic(
+        this OperationAnalysisContext syntaxNodeContext,
+        Diagnostic diagnostic,
+        ISymbol symbol)
+    {
+        if (IsSuppressed(
+                syntaxNodeContext.Options.GetSettings(CancellationToken.None),
+                syntaxNodeContext.Compilation,
+                symbol,
+                diagnostic.Id))
         {
             return;
         }
@@ -29,20 +46,11 @@ internal static class SyntaxNodeAnalysisContextExtensions
     }
 
     private static bool IsSuppressed(
-        SyntaxNodeAnalysisContext syntaxNodeContext,
-        Diagnostic diagnostic,
-        ISymbol symbol)
-    {
-        return symbol != null && IsSuppressed(syntaxNodeContext, symbol, diagnostic.Id);
-    }
-
-    private static bool IsSuppressed(
-        SyntaxNodeAnalysisContext syntaxNodeContext,
+        AnalyzersSettings analyzersSettings,
+        Compilation compilation,
         ISymbol symbol,
         string diagnosticId)
     {
-        var analyzersSettings = syntaxNodeContext.GetSettings(CancellationToken.None);
-
         if (analyzersSettings.Suppressions.Count == 0)
         {
             return false;
@@ -52,7 +60,7 @@ internal static class SyntaxNodeAnalysisContextExtensions
 
         return analyzersSettings.Suppressions.Where(suppression => suppression.Rules.Contains(diagnosticId))
             .SelectMany(suppression =>
-                DocumentationCommentId.GetSymbolsForDeclarationId(suppression.Target, syntaxNodeContext.Compilation))
+                DocumentationCommentId.GetSymbolsForDeclarationId(suppression.Target, compilation))
             .Any(possibleSymbols.Contains);
     }
 
