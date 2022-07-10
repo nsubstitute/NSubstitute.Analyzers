@@ -1,14 +1,14 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-internal sealed class NonSubstitutableMemberReceivedInOrderAnalyzer : AbstractNonSubstitutableMemberReceivedInOrderAnalyzer<SyntaxKind, MemberAccessExpressionSyntax, BlockSyntax>
+internal sealed class NonSubstitutableMemberReceivedInOrderAnalyzer : AbstractNonSubstitutableMemberReceivedInOrderAnalyzer
 {
     private static ImmutableArray<int> IgnoredPaths { get; } =
         ImmutableArray.Create((int)SyntaxKind.Argument, (int)SyntaxKind.VariableDeclarator, (int)SyntaxKind.AddAssignmentExpression);
@@ -17,8 +17,4 @@ internal sealed class NonSubstitutableMemberReceivedInOrderAnalyzer : AbstractNo
         : base(SubstitutionNodeFinder.Instance, NonSubstitutableMemberAnalysis.Instance, NSubstitute.Analyzers.CSharp.DiagnosticDescriptorsProvider.Instance)
     {
     }
-
-    protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
-
-    protected override ImmutableArray<int> IgnoredAncestorPaths { get; } = IgnoredPaths;
 }

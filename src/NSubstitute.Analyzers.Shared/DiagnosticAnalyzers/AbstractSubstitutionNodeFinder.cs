@@ -118,6 +118,14 @@ internal abstract class AbstractSubstitutionNodeFinder : ISubstitutionNodeFinder
         return FindForStandardExpression(parentInvocationExpression);
     }
 
+    public IEnumerable<IOperation> FindForReceivedInOrderExpression(OperationAnalysisContext operationAnalysisContext, IInvocationOperation invocationOperation)
+    {
+        var visitor = new WhenVisitor(operationAnalysisContext, invocationOperation);
+        visitor.Visit();
+
+        return visitor.Operations;
+    }
+
     public SyntaxNode FindForStandardExpression(IInvocationOperation invocationOperation)
     {
         var substituteOperation = invocationOperation.GetSubstituteOperation();
@@ -175,7 +183,7 @@ internal abstract class AbstractSubstitutionNodeFinder : ISubstitutionNodeFinder
     {
         private readonly OperationAnalysisContext _operationAnalysisContext;
         private readonly IInvocationOperation _whenInvocationOperation;
-        private readonly List<IOperation> _operations = new List<IOperation>();
+        private readonly HashSet<IOperation> _operations = new HashSet<IOperation>();
         private readonly IDictionary<SyntaxTree, SemanticModel>
             _semanticModelCache = new Dictionary<SyntaxTree, SemanticModel>(1);
 
@@ -187,16 +195,13 @@ internal abstract class AbstractSubstitutionNodeFinder : ISubstitutionNodeFinder
             _whenInvocationOperation = whenInvocationOperation;
         }
 
-        public IReadOnlyList<IOperation> Operations => _operations.AsReadOnly();
+        public IEnumerable<IOperation> Operations => _operations;
 
         public void Visit() => Visit(_whenInvocationOperation);
 
         public override void VisitInvocation(IInvocationOperation operation)
         {
-            if (operation != _whenInvocationOperation)
-            {
-                _operations.Add(operation);
-            }
+            TryAdd(operation);
 
             base.VisitInvocation(operation);
         }
@@ -218,8 +223,30 @@ internal abstract class AbstractSubstitutionNodeFinder : ISubstitutionNodeFinder
 
         public override void VisitPropertyReference(IPropertyReferenceOperation operation)
         {
-            _operations.Add(operation);
+            TryAdd(operation);
             base.VisitPropertyReference(operation);
+        }
+
+        private void TryAdd(IOperation operation)
+        {
+            if (operation == _whenInvocationOperation)
+            {
+                return;
+            }
+
+            if (operation.Parent == null)
+            {
+                _operations.Add(operation);
+                return;
+            }
+
+            // For cases like Foo.Nested.Bar(); Foo.Nested().Bar
+            // we are only interested in last operation
+            // TODO make it smarter, will fail on multiple nested operations
+            if (_operations.Contains(operation.Parent) == false)
+            {
+                _operations.Add(operation);
+            }
         }
 
         private SemanticModel GetSemanticModel(SyntaxNode syntaxNode)

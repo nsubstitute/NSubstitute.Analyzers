@@ -15,6 +15,8 @@ internal interface ISubstitutionNodeFinder
 
     IEnumerable<SyntaxNode> FindForReceivedInOrderExpression(SyntaxNodeAnalysisContext syntaxNodeContext, IInvocationOperation invocationOperation, IMethodSymbol receivedInOrderInvocationSymbol = null);
 
+    IEnumerable<IOperation> FindForReceivedInOrderExpression(OperationAnalysisContext operationAnalysisContext, IInvocationOperation invocationOperation);
+
     SyntaxNode FindForStandardExpression(IInvocationOperation invocationOperation);
 
     IOperation FindOperationForStandardExpression(IInvocationOperation invocationOperation);

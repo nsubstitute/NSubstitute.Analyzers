@@ -122,6 +122,16 @@ internal static class IOperationExtensions
         return conversionTypeSymbol ?? assignmentOperation.Value.Type;
     }
 
+    public static IEnumerable<IOperation> Ancestors(this IOperation operation)
+    {
+        var parent = operation.Parent;
+        while (parent != null)
+        {
+            yield return parent;
+            parent = parent.Parent;
+        }
+    }
+
     private static bool IsImplicitlyProvidedArrayWithoutValues(IArgumentOperation arg)
     {
         return arg.IsImplicit &&
