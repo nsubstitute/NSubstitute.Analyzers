@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -9,30 +8,21 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 
 [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
-internal sealed class AsyncReceivedInOrderCallbackAnalyzer : AbstractAsyncReceivedInOrderCallbackAnalyzer<SyntaxKind, InvocationExpressionSyntax>
+internal sealed class AsyncReceivedInOrderCallbackAnalyzer : AbstractAsyncReceivedInOrderCallbackAnalyzer
 {
     public AsyncReceivedInOrderCallbackAnalyzer()
         : base(VisualBasic.DiagnosticDescriptorsProvider.Instance)
     {
     }
 
-    protected override int AsyncExpressionRawKind { get; } = (int)SyntaxKind.AsyncKeyword;
-
-    protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
-
-    protected override IEnumerable<SyntaxNode> GetArgumentExpressions(InvocationExpressionSyntax invocationExpressionSyntax)
+    protected override SyntaxToken? GetAsyncToken(SyntaxNode node)
     {
-        return invocationExpressionSyntax.ArgumentList.Arguments.Select<ArgumentSyntax, SyntaxNode>(arg => arg.GetExpression());
-    }
-
-    protected override IEnumerable<SyntaxToken?> GetCallbackArgumentSyntaxTokens(SyntaxNode node)
-    {
-        switch (node)
+        return node switch
         {
-            case LambdaExpressionSyntax lambdaExpressionSyntax:
-                return lambdaExpressionSyntax.SubOrFunctionHeader.ChildTokens().Select<SyntaxToken, SyntaxToken?>(token => token);
-        }
-
-        return Enumerable.Empty<SyntaxToken?>();
+            LambdaExpressionSyntax lambdaExpressionSyntax => lambdaExpressionSyntax.SubOrFunctionHeader.ChildTokens()
+                .Select<SyntaxToken, SyntaxToken?>(token => token)
+                .FirstOrDefault(token => token.Value.IsKind(SyntaxKind.AsyncKeyword)),
+            _ => null
+        };
     }
 }
