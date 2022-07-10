@@ -17,13 +17,6 @@ internal abstract class AbstractNonSubstitutableMemberAnalysis : INonSubstitutab
         ISymbol symbol = null) =>
         Analyze(accessedMember, symbol ?? syntaxNodeContext.SemanticModel.GetSymbolInfo(accessedMember).Symbol);
 
-    public NonSubstitutableMemberAnalysisResult Analyze(IInvocationOperation invocationOperation, ISymbol symbol = null)
-    {
-        return Analyze(
-            invocationOperation.Syntax,
-            symbol ?? invocationOperation.TargetMethod);
-    }
-
     public NonSubstitutableMemberAnalysisResult Analyze(IOperation operation)
     {
         var symbol = ExtractSymbol(operation);
@@ -31,7 +24,7 @@ internal abstract class AbstractNonSubstitutableMemberAnalysis : INonSubstitutab
         return Analyze(operation.Syntax, symbol);
     }
 
-    protected virtual bool CanBeSubstituted(
+    private bool CanBeSubstituted(
         SyntaxNode accessedMember,
         ISymbol symbol)
     {

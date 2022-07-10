@@ -1,6 +1,5 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
@@ -22,27 +21,7 @@ internal abstract class AbstractNonSubstitutableSetupAnalyzer : AbstractDiagnost
         _internalSetupSpecificationDescriptor = diagnosticDescriptorsProvider.InternalSetupSpecification;
     }
 
-    protected void Analyze(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, SyntaxNode syntaxNode, ISymbol symbol = null)
-    {
-        var analysisResult = _nonSubstitutableMemberAnalysis.Analyze(syntaxNodeAnalysisContext, syntaxNode, symbol);
-
-        if (analysisResult.CanBeSubstituted == false)
-        {
-            ReportDiagnostics(syntaxNodeAnalysisContext, in analysisResult);
-        }
-    }
-
-    protected void Analyze(OperationAnalysisContext operationAnalysisContext, IInvocationOperation operation, ISymbol symbol = null)
-    {
-        var analysisResult = _nonSubstitutableMemberAnalysis.Analyze(operation, symbol);
-
-        if (analysisResult.CanBeSubstituted == false)
-        {
-            ReportDiagnostics(operationAnalysisContext, in analysisResult);
-        }
-    }
-
-    protected void Analyze(OperationAnalysisContext operationAnalysisContext, IOperation operation, ISymbol symbol = null)
+    protected void Analyze(OperationAnalysisContext operationAnalysisContext, IOperation operation)
     {
         var analysisResult = _nonSubstitutableMemberAnalysis.Analyze(operation);
 
@@ -52,41 +31,11 @@ internal abstract class AbstractNonSubstitutableSetupAnalyzer : AbstractDiagnost
         }
     }
 
-    protected virtual Location GetSubstitutionNodeActualLocation(in NonSubstitutableMemberAnalysisResult analysisResult)
-    {
-        return analysisResult.Member.GetLocation();
-    }
-
-    private void ReportDiagnostics(
-        SyntaxNodeAnalysisContext context,
-        in NonSubstitutableMemberAnalysisResult analysisResult)
-    {
-        var location = GetSubstitutionNodeActualLocation(analysisResult);
-        if (analysisResult.NonVirtualMemberSubstitution)
-        {
-            var diagnostic = Diagnostic.Create(
-                NonVirtualSetupDescriptor,
-                location,
-                analysisResult.MemberName);
-            context.TryReportDiagnostic(diagnostic, analysisResult.Symbol);
-        }
-
-        if (analysisResult.InternalMemberSubstitution)
-        {
-            var diagnostic = Diagnostic.Create(
-                _internalSetupSpecificationDescriptor,
-                location,
-                analysisResult.MemberName);
-
-            context.ReportDiagnostic(diagnostic);
-        }
-    }
-
     private void ReportDiagnostics(
         OperationAnalysisContext context,
         in NonSubstitutableMemberAnalysisResult analysisResult)
     {
-        var location = GetSubstitutionNodeActualLocation(analysisResult);
+        var location = analysisResult.Member.GetLocation();
         if (analysisResult.NonVirtualMemberSubstitution)
         {
             var diagnostic = Diagnostic.Create(
