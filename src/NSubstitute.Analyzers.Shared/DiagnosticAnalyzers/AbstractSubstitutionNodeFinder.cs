@@ -118,9 +118,9 @@ internal abstract class AbstractSubstitutionNodeFinder : ISubstitutionNodeFinder
         return FindForStandardExpression(parentInvocationExpression);
     }
 
-    public IEnumerable<IOperation> FindForReceivedInOrderExpression(OperationAnalysisContext operationAnalysisContext, IInvocationOperation invocationOperation)
+    public IEnumerable<IOperation> FindForReceivedInOrderExpression(OperationAnalysisContext operationAnalysisContext, IInvocationOperation invocationOperation, bool includeAll = false)
     {
-        var visitor = new WhenVisitor(operationAnalysisContext, invocationOperation);
+        var visitor = new WhenVisitor(operationAnalysisContext, invocationOperation, includeAll);
         visitor.Visit();
 
         return visitor.Operations;
@@ -135,17 +135,6 @@ internal abstract class AbstractSubstitutionNodeFinder : ISubstitutionNodeFinder
     public IOperation FindOperationForStandardExpression(IInvocationOperation invocationOperation)
     {
         return invocationOperation.GetSubstituteOperation();
-    }
-
-    public IEnumerable<SyntaxNode> FindForReceivedInOrderExpression(
-        SyntaxNodeAnalysisContext syntaxNodeContext,
-        IInvocationOperation invocationOperation,
-        IMethodSymbol receivedInOrderInvocationSymbol = null)
-    {
-        var argumentOperation = invocationOperation.GetOrderedArgumentOperationsWithoutInstanceArgument().First();
-
-        return FindInvocations(syntaxNodeContext, argumentOperation.Value.Syntax)
-            .Select(syntax => GetSubstitutionActualNode(syntaxNodeContext, syntax));
     }
 
     protected abstract IEnumerable<SyntaxNode> FindInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode argumentSyntax);
@@ -183,16 +172,19 @@ internal abstract class AbstractSubstitutionNodeFinder : ISubstitutionNodeFinder
     {
         private readonly OperationAnalysisContext _operationAnalysisContext;
         private readonly IInvocationOperation _whenInvocationOperation;
-        private readonly HashSet<IOperation> _operations = new HashSet<IOperation>();
-        private readonly IDictionary<SyntaxTree, SemanticModel>
-            _semanticModelCache = new Dictionary<SyntaxTree, SemanticModel>(1);
+        private readonly bool _includeAll;
+        private readonly HashSet<IOperation> _operations = new ();
+
+        private readonly Dictionary<SyntaxTree, SemanticModel> _semanticModelCache = new (1);
 
         public WhenVisitor(
             OperationAnalysisContext operationAnalysisContext,
-            IInvocationOperation whenInvocationOperation)
+            IInvocationOperation whenInvocationOperation,
+            bool includeAll = false)
         {
             _operationAnalysisContext = operationAnalysisContext;
             _whenInvocationOperation = whenInvocationOperation;
+            _includeAll = includeAll;
         }
 
         public IEnumerable<IOperation> Operations => _operations;
@@ -243,7 +235,11 @@ internal abstract class AbstractSubstitutionNodeFinder : ISubstitutionNodeFinder
             // For cases like Foo.Nested.Bar(); Foo.Nested().Bar
             // we are only interested in last operation
             // TODO make it smarter, will fail on multiple nested operations
-            if (_operations.Contains(operation.Parent) == false)
+            if (_includeAll)
+            {
+                _operations.Add(operation);
+            }
+            else if (_operations.Contains(operation.Parent) == false)
             {
                 _operations.Add(operation);
             }
