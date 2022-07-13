@@ -5,9 +5,9 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 
-internal class NonSubstitutableMemberAnalysis : AbstractNonSubstitutableMemberAnalysis
+internal sealed class NonSubstitutableMemberAnalysis : AbstractNonSubstitutableMemberAnalysis
 {
-    public static NonSubstitutableMemberAnalysis Instance { get; } = new NonSubstitutableMemberAnalysis();
+    public static NonSubstitutableMemberAnalysis Instance { get; } = new ();
 
     private NonSubstitutableMemberAnalysis()
     {

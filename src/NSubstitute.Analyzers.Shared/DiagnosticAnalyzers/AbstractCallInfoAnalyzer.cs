@@ -120,7 +120,7 @@ internal abstract class AbstractCallInfoAnalyzer<TSyntaxKind> : AbstractDiagnost
                  invocationOperation.GetOrderedArgumentOperationsWithoutInstanceArgument())
         {
             var callInfoContext =
-                _callInfoFinder.GetCallInfoContext(syntaxNodeContext.SemanticModel, argumentExpressionSyntax);
+                _callInfoFinder.GetCallInfoContext(argumentExpressionSyntax);
 
             AnalyzeArgAtInvocations(syntaxNodeContext, callInfoContext, substituteCallParameters);
 

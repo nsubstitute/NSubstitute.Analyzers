@@ -8,21 +8,16 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 internal abstract class AbstractCallInfoFinder : ICallInfoFinder
 {
-    public CallInfoContext GetCallInfoContext(SemanticModel semanticModel, IArgumentOperation argumentOperation)
-        {
-            var callContext = CallInfoContext.Empty;
-            foreach (var syntaxNode in argumentOperation.GetSyntaxes())
-            {
-                var callInfoParameterSymbol = GetCallInfoParameterSymbol(semanticModel, syntaxNode);
-                var currentContext = GetCallInfoContextInternal(semanticModel, syntaxNode);
-                callContext =
-                    callContext.Merge(CreateFilteredCallInfoContext(semanticModel, currentContext, callInfoParameterSymbol));
-            }
+    public CallInfoContext GetCallInfoContext(IArgumentOperation argumentOperation)
+    {
+        var indexVisitor = new IndexerVisitor();
+        indexVisitor.Visit(argumentOperation);
 
-            return callContext;
+        return new CallInfoContext(
+            indexVisitor.ArgAtInvocations,
+            indexVisitor.ArgInvocations,
+            indexVisitor.DirectIndexerAccesses);
     }
-
-    protected abstract CallInfoContext GetCallInfoContextInternal(SemanticModel semanticModel, SyntaxNode syntaxNode);
 
     private static CallInfoContext CreateFilteredCallInfoContext(
         SemanticModel semanticModel,
@@ -98,5 +93,42 @@ internal abstract class AbstractCallInfoFinder : ICallInfoFinder
         }
 
         return null;
+    }
+
+    private class IndexerVisitor : OperationWalker
+    {
+        public List<IInvocationOperation> ArgAtInvocations { get; } = new ();
+
+        public List<IInvocationOperation> ArgInvocations { get; } = new ();
+
+        public List<IPropertyReferenceOperation> DirectIndexerAccesses { get; } = new ();
+
+        public override void VisitInvocation(IInvocationOperation operation)
+        {
+            if (operation.TargetMethod.ContainingType.IsCallInfoSymbol())
+            {
+                switch (operation.TargetMethod.Name)
+                {
+                    case MetadataNames.CallInfoArgAtMethod:
+                        ArgAtInvocations.Add(operation);
+                        break;
+                    case MetadataNames.CallInfoArgMethod:
+                        ArgInvocations.Add(operation);
+                        break;
+                }
+            }
+
+            base.VisitInvocation(operation);
+        }
+
+        public override void VisitPropertyReference(IPropertyReferenceOperation operation)
+        {
+            if (operation.Property.ContainingType.IsCallInfoSymbol() && operation.Property.Parameters.Length > 0)
+            {
+               DirectIndexerAccesses.Add(operation);
+            }
+
+            base.VisitPropertyReference(operation);
+        }
     }
 }

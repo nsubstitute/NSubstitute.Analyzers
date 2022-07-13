@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
@@ -18,6 +19,12 @@ internal class CallInfoContext
 
     public IReadOnlyList<SyntaxNode> ArgInvocations { get; }
 
+    public IReadOnlyList<IPropertyReferenceOperation> IndexerAccessesOperations { get; }
+
+    public IReadOnlyList<IInvocationOperation> ArgAtInvocationsOperations { get; }
+
+    public IReadOnlyList<IInvocationOperation> ArgInvocationsOperations { get; }
+
     public CallInfoContext(
         IReadOnlyList<SyntaxNode> argAtInvocations,
         IReadOnlyList<SyntaxNode> argInvocations,
@@ -26,6 +33,19 @@ internal class CallInfoContext
         IndexerAccesses = indexerAccesses;
         ArgAtInvocations = argAtInvocations;
         ArgInvocations = argInvocations;
+        IndexerAccessesOperations = Array.Empty<IPropertyReferenceOperation>();
+        ArgInvocationsOperations = Array.Empty<IInvocationOperation>();
+        ArgAtInvocationsOperations = Array.Empty<IInvocationOperation>();
+    }
+
+    public CallInfoContext(
+        IReadOnlyList<IInvocationOperation> argAtInvocations,
+        IReadOnlyList<IInvocationOperation> argInvocations,
+        IReadOnlyList<IPropertyReferenceOperation> indexerAccesses)
+    {
+        IndexerAccessesOperations = indexerAccesses;
+        ArgAtInvocationsOperations = argAtInvocations;
+        ArgInvocationsOperations = argInvocations;
     }
 
     public CallInfoContext Merge(CallInfoContext callInfoContext)
