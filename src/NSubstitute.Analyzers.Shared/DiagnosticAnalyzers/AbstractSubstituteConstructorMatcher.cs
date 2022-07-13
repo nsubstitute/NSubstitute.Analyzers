@@ -21,7 +21,7 @@ internal abstract class AbstractSubstituteConstructorMatcher : ISubstituteConstr
     private static IReadOnlyDictionary<SpecialType, HashSet<SpecialType>> WellKnownSupportedConversions { get; } =
         new Dictionary<SpecialType, HashSet<SpecialType>>
         {
-            [SpecialType.System_Char] = new HashSet<SpecialType>
+            [SpecialType.System_Char] = new ()
             {
                 SpecialType.System_Int16,
                 SpecialType.System_Int32,

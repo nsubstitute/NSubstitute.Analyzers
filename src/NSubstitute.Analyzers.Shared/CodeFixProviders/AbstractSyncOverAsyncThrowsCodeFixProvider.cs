@@ -41,7 +41,7 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationEx
         var methodSymbol = (IMethodSymbol)semanticModel.GetSymbolInfo(invocation).Symbol;
         var supportsThrowsAsync = SupportsThrowsAsync(semanticModel.Compilation);
 
-        if (!supportsThrowsAsync && methodSymbol.Parameters.Any(param => param.Type.IsCallInfoDelegate(semanticModel)))
+        if (!supportsThrowsAsync && methodSymbol.Parameters.Any(param => param.Type.IsCallInfoDelegate(semanticModel.Compilation)))
         {
             return;
         }

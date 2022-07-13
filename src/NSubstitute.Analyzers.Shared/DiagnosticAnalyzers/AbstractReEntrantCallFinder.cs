@@ -22,7 +22,7 @@ internal abstract class AbstractReEntrantCallFinder<TInvocationExpressionSyntax,
     {
         var symbolInfo = semanticModel.GetSymbolInfo(rootNode);
 
-        if (symbolInfo.Symbol.IsLocal() || semanticModel.GetTypeInfo(rootNode).IsCallInfoDelegate(semanticModel))
+        if (symbolInfo.Symbol.IsLocal() || semanticModel.GetTypeInfo(rootNode).IsCallInfoDelegate(semanticModel.Compilation))
         {
             return ImmutableList<ISymbol>.Empty;
         }
@@ -112,16 +112,18 @@ internal abstract class AbstractReEntrantCallFinder<TInvocationExpressionSyntax,
 
             var substitutedNode = _substitutionNodeFinder.FindForStandardExpression(operation);
 
-            var substituteNodeSymbol = semanticModel.GetSymbolInfo(substitutedNode).Symbol;
-            if (substituteNodeSymbol != rootNodeSymbol)
+            // TODO extract from operation
+            var substituteNodeSymbol = semanticModel.GetSymbolInfo(substitutedNode.Syntax).Symbol;
+            if (!substituteNodeSymbol.Equals(rootNodeSymbol))
             {
                 continue;
             }
 
-            var substituteNodeIdentifier = GetIdentifierExpressionSyntax(substitutedNode);
+            // TODO from operation
+            var substituteNodeIdentifier = GetIdentifierExpressionSyntax(substitutedNode.Syntax);
 
             var substituteIdentifierSymbol = semanticModel.GetSymbolInfo(substituteNodeIdentifier);
-            if (rootIdentifierSymbol.Symbol == substituteIdentifierSymbol.Symbol)
+            if (rootIdentifierSymbol.Symbol.Equals(substituteIdentifierSymbol.Symbol))
             {
                 yield return substituteNodeSymbol;
             }

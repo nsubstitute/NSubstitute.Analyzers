@@ -8,7 +8,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 
 internal sealed class SubstituteProxyAnalysis : AbstractSubstituteProxyAnalysis<InvocationExpressionSyntax, ExpressionSyntax>
 {
-    public static SubstituteProxyAnalysis Instance { get; } = new SubstituteProxyAnalysis();
+    public static SubstituteProxyAnalysis Instance { get; } = new ();
 
     private SubstituteProxyAnalysis()
     {

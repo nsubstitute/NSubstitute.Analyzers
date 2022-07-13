@@ -15,7 +15,7 @@ public class AnalyzerAdditionalText : AdditionalText
         _text = text;
     }
 
-    public override SourceText GetText(CancellationToken cancellationToken = new CancellationToken())
+    public override SourceText GetText(CancellationToken cancellationToken = default)
     {
         return SourceText.From(_text);
     }

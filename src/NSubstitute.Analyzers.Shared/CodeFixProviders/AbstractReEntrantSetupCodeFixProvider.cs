@@ -84,7 +84,7 @@ internal abstract class AbstractReEntrantSetupCodeFixProvider<TArgumentListSynta
         {
             if (IsArrayParamsArgument(semanticModel, argumentSyntax))
             {
-                lambdaType = lambdaType ?? ConstructCallInfoLambdaType(methodSymbol, semanticModel);
+                lambdaType = lambdaType ?? ConstructCallInfoLambdaType(methodSymbol, semanticModel.Compilation);
                 var updatedParamsArgumentSyntaxNode = CreateUpdatedParamsArgumentSyntaxNode(
                     SyntaxGenerator.GetGenerator(context.Document),
                     lambdaType,
@@ -103,17 +103,17 @@ internal abstract class AbstractReEntrantSetupCodeFixProvider<TArgumentListSynta
         return await Simplifier.ReduceAsync(documentEditor.GetChangedDocument(), cancellationToken: ct);
     }
 
-    private static ITypeSymbol ConstructCallInfoLambdaType(IMethodSymbol methodSymbol, SemanticModel semanticModel)
+    private static ITypeSymbol ConstructCallInfoLambdaType(IMethodSymbol methodSymbol, Compilation compilation)
     {
         var callInfoOverloadMethodSymbol = methodSymbol.ContainingType.GetMembers(methodSymbol.Name)
             .Where(symbol => !symbol.Equals(methodSymbol.ConstructedFrom))
             .OfType<IMethodSymbol>()
-            .First(method => method.Parameters.Any(param => param.Type.IsCallInfoDelegate(semanticModel)));
+            .First(method => method.Parameters.Any(param => param.Type.IsCallInfoDelegate(compilation)));
 
         var typeArgument = methodSymbol.TypeArguments.FirstOrDefault() ?? methodSymbol.ReceiverType;
         var constructedOverloadSymbol = callInfoOverloadMethodSymbol.Construct(typeArgument);
         var lambdaType = constructedOverloadSymbol.Parameters
-            .First(param => param.Type.IsCallInfoDelegate(semanticModel)).Type;
+            .First(param => param.Type.IsCallInfoDelegate(compilation)).Type;
 
         return lambdaType;
     }

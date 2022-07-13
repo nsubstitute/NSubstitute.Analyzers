@@ -188,29 +188,29 @@ public class AnalyzerBenchmark
     [DiagnosticAnalyzer(LanguageNames.CSharp, LanguageNames.VisualBasic)]
     private class BenchmarkAnalyzer : DiagnosticAnalyzer
     {
-        internal List<ContextAndAction<SyntaxNodeAnalysisContext>> SyntaxNodeActions { get; } = new List<ContextAndAction<SyntaxNodeAnalysisContext>>();
+        internal List<ContextAndAction<SyntaxNodeAnalysisContext>> SyntaxNodeActions { get; } = new ();
 
-        internal List<ContextAndAction<CompilationStartAnalysisContext>> CompilationStartActions { get; } = new List<ContextAndAction<CompilationStartAnalysisContext>>();
+        internal List<ContextAndAction<CompilationStartAnalysisContext>> CompilationStartActions { get; } = new ();
 
-        internal List<ContextAndAction<CompilationAnalysisContext>> CompilationEndActions { get; } = new List<ContextAndAction<CompilationAnalysisContext>>();
+        internal List<ContextAndAction<CompilationAnalysisContext>> CompilationEndActions { get; } = new ();
 
-        internal List<ContextAndAction<CompilationAnalysisContext>> CompilationActions { get; } = new List<ContextAndAction<CompilationAnalysisContext>>();
+        internal List<ContextAndAction<CompilationAnalysisContext>> CompilationActions { get; } = new ();
 
-        internal List<ContextAndAction<SemanticModelAnalysisContext>> SemanticModelActions { get; } = new List<ContextAndAction<SemanticModelAnalysisContext>>();
+        internal List<ContextAndAction<SemanticModelAnalysisContext>> SemanticModelActions { get; } = new ();
 
-        internal List<ContextAndAction<SymbolAnalysisContext>> SymbolActions { get; } = new List<ContextAndAction<SymbolAnalysisContext>>();
+        internal List<ContextAndAction<SymbolAnalysisContext>> SymbolActions { get; } = new ();
 
-        internal List<IContextAndAction> CodeBlockStartActions { get; } = new List<IContextAndAction>();
+        internal List<IContextAndAction> CodeBlockStartActions { get; } = new ();
 
-        internal List<ContextAndAction<CodeBlockAnalysisContext>> CodeBlockActions { get; } = new List<ContextAndAction<CodeBlockAnalysisContext>>();
+        internal List<ContextAndAction<CodeBlockAnalysisContext>> CodeBlockActions { get; } = new ();
 
-        internal List<ContextAndAction<SyntaxTreeAnalysisContext>> SyntaxTreeActions { get; } = new List<ContextAndAction<SyntaxTreeAnalysisContext>>();
+        internal List<ContextAndAction<SyntaxTreeAnalysisContext>> SyntaxTreeActions { get; } = new ();
 
-        internal List<ContextAndAction<OperationAnalysisContext>> OperationActions { get; } = new List<ContextAndAction<OperationAnalysisContext>>();
+        internal List<ContextAndAction<OperationAnalysisContext>> OperationActions { get; } = new ();
 
-        internal List<ContextAndAction<OperationBlockAnalysisContext>> OperationBlockActions { get; } = new List<ContextAndAction<OperationBlockAnalysisContext>>();
+        internal List<ContextAndAction<OperationBlockAnalysisContext>> OperationBlockActions { get; } = new ();
 
-        internal List<ContextAndAction<OperationBlockStartAnalysisContext>> OperationBlockStartActions { get; } = new List<ContextAndAction<OperationBlockStartAnalysisContext>>();
+        internal List<ContextAndAction<OperationBlockStartAnalysisContext>> OperationBlockStartActions { get; } = new ();
 
         private readonly DiagnosticAnalyzer _inner;
 

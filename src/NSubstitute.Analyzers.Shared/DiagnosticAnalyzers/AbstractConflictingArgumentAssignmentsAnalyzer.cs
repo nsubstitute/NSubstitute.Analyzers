@@ -73,7 +73,7 @@ internal abstract class AbstractConflictingArgumentAssignmentsAnalyzer : Abstrac
         }
     }
 
-    private IEnumerable<IPropertyReferenceOperation> FindCallInfoIndexers(IInvocationOperation invocationOperation)
+    private IEnumerable<IOperation> FindCallInfoIndexers(IInvocationOperation invocationOperation)
     {
         // perf - dont use linq in hotpaths
         foreach (var argumentOperation in invocationOperation.GetOrderedArgumentOperationsWithoutInstanceArgument())

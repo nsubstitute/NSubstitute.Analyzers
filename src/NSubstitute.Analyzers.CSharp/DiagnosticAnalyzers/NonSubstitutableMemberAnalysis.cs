@@ -7,7 +7,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 
 internal class NonSubstitutableMemberAnalysis : AbstractNonSubstitutableMemberAnalysis
 {
-    public static NonSubstitutableMemberAnalysis Instance { get; } = new NonSubstitutableMemberAnalysis();
+    public static NonSubstitutableMemberAnalysis Instance { get; } = new ();
 
     private NonSubstitutableMemberAnalysis()
     {

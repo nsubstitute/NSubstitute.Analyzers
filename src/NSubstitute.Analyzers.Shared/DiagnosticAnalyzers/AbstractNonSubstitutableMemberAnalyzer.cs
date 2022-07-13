@@ -48,7 +48,7 @@ internal abstract class AbstractNonSubstitutableMemberAnalyzer : AbstractNonSubs
             return;
         }
 
-        AnalyzeMember(operationAnalysisContext, _substitutionNodeFinder.FindOperationForStandardExpression(invocationOperation));
+        AnalyzeMember(operationAnalysisContext, _substitutionNodeFinder.FindForStandardExpression(invocationOperation));
     }
 
     private void AnalyzeMember(OperationAnalysisContext operationAnalysisContext, IOperation accessedMember)

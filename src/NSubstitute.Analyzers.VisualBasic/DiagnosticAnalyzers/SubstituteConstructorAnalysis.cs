@@ -9,7 +9,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 
 internal class SubstituteConstructorAnalysis : AbstractSubstituteConstructorAnalysis<InvocationExpressionSyntax, ArgumentSyntax>
 {
-    public static SubstituteConstructorAnalysis Instance { get; } = new SubstituteConstructorAnalysis();
+    public static SubstituteConstructorAnalysis Instance { get; } = new ();
 
     private SubstituteConstructorAnalysis()
     {

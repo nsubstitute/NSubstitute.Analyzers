@@ -41,7 +41,7 @@ internal abstract class AbstractSyncOverAsyncThrowsAnalyzer : AbstractDiagnostic
             return;
         }
 
-        var substituteOperation = _substitutionNodeFinder.FindOperationForStandardExpression(invocationOperation);
+        var substituteOperation = _substitutionNodeFinder.FindForStandardExpression(invocationOperation);
 
         if (substituteOperation == null)
         {

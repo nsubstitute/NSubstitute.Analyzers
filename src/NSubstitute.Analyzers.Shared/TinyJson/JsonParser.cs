@@ -27,7 +27,7 @@ internal class JsonParser : IDisposable
     private StringReader _json;
 
     // temporary allocated
-    private StringBuilder _sb = new StringBuilder();
+    private StringBuilder _sb = new ();
 
     public static object ParseValue(string jsonString)
     {

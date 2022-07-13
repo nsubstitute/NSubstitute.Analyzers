@@ -10,7 +10,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 
 internal class ReEntrantCallFinder : AbstractReEntrantCallFinder<InvocationExpressionSyntax, IdentifierNameSyntax>
 {
-    public static ReEntrantCallFinder Instance { get; } = new ReEntrantCallFinder(SubstitutionNodeFinder.Instance);
+    public static ReEntrantCallFinder Instance { get; } = new (SubstitutionNodeFinder.Instance);
 
     private ReEntrantCallFinder(ISubstitutionNodeFinder substitutionNodeFinder)
         : base(substitutionNodeFinder)
@@ -53,8 +53,8 @@ internal class ReEntrantCallFinder : AbstractReEntrantCallFinder<InvocationExpre
         private readonly ReEntrantCallFinder _reEntrantCallFinder;
         private readonly Compilation _compilation;
         private readonly SemanticModel _semanticModel;
-        private readonly HashSet<SyntaxNode> _visitedNodes = new HashSet<SyntaxNode>();
-        private readonly List<ISymbol> _invocationSymbols = new List<ISymbol>();
+        private readonly HashSet<SyntaxNode> _visitedNodes = new ();
+        private readonly List<ISymbol> _invocationSymbols = new ();
 
         public ImmutableList<ISymbol> InvocationSymbols => _invocationSymbols.ToImmutableList();
 

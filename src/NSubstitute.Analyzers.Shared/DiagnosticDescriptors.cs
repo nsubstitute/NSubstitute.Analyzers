@@ -7,8 +7,7 @@ namespace NSubstitute.Analyzers.Shared;
 
 internal class DiagnosticDescriptors<T>
 {
-    private static readonly ResourceManager SpecificResourceManager =
-        new ResourceManager(
+    private static readonly ResourceManager SpecificResourceManager = new (
             $"{typeof(T).GetTypeInfo().Assembly.GetName().Name}.Resources",
             typeof(T).GetTypeInfo().Assembly);
 

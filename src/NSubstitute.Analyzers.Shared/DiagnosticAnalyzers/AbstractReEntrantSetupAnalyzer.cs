@@ -66,7 +66,7 @@ internal abstract class AbstractReEntrantSetupAnalyzer<TSyntaxKind, TInvocationE
         {
             var operation = syntaxNodeContext.SemanticModel.GetOperation(argument) as IArgumentOperation;
 
-            if (IsPassedByParamsArrayOfCallInfoFunc(syntaxNodeContext.SemanticModel, operation))
+            if (IsPassedByParamsArrayOfCallInfoFunc(syntaxNodeContext.SemanticModel.Compilation, operation))
             {
                 continue;
             }
@@ -129,11 +129,11 @@ internal abstract class AbstractReEntrantSetupAnalyzer<TSyntaxKind, TInvocationE
                argumentOperation.Parameter.Type is IArrayTypeSymbol;
     }
 
-    private bool IsPassedByParamsArrayOfCallInfoFunc(SemanticModel semanticModel, IArgumentOperation argumentOperation)
+    private bool IsPassedByParamsArrayOfCallInfoFunc(Compilation compilation, IArgumentOperation argumentOperation)
     {
         return IsPassedByParamsArray(argumentOperation) &&
                argumentOperation.Parameter.Type is IArrayTypeSymbol arrayTypeSymbol &&
                arrayTypeSymbol.ElementType is INamedTypeSymbol namedTypeSymbol &&
-               namedTypeSymbol.IsCallInfoDelegate(semanticModel);
+               namedTypeSymbol.IsCallInfoDelegate(compilation);
     }
 }

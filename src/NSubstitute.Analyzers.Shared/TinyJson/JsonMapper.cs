@@ -14,8 +14,8 @@ internal static class JsonMapper
 {
     private static Encoder genericEncoder;
     private static Decoder genericDecoder;
-    private static Dictionary<Type, Encoder> encoders = new Dictionary<Type, Encoder>();
-    private static Dictionary<Type, Decoder> decoders = new Dictionary<Type, Decoder>();
+    private static Dictionary<Type, Encoder> encoders = new ();
+    private static Dictionary<Type, Decoder> decoders = new ();
 
     internal static Encoder GenericEncoder { get => genericEncoder; set => genericEncoder = value; }
 

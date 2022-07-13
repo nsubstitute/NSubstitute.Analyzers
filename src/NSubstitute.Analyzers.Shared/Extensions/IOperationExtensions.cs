@@ -85,6 +85,8 @@ internal static class IOperationExtensions
                 .First() as ILiteralOperation,
             IPropertyReferenceOperation propertyReferenceOperation =>
                 propertyReferenceOperation.Arguments.First().Value as ILiteralOperation,
+            IInvocationOperation invocationOperation =>
+                invocationOperation.Arguments.First().Value as ILiteralOperation,
             _ => null
         };
 

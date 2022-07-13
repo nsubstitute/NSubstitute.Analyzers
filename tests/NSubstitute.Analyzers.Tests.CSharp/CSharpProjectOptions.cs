@@ -7,7 +7,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp;
 
 public class CSharpProjectOptions : ProjectOptions
 {
-    public static CSharpProjectOptions Default { get; } = new CSharpProjectOptions(
+    public static CSharpProjectOptions Default { get; } = new (
         RuntimeMetadataReference.Default,
         new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 

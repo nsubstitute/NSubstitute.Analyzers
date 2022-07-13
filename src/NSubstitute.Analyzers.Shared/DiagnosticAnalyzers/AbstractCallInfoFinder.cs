@@ -10,40 +10,53 @@ internal abstract class AbstractCallInfoFinder : ICallInfoFinder
 {
     public CallInfoContext GetCallInfoContext(IArgumentOperation argumentOperation)
     {
-        var indexVisitor = new IndexerVisitor();
-        indexVisitor.Visit(argumentOperation);
+        var callInfoContext = CallInfoContext.Empty;
+        foreach (var operation in GetCallInfoOperations(argumentOperation))
+        {
+            var callInfoParameterSymbol = GetCallInfoParameterSymbol(operation);
 
-        return new CallInfoContext(
-            indexVisitor.ArgAtInvocations,
-            indexVisitor.ArgInvocations,
-            indexVisitor.DirectIndexerAccesses);
+            if (callInfoParameterSymbol == null)
+            {
+               continue;
+            }
+
+            var indexVisitor = new CallInfoVisitor();
+            indexVisitor.Visit(argumentOperation);
+
+            var currentContext = new CallInfoContext(
+                indexVisitor.ArgAtInvocations,
+                indexVisitor.ArgInvocations,
+                indexVisitor.DirectIndexerAccesses);
+
+            callInfoContext =
+                callInfoContext.Merge(CreateFilteredCallInfoContext(currentContext, callInfoParameterSymbol));
+        }
+
+        return callInfoContext;
     }
 
     private static CallInfoContext CreateFilteredCallInfoContext(
-        SemanticModel semanticModel,
         CallInfoContext callContext,
         IParameterSymbol callInfoParameterSymbol)
     {
         return new CallInfoContext(
-            argAtInvocations: GetMatchingNodes(semanticModel, callContext.ArgAtInvocations, callInfoParameterSymbol),
-            argInvocations: GetMatchingNodes(semanticModel, callContext.ArgInvocations, callInfoParameterSymbol),
-            indexerAccesses: GetMatchingNodes(semanticModel, callContext.IndexerAccesses, callInfoParameterSymbol));
+            argAtInvocations: GetMatchingNodes(callContext.ArgAtInvocationsOperations, callInfoParameterSymbol),
+            argInvocations: GetMatchingNodes(callContext.ArgInvocationsOperations, callInfoParameterSymbol),
+            indexerAccesses: GetMatchingNodes(callContext.IndexerAccessesOperations, callInfoParameterSymbol));
     }
 
     private static IReadOnlyList<T> GetMatchingNodes<T>(
-        SemanticModel semanticModel,
         IReadOnlyList<T> nodes,
-        IParameterSymbol parameterSymbol) where T : SyntaxNode
+        IParameterSymbol parameterSymbol) where T : IOperation
     {
-        return nodes.Where(node => HasMatchingParameterReference(semanticModel, node, parameterSymbol)).ToList();
+        return nodes.Where(node => HasMatchingParameterReference(node, parameterSymbol)).ToList();
     }
 
     private static bool HasMatchingParameterReference(
-        SemanticModel semanticModel,
-        SyntaxNode syntaxNode,
+        IOperation operation,
         IParameterSymbol callInfoParameterSymbol)
     {
-        var parameterReferenceOperation = FindMatchingParameterReference(semanticModel, syntaxNode);
+        var parameterReferenceOperation = FindMatchingParameterReference(operation);
 
         return parameterReferenceOperation != null &&
                parameterReferenceOperation.Parameter.Equals(callInfoParameterSymbol);
@@ -85,23 +98,41 @@ internal abstract class AbstractCallInfoFinder : ICallInfoFinder
         return null;
     }
 
-    private static IParameterSymbol GetCallInfoParameterSymbol(SemanticModel semanticModel, SyntaxNode syntaxNode)
+    private static IEnumerable<IOperation> GetCallInfoOperations(IArgumentOperation argumentOperation)
     {
-        if (semanticModel.GetSymbolInfo(syntaxNode).Symbol is IMethodSymbol methodSymbol && methodSymbol.MethodKind != MethodKind.Constructor)
+        if (!argumentOperation.Parameter.IsParams)
         {
-            return methodSymbol.Parameters.FirstOrDefault();
+            yield return argumentOperation.Value;
+            yield break;
         }
 
-        return null;
+        var initializerElementValues =
+            (argumentOperation.Value as IArrayCreationOperation)?.Initializer.ElementValues;
+
+        foreach (var operation in initializerElementValues ?? Enumerable.Empty<IOperation>())
+        {
+            yield return operation;
+        }
     }
 
-    private class IndexerVisitor : OperationWalker
+    private static IParameterSymbol GetCallInfoParameterSymbol(IOperation operation)
+    {
+        return operation switch
+        {
+            IInvocationOperation invocationOperation => invocationOperation.TargetMethod.Parameters.FirstOrDefault(),
+            IDelegateCreationOperation delegateCreationOperation => GetCallInfoParameterSymbol(delegateCreationOperation.Target),
+            IAnonymousFunctionOperation anonymousFunctionOperation => anonymousFunctionOperation.Symbol.Parameters.FirstOrDefault(),
+            _ => null
+        };
+    }
+
+    private class CallInfoVisitor : OperationWalker
     {
         public List<IInvocationOperation> ArgAtInvocations { get; } = new ();
 
         public List<IInvocationOperation> ArgInvocations { get; } = new ();
 
-        public List<IPropertyReferenceOperation> DirectIndexerAccesses { get; } = new ();
+        public List<IOperation> DirectIndexerAccesses { get; } = new ();
 
         public override void VisitInvocation(IInvocationOperation operation)
         {
@@ -129,6 +160,23 @@ internal abstract class AbstractCallInfoFinder : ICallInfoFinder
             }
 
             base.VisitPropertyReference(operation);
+        }
+
+        public override void VisitArrayElementReference(IArrayElementReferenceOperation operation)
+        {
+            ISymbol arrayReferenceSymbol = operation.ArrayReference switch
+            {
+                IInvocationOperation invocationOperation => invocationOperation.TargetMethod,
+                IPropertyReferenceOperation propertyReferenceOperation => propertyReferenceOperation.Property,
+                _ => null
+            };
+
+            if (arrayReferenceSymbol != null && arrayReferenceSymbol.ContainingType.IsCallInfoSymbol())
+            {
+               DirectIndexerAccesses.Add(operation);
+            }
+
+            base.VisitArrayElementReference(operation);
         }
     }
 }
