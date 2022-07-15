@@ -3,20 +3,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders;
 
-internal abstract class AbstractSubstituteForInternalMemberCodeFixProvider<TInvocationExpressionSyntax, TExpressionSyntax, TCompilationUnitSyntax> : AbstractSuppressDiagnosticsCodeFixProvider
+internal abstract class AbstractSubstituteForInternalMemberCodeFixProvider<TInvocationExpressionSyntax, TCompilationUnitSyntax> : AbstractSuppressDiagnosticsCodeFixProvider
     where TInvocationExpressionSyntax : SyntaxNode
-    where TExpressionSyntax : SyntaxNode
     where TCompilationUnitSyntax : SyntaxNode
 {
-    private readonly ISubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> _substituteProxyAnalysis;
+    private readonly ISubstituteProxyAnalysis _substituteProxyAnalysis;
 
     public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.SubstituteForInternalMember);
 
-    protected AbstractSubstituteForInternalMemberCodeFixProvider(ISubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> substituteProxyAnalysis)
+    protected AbstractSubstituteForInternalMemberCodeFixProvider(ISubstituteProxyAnalysis substituteProxyAnalysis)
     {
         _substituteProxyAnalysis = substituteProxyAnalysis;
     }
@@ -60,8 +60,8 @@ internal abstract class AbstractSubstituteForInternalMemberCodeFixProvider<TInvo
     private async Task<SyntaxReference> GetDeclaringSyntaxReference(CodeFixContext context, TInvocationExpressionSyntax invocationExpression)
     {
         var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
-        var methodSymbol = semanticModel.GetSymbolInfo(invocationExpression).Symbol as IMethodSymbol;
-        var actualProxyTypeSymbol = _substituteProxyAnalysis.GetActualProxyTypeSymbol(semanticModel, invocationExpression, methodSymbol);
+        var invocationOperation = semanticModel.GetOperation(invocationExpression) as IInvocationOperation;
+        var actualProxyTypeSymbol = _substituteProxyAnalysis.GetActualProxyTypeSymbol(invocationOperation);
         var syntaxReference = actualProxyTypeSymbol.DeclaringSyntaxReferences.FirstOrDefault();
         return syntaxReference;
     }

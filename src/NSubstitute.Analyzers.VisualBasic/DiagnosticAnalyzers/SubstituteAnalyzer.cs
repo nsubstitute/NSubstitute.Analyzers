@@ -9,10 +9,8 @@ using static Microsoft.CodeAnalysis.VisualBasic.SyntaxFactory;
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 
 [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
-internal sealed class SubstituteAnalyzer : AbstractSubstituteAnalyzer<SyntaxKind, InvocationExpressionSyntax, ExpressionSyntax, ArgumentSyntax>
+internal sealed class SubstituteAnalyzer : AbstractSubstituteAnalyzer<InvocationExpressionSyntax>
 {
-    protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
-
     public SubstituteAnalyzer()
         : base(NSubstitute.Analyzers.VisualBasic.DiagnosticDescriptorsProvider.Instance, SubstituteProxyAnalysis.Instance, SubstituteConstructorAnalysis.Instance, SubstituteConstructorMatcher.Instance)
     {

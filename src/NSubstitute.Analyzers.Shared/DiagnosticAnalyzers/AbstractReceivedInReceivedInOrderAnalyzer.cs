@@ -30,9 +30,9 @@ internal abstract class AbstractReceivedInReceivedInOrderAnalyzer : AbstractDiag
         context.RegisterOperationAction(_analyzeInvocationAction, OperationKind.Invocation);
     }
 
-    private void AnalyzeInvocation(OperationAnalysisContext operationAnalysisContext)
+    private void AnalyzeInvocation(OperationAnalysisContext context)
     {
-        if (operationAnalysisContext.Operation is not IInvocationOperation invocationOperation)
+        if (context.Operation is not IInvocationOperation invocationOperation)
         {
             return;
         }
@@ -43,7 +43,7 @@ internal abstract class AbstractReceivedInReceivedInOrderAnalyzer : AbstractDiag
         }
 
         foreach (var operation in _substitutionNodeFinder.FindForReceivedInOrderExpression(
-                     operationAnalysisContext,
+                     context.Compilation,
                      invocationOperation,
                      includeAll: true).OfType<IInvocationOperation>())
         {
@@ -57,7 +57,7 @@ internal abstract class AbstractReceivedInReceivedInOrderAnalyzer : AbstractDiag
                 operation.Syntax.GetLocation(),
                 operation.TargetMethod.Name);
 
-            operationAnalysisContext.ReportDiagnostic(diagnostic);
+            context.ReportDiagnostic(diagnostic);
         }
     }
 }

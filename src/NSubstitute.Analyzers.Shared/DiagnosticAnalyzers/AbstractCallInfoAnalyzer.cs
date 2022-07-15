@@ -278,7 +278,8 @@ internal abstract class AbstractCallInfoAnalyzer : AbstractDiagnosticAnalyzer
 
     private IReadOnlyList<IArgumentOperation> GetSubstituteCallArgumentOperations(OperationAnalysisContext operationAnalysisContext, IInvocationOperation invocationOperation)
     {
-        var substituteOperation = _substitutionNodeFinder.Find(operationAnalysisContext, invocationOperation).FirstOrDefault();
+        var substituteOperation = _substitutionNodeFinder
+            .Find(operationAnalysisContext.Compilation, invocationOperation).FirstOrDefault();
 
         if (substituteOperation == null)
         {

@@ -9,14 +9,12 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-internal sealed class SubstituteAnalyzer : AbstractSubstituteAnalyzer<SyntaxKind, InvocationExpressionSyntax, ExpressionSyntax, ArgumentSyntax>
+internal sealed class SubstituteAnalyzer : AbstractSubstituteAnalyzer<InvocationExpressionSyntax>
 {
     public SubstituteAnalyzer()
         : base(NSubstitute.Analyzers.CSharp.DiagnosticDescriptorsProvider.Instance, SubstituteProxyAnalysis.Instance, SubstituteConstructorAnalysis.Instance, SubstituteConstructorMatcher.Instance)
     {
     }
-
-    protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
     protected override InvocationExpressionSyntax GetCorrespondingSubstituteInvocationExpressionSyntax(InvocationExpressionSyntax invocationExpressionSyntax, string substituteName)
     {

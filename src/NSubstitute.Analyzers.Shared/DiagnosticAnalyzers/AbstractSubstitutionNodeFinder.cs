@@ -2,16 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractSubstitutionNodeFinder : ISubstitutionNodeFinder
+internal class SubstitutionNodeFinder : ISubstitutionNodeFinder
 {
+    public static SubstitutionNodeFinder Instance { get; } = new ();
+
     public IEnumerable<IOperation> Find(
-        OperationAnalysisContext operationAnalysisContext,
+        Compilation compilation,
         IInvocationOperation invocationOperation)
     {
         if (invocationOperation == null)
@@ -30,18 +31,18 @@ internal abstract class AbstractSubstitutionNodeFinder : ISubstitutionNodeFinder
         if (invocationExpressionSymbol.Name.Equals(MetadataNames.NSubstituteDoMethod, StringComparison.Ordinal))
         {
             var operation = invocationOperation.GetSubstituteOperation();
-            return FindForWhenExpression(operationAnalysisContext, operation as IInvocationOperation);
+            return FindForWhenExpression(compilation, operation as IInvocationOperation);
         }
 
         if (invocationExpressionSymbol.Name.Equals(MetadataNames.NSubstituteWhenMethod, StringComparison.Ordinal) ||
             invocationExpressionSymbol.Name.Equals(MetadataNames.NSubstituteWhenForAnyArgsMethod, StringComparison.Ordinal))
         {
-            return FindForWhenExpression(operationAnalysisContext, invocationOperation);
+            return FindForWhenExpression(compilation, invocationOperation);
         }
 
         if (invocationExpressionSymbol.Name.Equals(MetadataNames.NSubstituteAndDoesMethod, StringComparison.Ordinal))
         {
-            var substitution = FindForAndDoesExpression(operationAnalysisContext, invocationOperation);
+            var substitution = FindForAndDoesExpression(invocationOperation);
             return substitution != null ? new[] { substitution } : Enumerable.Empty<IOperation>();
         }
 
@@ -50,14 +51,14 @@ internal abstract class AbstractSubstitutionNodeFinder : ISubstitutionNodeFinder
         return standardSubstitution != null ? new[] { standardSubstitution } : Enumerable.Empty<IOperation>();
     }
 
-    public IEnumerable<IOperation> FindForWhenExpression(OperationAnalysisContext operationAnalysisContext, IInvocationOperation invocationOperation)
+    public IEnumerable<IOperation> FindForWhenExpression(Compilation compilation, IInvocationOperation invocationOperation)
     {
         if (invocationOperation == null)
         {
             yield break;
         }
 
-        var whenVisitor = new WhenVisitor(operationAnalysisContext, invocationOperation);
+        var whenVisitor = new WhenVisitor(compilation, invocationOperation);
         whenVisitor.Visit();
 
         var typeSymbol = invocationOperation.TargetMethod.TypeArguments.FirstOrDefault() ??
@@ -74,19 +75,12 @@ internal abstract class AbstractSubstitutionNodeFinder : ISubstitutionNodeFinder
         }
     }
 
-    public IOperation FindForAndDoesExpression(OperationAnalysisContext syntaxNodeContext, IInvocationOperation invocationOperation)
+    public IEnumerable<IOperation> FindForReceivedInOrderExpression(
+        Compilation compilation,
+        IInvocationOperation invocationOperation,
+        bool includeAll = false)
     {
-        if (invocationOperation.GetSubstituteOperation() is not IInvocationOperation parentInvocationOperation)
-        {
-            return null;
-        }
-
-        return FindForStandardExpression(parentInvocationOperation);
-    }
-
-    public IEnumerable<IOperation> FindForReceivedInOrderExpression(OperationAnalysisContext operationAnalysisContext, IInvocationOperation invocationOperation, bool includeAll = false)
-    {
-        var visitor = new WhenVisitor(operationAnalysisContext, invocationOperation, includeAll);
+        var visitor = new WhenVisitor(compilation, invocationOperation, includeAll);
         visitor.Visit();
 
         return visitor.Operations;
@@ -124,9 +118,19 @@ internal abstract class AbstractSubstitutionNodeFinder : ISubstitutionNodeFinder
         return symbol;
     }
 
+    private IOperation FindForAndDoesExpression(IInvocationOperation invocationOperation)
+    {
+        if (invocationOperation.GetSubstituteOperation() is not IInvocationOperation parentInvocationOperation)
+        {
+            return null;
+        }
+
+        return FindForStandardExpression(parentInvocationOperation);
+    }
+
     private class WhenVisitor : OperationWalker
     {
-        private readonly OperationAnalysisContext _operationAnalysisContext;
+        private readonly Compilation _compilation;
         private readonly IInvocationOperation _whenInvocationOperation;
         private readonly bool _includeAll;
         private readonly HashSet<IOperation> _operations = new ();
@@ -134,11 +138,11 @@ internal abstract class AbstractSubstitutionNodeFinder : ISubstitutionNodeFinder
         private readonly Dictionary<SyntaxTree, SemanticModel> _semanticModelCache = new (1);
 
         public WhenVisitor(
-            OperationAnalysisContext operationAnalysisContext,
+            Compilation compilation,
             IInvocationOperation whenInvocationOperation,
             bool includeAll = false)
         {
-            _operationAnalysisContext = operationAnalysisContext;
+            _compilation = compilation;
             _whenInvocationOperation = whenInvocationOperation;
             _includeAll = includeAll;
         }
@@ -209,7 +213,7 @@ internal abstract class AbstractSubstitutionNodeFinder : ISubstitutionNodeFinder
                 return semanticModel;
             }
 
-            semanticModel = _operationAnalysisContext.Compilation.GetSemanticModel(syntaxTree);
+            semanticModel = _compilation.GetSemanticModel(syntaxTree);
             _semanticModelCache[syntaxTree] = semanticModel;
 
             return semanticModel;

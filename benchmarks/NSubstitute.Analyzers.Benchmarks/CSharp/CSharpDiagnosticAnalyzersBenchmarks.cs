@@ -60,6 +60,6 @@ public class CSharpDiagnosticAnalyzersBenchmarks : AbstractDiagnosticAnalyzersBe
         ReceivedInReceivedInOrderAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new ReceivedInReceivedInOrderAnalyzer());
         AsyncReceivedInOrderCallbackAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new AsyncReceivedInOrderCallbackAnalyzer());
         SyncOverAsyncThrowsAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new SyncOverAsyncThrowsAnalyzer());
-        WithAnyArgsAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new WithAnyArgsArgumentMatcherAnalyzer());
+    WithAnyArgsAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new WithAnyArgsArgumentMatcherAnalyzer());
     }
 }

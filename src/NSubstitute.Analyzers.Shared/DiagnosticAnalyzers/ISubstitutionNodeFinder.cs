@@ -7,11 +7,11 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 internal interface ISubstitutionNodeFinder
 {
-    IEnumerable<IOperation> Find(OperationAnalysisContext operationAnalysisContext, IInvocationOperation invocationOperation);
+    IEnumerable<IOperation> Find(Compilation compilation, IInvocationOperation invocationOperation);
 
-    IEnumerable<IOperation> FindForWhenExpression(OperationAnalysisContext operationAnalysisContext, IInvocationOperation invocationOperation);
+    IEnumerable<IOperation> FindForWhenExpression(Compilation compilation, IInvocationOperation invocationOperation);
 
-    IEnumerable<IOperation> FindForReceivedInOrderExpression(OperationAnalysisContext operationAnalysisContext, IInvocationOperation invocationOperation, bool includeAll = false);
+    IEnumerable<IOperation> FindForReceivedInOrderExpression(Compilation compilation, IInvocationOperation invocationOperation, bool includeAll = false);
 
     IOperation FindForStandardExpression(IInvocationOperation invocationOperation);
 }

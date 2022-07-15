@@ -36,9 +36,9 @@ internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer : AbstractNon
         context.RegisterOperationAction(_analyzeInvocationAction, OperationKind.Invocation);
     }
 
-    private void AnalyzeInvocation(OperationAnalysisContext operationAnalysisContext)
+    private void AnalyzeInvocation(OperationAnalysisContext context)
     {
-        if (operationAnalysisContext.Operation is not IInvocationOperation invocationOperation)
+        if (context.Operation is not IInvocationOperation invocationOperation)
         {
             return;
         }
@@ -48,10 +48,10 @@ internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer : AbstractNon
             return;
         }
 
-        var operations = _substitutionNodeFinder.FindForWhenExpression(operationAnalysisContext, invocationOperation);
+        var operations = _substitutionNodeFinder.FindForWhenExpression(context.Compilation, invocationOperation);
         foreach (var operation in operations)
         {
-            Analyze(operationAnalysisContext, operation);
+            Analyze(context, operation);
         }
     }
 }

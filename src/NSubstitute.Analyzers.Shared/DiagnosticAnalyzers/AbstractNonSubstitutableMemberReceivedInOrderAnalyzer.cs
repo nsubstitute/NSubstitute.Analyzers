@@ -55,7 +55,7 @@ internal abstract class AbstractNonSubstitutableMemberReceivedInOrderAnalyzer : 
         }
 
         foreach (var syntaxNode in _substitutionNodeFinder
-                     .FindForReceivedInOrderExpression(operationAnalysisContext, invocationOperation)
+                     .FindForReceivedInOrderExpression(operationAnalysisContext.Compilation, invocationOperation)
                      .Where(operation => ShouldAnalyzeNode(operationAnalysisContext, operation)))
         {
             Analyze(operationAnalysisContext, syntaxNode);

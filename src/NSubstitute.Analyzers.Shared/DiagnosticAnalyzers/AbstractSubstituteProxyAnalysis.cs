@@ -1,59 +1,53 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractSubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> :
-    ISubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax>
-    where TInvocationExpressionSyntax : SyntaxNode where TExpressionSyntax : SyntaxNode
+internal class SubstituteProxyAnalysis : ISubstituteProxyAnalysis
 {
-    public ITypeSymbol GetActualProxyTypeSymbol(SubstituteContext<TInvocationExpressionSyntax> substituteContext)
-    {
-        return GetActualProxyTypeSymbol(substituteContext.SyntaxNodeAnalysisContext.SemanticModel, substituteContext.InvocationExpression, substituteContext.MethodSymbol);
-    }
+    public static SubstituteProxyAnalysis Instance { get; } = new ();
 
-    public ImmutableArray<ITypeSymbol> GetProxySymbols(SubstituteContext<TInvocationExpressionSyntax> substituteContext)
+    public ITypeSymbol GetActualProxyTypeSymbol(IInvocationOperation invocationOperation)
     {
-        return GetProxySymbols(substituteContext.SyntaxNodeAnalysisContext.SemanticModel, substituteContext.InvocationExpression, substituteContext.MethodSymbol);
-    }
-
-    public ITypeSymbol GetActualProxyTypeSymbol(SemanticModel semanticModel, TInvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol methodSymbol)
-    {
-        var proxies = GetProxySymbols(semanticModel, invocationExpressionSyntax, methodSymbol).ToList();
+        var proxies = GetProxySymbols(invocationOperation).ToList();
 
         var classSymbol = proxies.FirstOrDefault(symbol => symbol.TypeKind == TypeKind.Class);
 
         return classSymbol ?? proxies.FirstOrDefault();
     }
 
-    public ImmutableArray<ITypeSymbol> GetProxySymbols(SemanticModel semanticModel, TInvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol methodSymbol)
+    public ImmutableArray<ITypeSymbol> GetProxySymbols(IInvocationOperation invocationOperation)
     {
-        if (methodSymbol.IsGenericMethod)
+        if (invocationOperation.TargetMethod.IsGenericMethod)
         {
-            return methodSymbol.TypeArguments;
+            return invocationOperation.TargetMethod.TypeArguments;
         }
 
-        var arrayParameters = GetArrayInitializerArguments(invocationExpressionSyntax)?.ToList();
+        var arrayParameters = GetArrayInitializerArguments(invocationOperation);
 
         if (arrayParameters == null)
         {
             return ImmutableArray<ITypeSymbol>.Empty;
         }
 
-        var proxyTypes = GetTypeOfLikeExpressions(arrayParameters)
-            .Select(exp =>
-                semanticModel
-                    .GetTypeInfo(exp.DescendantNodes().First()))
-            .Where(model => model.Type != null)
-            .Select(model => model.Type)
+        var proxyTypes = arrayParameters.ElementValues.OfType<ITypeOfOperation>()
+            .Select(typeOfOperation => typeOfOperation.TypeOperand)
             .ToImmutableArray();
 
-        return arrayParameters.Count == proxyTypes.Length ? proxyTypes : ImmutableArray<ITypeSymbol>.Empty;
+        // get typeof like expressions
+        return arrayParameters.ElementValues.Length == proxyTypes.Length
+            ? proxyTypes
+            : ImmutableArray<ITypeSymbol>.Empty;
     }
 
-    protected abstract IEnumerable<TExpressionSyntax> GetTypeOfLikeExpressions(IList<TExpressionSyntax> arrayParameters);
-
-    protected abstract IEnumerable<TExpressionSyntax> GetArrayInitializerArguments(TInvocationExpressionSyntax invocationExpressionSyntax);
+    private IArrayInitializerOperation GetArrayInitializerArguments(IInvocationOperation invocationOperation)
+    {
+        return invocationOperation.Arguments.FirstOrDefault()?.Value switch
+        {
+            IArrayCreationOperation operation => operation.Initializer,
+            _ => null
+        };
+    }
 }
