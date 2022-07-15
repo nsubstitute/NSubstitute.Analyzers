@@ -55,7 +55,7 @@ internal abstract class AbstractSubstituteConstructorMatcher : ISubstituteConstr
                    ClassifyConversion(compilation, invocationParameters[symbol.Ordinal], symbol.Type);
         }
 
-        if (!(symbol.Type is IArrayTypeSymbol arrayTypeSymbol))
+        if (symbol.Type is not IArrayTypeSymbol arrayTypeSymbol)
         {
             return false;
         }

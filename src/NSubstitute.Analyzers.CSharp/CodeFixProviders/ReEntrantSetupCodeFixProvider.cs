@@ -34,25 +34,15 @@ internal sealed class ReEntrantSetupCodeFixProvider : AbstractReEntrantSetupCode
         ArgumentSyntax argumentSyntaxNode)
     {
         var expression = argumentSyntaxNode.Expression;
-        ArrayCreationExpressionSyntax resultArrayCreationExpressionSyntax;
 
-        switch (expression)
+        var resultArrayCreationExpressionSyntax = expression switch
         {
-            case ArrayCreationExpressionSyntax arrayCreationExpressionSyntax:
-                resultArrayCreationExpressionSyntax = CreateArrayCreationExpression(
-                    syntaxGenerator,
-                    typeSymbol,
-                    arrayCreationExpressionSyntax.Initializer);
-                break;
-            case ImplicitArrayCreationExpressionSyntax implicitArrayCreationExpressionSyntax:
-                resultArrayCreationExpressionSyntax = CreateArrayCreationExpression(
-                    syntaxGenerator,
-                    typeSymbol,
-                    implicitArrayCreationExpressionSyntax.Initializer);
-                break;
-            default:
-                throw new ArgumentException($"{argumentSyntaxNode.Kind()} is not recognized as array initialization", nameof(argumentSyntaxNode));
-        }
+            ArrayCreationExpressionSyntax arrayCreationExpressionSyntax => CreateArrayCreationExpression(
+                syntaxGenerator, typeSymbol, arrayCreationExpressionSyntax.Initializer),
+            ImplicitArrayCreationExpressionSyntax implicitArrayCreationExpressionSyntax =>
+                CreateArrayCreationExpression(syntaxGenerator, typeSymbol, implicitArrayCreationExpressionSyntax.Initializer),
+            _ => throw new ArgumentException($"{argumentSyntaxNode.Kind()} is not recognized as array initialization", nameof(argumentSyntaxNode))
+        };
 
         return argumentSyntaxNode.WithExpression(resultArrayCreationExpressionSyntax);
     }

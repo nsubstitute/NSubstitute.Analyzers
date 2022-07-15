@@ -9,7 +9,7 @@ using NSubstitute.Analyzers.VisualBasic.Refactorings;
 namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders;
 
 [ExportCodeFixProvider(LanguageNames.VisualBasic)]
-internal sealed class SubstituteForInternalMemberCodeFixProvider : AbstractSubstituteForInternalMemberCodeFixProvider<InvocationExpressionSyntax, CompilationUnitSyntax>
+internal sealed class SubstituteForInternalMemberCodeFixProvider : AbstractSubstituteForInternalMemberCodeFixProvider<CompilationUnitSyntax>
 {
     public SubstituteForInternalMemberCodeFixProvider()
         : base(SubstituteProxyAnalysis.Instance)

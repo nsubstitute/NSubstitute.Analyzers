@@ -3,21 +3,23 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-internal sealed class SubstituteAnalyzer : AbstractSubstituteAnalyzer<InvocationExpressionSyntax>
+internal sealed class SubstituteAnalyzer : AbstractSubstituteAnalyzer
 {
     public SubstituteAnalyzer()
         : base(NSubstitute.Analyzers.CSharp.DiagnosticDescriptorsProvider.Instance, SubstituteProxyAnalysis.Instance, SubstituteConstructorAnalysis.Instance, SubstituteConstructorMatcher.Instance)
     {
     }
 
-    protected override InvocationExpressionSyntax GetCorrespondingSubstituteInvocationExpressionSyntax(InvocationExpressionSyntax invocationExpressionSyntax, string substituteName)
+    protected override SyntaxNode GetCorrespondingSubstituteInvocationExpressionSyntax(IInvocationOperation invocationOperation, string substituteName)
     {
+        var invocationExpressionSyntax = (InvocationExpressionSyntax)invocationOperation.Syntax;
         var memberAccessExpressionSyntax = (MemberAccessExpressionSyntax)invocationExpressionSyntax.Expression;
 
         return invocationExpressionSyntax.WithExpression(
@@ -25,11 +27,11 @@ internal sealed class SubstituteAnalyzer : AbstractSubstituteAnalyzer<Invocation
                 memberAccessExpressionSyntax.Name.WithIdentifier(Identifier(substituteName))));
     }
 
-    protected override InvocationExpressionSyntax GetSubstituteInvocationExpressionSyntaxWithoutConstructorArguments(
-        InvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol methodSymbol)
+    protected override SyntaxNode GetSubstituteInvocationExpressionSyntaxWithoutConstructorArguments(IInvocationOperation invocationOperation)
     {
+        var invocationExpressionSyntax = (InvocationExpressionSyntax)invocationOperation.Syntax;
         ArgumentListSyntax argumentListSyntax;
-        if (methodSymbol.IsGenericMethod)
+        if (invocationOperation.TargetMethod.IsGenericMethod)
         {
             argumentListSyntax = ArgumentList();
         }

@@ -8,7 +8,7 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractSubstituteAnalyzer<TInvocationExpressionSyntax> : AbstractDiagnosticAnalyzer where TInvocationExpressionSyntax : SyntaxNode
+internal abstract class AbstractSubstituteAnalyzer : AbstractDiagnosticAnalyzer
 {
     private readonly ISubstituteProxyAnalysis _substituteProxyAnalysis;
     private readonly ISubstituteConstructorAnalysis _substituteConstructorAnalysis;
@@ -38,9 +38,9 @@ internal abstract class AbstractSubstituteAnalyzer<TInvocationExpressionSyntax> 
             DiagnosticDescriptorsProvider.SubstituteConstructorArgumentsForDelegate);
     }
 
-    protected abstract TInvocationExpressionSyntax GetCorrespondingSubstituteInvocationExpressionSyntax(TInvocationExpressionSyntax invocationExpressionSyntax, string substituteName);
+    protected abstract SyntaxNode GetCorrespondingSubstituteInvocationExpressionSyntax(IInvocationOperation invocationOperation, string substituteName);
 
-    protected abstract TInvocationExpressionSyntax GetSubstituteInvocationExpressionSyntaxWithoutConstructorArguments(TInvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol methodSymbol);
+    protected abstract SyntaxNode GetSubstituteInvocationExpressionSyntaxWithoutConstructorArguments(IInvocationOperation invocationOperation);
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
@@ -93,7 +93,7 @@ internal abstract class AbstractSubstituteAnalyzer<TInvocationExpressionSyntax> 
             return;
         }
 
-        if (AnalyzeTypeAccessability(substituteContext, proxyType))
+        if (AnalyzeTypeAccessibility(substituteContext, proxyType))
         {
             return;
         }
@@ -121,7 +121,7 @@ internal abstract class AbstractSubstituteAnalyzer<TInvocationExpressionSyntax> 
             return;
         }
 
-        if (AnalyzeTypeAccessability(substituteContext, proxyType))
+        if (AnalyzeTypeAccessibility(substituteContext, proxyType))
         {
             return;
         }
@@ -176,7 +176,7 @@ internal abstract class AbstractSubstituteAnalyzer<TInvocationExpressionSyntax> 
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.SubstituteConstructorArgumentsForInterface,
                     substituteContext.InvocationOperation.Syntax.GetLocation(),
-                    GetSubstituteMethodWithoutConstructorArguments(substituteContext.InvocationOperation.Syntax, substituteContext.InvocationOperation.TargetMethod));
+                    GetSubstituteInvocationExpressionSyntaxWithoutConstructorArguments(substituteContext.InvocationOperation));
 
                 substituteContext.OperationAnalysisContext.ReportDiagnostic(diagnostic);
                 return true;
@@ -186,7 +186,7 @@ internal abstract class AbstractSubstituteAnalyzer<TInvocationExpressionSyntax> 
                 var delegateDiagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.SubstituteConstructorArgumentsForDelegate,
                     substituteContext.InvocationOperation.Syntax.GetLocation(),
-                    GetSubstituteMethodWithoutConstructorArguments(substituteContext.InvocationOperation.Syntax, substituteContext.InvocationOperation.TargetMethod));
+                    GetSubstituteInvocationExpressionSyntaxWithoutConstructorArguments(substituteContext.InvocationOperation));
 
                 substituteContext.OperationAnalysisContext.ReportDiagnostic(delegateDiagnostic);
                 return true;
@@ -212,12 +212,12 @@ internal abstract class AbstractSubstituteAnalyzer<TInvocationExpressionSyntax> 
 
     private bool AnalyzeTypeKind(SubstituteContext substituteContext, ITypeSymbol proxyType)
     {
-        if (proxyType.TypeKind == TypeKind.Interface || proxyType.TypeKind == TypeKind.Delegate)
+        if (proxyType.TypeKind is TypeKind.Interface or TypeKind.Delegate)
         {
             var diagnostic = Diagnostic.Create(
                 DiagnosticDescriptorsProvider.PartialSubstituteForUnsupportedType,
                 substituteContext.InvocationOperation.Syntax.GetLocation(),
-                GetCorrespondingSubstituteMethod(substituteContext.InvocationOperation.Syntax, substituteContext.InvocationOperation.TargetMethod),
+                GetCorrespondingSubstituteMethod(substituteContext.InvocationOperation),
                 substituteContext.InvocationOperation.Syntax);
 
             substituteContext.OperationAnalysisContext.ReportDiagnostic(diagnostic);
@@ -227,7 +227,7 @@ internal abstract class AbstractSubstituteAnalyzer<TInvocationExpressionSyntax> 
         return false;
     }
 
-    private bool AnalyzeTypeAccessability(SubstituteContext substituteContext, ITypeSymbol proxyType)
+    private bool AnalyzeTypeAccessibility(SubstituteContext substituteContext, ITypeSymbol proxyType)
     {
         if (proxyType.DeclaredAccessibility == Accessibility.Internal && proxyType.InternalsVisibleToProxyGenerator() == false)
         {
@@ -285,23 +285,17 @@ internal abstract class AbstractSubstituteAnalyzer<TInvocationExpressionSyntax> 
         return false;
     }
 
-    private string GetCorrespondingSubstituteMethod(SyntaxNode syntaxNode, IMethodSymbol methodSymbol)
+    private string GetCorrespondingSubstituteMethod(IInvocationOperation invocationOperation)
     {
-        var invocationExpressionSyntax = (TInvocationExpressionSyntax)syntaxNode;
-        switch (methodSymbol.Name)
+        return invocationOperation.TargetMethod.Name switch
         {
-            case MetadataNames.SubstituteFactoryCreatePartial:
-                return GetCorrespondingSubstituteInvocationExpressionSyntax(invocationExpressionSyntax, MetadataNames.SubstituteFactoryCreate).ToString();
-            case MetadataNames.NSubstituteForPartsOfMethod:
-                return GetCorrespondingSubstituteInvocationExpressionSyntax(invocationExpressionSyntax, MetadataNames.NSubstituteForMethod).ToString();
-            default:
-                return string.Empty;
-        }
-    }
-
-    private string GetSubstituteMethodWithoutConstructorArguments(SyntaxNode invocationExpressionSyntax, IMethodSymbol methodSymbol)
-    {
-        return GetSubstituteInvocationExpressionSyntaxWithoutConstructorArguments(
-            (TInvocationExpressionSyntax)invocationExpressionSyntax, methodSymbol).ToString();
+            MetadataNames.SubstituteFactoryCreatePartial => GetCorrespondingSubstituteInvocationExpressionSyntax(
+                    invocationOperation, MetadataNames.SubstituteFactoryCreate)
+                .ToString(),
+            MetadataNames.NSubstituteForPartsOfMethod => GetCorrespondingSubstituteInvocationExpressionSyntax(
+                    invocationOperation, MetadataNames.NSubstituteForMethod)
+                .ToString(),
+            _ => string.Empty
+        };
     }
 }

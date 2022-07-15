@@ -7,13 +7,20 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Operations;
+using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders;
 
-internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationExpressionSyntax> : CodeFixProvider
-    where TInvocationExpressionSyntax : SyntaxNode
+internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider : CodeFixProvider
 {
+    private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
+
+    protected AbstractSyncOverAsyncThrowsCodeFixProvider(ISubstitutionNodeFinder substitutionNodeFinder)
+    {
+        _substitutionNodeFinder = substitutionNodeFinder;
+    }
+
     public override ImmutableArray<string> FixableDiagnosticIds { get; } =
         ImmutableArray.Create(DiagnosticIdentifiers.SyncOverAsyncThrows);
 
@@ -31,8 +38,7 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationEx
 
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
-        if (!(root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true) is
-                TInvocationExpressionSyntax invocation))
+        if (root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true) is not { } invocation)
         {
             return;
         }
@@ -51,19 +57,17 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationEx
         var codeAction = CodeAction.Create(
             $"Replace with {replacementMethod}",
             ct => CreateChangedDocument(context, semanticModel, invocation, methodSymbol, supportsThrowsAsync, ct),
-            nameof(AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationExpressionSyntax>));
+            nameof(AbstractSyncOverAsyncThrowsCodeFixProvider));
 
         context.RegisterCodeFix(codeAction, diagnostic);
     }
 
-    protected abstract SyntaxNode GetExpression(TInvocationExpressionSyntax invocationExpressionSyntax);
-
-    protected abstract SyntaxNode UpdateMemberExpression(TInvocationExpressionSyntax invocationExpressionSyntax, SyntaxNode updatedNameSyntax);
+    protected abstract SyntaxNode UpdateMemberExpression(SyntaxNode invocationExpressionSyntax, SyntaxNode updatedNameSyntax);
 
     private async Task<Document> CreateChangedDocument(
         CodeFixContext context,
         SemanticModel semanticModel,
-        TInvocationExpressionSyntax currentInvocationExpression,
+        SyntaxNode currentInvocationExpression,
         IMethodSymbol invocationSymbol,
         bool useModernSyntax,
         CancellationToken cancellationToken)
@@ -88,7 +92,7 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationEx
     }
 
     private async Task<SyntaxNode> CreateThrowsAsyncInvocationExpression(
-        TInvocationExpressionSyntax currentInvocationExpression,
+        SyntaxNode currentInvocationExpression,
         IMethodSymbol invocationSymbol,
         CodeFixContext context)
     {
@@ -108,7 +112,7 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationEx
     }
 
     private async Task<SyntaxNode> CreateReturnInvocationExpression(
-        TInvocationExpressionSyntax currentInvocationExpression,
+        SyntaxNode currentInvocationExpression,
         IInvocationOperation invocationOperation,
         IMethodSymbol invocationSymbol,
         CodeFixContext context)
@@ -134,13 +138,14 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationEx
 
         return CreateReturnExtensionInvocationExpression(
             currentInvocationExpression,
+            invocationOperation,
             syntaxGenerator,
             fromExceptionInvocationExpression,
             returnsMethodName);
     }
 
     private static SyntaxNode CreateReturnOrdinalInvocationExpression(
-        TInvocationExpressionSyntax currentInvocationExpression,
+        SyntaxNode currentInvocationExpression,
         IInvocationOperation invocationOperation,
         SyntaxGenerator syntaxGenerator,
         SyntaxNode fromExceptionInvocationExpression,
@@ -154,15 +159,16 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationEx
     }
 
     private SyntaxNode CreateReturnExtensionInvocationExpression(
-        TInvocationExpressionSyntax currentInvocationExpression,
+        SyntaxNode currentInvocationExpression,
+        IInvocationOperation invocationOperation,
         SyntaxGenerator syntaxGenerator,
         SyntaxNode fromExceptionInvocationExpression,
         string returnsMethodName)
     {
-        var expressionSyntax = GetExpression(currentInvocationExpression);
+        var substituteNodeSyntax = _substitutionNodeFinder.FindForStandardExpression(invocationOperation).Syntax;
 
         var accessExpression =
-            syntaxGenerator.MemberAccessExpression(expressionSyntax, returnsMethodName);
+            syntaxGenerator.MemberAccessExpression(substituteNodeSyntax, returnsMethodName);
 
         return syntaxGenerator.InvocationExpression(accessExpression, fromExceptionInvocationExpression)
             .WithTriviaFrom(currentInvocationExpression);

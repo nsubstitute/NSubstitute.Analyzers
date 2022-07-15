@@ -50,7 +50,7 @@ internal abstract class AbstractNonSubstitutableMemberArgumentMatcherAnalyzer<TS
         var invocationExpression = (TInvocationExpressionSyntax)syntaxNodeContext.Node;
         var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
 
-        if (!(methodSymbolInfo.Symbol is IMethodSymbol methodSymbol))
+        if (methodSymbolInfo.Symbol is not IMethodSymbol methodSymbol)
         {
             return;
         }
@@ -239,26 +239,18 @@ internal abstract class AbstractNonSubstitutableMemberArgumentMatcherAnalyzer<TS
 
     private static IMemberReferenceOperation GetMemberReferenceOperation(IOperation operation)
     {
-        switch (operation)
+        return operation switch
         {
-            case IAssignmentOperation assignmentOperation
-                when assignmentOperation.Target is IMemberReferenceOperation memberReferenceOperation:
-                return memberReferenceOperation;
-            case IBinaryOperation binaryOperation
-                when binaryOperation.LeftOperand is IMemberReferenceOperation binaryMemberReferenceOperation:
-                return binaryMemberReferenceOperation;
-            case IBinaryOperation binaryOperation
-                when binaryOperation.LeftOperand is IConversionOperation conversionOperation &&
-                     conversionOperation.Operand is IMemberReferenceOperation conversionMemberReference:
-                return conversionMemberReference;
-            case IExpressionStatementOperation expressionStatementOperation
-                when
-                expressionStatementOperation.Operation is ISimpleAssignmentOperation simpleAssignmentOperation &&
-                simpleAssignmentOperation.Target is IMemberReferenceOperation memberReferenceOperation:
-                return memberReferenceOperation;
-            default:
-                return null;
-        }
+            IAssignmentOperation { Target: IMemberReferenceOperation memberReferenceOperation } =>
+                memberReferenceOperation,
+            IBinaryOperation { LeftOperand: IMemberReferenceOperation binaryMemberReferenceOperation } =>
+                binaryMemberReferenceOperation,
+            IBinaryOperation { LeftOperand: IConversionOperation { Operand: IMemberReferenceOperation conversionMemberReference } } =>
+                conversionMemberReference,
+            IExpressionStatementOperation { Operation: ISimpleAssignmentOperation { Target: IMemberReferenceOperation memberReferenceOperation } } =>
+                memberReferenceOperation,
+            _ => null
+        };
     }
 
     private SyntaxNode FindMaybeAllowedEnclosingExpression(TInvocationExpressionSyntax invocationExpression) =>

@@ -116,7 +116,7 @@ public class DocumentationTests
                 blockedLayout.Add(currentContainer);
             }
 
-            if (currentHeadingBlock != null && !(currentBlock is HeadingBlock))
+            if (currentHeadingBlock != null && currentBlock is not HeadingBlock)
             {
                 currentContainer.Children.Add(currentBlock);
             }

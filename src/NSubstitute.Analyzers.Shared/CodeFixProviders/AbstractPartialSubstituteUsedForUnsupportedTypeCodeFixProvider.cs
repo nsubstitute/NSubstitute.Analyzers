@@ -27,7 +27,7 @@ internal abstract class AbstractPartialSubstituteUsedForUnsupportedTypeCodeFixPr
             var invocationExpression = (TInvocationExpression)root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
             var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
 
-            if (!(semanticModel.GetSymbolInfo(invocationExpression).Symbol is IMethodSymbol methodSymbol))
+            if (semanticModel.GetSymbolInfo(invocationExpression).Symbol is not IMethodSymbol methodSymbol)
             {
                 return;
             }

@@ -8,7 +8,7 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 namespace NSubstitute.Analyzers.CSharp.CodeFixProviders;
 
 [ExportCodeFixProvider(LanguageNames.CSharp)]
-internal sealed class SubstituteForInternalMemberCodeFixProvider : AbstractSubstituteForInternalMemberCodeFixProvider<InvocationExpressionSyntax, CompilationUnitSyntax>
+internal sealed class SubstituteForInternalMemberCodeFixProvider : AbstractSubstituteForInternalMemberCodeFixProvider<CompilationUnitSyntax>
 {
     public SubstituteForInternalMemberCodeFixProvider()
         : base(SubstituteProxyAnalysis.Instance)

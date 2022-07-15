@@ -70,7 +70,7 @@ internal abstract class AbstractReEntrantSetupCodeFixProvider<TArgumentListSynta
         var documentEditor = await DocumentEditor.CreateAsync(context.Document, ct);
         var semanticModel = await context.Document.GetSemanticModelAsync(ct);
         var invocationSyntaxNode = argumentListSyntax.Parent;
-        if (!(semanticModel.GetSymbolInfo(invocationSyntaxNode).Symbol is IMethodSymbol methodSymbol))
+        if (semanticModel.GetSymbolInfo(invocationSyntaxNode).Symbol is not IMethodSymbol methodSymbol)
         {
             return context.Document;
         }
@@ -84,7 +84,7 @@ internal abstract class AbstractReEntrantSetupCodeFixProvider<TArgumentListSynta
         {
             if (IsArrayParamsArgument(semanticModel, argumentSyntax))
             {
-                lambdaType = lambdaType ?? ConstructCallInfoLambdaType(methodSymbol, semanticModel.Compilation);
+                lambdaType ??= ConstructCallInfoLambdaType(methodSymbol, semanticModel.Compilation);
                 var updatedParamsArgumentSyntaxNode = CreateUpdatedParamsArgumentSyntaxNode(
                     SyntaxGenerator.GetGenerator(context.Document),
                     lambdaType,

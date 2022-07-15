@@ -9,17 +9,14 @@ internal static class IOperationExtensions
 {
     public static bool IsEventAssignmentOperation(this IOperation operation)
     {
-        switch (operation)
+        return operation switch
         {
-            case IAssignmentOperation assignmentOperation:
-                return assignmentOperation.Kind == OperationKind.EventAssignment;
-            case IEventAssignmentOperation _:
-                return true;
-            case IExpressionStatementOperation expressionStatementOperation:
-                return IsEventAssignmentOperation(expressionStatementOperation.Operation);
-            default:
-                return false;
-        }
+            IAssignmentOperation assignmentOperation => assignmentOperation.Kind == OperationKind.EventAssignment,
+            IEventAssignmentOperation _ => true,
+            IExpressionStatementOperation expressionStatementOperation => IsEventAssignmentOperation(
+                expressionStatementOperation.Operation),
+            _ => false
+        };
     }
 
     public static IOperation GetSubstituteOperation(this IInvocationOperation invocationOperation)
@@ -59,24 +56,6 @@ internal static class IOperationExtensions
         return orderedArguments.Skip(1);
     }
 
-    public static IEnumerable<SyntaxNode> GetSyntaxes(this IArgumentOperation argumentOperation)
-    {
-        if (argumentOperation.Parameter.IsParams)
-        {
-            var initializerElementValues =
-                (argumentOperation.Value as IArrayCreationOperation)?.Initializer.ElementValues;
-
-            foreach (var operation in initializerElementValues ?? Enumerable.Empty<IOperation>())
-            {
-                yield return operation.Syntax;
-            }
-
-            yield break;
-        }
-
-        yield return argumentOperation.Value.Syntax;
-    }
-
     public static int? GetIndexerPosition(this IOperation operation)
     {
         var literal = operation switch
@@ -100,26 +79,22 @@ internal static class IOperationExtensions
 
     public static ITypeSymbol GetTypeSymbol(this IArgumentOperation argumentOperation)
     {
-        ITypeSymbol conversionTypeSymbol = null;
-        switch (argumentOperation.Value)
+        var conversionTypeSymbol = argumentOperation.Value switch
         {
-            case IConversionOperation conversionOperation:
-                conversionTypeSymbol = conversionOperation.Operand.Type;
-                break;
-        }
+            IConversionOperation conversionOperation => conversionOperation.Operand.Type,
+            _ => null
+        };
 
         return conversionTypeSymbol ?? argumentOperation.GetArgumentOperationDeclaredTypeSymbol();
     }
 
     public static ITypeSymbol GetTypeSymbol(this IAssignmentOperation assignmentOperation)
     {
-        ITypeSymbol conversionTypeSymbol = null;
-        switch (assignmentOperation.Value)
+        var conversionTypeSymbol = assignmentOperation.Value switch
         {
-            case IConversionOperation conversionOperation:
-                conversionTypeSymbol = conversionOperation.Operand.Type;
-                break;
-        }
+            IConversionOperation conversionOperation => conversionOperation.Operand.Type,
+            _ => null
+        };
 
         return conversionTypeSymbol ?? assignmentOperation.Value.Type;
     }

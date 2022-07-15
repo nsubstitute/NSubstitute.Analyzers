@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Operations;
@@ -69,13 +68,15 @@ internal class SubstituteConstructorAnalysis : ISubstituteConstructorAnalysis
             return TypeSymbols(arrayTypeSymbol);
         }
 
-        return arguments.SelectMany(ArgType).ToArray();
+        return arguments.SelectMany(GetArgumentType).ToArray();
     }
 
     private ITypeSymbol[] GetNonGenericInvocationArgumentTypes(SubstituteContext substituteContext)
     {
         // Substitute.For(new [] { typeof(T) }, new object[] { 1, 2, 3}) // actual arguments reside in second arg
-        var arrayArgument = GetInvocationArguments(substituteContext).Skip(1).FirstOrDefault();
+        var arrayArgument = substituteContext.InvocationOperation.GetOrderedArgumentOperations().Skip(1)
+            .FirstOrDefault();
+
         if (arrayArgument == null)
         {
             return null;
@@ -87,7 +88,7 @@ internal class SubstituteConstructorAnalysis : ISubstituteConstructorAnalysis
             return TypeSymbols(arrayTypeSymbol);
         }
 
-        return ArgType(arrayArgument);
+        return GetArgumentType(arrayArgument);
     }
 
     private IMethodSymbol[] GetAccessibleConstructors(ITypeSymbol genericArgument)
@@ -107,19 +108,13 @@ internal class SubstituteConstructorAnalysis : ISubstituteConstructorAnalysis
                 return false;
             }
 
-            return symbol.DeclaredAccessibility == Accessibility.Internal ||
-                   symbol.DeclaredAccessibility == Accessibility.ProtectedOrInternal;
+            return symbol.DeclaredAccessibility is Accessibility.Internal or Accessibility.ProtectedOrInternal;
         }
 
         return genericArgument.GetMembers().OfType<IMethodSymbol>().Where(symbol =>
             symbol.MethodKind == MethodKind.Constructor &&
             symbol.IsStatic == false &&
             (IsAccessible(symbol) || IsVisibleToProxy(symbol))).ToArray();
-    }
-
-    private IEnumerable<IArgumentOperation> GetInvocationArguments(SubstituteContext substituteContext)
-    {
-        return substituteContext.InvocationOperation.GetOrderedArgumentOperations();
     }
 
     private ITypeSymbol[] TypeSymbols(IArrayCreationOperation arrayInitializerOperation)
@@ -131,15 +126,15 @@ internal class SubstituteConstructorAnalysis : ISubstituteConstructorAnalysis
             .ToArray();
     }
 
-    private ITypeSymbol[] ArgType(IArgumentOperation x)
+    private ITypeSymbol[] GetArgumentType(IArgumentOperation argumentOperation)
     {
-        if (x.ArgumentKind == ArgumentKind.ParamArray)
+        if (argumentOperation.ArgumentKind != ArgumentKind.ParamArray)
         {
-            var arrayInitializerOperation = x.Value as IArrayCreationOperation;
-
-            return TypeSymbols(arrayInitializerOperation);
+            return Array.Empty<ITypeSymbol>();
         }
 
-        return Array.Empty<ITypeSymbol>();
+        var arrayInitializerOperation = argumentOperation.Value as IArrayCreationOperation;
+
+        return TypeSymbols(arrayInitializerOperation);
     }
 }

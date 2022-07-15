@@ -21,8 +21,8 @@ internal abstract class AbstractIntroduceSubstituteCodeRefactoringProvider<TObje
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
         var node = root.FindNode(context.Span);
 
-        if (!(node is TArgumentListSyntax argumentListSyntax) ||
-            !(node.Parent is TObjectCreationExpressionSyntax objectCreationExpressionSyntax))
+        if (node is not TArgumentListSyntax argumentListSyntax ||
+            node.Parent is not TObjectCreationExpressionSyntax objectCreationExpressionSyntax)
         {
             return;
         }

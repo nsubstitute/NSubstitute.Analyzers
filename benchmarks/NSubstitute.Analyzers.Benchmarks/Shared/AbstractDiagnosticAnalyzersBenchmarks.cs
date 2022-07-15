@@ -186,10 +186,10 @@ public abstract class AbstractDiagnosticAnalyzersBenchmarks
         Assembly assembly,
         HashSet<Assembly> recursiveAssemblies = null)
     {
-        recursiveAssemblies = recursiveAssemblies ?? new HashSet<Assembly>();
+        recursiveAssemblies ??= new HashSet<Assembly>();
         if (recursiveAssemblies.Add(assembly))
         {
-            foreach (AssemblyName referencedAssembly in assembly.GetReferencedAssemblies())
+            foreach (var referencedAssembly in assembly.GetReferencedAssemblies())
             {
                 Assembly result;
                 if (TryGetOrLoad(referencedAssembly, out result))

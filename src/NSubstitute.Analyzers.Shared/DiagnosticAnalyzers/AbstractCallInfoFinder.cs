@@ -70,16 +70,13 @@ internal abstract class AbstractCallInfoFinder : ICallInfoFinder
 
     private static IParameterReferenceOperation FindMatchingParameterReference(IOperation operation)
     {
-        IParameterReferenceOperation parameterReferenceOperation = null;
-        switch (operation)
+        var parameterReferenceOperation = operation switch
         {
-            case IInvocationOperation invocationOperation:
-                parameterReferenceOperation = invocationOperation.Instance as IParameterReferenceOperation;
-                break;
-            case IPropertyReferenceOperation propertyReferenceOperation:
-                parameterReferenceOperation = propertyReferenceOperation.Instance as IParameterReferenceOperation;
-                break;
-        }
+            IInvocationOperation invocationOperation => invocationOperation.Instance as IParameterReferenceOperation,
+            IPropertyReferenceOperation propertyReferenceOperation =>
+                propertyReferenceOperation.Instance as IParameterReferenceOperation,
+            _ => null
+        };
 
         if (parameterReferenceOperation != null)
         {

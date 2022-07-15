@@ -22,42 +22,30 @@ internal sealed class ReEntrantSetupCodeFixProvider : AbstractReEntrantSetupCode
 
         var lambdaExpression = CreateSingleLineLambdaExpression(expressionSyntax);
 
-        switch (argumentSyntaxNode)
+        return argumentSyntaxNode switch
         {
-            case SimpleArgumentSyntax simpleArgumentSyntax:
-                return simpleArgumentSyntax.WithExpression(lambdaExpression);
-        }
-
-        return argumentSyntaxNode;
+            SimpleArgumentSyntax simpleArgumentSyntax => simpleArgumentSyntax.WithExpression(lambdaExpression),
+            _ => argumentSyntaxNode
+        };
     }
 
     protected override ArgumentSyntax CreateUpdatedParamsArgumentSyntaxNode(SyntaxGenerator syntaxGenerator, ITypeSymbol typeSymbol, ArgumentSyntax argumentSyntaxNode)
     {
-        if (!(argumentSyntaxNode is SimpleArgumentSyntax simpleArgumentSyntax))
+        if (argumentSyntaxNode is not SimpleArgumentSyntax simpleArgumentSyntax)
         {
             return argumentSyntaxNode;
         }
 
         var expression = argumentSyntaxNode.GetExpression();
-        ArrayCreationExpressionSyntax resultArrayCreationExpressionSyntax;
 
-        switch (expression)
+        var resultArrayCreationExpressionSyntax = expression switch
         {
-            case ArrayCreationExpressionSyntax arrayCreationExpressionSyntax:
-                resultArrayCreationExpressionSyntax = CreateArrayCreationExpression(
-                    syntaxGenerator,
-                    typeSymbol,
-                    arrayCreationExpressionSyntax.Initializer.Initializers);
-                break;
-            case CollectionInitializerSyntax implicitArrayCreationExpressionSyntax:
-                resultArrayCreationExpressionSyntax = CreateArrayCreationExpression(
-                    syntaxGenerator,
-                    typeSymbol,
-                    implicitArrayCreationExpressionSyntax.Initializers);
-                break;
-            default:
-                throw new ArgumentException($"{argumentSyntaxNode.Kind()} is not recognized as array initialization", nameof(argumentSyntaxNode));
-        }
+            ArrayCreationExpressionSyntax arrayCreationExpressionSyntax => CreateArrayCreationExpression(
+                syntaxGenerator, typeSymbol, arrayCreationExpressionSyntax.Initializer.Initializers),
+            CollectionInitializerSyntax implicitArrayCreationExpressionSyntax => CreateArrayCreationExpression(
+                syntaxGenerator, typeSymbol, implicitArrayCreationExpressionSyntax.Initializers),
+            _ => throw new ArgumentException($"{argumentSyntaxNode.Kind()} is not recognized as array initialization", nameof(argumentSyntaxNode))
+        };
 
         return simpleArgumentSyntax.WithExpression(resultArrayCreationExpressionSyntax);
     }

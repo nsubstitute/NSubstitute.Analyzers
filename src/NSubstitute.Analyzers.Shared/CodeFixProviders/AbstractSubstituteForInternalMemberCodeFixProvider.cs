@@ -8,9 +8,7 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders;
 
-internal abstract class AbstractSubstituteForInternalMemberCodeFixProvider<TInvocationExpressionSyntax, TCompilationUnitSyntax> : AbstractSuppressDiagnosticsCodeFixProvider
-    where TInvocationExpressionSyntax : SyntaxNode
-    where TCompilationUnitSyntax : SyntaxNode
+internal abstract class AbstractSubstituteForInternalMemberCodeFixProvider<TCompilationUnitSyntax> : AbstractSuppressDiagnosticsCodeFixProvider where TCompilationUnitSyntax : SyntaxNode
 {
     private readonly ISubstituteProxyAnalysis _substituteProxyAnalysis;
 
@@ -31,13 +29,16 @@ internal abstract class AbstractSubstituteForInternalMemberCodeFixProvider<TInvo
 
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
-        var findNode = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
-        if (!(findNode is TInvocationExpressionSyntax invocationExpression))
+        var invocationExpression = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
+        var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
+
+        if (invocationExpression is not { } ||
+            semanticModel.GetOperation(invocationExpression) is not IInvocationOperation invocationOperation)
         {
             return;
         }
 
-        var syntaxReference = await GetDeclaringSyntaxReference(context, invocationExpression);
+        var syntaxReference = GetDeclaringSyntaxReference(invocationOperation);
 
         if (syntaxReference == null)
         {
@@ -57,13 +58,10 @@ internal abstract class AbstractSubstituteForInternalMemberCodeFixProvider<TInvo
 
     protected abstract void RegisterCodeFix(CodeFixContext context, Diagnostic diagnostic, TCompilationUnitSyntax compilationUnitSyntax);
 
-    private async Task<SyntaxReference> GetDeclaringSyntaxReference(CodeFixContext context, TInvocationExpressionSyntax invocationExpression)
+    private SyntaxReference GetDeclaringSyntaxReference(IInvocationOperation invocationOperation)
     {
-        var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
-        var invocationOperation = semanticModel.GetOperation(invocationExpression) as IInvocationOperation;
         var actualProxyTypeSymbol = _substituteProxyAnalysis.GetActualProxyTypeSymbol(invocationOperation);
-        var syntaxReference = actualProxyTypeSymbol.DeclaringSyntaxReferences.FirstOrDefault();
-        return syntaxReference;
+        return actualProxyTypeSymbol.DeclaringSyntaxReferences.FirstOrDefault();
     }
 
     private TCompilationUnitSyntax FindCompilationUnitSyntax(SyntaxNode syntaxNode)
