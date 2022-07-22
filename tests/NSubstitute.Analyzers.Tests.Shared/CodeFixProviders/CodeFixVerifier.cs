@@ -24,11 +24,6 @@ public abstract class CodeFixVerifier : CodeVerifier
 
     protected abstract DiagnosticAnalyzer DiagnosticAnalyzer { get; }
 
-    protected Task VerifyFix(
-        string oldSource,
-        string newSource,
-        NSubstituteVersion version) => VerifyFix(oldSource, newSource, null, version);
-
     protected async Task VerifyFix(
         string oldSource,
         string newSource,

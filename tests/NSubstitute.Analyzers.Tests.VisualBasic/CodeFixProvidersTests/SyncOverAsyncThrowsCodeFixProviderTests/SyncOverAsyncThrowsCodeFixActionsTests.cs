@@ -39,7 +39,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-        await VerifyCodeActions(source, expectedCodeActionTitle);
+        await VerifyCodeActions(source, NSubstituteVersion.NSubstitute4_2_2, expectedCodeActionTitle);
     }
 
     [Theory]

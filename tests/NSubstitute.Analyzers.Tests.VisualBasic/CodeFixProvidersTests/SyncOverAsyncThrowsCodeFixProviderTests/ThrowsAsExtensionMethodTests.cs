@@ -45,7 +45,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-        await VerifyFix(source, newSource, NSubstituteVersion.NSubstitute4_2_2);
+        await VerifyFix(source, newSource, null, NSubstituteVersion.NSubstitute4_2_2);
     }
 
     public override async Task ReplacesThrowsWithReturns_WhenUsedInProperty(string method, string updatedMethod)
@@ -88,7 +88,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-        await VerifyFix(source, newSource, NSubstituteVersion.NSubstitute4_2_2);
+        await VerifyFix(source, newSource, null, NSubstituteVersion.NSubstitute4_2_2);
     }
 
     public override async Task ReplacesThrowsWithReturns_WhenUsedInIndexer(string method, string updatedMethod)
@@ -131,7 +131,7 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-        await VerifyFix(source, newSource, NSubstituteVersion.NSubstitute4_2_2);
+        await VerifyFix(source, newSource, null, NSubstituteVersion.NSubstitute4_2_2);
     }
 
     public override async Task ReplacesThrowsWithThrowsAsync_WhenUsedInMethod(string method, string updatedMethod)
