@@ -266,7 +266,6 @@ Task("Upload-Coverage-Report")
                                 "tools",
                                 "netcoreapp2.1",
                                 "any" };
-
     var workingDir = pathSegments.Aggregate(Context.Environment.WorkingDirectory, (acc, seed) => acc.Combine(seed)); 
 
     var argumentBuilder = new ProcessArgumentBuilder()
