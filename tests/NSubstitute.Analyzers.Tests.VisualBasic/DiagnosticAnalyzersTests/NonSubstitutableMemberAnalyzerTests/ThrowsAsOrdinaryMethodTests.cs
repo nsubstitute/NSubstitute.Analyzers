@@ -44,6 +44,14 @@ End Namespace
 
     public override async Task ReportsDiagnostics_WhenSettingValueForLiteral(string method, string literal, string type)
     {
+        if (method.Contains("Async"))
+        {
+            // ThrowsAsync like methods do not extend literals
+            // TODO replace with Assert.Skip once xUnit v3 released
+            // https://github.com/xunit/xunit/issues/2073
+            return;
+        }
+
         var source = $@"Imports System
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
