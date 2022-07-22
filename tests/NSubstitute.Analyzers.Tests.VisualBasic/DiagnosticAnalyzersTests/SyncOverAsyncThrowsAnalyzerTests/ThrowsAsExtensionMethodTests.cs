@@ -72,8 +72,6 @@ Interface IFoo
     Default Property Item(ByVal x As Integer, ByVal y As Integer) As Task(Of Object)
 End Interface
 
-
-
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
@@ -115,6 +113,49 @@ Namespace MyNamespace
     End Class
 End Namespace
 ";
+
+        await VerifyNoDiagnostic(source);
+    }
+
+    public override async Task ReportsNoDiagnostic_WhenThrowsAsyncUsed(string method)
+    {
+        var source = $@"Imports System
+Imports System.Threading.Tasks
+Imports NSubstitute
+Imports NSubstitute.ExceptionExtensions
+
+Namespace MyNamespace
+    Interface IFoo
+        Function Bar() As Task
+        Function FooBar() As Task(Of Object)
+
+        Property Foo As Task
+        Property FooBarBar As Task(Of Object)
+
+        Default Property Item(ByVal x As Integer) As Task
+        Default Property Item(ByVal x As Integer, ByVal y As Integer) As Task(Of Object)
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
+            substitute.Bar().{method}(New Exception())
+            substitute.Bar().{method}(ex := New Exception())
+            substitute.FooBar().{method}(New Exception())
+            substitute.FooBar().{method}(ex := New Exception())
+
+            substitute.Foo.{method}(New Exception())
+            substitute.Foo.{method}(ex := New Exception())
+            substitute.FooBarBar.{method}(New Exception())
+            substitute.FooBarBar.{method}(ex := New Exception())
+
+            substitute(0).{method}(New Exception())
+            substitute(0).{method}(ex := New Exception())
+            substitute(0, 0).{method}(New Exception())
+            substitute(0, 0).{method}(ex := New Exception())
+        End Sub
+    End Class
+End Namespace";
 
         await VerifyNoDiagnostic(source);
     }

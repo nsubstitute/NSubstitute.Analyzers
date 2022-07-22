@@ -42,7 +42,12 @@ internal static class SubstituteSymbolExtensions
         return IsMember(symbol, MetadataNames.ThrowsMethodNames);
     }
 
-    public static bool IsThrowsForAnyArgsMethod(this ISymbol symbol)
+    public static bool IsThrowSyncLikeMethod(this ISymbol symbol)
+    {
+        return IsMember(symbol, MetadataNames.ThrowsSyncMethodNames);
+    }
+
+    public static bool IsThrowsSyncForAnyArgsMethod(this ISymbol symbol)
     {
         return IsMember(
             symbol,

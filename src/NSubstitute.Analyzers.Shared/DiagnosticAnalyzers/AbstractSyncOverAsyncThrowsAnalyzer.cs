@@ -42,7 +42,7 @@ internal abstract class AbstractSyncOverAsyncThrowsAnalyzer<TSyntaxKind, TInvoca
             return;
         }
 
-        if (!methodSymbol.IsThrowLikeMethod())
+        if (!methodSymbol.IsThrowSyncLikeMethod())
         {
             return;
         }

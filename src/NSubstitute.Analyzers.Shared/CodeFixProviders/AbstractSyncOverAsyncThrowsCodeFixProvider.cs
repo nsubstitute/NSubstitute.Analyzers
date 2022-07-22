@@ -45,7 +45,7 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationEx
             return;
         }
 
-        var replacementMethod = methodSymbol.IsThrowsForAnyArgsMethod()
+        var replacementMethod = methodSymbol.IsThrowsSyncForAnyArgsMethod()
             ? "ReturnsForAnyArgs"
             : "Returns";
 
@@ -93,7 +93,7 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationEx
             CreateFromExceptionInvocationExpression(syntaxGenerator, invocationOperation);
 
         var returnsMethodName =
-            invocationSymbol.IsThrowsForAnyArgsMethod() ? "ReturnsForAnyArgs" : "Returns";
+            invocationSymbol.IsThrowsSyncForAnyArgsMethod() ? "ReturnsForAnyArgs" : "Returns";
 
         if (invocationSymbol.MethodKind == MethodKind.Ordinary)
         {
