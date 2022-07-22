@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
@@ -44,5 +45,23 @@ public abstract class CodeVerifier
         {
             Execute.Assertion.Fail($"Compilation failed. Errors encountered {compilationErrorDiagnostics.ToDebugString()}");
         }
+    }
+
+    protected static Project UpdateNSubstituteMetadataReference(Project project, NSubstituteVersion version)
+    {
+        if (version == NSubstituteVersion.Latest)
+        {
+            return project;
+        }
+
+        project = project.RemoveMetadataReference(RuntimeMetadataReference.NSubstituteLatestReference);
+
+        project = version switch
+        {
+            NSubstituteVersion.NSubstitute4_2_2 => project.AddMetadataReference(RuntimeMetadataReference.NSubstitute422Reference),
+            _ => throw new ArgumentException($"NSubstitute {version} is not supported", nameof(version))
+        };
+
+        return project;
     }
 }

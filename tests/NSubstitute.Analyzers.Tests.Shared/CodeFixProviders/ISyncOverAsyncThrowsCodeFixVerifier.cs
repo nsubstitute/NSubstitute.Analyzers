@@ -9,4 +9,10 @@ public interface ISyncOverAsyncThrowsCodeFixVerifier
     Task ReplacesThrowsWithReturns_WhenUsedInProperty(string method, string updatedMethod);
 
     Task ReplacesThrowsWithReturns_WhenUsedInIndexer(string method, string updatedMethod);
+
+    Task ReplacesThrowsWithThrowsAsync_WhenUsedInMethod(string method, string updatedMethod);
+
+    Task ReplacesThrowsWithThrowsAsync_WhenUsedInProperty(string method, string updatedMethod);
+
+    Task ReplacesThrowsWithThrowsAsync_WhenUsedInIndexer(string method, string updatedMethod);
 }

@@ -51,7 +51,7 @@ internal static class SubstituteSymbolExtensions
     {
         return IsMember(
             symbol,
-            MetadataNames.NSubstituteThrowsForAnyArgsMethod,
+            MetadataNames.NSubstituteThrowsMethod,
             MetadataNames.NSubstituteExceptionExtensionsFullTypeName);
     }
 

@@ -132,4 +132,19 @@ End Namespace";
 
         await VerifyFix(source, newSource);
     }
+
+    public override Task ReplacesThrowsWithThrowsAsync_WhenUsedInMethod(string method, string updatedMethod)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override Task ReplacesThrowsWithThrowsAsync_WhenUsedInProperty(string method, string updatedMethod)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override Task ReplacesThrowsWithThrowsAsync_WhenUsedInIndexer(string method, string updatedMethod)
+    {
+        throw new System.NotImplementedException();
+    }
 }

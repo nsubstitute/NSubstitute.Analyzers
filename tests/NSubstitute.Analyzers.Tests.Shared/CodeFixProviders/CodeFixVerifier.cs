@@ -24,86 +24,71 @@ public abstract class CodeFixVerifier : CodeVerifier
 
     protected abstract DiagnosticAnalyzer DiagnosticAnalyzer { get; }
 
+    protected Task VerifyFix(
+        string oldSource,
+        string newSource,
+        NSubstituteVersion version) => VerifyFix(oldSource, newSource, null, version);
+
     protected async Task VerifyFix(
         string oldSource,
         string newSource,
         int? codeFixIndex = null,
         NSubstituteVersion version = NSubstituteVersion.Latest)
     {
-        using (var workspace = new AdhocWorkspace())
+        using var workspace = new AdhocWorkspace();
+        var project = AddProject(workspace.CurrentSolution, oldSource);
+
+        project = UpdateNSubstituteMetadataReference(project, version);
+
+        var document = project.Documents.Single();
+        var compilation = await project.GetCompilationAsync();
+
+        var compilerDiagnostics = compilation.GetDiagnostics();
+
+        VerifyNoCompilerDiagnosticErrors(compilerDiagnostics);
+
+        var analyzerDiagnostics = await compilation.GetSortedAnalyzerDiagnostics(
+            DiagnosticAnalyzer,
+            project.AnalyzerOptions);
+
+        var previousAnalyzerDiagnostics = analyzerDiagnostics;
+        var attempts = analyzerDiagnostics.Length;
+
+        for (var i = 0; i < attempts; ++i)
         {
-            var project = AddProject(workspace.CurrentSolution, oldSource);
+            var actions = new List<CodeAction>();
+            var context = new CodeFixContext(document, analyzerDiagnostics[0], (a, d) => actions.Add(a), CancellationToken.None);
+            await CodeFixProvider.RegisterCodeFixesAsync(context);
 
-            project = UpdateNSubstituteMetadataReference(project, version);
+            if (!actions.Any())
+            {
+                break;
+            }
 
-            var document = project.Documents.Single();
-            var compilation = await project.GetCompilationAsync();
+            document = await document.ApplyCodeAction(actions[codeFixIndex ?? 0]);
+            compilation = await document.Project.GetCompilationAsync();
 
-            var compilerDiagnostics = compilation.GetDiagnostics();
+            compilerDiagnostics = compilation.GetDiagnostics();
 
             VerifyNoCompilerDiagnosticErrors(compilerDiagnostics);
 
-            var analyzerDiagnostics = await compilation.GetSortedAnalyzerDiagnostics(
+            analyzerDiagnostics = await compilation.GetSortedAnalyzerDiagnostics(
                 DiagnosticAnalyzer,
                 project.AnalyzerOptions);
 
-            var previousAnalyzerDiagnostics = analyzerDiagnostics;
-            var attempts = analyzerDiagnostics.Length;
-
-            for (var i = 0; i < attempts; ++i)
+            // check if there are analyzer diagnostics left after the code fix
+            var newAnalyzerDiagnostics = analyzerDiagnostics.Except(previousAnalyzerDiagnostics).ToList();
+            if (analyzerDiagnostics.Length == previousAnalyzerDiagnostics.Length && newAnalyzerDiagnostics.Any())
             {
-                var actions = new List<CodeAction>();
-                var context = new CodeFixContext(document, analyzerDiagnostics[0], (a, d) => actions.Add(a), CancellationToken.None);
-                await CodeFixProvider.RegisterCodeFixesAsync(context);
-
-                if (!actions.Any())
-                {
-                    break;
-                }
-
-                document = await document.ApplyCodeAction(actions[codeFixIndex ?? 0]);
-                compilation = await document.Project.GetCompilationAsync();
-
-                compilerDiagnostics = compilation.GetDiagnostics();
-
-                VerifyNoCompilerDiagnosticErrors(compilerDiagnostics);
-
-                analyzerDiagnostics = await compilation.GetSortedAnalyzerDiagnostics(
-                    DiagnosticAnalyzer,
-                    project.AnalyzerOptions);
-
-                // check if there are analyzer diagnostics left after the code fix
-                var newAnalyzerDiagnostics = analyzerDiagnostics.Except(previousAnalyzerDiagnostics).ToList();
-                if (analyzerDiagnostics.Length == previousAnalyzerDiagnostics.Length && newAnalyzerDiagnostics.Any())
-                {
-                    Execute.Assertion.Fail(
-                        $"Fix didn't fix analyzer diagnostics: {newAnalyzerDiagnostics.ToDebugString()} New document:{Environment.NewLine}{await document.ToFullString()}");
-                }
-
-                previousAnalyzerDiagnostics = analyzerDiagnostics;
+                Execute.Assertion.Fail(
+                    $"Fix didn't fix analyzer diagnostics: {newAnalyzerDiagnostics.ToDebugString()} New document:{Environment.NewLine}{await document.ToFullString()}");
             }
 
-            var actual = await document.ToFullString();
-
-            actual.Should().Be(newSource);
-        }
-    }
-
-    private static Project UpdateNSubstituteMetadataReference(Project project, NSubstituteVersion version)
-    {
-        if (version == NSubstituteVersion.Latest)
-        {
-            return project;
+            previousAnalyzerDiagnostics = analyzerDiagnostics;
         }
 
-        project = project.RemoveMetadataReference(RuntimeMetadataReference.NSubstituteLatestReference);
+        var actual = await document.ToFullString();
 
-        project = version switch
-        {
-            NSubstituteVersion.NSubstitute4_2_2 => project.AddMetadataReference(RuntimeMetadataReference.NSubstitute422Reference),
-            _ => throw new ArgumentException($"NSubstitute {version} is not supported", nameof(version))
-        };
-
-        return project;
+        actual.Should().Be(newSource);
     }
 }

@@ -1,8 +1,10 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.CSharp.CodeFixProviders;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Tests.Shared;
 using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 using Xunit;
 
@@ -40,7 +42,38 @@ namespace MyNamespace
         }}
     }}
 }}";
-        await VerifyCodeActions(source, expectedCodeActionTitle);
+        await VerifyCodeActions(source, NSubstituteVersion.NSubstitute4_2_2, expectedCodeActionTitle);
+    }
+
+    [Theory]
+    [InlineData("Throws", "Replace with ThrowsAsync")]
+    [InlineData("ThrowsForAnyArgs", "Replace with ThrowsAsyncForAnyArgs")]
+    public async Task CreatesCodeAction_ForModernSyntax(string method, string expectedCodeActionTitle)
+    {
+        var source = $@"using System;
+using System.Threading.Tasks;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        Task Bar();
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<IFoo>();
+            substitute.Bar().{method}(new Exception());
+            substitute.Bar().{method}(callInfo => new Exception());
+            substitute.Bar().{method}(createException: callInfo => new Exception());
+        }}
+    }}
+}}";
+        await VerifyCodeActions(source, Enumerable.Repeat(expectedCodeActionTitle, 3).ToArray());
     }
 
     [Theory]
@@ -70,6 +103,6 @@ namespace MyNamespace
         }}
     }}
 }}";
-        await VerifyCodeActions(source);
+        await VerifyCodeActions(source, NSubstituteVersion.NSubstitute4_2_2);
     }
 }
