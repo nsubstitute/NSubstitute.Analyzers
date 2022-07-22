@@ -128,7 +128,9 @@ internal class MetadataNames
         [NSubstituteReturnsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
         [NSubstituteReturnsForAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
         [NSubstituteThrowsMethod] = NSubstituteExceptionExtensionsFullTypeName,
+        [NSubstituteThrowsAsyncMethod] = NSubstituteExceptionExtensionsFullTypeName,
         [NSubstituteThrowsForAnyArgsMethod] = NSubstituteExceptionExtensionsFullTypeName,
+        [NSubstituteThrowsAsyncForAnyArgsMethod] = NSubstituteExceptionExtensionsFullTypeName,
         [NSubstituteAndDoesMethod] = NSubstituteConfiguredCallFullTypeName,
         [NSubstituteDoMethod] = NSubstituteWhenCalledType
     };
