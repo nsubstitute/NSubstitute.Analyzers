@@ -98,12 +98,11 @@ public abstract class CodeFixVerifier : CodeVerifier
 
         project = project.RemoveMetadataReference(RuntimeMetadataReference.NSubstituteLatestReference);
 
-        switch (version)
+        project = version switch
         {
-            case NSubstituteVersion.NSubstitute4_2_2:
-                project = project.AddMetadataReference(RuntimeMetadataReference.NSubstitute422Reference);
-                break;
-        }
+            NSubstituteVersion.NSubstitute4_2_2 => project.AddMetadataReference(RuntimeMetadataReference.NSubstitute422Reference),
+            _ => throw new ArgumentException($"NSubstitute {version} is not supported", nameof(version))
+        };
 
         return project;
     }
