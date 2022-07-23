@@ -2,6 +2,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Operations;
+using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
+using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders;
 
@@ -9,23 +12,27 @@ internal abstract class AbstractNonSubstitutableMemberArgumentMatcherSuppressDia
 {
     public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage);
 
-    protected abstract ImmutableHashSet<int> MaybeAllowedArgMatcherAncestors { get; }
-
     protected override IEnumerable<ISymbol> GetSuppressibleSymbol(SemanticModel model, SyntaxNode syntaxNode, ISymbol symbol)
     {
-        var ancestorNode = syntaxNode.Ancestors()
-            .FirstOrDefault(ancestor => MaybeAllowedArgMatcherAncestors.Contains(ancestor.RawKind));
+        var operation = model.GetOperation(syntaxNode);
+        if (operation == null)
+        {
+           return Enumerable.Empty<ISymbol>();
+        }
 
-        if (ancestorNode == null)
+        var ancestorOperation = operation.Ancestors()
+            .FirstOrDefault(ancestor => AbstractNonSubstitutableMemberArgumentMatcherAnalyzer.MaybeAllowedAncestors.Contains(ancestor.Kind));
+
+        if (ancestorOperation == null)
         {
             return Enumerable.Empty<ISymbol>();
         }
 
-        if (model.GetSymbolInfo(ancestorNode).Symbol is IMethodSymbol methodSymbol && methodSymbol.MethodKind == MethodKind.Constructor)
+        if (ancestorOperation is IInvocationOperation invocationOperation && invocationOperation.TargetMethod.MethodKind == MethodKind.Constructor)
         {
             return Enumerable.Empty<ISymbol>();
         }
 
-        return base.GetSuppressibleSymbol(model, ancestorNode, model.GetSymbolInfo(ancestorNode).Symbol);
+        return base.GetSuppressibleSymbol(model, ancestorOperation.Syntax, ancestorOperation.ExtractSymbol());
     }
 }

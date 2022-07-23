@@ -13,13 +13,17 @@ internal abstract class AbstractNonSubstitutableMemberArgumentMatcherAnalyzer : 
     internal static ImmutableHashSet<OperationKind> MaybeAllowedAncestors { get; } = ImmutableHashSet.Create(
         OperationKind.Invocation,
         OperationKind.BinaryOperator,
+        OperationKind.DynamicInvocation,
         OperationKind.PropertyReference,
         OperationKind.EventAssignment,
         OperationKind.ObjectCreation,
         OperationKind.SimpleAssignment);
 
-    private static ImmutableHashSet<OperationKind> IgnoredAncestors { get; } =
-        ImmutableHashSet.Create(OperationKind.VariableDeclarator, OperationKind.DynamicInvocation);
+    private static readonly ImmutableHashSet<OperationKind> IgnoredAncestors =
+        ImmutableHashSet.Create(OperationKind.VariableDeclarator, OperationKind.VariableDeclaration);
+
+    private static readonly ImmutableHashSet<OperationKind> DynamicOperations =
+        ImmutableHashSet.Create(OperationKind.DynamicInvocation, OperationKind.DynamicIndexerAccess, OperationKind.DynamicMemberReference);
 
     private readonly Action<OperationAnalysisContext> _analyzeInvocationAction;
 
@@ -63,6 +67,11 @@ internal abstract class AbstractNonSubstitutableMemberArgumentMatcherAnalyzer : 
     {
         var enclosingOperation = FindMaybeAllowedEnclosingExpression(invocationOperation);
 
+        if (enclosingOperation != null && DynamicOperations.Contains(enclosingOperation.Kind))
+        {
+           return;
+        }
+
         // if Arg is used with not allowed expression, find if it is used in ignored ones eg. var x = Arg.Any
         // as variable might be used later on
         if (enclosingOperation == null)
@@ -101,10 +110,13 @@ internal abstract class AbstractNonSubstitutableMemberArgumentMatcherAnalyzer : 
             return;
         }
 
-        AnalyzeAssignment(
-            context,
-            invocationOperation,
-            memberReferenceOperation);
+        if (memberReferenceOperation != null)
+        {
+            AnalyzeAssignment(
+                context,
+                invocationOperation,
+                memberReferenceOperation);
+        }
     }
 
     private bool AnalyzeEnclosingExpression(
@@ -117,11 +129,7 @@ internal abstract class AbstractNonSubstitutableMemberArgumentMatcherAnalyzer : 
 
         if (enclosingExpressionSymbol == null)
         {
-            var diagnostic = Diagnostic.Create(
-                DiagnosticDescriptorsProvider.NonSubstitutableMemberArgumentMatcherUsage,
-                argInvocation.Syntax.GetLocation());
-
-            context.TryReportDiagnostic(diagnostic, null);
+            TryReportDiagnostic(context, argInvocation, null);
             return true;
         }
 
@@ -130,11 +138,7 @@ internal abstract class AbstractNonSubstitutableMemberArgumentMatcherAnalyzer : 
             return false;
         }
 
-        context.TryReportDiagnostic(
-            Diagnostic.Create(
-                DiagnosticDescriptorsProvider.NonSubstitutableMemberArgumentMatcherUsage,
-                argInvocation.Syntax.GetLocation()),
-            enclosingExpressionSymbol);
+        TryReportDiagnostic(context, argInvocation, enclosingExpressionSymbol);
 
         return true;
     }
@@ -144,11 +148,6 @@ internal abstract class AbstractNonSubstitutableMemberArgumentMatcherAnalyzer : 
         IInvocationOperation invocationOperation,
         IMemberReferenceOperation memberReferenceOperation)
     {
-        if (memberReferenceOperation == null)
-        {
-            return;
-        }
-
         if (IsWithinWhenLikeMethod(memberReferenceOperation))
         {
             return;
@@ -217,5 +216,17 @@ internal abstract class AbstractNonSubstitutableMemberArgumentMatcherAnalyzer : 
     {
         return operation.Ancestors()
             .FirstOrDefault(ancestor => ancestors.Contains(ancestor.Kind));
+    }
+
+    private void TryReportDiagnostic(
+        OperationAnalysisContext context,
+        IInvocationOperation argInvocation,
+        ISymbol enclosingExpressionSymbol)
+    {
+        context.TryReportDiagnostic(
+            Diagnostic.Create(
+                DiagnosticDescriptorsProvider.NonSubstitutableMemberArgumentMatcherUsage,
+                argInvocation.Syntax.GetLocation()),
+            enclosingExpressionSymbol);
     }
 }

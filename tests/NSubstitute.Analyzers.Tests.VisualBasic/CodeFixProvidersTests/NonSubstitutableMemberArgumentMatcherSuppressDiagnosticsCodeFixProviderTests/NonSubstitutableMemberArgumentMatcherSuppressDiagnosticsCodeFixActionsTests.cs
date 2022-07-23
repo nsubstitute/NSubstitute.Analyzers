@@ -84,7 +84,7 @@ End Namespace
     [Fact]
     public async Task DoesNotCreateCodeFixActions_WhenArgMatchesIsUsedInStandaloneExpression()
     {
-        var source = $@"Imports System
+        var source = @"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace

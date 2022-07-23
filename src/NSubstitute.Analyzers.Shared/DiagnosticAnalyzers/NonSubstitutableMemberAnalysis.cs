@@ -29,11 +29,11 @@ internal class NonSubstitutableMemberAnalysis : INonSubstitutableMemberAnalysis
         if (symbol == null)
         {
             return new NonSubstitutableMemberAnalysisResult(
-                nonVirtualMemberSubstitution: KnownNonVirtualOperationKinds.Contains(operation.Kind),
+                nonVirtualMemberSubstitution: KnownNonVirtualOperationKinds.Contains(ExtractActualOperation(operation).Kind),
                 internalMemberSubstitution: false,
                 symbol: null,
                 member: operation.Syntax,
-                memberName: operation.ToString());
+                memberName: operation.Syntax.ToString());
         }
 
         var canBeSubstituted = CanBeSubstituted(operation, symbol);
@@ -96,5 +96,14 @@ internal class NonSubstitutableMemberAnalysis : INonSubstitutableMemberAnalysis
             _ => null
         };
         return symbol;
+    }
+
+    private static IOperation ExtractActualOperation(IOperation operation)
+    {
+        return operation switch
+        {
+            IConversionOperation conversionOperation => conversionOperation.Operand,
+            _ => operation
+        };
     }
 }

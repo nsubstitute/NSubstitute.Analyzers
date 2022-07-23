@@ -1,7 +1,5 @@
-using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
-using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 using NSubstitute.Analyzers.Shared.CodeFixProviders;
 
 namespace NSubstitute.Analyzers.CSharp.CodeFixProviders;
@@ -10,6 +8,4 @@ namespace NSubstitute.Analyzers.CSharp.CodeFixProviders;
 internal sealed class NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider
     : AbstractNonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider
 {
-    // TODO
-    protected override ImmutableHashSet<int> MaybeAllowedArgMatcherAncestors { get; } = ImmutableHashSet<int>.Empty;
 }
