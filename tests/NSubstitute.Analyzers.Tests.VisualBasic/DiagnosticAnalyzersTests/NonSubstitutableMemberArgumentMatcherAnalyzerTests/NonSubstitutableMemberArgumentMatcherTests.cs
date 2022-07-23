@@ -911,7 +911,7 @@ End Namespace";
 
     public override async Task ReportsNoDiagnostic_WhenOverloadCannotBeInferred()
     {
-        var source = $@"Imports System
+        var source = @"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace

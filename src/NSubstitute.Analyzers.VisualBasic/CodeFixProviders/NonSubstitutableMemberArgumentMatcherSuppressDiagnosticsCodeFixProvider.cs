@@ -9,5 +9,6 @@ namespace NSubstitute.Analyzers.VisualBasic.CodeFixProviders;
 [ExportCodeFixProvider(LanguageNames.VisualBasic)]
 internal sealed class NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider : AbstractNonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider
 {
-    protected override ImmutableHashSet<int> MaybeAllowedArgMatcherAncestors { get; } = NonSubstitutableMemberArgumentMatcherAnalyzer.MaybeAllowedAncestors;
+    // TODO
+    protected override ImmutableHashSet<int> MaybeAllowedArgMatcherAncestors { get; } = ImmutableHashSet<int>.Empty;
 }

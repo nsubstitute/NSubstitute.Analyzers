@@ -100,6 +100,7 @@ internal abstract class AbstractNonSubstitutableMemberAnalysis : INonSubstitutab
             IInvocationOperation invocationOperation => invocationOperation.TargetMethod,
             IPropertyReferenceOperation propertyReferenceOperation => propertyReferenceOperation.Property,
             IConversionOperation conversionOperation => ExtractSymbol(conversionOperation.Operand),
+            IMemberReferenceOperation memberReferenceOperation => memberReferenceOperation.Member,
             _ => null
         };
         return symbol;

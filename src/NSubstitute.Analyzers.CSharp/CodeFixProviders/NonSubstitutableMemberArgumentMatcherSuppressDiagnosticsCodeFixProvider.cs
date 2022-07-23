@@ -10,5 +10,6 @@ namespace NSubstitute.Analyzers.CSharp.CodeFixProviders;
 internal sealed class NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider
     : AbstractNonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider
 {
-    protected override ImmutableHashSet<int> MaybeAllowedArgMatcherAncestors { get; } = NonSubstitutableMemberArgumentMatcherAnalyzer.MaybeAllowedAncestors;
+    // TODO
+    protected override ImmutableHashSet<int> MaybeAllowedArgMatcherAncestors { get; } = ImmutableHashSet<int>.Empty;
 }

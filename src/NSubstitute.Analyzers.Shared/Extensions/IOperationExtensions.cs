@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -18,6 +19,9 @@ internal static class IOperationExtensions
             _ => false
         };
     }
+
+    public static IOperation GetSubstituteOperation(this IPropertyReferenceOperation propertyReferenceOperation) =>
+        propertyReferenceOperation.Instance;
 
     public static IOperation GetSubstituteOperation(this IInvocationOperation invocationOperation)
     {
@@ -107,6 +111,18 @@ internal static class IOperationExtensions
             yield return parent;
             parent = parent.Parent;
         }
+    }
+
+    public static ISymbol ExtractSymbol(this IOperation operation)
+    {
+        var symbol = operation switch
+        {
+            IInvocationOperation invocationOperation => invocationOperation.TargetMethod,
+            IPropertyReferenceOperation propertyReferenceOperation => propertyReferenceOperation.Property,
+            IConversionOperation conversionOperation => ExtractSymbol(conversionOperation.Operand),
+            _ => null
+        };
+        return symbol;
     }
 
     private static bool IsImplicitlyProvidedArrayWithoutValues(IArgumentOperation arg)
