@@ -1,50 +1,42 @@
-using System;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractNonSubstitutableMemberAnalysis : INonSubstitutableMemberAnalysis
+internal class NonSubstitutableMemberAnalysis : INonSubstitutableMemberAnalysis
 {
-    protected abstract ImmutableHashSet<Type> KnownNonVirtualSyntaxKinds { get; }
+    public static readonly INonSubstitutableMemberAnalysis Instance = new NonSubstitutableMemberAnalysis();
 
-    public NonSubstitutableMemberAnalysisResult Analyze(
-        in SyntaxNodeAnalysisContext syntaxNodeContext,
-        SyntaxNode accessedMember,
-        ISymbol symbol = null) =>
-        Analyze(accessedMember, symbol ?? syntaxNodeContext.SemanticModel.GetSymbolInfo(accessedMember).Symbol);
+    private static readonly ImmutableHashSet<OperationKind> KnownNonVirtualOperationKinds =
+        ImmutableHashSet.Create(OperationKind.Literal);
 
     public NonSubstitutableMemberAnalysisResult Analyze(IOperation operation)
     {
         var symbol = ExtractSymbol(operation);
 
-        return Analyze(operation.Syntax, symbol);
+        return Analyze(operation, symbol);
     }
 
     private bool CanBeSubstituted(
-        SyntaxNode accessedMember,
-        ISymbol symbol)
-    {
-        return !KnownNonVirtualSyntaxKinds.Contains(accessedMember.GetType()) &&
-               CanBeSubstituted(symbol);
-    }
+        IOperation operation,
+        ISymbol symbol) =>
+        !KnownNonVirtualOperationKinds.Contains(operation.Kind) && CanBeSubstituted(symbol);
 
-    private NonSubstitutableMemberAnalysisResult Analyze(SyntaxNode accessedMember, ISymbol symbol)
+    private NonSubstitutableMemberAnalysisResult Analyze(IOperation operation, ISymbol symbol)
     {
         if (symbol == null)
         {
             return new NonSubstitutableMemberAnalysisResult(
-                nonVirtualMemberSubstitution: KnownNonVirtualSyntaxKinds.Contains(accessedMember.GetType()),
+                nonVirtualMemberSubstitution: KnownNonVirtualOperationKinds.Contains(operation.Kind),
                 internalMemberSubstitution: false,
                 symbol: null,
-                member: accessedMember,
-                memberName: accessedMember.ToString());
+                member: operation.Syntax,
+                memberName: operation.ToString());
         }
 
-        var canBeSubstituted = CanBeSubstituted(accessedMember, symbol);
+        var canBeSubstituted = CanBeSubstituted(operation, symbol);
 
         if (canBeSubstituted == false)
         {
@@ -52,7 +44,7 @@ internal abstract class AbstractNonSubstitutableMemberAnalysis : INonSubstitutab
                 nonVirtualMemberSubstitution: true,
                 internalMemberSubstitution: false,
                 symbol: symbol,
-                member: accessedMember,
+                member: operation.Syntax,
                 memberName: symbol.Name);
         }
 
@@ -62,7 +54,7 @@ internal abstract class AbstractNonSubstitutableMemberAnalysis : INonSubstitutab
                 nonVirtualMemberSubstitution: false,
                 internalMemberSubstitution: true,
                 symbol: symbol,
-                member: accessedMember,
+                member: operation.Syntax,
                 memberName: symbol.Name);
         }
 
@@ -70,7 +62,7 @@ internal abstract class AbstractNonSubstitutableMemberAnalysis : INonSubstitutab
             nonVirtualMemberSubstitution: false,
             internalMemberSubstitution: false,
             symbol: symbol,
-            member: accessedMember,
+            member: operation.Syntax,
             memberName: symbol.Name);
     }
 
