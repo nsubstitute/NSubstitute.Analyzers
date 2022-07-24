@@ -17,37 +17,6 @@ internal class ReEntrantCallFinder : AbstractReEntrantCallFinder<InvocationExpre
     {
     }
 
-    protected override ImmutableList<ISymbol> GetReEntrantSymbols(Compilation compilation, SemanticModel semanticModel, SyntaxNode originatingExpression, SyntaxNode rootNode)
-    {
-        var visitor = new ReEntrantCallVisitor(this, compilation, semanticModel);
-        visitor.Visit(rootNode);
-        return visitor.InvocationSymbols;
-    }
-
-    protected override IEnumerable<InvocationExpressionSyntax> GetPotentialOtherSubstituteInvocations(IEnumerable<SyntaxNode> nodes)
-    {
-        foreach (var node in nodes)
-        {
-            switch (node)
-            {
-                case InvocationExpressionSyntax invocationExpressionSyntax:
-                    yield return invocationExpressionSyntax;
-                    break;
-                case ExpressionStatementSyntax expressionStatementSyntax when expressionStatementSyntax.Expression is InvocationExpressionSyntax invocationExpressionSyntax:
-                    yield return invocationExpressionSyntax;
-                    break;
-                case ConstructorBlockSyntax constructorDeclarationSyntax:
-                    foreach (var potentialPreviousReturnsLikeInvocation in GetPotentialOtherSubstituteInvocations(
-                                 constructorDeclarationSyntax.ChildNodes()))
-                    {
-                        yield return potentialPreviousReturnsLikeInvocation;
-                    }
-
-                    break;
-            }
-        }
-    }
-
     private class ReEntrantCallVisitor : VisualBasicSyntaxWalker
     {
         private readonly ReEntrantCallFinder _reEntrantCallFinder;

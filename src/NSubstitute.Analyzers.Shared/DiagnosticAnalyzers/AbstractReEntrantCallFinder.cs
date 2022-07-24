@@ -1,13 +1,15 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractReEntrantCallFinder<TInvocationExpressionSyntax, TIdentifierExpressionSyntax> : IReEntrantCallFinder
+internal abstract class
+    AbstractReEntrantCallFinder<TInvocationExpressionSyntax, TIdentifierExpressionSyntax> : IReEntrantCallFinder
     where TInvocationExpressionSyntax : SyntaxNode
     where TIdentifierExpressionSyntax : SyntaxNode
 {
@@ -18,24 +20,32 @@ internal abstract class AbstractReEntrantCallFinder<TInvocationExpressionSyntax,
         _substitutionNodeFinder = substitutionNodeFinder;
     }
 
-    public ImmutableList<ISymbol> GetReEntrantCalls(Compilation compilation, SemanticModel semanticModel, SyntaxNode originatingExpression, SyntaxNode rootNode)
+    public ImmutableList<IInvocationOperation> GetReEntrantCalls(Compilation compilation, IInvocationOperation invocationOperation, IOperation rootNode)
     {
-        var symbolInfo = semanticModel.GetSymbolInfo(rootNode);
+        var rootNodeSymbol = rootNode.ExtractSymbol();
 
-        if (symbolInfo.Symbol.IsLocal() || semanticModel.GetTypeInfo(rootNode).IsCallInfoDelegate(semanticModel.Compilation))
+        if (rootNodeSymbol == null || rootNode.Kind == OperationKind.LocalReference)
         {
-            return ImmutableList<ISymbol>.Empty;
+            return ImmutableList<IInvocationOperation>.Empty;
         }
 
-        var reEntrantSymbols = GetReEntrantSymbols(compilation, semanticModel, originatingExpression, rootNode);
-        var otherSubstitutions = GetOtherSubstitutionsForSymbol(semanticModel, rootNode, symbolInfo.Symbol);
+        var reEntrantSymbols = GetReEntrantSymbols(compilation, invocationOperation, rootNode);
+        var otherSubstitutions = GetOtherSubstitutionsForSymbol(compilation, rootNode, rootNodeSymbol);
 
         return reEntrantSymbols.AddRange(otherSubstitutions);
     }
 
-    protected abstract ImmutableList<ISymbol> GetReEntrantSymbols(Compilation compilation, SemanticModel semanticModel, SyntaxNode originatingExpression, SyntaxNode rootNode);
-
-    protected abstract IEnumerable<TInvocationExpressionSyntax> GetPotentialOtherSubstituteInvocations(IEnumerable<SyntaxNode> nodes);
+    protected virtual IEnumerable<IInvocationOperation> GetPotentialOtherSubstituteInvocations(Compilation compilation, IEnumerable<IOperation> operations)
+    {
+        foreach (var operation in operations)
+        {
+            var visitor = new ReEntrantCallVisitor(compilation, operation);
+            foreach (var visitorInvocationOperation in visitor.InvocationOperations)
+            {
+                yield return visitorInvocationOperation;
+            }
+        }
+    }
 
     protected IEnumerable<SyntaxNode> GetRelatedNodes(Compilation compilation, SemanticModel semanticModel, SyntaxNode syntaxNode)
     {
@@ -76,35 +86,25 @@ internal abstract class AbstractReEntrantCallFinder<TInvocationExpressionSyntax,
         return symbol.IsInnerReEntryLikeMethod();
     }
 
-    private IEnumerable<ISymbol> GetOtherSubstitutionsForSymbol(SemanticModel semanticModel, SyntaxNode rootNode, ISymbol rootNodeSymbol)
+    private IEnumerable<IInvocationOperation> GetOtherSubstitutionsForSymbol(Compilation compilation, IOperation rootOperation, ISymbol rootNodeSymbol)
     {
         if (rootNodeSymbol == null)
         {
             yield break;
         }
 
-        var rootIdentifierNode = GetIdentifierExpressionSyntax(rootNode);
-        if (rootIdentifierNode == null)
+        var rootIdentifierNode = GetIdentifierOperation(rootOperation);
+
+        var rootIdentifierSymbol = rootIdentifierNode?.ExtractSymbol();
+
+        if (rootIdentifierSymbol == null)
         {
             yield break;
         }
 
-        var rootIdentifierSymbol = semanticModel.GetSymbolInfo(rootIdentifierNode);
-
-        if (rootIdentifierSymbol.Symbol == null)
+        var ancestorChildNodes = rootOperation.Ancestors().SelectMany(ancestor => ancestor.Children);
+        foreach (var operation in GetPotentialOtherSubstituteInvocations(compilation, ancestorChildNodes))
         {
-            yield break;
-        }
-
-        var ancestorChildNodes = rootNode.Ancestors().SelectMany(ancestor => ancestor.ChildNodes());
-        foreach (var syntaxNode in GetPotentialOtherSubstituteInvocations(ancestorChildNodes))
-        {
-            var operation = semanticModel.GetOperation(syntaxNode) as IInvocationOperation;
-            if (operation == null)
-            {
-                continue;
-            }
-
             if (operation.TargetMethod.IsReturnLikeMethod() == false)
             {
                 continue;
@@ -112,26 +112,98 @@ internal abstract class AbstractReEntrantCallFinder<TInvocationExpressionSyntax,
 
             var substitutedNode = _substitutionNodeFinder.FindForStandardExpression(operation);
 
-            // TODO extract from operation
-            var substituteNodeSymbol = semanticModel.GetSymbolInfo(substitutedNode.Syntax).Symbol;
-            if (!substituteNodeSymbol.Equals(rootNodeSymbol))
+            var substituteNodeSymbol = substitutedNode?.ExtractSymbol();
+
+            if (substituteNodeSymbol == null)
+            {
+               continue;
+            }
+
+            if (!rootNodeSymbol.Equals(substituteNodeSymbol))
             {
                 continue;
             }
 
             // TODO from operation
-            var substituteNodeIdentifier = GetIdentifierExpressionSyntax(substitutedNode.Syntax);
+            var substituteNodeIdentifier = GetIdentifierOperation(substitutedNode);
 
-            var substituteIdentifierSymbol = semanticModel.GetSymbolInfo(substituteNodeIdentifier);
-            if (rootIdentifierSymbol.Symbol.Equals(substituteIdentifierSymbol.Symbol))
+            if (rootIdentifierSymbol.Equals(substituteNodeIdentifier.ExtractSymbol()))
             {
-                yield return substituteNodeSymbol;
+                // TODO
+                yield return substitutedNode as IInvocationOperation;
             }
         }
     }
 
-    private TIdentifierExpressionSyntax GetIdentifierExpressionSyntax(SyntaxNode node)
+    private ILocalReferenceOperation GetIdentifierOperation(IOperation node)
     {
-        return node.ChildNodes().FirstOrDefault() as TIdentifierExpressionSyntax;
+        // TODO can it be done better?
+        return node.Children.FirstOrDefault() as ILocalReferenceOperation;
+    }
+
+    private ImmutableList<IInvocationOperation> GetReEntrantSymbols(Compilation compilation, IInvocationOperation invocationOperation, IOperation rootNode)
+    {
+        var reentryVisitor = new ReEntrantCallVisitor(compilation, invocationOperation);
+        reentryVisitor.Visit(rootNode);
+
+        return reentryVisitor.InvocationOperations;
+    }
+
+    private class ReEntrantCallVisitor : OperationWalker
+    {
+        private readonly Compilation _compilation;
+        private readonly HashSet<IOperation> _visitedOperations = new ();
+        private readonly List<IInvocationOperation> _invocationOperation = new ();
+        private readonly Dictionary<SyntaxTree, SemanticModel> _semanticModelCache = new (1);
+
+        public ImmutableList<IInvocationOperation> InvocationOperations => _invocationOperation.ToImmutableList();
+
+        public ReEntrantCallVisitor(Compilation compilation, IOperation initialOperation)
+        {
+            _compilation = compilation;
+            _visitedOperations.Add(initialOperation);
+        }
+
+        public override void VisitInvocation(IInvocationOperation operation)
+        {
+            if (_visitedOperations.Contains(operation) == false && operation.TargetMethod.IsInnerReEntryLikeMethod())
+            {
+               _invocationOperation.Add(operation);
+            }
+
+            VisitRelatedSymbols(operation);
+            base.VisitInvocation(operation);
+        }
+
+        private void VisitRelatedSymbols(IInvocationOperation invocationOperation)
+        {
+            if (_visitedOperations.Contains(invocationOperation))
+            {
+                return;
+            }
+
+            _visitedOperations.Add(invocationOperation);
+
+            foreach (var location in invocationOperation.TargetMethod.Locations.Where(location => location.IsInSource))
+            {
+                var root = location.SourceTree.GetRoot();
+                var relatedNode = root.FindNode(location.SourceSpan);
+                Visit(GetSemanticModel(relatedNode).GetOperation(relatedNode));
+            }
+        }
+
+        private SemanticModel GetSemanticModel(SyntaxNode syntaxNode)
+        {
+            var syntaxTree = syntaxNode.SyntaxTree;
+            if (_semanticModelCache.TryGetValue(syntaxTree, out var semanticModel))
+            {
+                return semanticModel;
+            }
+
+            semanticModel = _compilation.GetSemanticModel(syntaxTree);
+            _semanticModelCache[syntaxTree] = semanticModel;
+
+            return semanticModel;
+        }
     }
 }

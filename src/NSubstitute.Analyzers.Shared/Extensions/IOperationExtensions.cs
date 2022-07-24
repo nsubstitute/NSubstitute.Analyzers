@@ -120,6 +120,7 @@ internal static class IOperationExtensions
             IInvocationOperation invocationOperation => invocationOperation.TargetMethod,
             IPropertyReferenceOperation propertyReferenceOperation => propertyReferenceOperation.Property,
             IConversionOperation conversionOperation => ExtractSymbol(conversionOperation.Operand),
+            IAwaitOperation awaitOperation => ExtractSymbol(awaitOperation.Operation),
             _ => null
         };
         return symbol;

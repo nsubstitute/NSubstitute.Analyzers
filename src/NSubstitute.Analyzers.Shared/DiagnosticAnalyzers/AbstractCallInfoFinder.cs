@@ -62,12 +62,6 @@ internal abstract class AbstractCallInfoFinder : ICallInfoFinder
                parameterReferenceOperation.Parameter.Equals(callInfoParameterSymbol);
     }
 
-    private static IParameterReferenceOperation FindMatchingParameterReference(SemanticModel semanticModel, SyntaxNode syntaxNode)
-    {
-        var operation = semanticModel.GetOperation(syntaxNode);
-        return FindMatchingParameterReference(operation);
-    }
-
     private static IParameterReferenceOperation FindMatchingParameterReference(IOperation operation)
     {
         var parameterReferenceOperation = operation switch

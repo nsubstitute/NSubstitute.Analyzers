@@ -1,9 +1,13 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 internal interface IReEntrantCallFinder
 {
-    ImmutableList<ISymbol> GetReEntrantCalls(Compilation compilation, SemanticModel semanticModel, SyntaxNode originatingExpression, SyntaxNode rootNode);
+    ImmutableList<IInvocationOperation> GetReEntrantCalls(
+        Compilation compilation,
+        IInvocationOperation invocationOperation,
+        IOperation rootNode);
 }

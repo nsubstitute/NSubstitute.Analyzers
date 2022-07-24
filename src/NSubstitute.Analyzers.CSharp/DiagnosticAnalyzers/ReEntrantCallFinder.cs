@@ -17,39 +17,12 @@ internal class ReEntrantCallFinder : AbstractReEntrantCallFinder<InvocationExpre
     {
     }
 
-    protected override ImmutableList<ISymbol> GetReEntrantSymbols(Compilation compilation, SemanticModel semanticModel, SyntaxNode originatingExpression, SyntaxNode rootNode)
-    {
-        var visitor = new ReEntrantCallVisitor(this, compilation, semanticModel, originatingExpression);
-        visitor.Visit(rootNode);
-        return visitor.InvocationSymbols;
-    }
-
-    protected override IEnumerable<InvocationExpressionSyntax> GetPotentialOtherSubstituteInvocations(IEnumerable<SyntaxNode> nodes)
-    {
-        foreach (var node in nodes)
-        {
-            switch (node)
-            {
-                case InvocationExpressionSyntax invocationExpressionSyntax:
-                    yield return invocationExpressionSyntax;
-                    break;
-                case ExpressionStatementSyntax expressionStatementSyntax when expressionStatementSyntax.Expression is InvocationExpressionSyntax invocationExpressionSyntax:
-                    yield return invocationExpressionSyntax;
-                    break;
-                case ConstructorDeclarationSyntax constructorDeclarationSyntax:
-                    foreach (var potentialPreviousReturnsLikeInvocation in
-                             GetPotentialOtherSubstituteInvocations(
-                                 constructorDeclarationSyntax.Body?.ChildNodes() ??
-                                 constructorDeclarationSyntax.ExpressionBody?.ChildNodes()))
-                    {
-                        yield return potentialPreviousReturnsLikeInvocation;
-                    }
-
-                    break;
-            }
-        }
-    }
-
+    // protected override ImmutableList<ISymbol> GetReEntrantSymbols(Compilation compilation, SemanticModel semanticModel, SyntaxNode originatingExpression, SyntaxNode rootNode)
+    // {
+    //     var visitor = new ReEntrantCallVisitor(this, compilation, semanticModel, originatingExpression);
+    //     visitor.Visit(rootNode);
+    //     return visitor.InvocationSymbols;
+    // }
     private class ReEntrantCallVisitor : CSharpSyntaxWalker
     {
         private readonly ReEntrantCallFinder _reEntrantCallFinder;
