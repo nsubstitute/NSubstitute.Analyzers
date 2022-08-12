@@ -9,7 +9,7 @@
 
 // Install tools.
 #tool "dotnet:https://api.nuget.org/v3/index.json?package=GitVersion.Tool&version=5.8.1"
-#tool "dotnet:https://api.nuget.org/v3/index.json?package=coveralls.net&version=1.0.0"
+#tool "dotnet:https://api.nuget.org/v3/index.json?package=coveralls.net&version=4.0.1"
 #tool "nuget:https://www.nuget.org/api/v2?package=ReportGenerator&version=5.0.2"
 #addin "nuget:https://www.nuget.org/api/v2?package=Cake.Incubator&version=4.0.1"
 #addin "nuget:https://www.nuget.org/api/v2?package=Newtonsoft.Json&version=9.0.1"
@@ -260,11 +260,11 @@ Task("Upload-Coverage-Report")
     var pathSegments = new [] { "tools",
                                 ".store",
                                 "coveralls.net",
-                                "1.0.0",
+                                "4.0.1",
                                 "coveralls.net",
-                                "1.0.0",
+                                "4.0.1",
                                 "tools",
-                                "netcoreapp2.1",
+                                "net6.0",
                                 "any" };
 
     var workingDir = pathSegments.Aggregate(Context.Environment.WorkingDirectory, (acc, seed) => acc.Combine(seed)); 
