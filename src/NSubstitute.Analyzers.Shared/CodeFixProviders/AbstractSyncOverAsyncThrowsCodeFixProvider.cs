@@ -39,19 +39,18 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationEx
 
         var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
         var methodSymbol = (IMethodSymbol)semanticModel.GetSymbolInfo(invocation).Symbol;
+        var supportsThrowsAsync = SupportsThrowsAsync(semanticModel.Compilation);
 
-        if (methodSymbol.Parameters.Any(param => param.Type.IsCallInfoDelegate(semanticModel)))
+        if (!supportsThrowsAsync && methodSymbol.Parameters.Any(param => param.Type.IsCallInfoDelegate(semanticModel)))
         {
             return;
         }
 
-        var replacementMethod = methodSymbol.IsThrowsForAnyArgsMethod()
-            ? "ReturnsForAnyArgs"
-            : "Returns";
+        var replacementMethod = GetReplacementMethodName(methodSymbol, useModernSyntax: supportsThrowsAsync);
 
         var codeAction = CodeAction.Create(
             $"Replace with {replacementMethod}",
-            ct => CreateChangedDocument(context, semanticModel, invocation, methodSymbol, ct),
+            ct => CreateChangedDocument(context, semanticModel, invocation, methodSymbol, supportsThrowsAsync, ct),
             nameof(AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationExpressionSyntax>));
 
         context.RegisterCodeFix(codeAction, diagnostic);
@@ -59,28 +58,56 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationEx
 
     protected abstract SyntaxNode GetExpression(TInvocationExpressionSyntax invocationExpressionSyntax);
 
+    protected abstract SyntaxNode UpdateMemberExpression(TInvocationExpressionSyntax invocationExpressionSyntax, SyntaxNode updatedNameSyntax);
+
     private async Task<Document> CreateChangedDocument(
         CodeFixContext context,
         SemanticModel semanticModel,
         TInvocationExpressionSyntax currentInvocationExpression,
         IMethodSymbol invocationSymbol,
+        bool useModernSyntax,
         CancellationToken cancellationToken)
     {
         var documentEditor = await DocumentEditor.CreateAsync(context.Document, cancellationToken);
         var invocationOperation = (IInvocationOperation)semanticModel.GetOperation(currentInvocationExpression);
 
-        var updatedInvocationExpression = await CreateUpdatedInvocationExpression(
-            currentInvocationExpression,
-            invocationOperation,
-            invocationSymbol,
-            context);
+        var updatedInvocationExpression = useModernSyntax
+            ? await CreateThrowsAsyncInvocationExpression(
+                currentInvocationExpression,
+                invocationSymbol,
+                context)
+            : await CreateReturnInvocationExpression(
+                currentInvocationExpression,
+                invocationOperation,
+                invocationSymbol,
+                context);
 
         documentEditor.ReplaceNode(currentInvocationExpression, updatedInvocationExpression);
 
         return documentEditor.GetChangedDocument();
     }
 
-    private async Task<SyntaxNode> CreateUpdatedInvocationExpression(
+    private async Task<SyntaxNode> CreateThrowsAsyncInvocationExpression(
+        TInvocationExpressionSyntax currentInvocationExpression,
+        IMethodSymbol invocationSymbol,
+        CodeFixContext context)
+    {
+        var updatedMethodName =
+            invocationSymbol.IsThrowsSyncForAnyArgsMethod()
+                ? MetadataNames.NSubstituteThrowsAsyncMethod
+                : MetadataNames.NSubstituteThrowsAsyncForAnyArgsMethod;
+
+        var documentEditor = await DocumentEditor.CreateAsync(context.Document);
+        var syntaxGenerator = documentEditor.Generator;
+
+        var nameSyntax = invocationSymbol.IsGenericMethod
+            ? syntaxGenerator.GenericName(updatedMethodName, invocationSymbol.TypeArguments)
+            : syntaxGenerator.IdentifierName(updatedMethodName);
+
+        return UpdateMemberExpression(currentInvocationExpression, nameSyntax);
+    }
+
+    private async Task<SyntaxNode> CreateReturnInvocationExpression(
         TInvocationExpressionSyntax currentInvocationExpression,
         IInvocationOperation invocationOperation,
         IMethodSymbol invocationSymbol,
@@ -93,11 +120,11 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationEx
             CreateFromExceptionInvocationExpression(syntaxGenerator, invocationOperation);
 
         var returnsMethodName =
-            invocationSymbol.IsThrowsForAnyArgsMethod() ? "ReturnsForAnyArgs" : "Returns";
+            invocationSymbol.IsThrowsSyncForAnyArgsMethod() ? "Returns" : "ReturnsForAnyArgs";
 
         if (invocationSymbol.MethodKind == MethodKind.Ordinary)
         {
-            return CreateUpdatedOrdinalInvocationExpression(
+            return CreateReturnOrdinalInvocationExpression(
                 currentInvocationExpression,
                 invocationOperation,
                 syntaxGenerator,
@@ -105,14 +132,14 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationEx
                 returnsMethodName);
         }
 
-        return CreateUpdatedExtensionInvocationExpression(
+        return CreateReturnExtensionInvocationExpression(
             currentInvocationExpression,
             syntaxGenerator,
             fromExceptionInvocationExpression,
             returnsMethodName);
     }
 
-    private static SyntaxNode CreateUpdatedOrdinalInvocationExpression(
+    private static SyntaxNode CreateReturnOrdinalInvocationExpression(
         TInvocationExpressionSyntax currentInvocationExpression,
         IInvocationOperation invocationOperation,
         SyntaxGenerator syntaxGenerator,
@@ -126,7 +153,7 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationEx
             fromExceptionInvocationExpression).WithTriviaFrom(currentInvocationExpression);
     }
 
-    private SyntaxNode CreateUpdatedExtensionInvocationExpression(
+    private SyntaxNode CreateReturnExtensionInvocationExpression(
         TInvocationExpressionSyntax currentInvocationExpression,
         SyntaxGenerator syntaxGenerator,
         SyntaxNode fromExceptionInvocationExpression,
@@ -172,5 +199,27 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationEx
 
         return invocationOperation.Arguments.OrderBy(arg => arg.Parameter.Ordinal)
             .First(arg => arg.Parameter.Ordinal > 0).Value.Syntax;
+    }
+
+    private static bool SupportsThrowsAsync(Compilation compilation)
+    {
+        var exceptionExtensionsTypeSymbol = compilation.GetTypeByMetadataName("NSubstitute.ExceptionExtensions.ExceptionExtensions");
+
+        return exceptionExtensionsTypeSymbol != null &&
+               exceptionExtensionsTypeSymbol.GetMembers(MetadataNames.NSubstituteThrowsAsyncMethod).IsEmpty == false;
+    }
+
+    private static string GetReplacementMethodName(IMethodSymbol methodSymbol, bool useModernSyntax)
+    {
+        if (useModernSyntax)
+        {
+            return methodSymbol.IsThrowsSyncForAnyArgsMethod()
+                ? MetadataNames.NSubstituteThrowsAsyncMethod
+                : MetadataNames.NSubstituteThrowsAsyncForAnyArgsMethod;
+        }
+
+        return methodSymbol.IsThrowsSyncForAnyArgsMethod()
+            ? MetadataNames.NSubstituteReturnsMethod
+            : MetadataNames.NSubstituteReturnsForAnyArgsMethod;
     }
 }

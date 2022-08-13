@@ -125,7 +125,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim secondSubstitute = NSubstitute.Substitute.[For](Of IFoo)()
-            secondSubstitute.Id.Returns(Function(x) CreateReEntrantSubstitute(), New Func(Of CallInfo(Of Integer), Integer)() {Function(x) MyNamespace.FooTests.Value})
+            secondSubstitute.Id.Returns(Function(x) CreateReEntrantSubstitute(), New Func(Of CallInfo, Integer)() {Function(x) MyNamespace.FooTests.Value})
         End Sub
 
         Private Function CreateReEntrantSubstitute() As Integer

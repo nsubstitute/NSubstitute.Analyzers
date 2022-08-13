@@ -20,6 +20,15 @@ public abstract class SyncOverAsyncThrowsCodeFixVerifier : VisualBasicCodeFixVer
         }
     }
 
+    public static IEnumerable<object[]> ThrowsAsyncTestCases
+    {
+        get
+        {
+            yield return new object[] { "Throws", "ThrowsAsync" };
+            yield return new object[] { "ThrowsForAnyArgs", "ThrowsAsyncForAnyArgs" };
+        }
+    }
+
     protected override CodeFixProvider CodeFixProvider { get; } = new SyncOverAsyncThrowsCodeFixProvider();
 
     protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SyncOverAsyncThrowsAnalyzer();
@@ -35,4 +44,16 @@ public abstract class SyncOverAsyncThrowsCodeFixVerifier : VisualBasicCodeFixVer
     [Theory]
     [MemberData(nameof(ThrowsTestCases))]
     public abstract Task ReplacesThrowsWithReturns_WhenUsedInIndexer(string method, string updatedMethod);
+
+    [Theory]
+    [MemberData(nameof(ThrowsAsyncTestCases))]
+    public abstract Task ReplacesThrowsWithThrowsAsync_WhenUsedInMethod(string method, string updatedMethod);
+
+    [Theory]
+    [MemberData(nameof(ThrowsAsyncTestCases))]
+    public abstract Task ReplacesThrowsWithThrowsAsync_WhenUsedInProperty(string method, string updatedMethod);
+
+    [Theory]
+    [MemberData(nameof(ThrowsAsyncTestCases))]
+    public abstract Task ReplacesThrowsWithThrowsAsync_WhenUsedInIndexer(string method, string updatedMethod);
 }

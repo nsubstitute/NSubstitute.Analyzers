@@ -18,7 +18,9 @@ internal class MetadataNames
     public const string NSubstituteReturnsMethod = "Returns";
     public const string NSubstituteReturnsForAnyArgsMethod = "ReturnsForAnyArgs";
     public const string NSubstituteThrowsMethod = "Throws";
+    public const string NSubstituteThrowsAsyncMethod = "ThrowsAsync";
     public const string NSubstituteThrowsForAnyArgsMethod = "ThrowsForAnyArgs";
+    public const string NSubstituteThrowsAsyncForAnyArgsMethod = "ThrowsAsyncForAnyArgs";
     public const string NSubstituteAndDoesMethod = "AndDoes";
     public const string NSubstituteReturnsNullMethod = "ReturnsNull";
     public const string NSubstituteReturnsNullForAnyArgsMethod = "ReturnsNullForAnyArgs";
@@ -56,6 +58,14 @@ internal class MetadataNames
     };
 
     public static readonly IReadOnlyDictionary<string, string> ThrowsMethodNames = new Dictionary<string, string>
+    {
+        [NSubstituteThrowsMethod] = NSubstituteExceptionExtensionsFullTypeName,
+        [NSubstituteThrowsAsyncMethod] = NSubstituteExceptionExtensionsFullTypeName,
+        [NSubstituteThrowsForAnyArgsMethod] = NSubstituteExceptionExtensionsFullTypeName,
+        [NSubstituteThrowsAsyncForAnyArgsMethod] = NSubstituteExceptionExtensionsFullTypeName
+    };
+
+    public static readonly IReadOnlyDictionary<string, string> ThrowsSyncMethodNames = new Dictionary<string, string>
     {
         [NSubstituteThrowsMethod] = NSubstituteExceptionExtensionsFullTypeName,
         [NSubstituteThrowsForAnyArgsMethod] = NSubstituteExceptionExtensionsFullTypeName
@@ -118,7 +128,9 @@ internal class MetadataNames
         [NSubstituteReturnsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
         [NSubstituteReturnsForAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
         [NSubstituteThrowsMethod] = NSubstituteExceptionExtensionsFullTypeName,
+        [NSubstituteThrowsAsyncMethod] = NSubstituteExceptionExtensionsFullTypeName,
         [NSubstituteThrowsForAnyArgsMethod] = NSubstituteExceptionExtensionsFullTypeName,
+        [NSubstituteThrowsAsyncForAnyArgsMethod] = NSubstituteExceptionExtensionsFullTypeName,
         [NSubstituteAndDoesMethod] = NSubstituteConfiguredCallFullTypeName,
         [NSubstituteDoMethod] = NSubstituteWhenCalledType
     };

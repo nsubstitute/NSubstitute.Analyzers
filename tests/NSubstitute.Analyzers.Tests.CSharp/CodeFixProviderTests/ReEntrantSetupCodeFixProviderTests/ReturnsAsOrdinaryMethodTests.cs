@@ -149,7 +149,7 @@ namespace MyNamespace
         public void Test()
         {
             var secondSubstitute = Substitute.For<IFoo>();
-            SubstituteExtensions.Returns(secondSubstitute.Id, _ => CreateReEntrantSubstitute(), new Func<CallInfo<int>, int>[] { _ => MyNamespace.FooTests.Value });
+            SubstituteExtensions.Returns(secondSubstitute.Id, _ => CreateReEntrantSubstitute(), new Func<CallInfo, int>[] { _ => MyNamespace.FooTests.Value });
         }
 
         private int CreateReEntrantSubstitute()

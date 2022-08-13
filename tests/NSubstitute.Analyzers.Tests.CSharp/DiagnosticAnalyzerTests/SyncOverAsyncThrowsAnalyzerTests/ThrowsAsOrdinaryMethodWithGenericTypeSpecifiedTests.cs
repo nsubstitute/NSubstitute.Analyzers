@@ -133,4 +133,51 @@ namespace MyNamespace
 
         await VerifyNoDiagnostic(source);
     }
+
+    public override async Task ReportsNoDiagnostic_WhenThrowsAsyncUsed(string method)
+    {
+        var source = $@"using System;
+using System.Threading.Tasks;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        Task Bar();
+        Task<object> FooBar();
+
+        Task Foo {{ get; set; }}
+        Task<object> FooBarBar {{ get; set; }}
+
+        Task this[int x] {{ get; set; }}
+        Task<object> this[int x, int y] {{ get; set; }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<IFoo>();
+            ExceptionExtensions.{method}<Exception>(substitute.Bar());
+            ExceptionExtensions.{method}<Exception>(value: substitute.Bar());
+            ExceptionExtensions.{method}<Exception>(substitute.FooBar());
+            ExceptionExtensions.{method}<Exception>(value: substitute.FooBar());
+
+            ExceptionExtensions.{method}<Exception>(substitute.Foo);
+            ExceptionExtensions.{method}<Exception>(value: substitute.Foo);
+            ExceptionExtensions.{method}<Exception>(substitute.FooBarBar);
+            ExceptionExtensions.{method}<Exception>(value: substitute.FooBarBar);
+
+            ExceptionExtensions.{method}<Exception>(substitute[0]);
+            ExceptionExtensions.{method}<Exception>(value: substitute[0]);
+            ExceptionExtensions.{method}<Exception>(substitute[0, 0]);
+            ExceptionExtensions.{method}<Exception>(value: substitute[0, 0]);
+        }}
+    }}
+}}";
+
+        await VerifyNoDiagnostic(source);
+    }
 }

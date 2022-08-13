@@ -1,6 +1,8 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NSubstitute.Analyzers.Tests.Shared;
 using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 using NSubstitute.Analyzers.VisualBasic.CodeFixProviders;
 using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
@@ -37,7 +39,35 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-        await VerifyCodeActions(source, expectedCodeActionTitle);
+        await VerifyCodeActions(source, NSubstituteVersion.NSubstitute4_2_2, expectedCodeActionTitle);
+    }
+
+    [Theory]
+    [InlineData("Throws", "Replace with ThrowsAsync")]
+    [InlineData("ThrowsForAnyArgs", "Replace with ThrowsAsyncForAnyArgs")]
+    public async Task CreatesCodeAction_ForModernSyntax(string method, string expectedCodeActionTitle)
+    {
+        var source = $@"Imports System
+Imports System.Threading.Tasks
+Imports NSubstitute
+Imports NSubstitute.ExceptionExtensions
+
+Namespace MyNamespace
+    Interface IFoo
+        Function Bar() As Task
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
+            substitute.Bar().{method}(New Exception())
+            substitute.Bar().{method}(Function(callInfo) New Exception())
+            substitute.Bar().{method}(createException:= Function(callInfo) New Exception())
+        End Sub
+    End Class
+End Namespace";
+
+        await VerifyCodeActions(source, Enumerable.Repeat(expectedCodeActionTitle, 3).ToArray());
     }
 
     [Theory]
@@ -64,6 +94,6 @@ Namespace MyNamespace
     End Class
 End Namespace";
 
-        await VerifyCodeActions(source);
+        await VerifyCodeActions(source, NSubstituteVersion.NSubstitute4_2_2);
     }
 }

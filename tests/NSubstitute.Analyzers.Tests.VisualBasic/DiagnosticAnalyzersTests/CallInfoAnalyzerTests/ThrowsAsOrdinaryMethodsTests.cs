@@ -5,20 +5,25 @@ using NSubstitute.Analyzers.Tests.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.CallInfoAnalyzerTests;
 
-[CombinatoryData("ExceptionExtensions.Throws", "ExceptionExtensions.ThrowsForAnyArgs")]
+[CombinatoryData(
+    "ExceptionExtensions.Throws",
+    "ExceptionExtensions.ThrowsAsync",
+    "ExceptionExtensions.ThrowsForAnyArgs",
+    "ExceptionExtensions.ThrowsAsyncForAnyArgs")]
 public class ThrowsAsOrdinaryMethodsTests : CallInfoDiagnosticVerifier
 {
     public override async Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string method, string call, string argAccess)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar(ByVal x As Integer) As Integer
-        ReadOnly Property Barr As Integer
-        Default  ReadOnly Property Item(ByVal x As Integer) As Integer
+        Function Bar(ByVal x As Integer) As Task(Of Integer)
+        ReadOnly Property Barr As Task(Of Integer)
+        Default  ReadOnly Property Item(ByVal x As Integer) As Task(Of Integer)
     End Interface
 
     Public Class FooTests
@@ -47,13 +52,14 @@ End Namespace";
     public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string method, string call, string argAccess)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 Namespace MyNamespace
     Interface Foo
-        Function Bar(ByVal x As Integer) As Integer
-        ReadOnly Property Barr As Integer
-        Default ReadOnly Property Item(ByVal x As Integer) As Integer
+        Function Bar(ByVal x As Integer) As Task(Of Integer)
+        ReadOnly Property Barr As Task(Of Integer)
+        Default ReadOnly Property Item(ByVal x As Integer) As Task(Of Integer)
     End Interface
 
     Public Class FooTests
@@ -81,14 +87,15 @@ End Namespace
     public override async Task ReportsNoDiagnostic_WhenAccessingArgumentOutOfBound_AndPositionIsNotLiteralExpression(string method, string call, string argAccess)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar(ByVal x As Integer, ByVal y As Integer) As Integer
-        ReadOnly Property Barr As Integer
-        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Integer) As Integer
+        Function Bar(ByVal x As Integer, ByVal y As Integer) As Task(Of Integer)
+        ReadOnly Property Barr As Task(Of Integer)
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Integer) As Task(Of Integer)
     End Interface
 
     Public Class FooTests
@@ -115,14 +122,15 @@ End Namespace";
     public override async Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string method, string call, string argAccess)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar(ByVal x As Integer, ByVal Optional y As Integer = 1) As Integer
+        Function Bar(ByVal x As Integer, ByVal Optional y As Integer = 1) As Task(Of Integer)
         ReadOnly Property Barr As Integer
-        Default ReadOnly Property Item(ByVal x As Integer, ByVal Optional y As Integer = 1) As Integer
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal Optional y As Integer = 1) As Task(Of Integer)
     End Interface
 
     Public Class FooTests
@@ -150,16 +158,17 @@ End Namespace
     public override async Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBoundsForNestedCall(string method)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 
 Namespace MyNamespace
     Interface IFoo
-        Function Bar(ByVal x As Integer) As Integer
+        Function Bar(ByVal x As Integer) As Task(Of Integer)
     End Interface
 
     Interface IFooBar
-        Function FooBaz(ByVal x As Integer, ByVal y As Integer) As Integer
+        Function FooBaz(ByVal x As Integer, ByVal y As Integer) As Task(Of Integer)
     End Interface
 
     Public Class FooTests
@@ -186,16 +195,17 @@ End Namespace";
     public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBoundsForNestedCall(string method)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 
 Namespace MyNamespace
     Interface IFoo
-        Function Bar(ByVal x As Integer) As Integer
+        Function Bar(ByVal x As Integer) As Task(Of Integer)
     End Interface
 
     Interface IFooBar
-        Function FooBaz(ByVal x As Integer, ByVal y As Integer) As Integer
+        Function FooBaz(ByVal x As Integer, ByVal y As Integer) As Task(Of Integer)
     End Interface
 
     Public Class FooTests
@@ -234,13 +244,14 @@ End Namespace";
     public override async Task ReportsNoDiagnostic_WhenManuallyCasting_ToSupportedType(string method, string call, string argAccess)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar(ByVal x As Integer, ByVal y As Bar) As Integer
-        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Bar) As Integer
+        Function Bar(ByVal x As Integer, ByVal y As Bar) As Task(Of Integer)
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Bar) As Task(Of Integer)
     End Interface
 
     Public Class BarBase
@@ -275,14 +286,15 @@ End Namespace";
     public override async Task ReportsDiagnostic_WhenManuallyCasting_ToUnsupportedType(string method, string call, string argAccess)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 Namespace MyNamespace
     Interface Foo
-        Function Bar(ByVal x As Integer, ByVal y As Double) As Integer
-        Function Foo(ByVal x As Integer, ByVal bar As FooBar) As Integer
-        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Double) As Integer
-        Default ReadOnly Property Item(ByVal x As Integer, ByVal bar As FooBar) As Integer
+        Function Bar(ByVal x As Integer, ByVal y As Double) As Task(Of Integer)
+        Function Foo(ByVal x As Integer, ByVal bar As FooBar) As Task(Of Integer)
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Double) As Task(Of Integer)
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal bar As FooBar) As Task(Of Integer)
     End Interface
 
     Public Class Bar
@@ -317,13 +329,14 @@ End Namespace
     public override async Task ReportsNoDiagnostic_WhenCasting_WithArgAt_ToSupportedType(string method, string call, string argAccess)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar(ByVal x As Integer, ByVal y As Bar) As Integer
-        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Bar) As Integer
+        Function Bar(ByVal x As Integer, ByVal y As Bar) As Task(Of Integer)
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Bar) As Task(Of Integer)
     End Interface
 
     Public Class BarBase
@@ -359,14 +372,15 @@ End Namespace
     public override async Task ReportsDiagnostic_WhenCasting_WithArgAt_ToUnsupportedType(string method, string call, string argAccess, string message)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 Namespace MyNamespace
     Interface Foo
-        Function Bar(ByVal x As Integer, ByVal y As Double) As Integer
-        Function Foo(ByVal x As Integer, ByVal bar As FooBar) As Integer
-        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Double) As Integer
-        Default ReadOnly Property Item(ByVal x As Integer, ByVal bar As FooBar) As Integer
+        Function Bar(ByVal x As Integer, ByVal y As Double) As Task(Of Integer)
+        Function Foo(ByVal x As Integer, ByVal bar As FooBar) As Task(Of Integer)
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Double) As Task(Of Integer)
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal bar As FooBar) As Task(Of Integer)
     End Interface
 
     Public Class Bar
@@ -401,13 +415,14 @@ End Namespace
     public override async Task ReportsNoDiagnostic_WhenCastingElementsFromArgTypes(string method, string call, string argAccess)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar(ByVal x As Bar) As Integer
-        Default ReadOnly Property Item(ByVal x As Bar) As Integer
+        Function Bar(ByVal x As Bar) As Task(Of Integer)
+        Default ReadOnly Property Item(ByVal x As Bar) As Task(Of Integer)
     End Interface
 
     Public Class Bar
@@ -438,13 +453,14 @@ End Namespace
     public override async Task ReportsNoDiagnostic_WhenAssigningValueToNotRefNorOutArgumentViaIndirectCall(string method, string call, string argAccess)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar(ByVal x As Bar) As Integer
-        Default ReadOnly Property Item(ByVal x As Bar) As Integer
+        Function Bar(ByVal x As Bar) As Task(Of Integer)
+        Default ReadOnly Property Item(ByVal x As Bar) As Task(Of Integer)
     End Interface
 
     Public Class Bar
@@ -475,14 +491,15 @@ End Namespace
     public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocation(string method, string call, string argAccess, string message)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar(ByVal x As Integer) As Integer
-        ReadOnly Property Barr As Integer
-        Default ReadOnly Property Item(ByVal x As Integer) As Integer
+        Function Bar(ByVal x As Integer) As Task(Of Integer)
+        ReadOnly Property Barr As Task(Of Integer)
+        Default ReadOnly Property Item(ByVal x As Integer) As Task(Of Integer)
 
     End Interface
 
@@ -511,17 +528,18 @@ End Namespace
     public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInInvocation(string method, string call, string argAccess)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 
 Namespace MyNamespace
     Interface IFoo
-        Function Bar(ByVal x As Integer) As Integer
-        Function Bar(ByVal x As Foo) As Integer
-        Function Bar(ByVal x As Integer, ByVal y As Object) As Integer
-        Default ReadOnly Property Item(ByVal x As Integer) As Integer
-        Default ReadOnly Property Item(ByVal x As Foo) As Integer
-        Default ReadOnly Property Item(ByVal x As Integer, ByVal y as Object) As Integer
+        Function Bar(ByVal x As Integer) As Task(Of Integer)
+        Function Bar(ByVal x As Foo) As Task(Of Integer)
+        Function Bar(ByVal x As Integer, ByVal y As Object) As Task(Of Integer)
+        Default ReadOnly Property Item(ByVal x As Integer) As Task(Of Integer)
+        Default ReadOnly Property Item(ByVal x As Foo) As Task(Of Integer)
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal y as Object) As Task(Of Integer)
     End Interface
 
     Public Class FooBase
@@ -557,16 +575,17 @@ End Namespace
     public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeInInvocationForNestedCall(string method)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 
 Namespace MyNamespace
     Interface IFoo
-        Function Bar(ByVal x As Integer) As Integer
+        Function Bar(ByVal x As Integer) As Task(Of Integer)
     End Interface
 
     Interface IFooBar
-        Function FooBaz(ByVal x As String) As Integer
+        Function FooBaz(ByVal x As String) As Task(Of Integer)
     End Interface
 
     Public Class FooTests
@@ -591,15 +610,16 @@ End Namespace";
     public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeMultipleTimesInInvocation(string method, string call, string argAccess, string message)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar(ByVal x As Integer, ByVal y As Integer) As Integer
-        Function Bar(ByVal x As Object, ByVal y As Object) As Integer
-        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Integer) As Integer
-        Default ReadOnly Property Item(ByVal x As Object, ByVal y As Object) As Integer
+        Function Bar(ByVal x As Integer, ByVal y As Integer) As Task(Of Integer)
+        Function Bar(ByVal x As Object, ByVal y As Object) As Task(Of Integer)
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Integer) As Task(Of Integer)
+        Default ReadOnly Property Item(ByVal x As Object, ByVal y As Object) As Task(Of Integer)
     End Interface
 
     Public Class FooBar
@@ -631,15 +651,16 @@ End Namespace
     public override async Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(string method, string call, string argAccess)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar(ByVal x As Integer, ByVal y As Double) As Integer
-        Function Bar(ByVal x As Object, ByVal y As FooBar) As Integer
-        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Double) As Integer
-        Default ReadOnly Property Item(ByVal x As Object, ByVal y As FooBar) As Integer
+        Function Bar(ByVal x As Integer, ByVal y As Double) As Task(Of Integer)
+        Function Bar(ByVal x As Object, ByVal y As FooBar) As Task(Of Integer)
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Double) As Task(Of Integer)
+        Default ReadOnly Property Item(ByVal x As Object, ByVal y As FooBar) As Task(Of Integer)
     End Interface
 
     Public Class FooBar
@@ -671,13 +692,14 @@ End Namespace
     public override async Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string method, string call)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar(ByVal x As Integer, ByVal y As Double) As Integer
-        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Double) As Integer
+        Function Bar(ByVal x As Integer, ByVal y As Double) As Task(Of Integer)
+        Default ReadOnly Property Item(ByVal x As Integer, ByVal y As Double) As Task(Of Integer)
     End Interface
 
     Public Class FooTests
@@ -705,12 +727,13 @@ End Namespace
     public override async Task ReportsNoDiagnostic_WhenAssigningValueToRefArgument(string method)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar(ByRef x As Integer) As Integer
+        Function Bar(ByRef x As Integer) As Task(Of Integer)
     End Interface
 
     Public Class FooTests
@@ -739,13 +762,14 @@ End Namespace
     public override async Task ReportsNoDiagnostic_WhenAssigningValueToOutArgument(string method)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 Imports System.Runtime.InteropServices
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar(<Out> ByRef x As Integer) As Integer
+        Function Bar(<Out> ByRef x As Integer) As Task(Of Integer)
     End Interface
 
     Public Class FooTests
@@ -774,13 +798,14 @@ End Namespace
     public override async Task ReportsDiagnostic_WhenAssigningValueToOutOfBoundsArgument(string method)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 Imports System.Runtime.InteropServices
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar(<Out> ByRef x As Integer) As Integer
+        Function Bar(<Out> ByRef x As Integer) As Task(Of Integer)
     End Interface
 
     Public Class FooTests
@@ -809,6 +834,7 @@ End Namespace
     public override async Task ReportsDiagnostic_WhenAssigningType_NotAssignableTo_Argument(string method, string left, string right, string expectedMessage)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 Imports System.Runtime.InteropServices
@@ -816,7 +842,7 @@ Imports System.Collections.Generic
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar(<Out> ByRef x As {left}) As Integer
+        Function Bar(<Out> ByRef x As {left}) As Task(Of Integer)
     End Interface
 
     Public Class FooTests
@@ -847,6 +873,7 @@ End Namespace
     {
         var source = $@"
 Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 Imports System.Runtime.InteropServices
@@ -854,7 +881,7 @@ Imports System.Collections.Generic
 
 Namespace MyNamespace
     Interface Foo
-        Function Bar(<Out> ByRef x As {left}) As Integer
+        Function Bar(<Out> ByRef x As {left}) As Task(Of Integer)
     End Interface
 
     Public Class FooTests
@@ -884,16 +911,17 @@ End Namespace
     public override async Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocationForNestedCall(string method)
     {
         var source = $@"Imports System
+Imports System.Threading.Tasks
 Imports NSubstitute
 Imports NSubstitute.ExceptionExtensions
 
 Namespace MyNamespace
     Interface IFoo
-        Function Bar(ByVal x As Integer) As Integer
+        Function Bar(ByVal x As Integer) As Task(Of Integer)
     End Interface
 
     Interface IFooBar
-        Function FooBaz(ByVal x As Integer) As Integer
+        Function FooBaz(ByVal x As Integer) As Task(Of Integer)
     End Interface
 
     Public Class FooTests

@@ -124,4 +124,51 @@ namespace MyNamespace
 
         await VerifyNoDiagnostic(source);
     }
+
+    public override async Task ReportsNoDiagnostic_WhenThrowsAsyncUsed(string method)
+    {
+        var source = $@"using System;
+using System.Threading.Tasks;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        Task Bar();
+        Task<object> FooBar();
+
+        Task Foo {{ get; set; }}
+        Task<object> FooBarBar {{ get; set; }}
+
+        Task this[int x] {{ get; set; }}
+        Task<object> this[int x, int y] {{ get; set; }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<IFoo>();
+            substitute.Bar().{method}<Exception>();
+            substitute.Bar().{method}<Exception>();
+            substitute.FooBar().{method}<Exception>();
+            substitute.FooBar().{method}<Exception>();
+
+            substitute.Foo.{method}<Exception>();
+            substitute.Foo.{method}<Exception>();
+            substitute.FooBarBar.{method}<Exception>();
+            substitute.FooBarBar.{method}<Exception>();
+
+            substitute[0].{method}<Exception>();
+            substitute[0].{method}<Exception>();
+            substitute[0, 0].{method}<Exception>();
+            substitute[0, 0].{method}<Exception>();
+        }}
+    }}
+}}";
+
+        await VerifyNoDiagnostic(source);
+    }
 }

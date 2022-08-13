@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 using NSubstitute.Analyzers.Shared.Settings;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
@@ -6,12 +6,17 @@ using NSubstitute.Analyzers.Tests.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitutableMemberAnalyzerTests;
 
-[CombinatoryData("ExceptionExtensions.Throws<Exception>", "ExceptionExtensions.ThrowsForAnyArgs<Exception>")]
+[CombinatoryData(
+    "ExceptionExtensions.Throws<Exception>",
+    "ExceptionExtensions.ThrowsAsync<Exception>",
+    "ExceptionExtensions.ThrowsForAnyArgs<Exception>",
+    "ExceptionExtensions.ThrowsAsyncForAnyArgs<Exception>")]
 public class ThrowsAsOrdinaryMethodWithGenericTypeSpecifiedTests : NonSubstitutableMemberDiagnosticVerifier
 {
     public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -19,9 +24,9 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public int Bar()
+        public Task<int> Bar()
         {{
-            return 2;
+            return Task.FromResult(1);
         }}
     }}
 
@@ -40,6 +45,14 @@ namespace MyNamespace
 
     public override async Task ReportsDiagnostics_WhenSettingValueForLiteral(string method, string literal, string type)
     {
+        if (method.Contains("Async"))
+        {
+            // ThrowsAsync like methods do not extend literals
+            // TODO replace with Assert.Skip once xUnit v3 released
+            // https://github.com/xunit/xunit/issues/2073
+            return;
+        }
+
         var source = $@"using System;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
@@ -61,6 +74,7 @@ namespace MyNamespace
     public override async Task ReportsDiagnostics_WhenSettingValueForStaticMethod(string method)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -68,9 +82,9 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public static int Bar()
+        public static Task<int> Bar()
         {{
-            return 2;
+            return Task.FromResult(2);
         }}
     }}
 
@@ -89,6 +103,7 @@ namespace MyNamespace
     public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string method)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -96,9 +111,9 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public virtual int Bar()
+        public virtual Task<int> Bar()
         {{
-            return 2;
+            return Task.FromResult(2);
         }}
     }}
 
@@ -117,6 +132,7 @@ namespace MyNamespace
     public override async Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string method)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -124,15 +140,15 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public virtual int Bar()
+        public virtual Task<int> Bar()
         {{
-            return 2;
+            return Task.FromResult(2);
         }}
     }}
 
     public class Foo2 : Foo
     {{
-        public override int Bar() => 1;
+        public override Task<int> Bar() => Task.FromResult(1);
     }}
 
     public class FooTests
@@ -150,6 +166,7 @@ namespace MyNamespace
     public override async Task ReportsNoDiagnostics_WhenDataFlowAnalysisIsRequired(string method)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -157,9 +174,9 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public virtual int Bar()
+        public virtual Task<int> Bar()
         {{
-            return 2;
+            return Task.FromResult(2);
         }}
     }}
 
@@ -179,6 +196,7 @@ namespace MyNamespace
     public override async Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string method)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using System;
@@ -189,7 +207,7 @@ namespace MyNamespace
     {{
         public void Test()
         {{
-            var substitute = Substitute.For<Func<int>>();
+            var substitute = Substitute.For<Func<Task<int>>>();
             {method}(substitute());
         }}
     }}
@@ -200,6 +218,7 @@ namespace MyNamespace
     public override async Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string method)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -207,15 +226,15 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public virtual int Bar()
+        public virtual Task<int> Bar()
         {{
-            return 2;
+            return Task.FromResult(2);
         }}
     }}
 
     public class Foo2 : Foo
     {{
-        public sealed override int Bar() => 1;
+        public sealed override Task<int> Bar() => Task.FromResult(1);
     }}
 
     public class FooTests
@@ -234,6 +253,7 @@ namespace MyNamespace
     public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string method)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -241,7 +261,7 @@ namespace MyNamespace
 {{
     public abstract class Foo
     {{
-        public abstract int Bar();
+        public abstract Task<int> Bar();
     }}
 
     public class FooTests
@@ -260,6 +280,7 @@ namespace MyNamespace
     public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod(string method)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -267,7 +288,7 @@ namespace MyNamespace
 {{
     public interface IFoo
     {{
-        int Bar();
+        Task<int> Bar();
     }}
 
     public class FooTests
@@ -285,6 +306,7 @@ namespace MyNamespace
     public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string method)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -292,7 +314,7 @@ namespace MyNamespace
 {{
     public interface IFoo
     {{
-        int Bar {{ get; }}
+        Task<int> Bar {{ get; }}
     }}
 
     public class FooTests
@@ -310,6 +332,7 @@ namespace MyNamespace
     public override async Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod(string method)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -317,7 +340,7 @@ namespace MyNamespace
 {{
     public interface IFoo<T>
     {{
-        int Bar<T>();
+        Task<int> Bar<T>();
     }}
 
     public class FooTests
@@ -335,6 +358,7 @@ namespace MyNamespace
     public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string method)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -342,7 +366,7 @@ namespace MyNamespace
 {{
     public abstract class Foo
     {{
-        public abstract int Bar {{ get; }}
+        public abstract Task<int> Bar {{ get; }}
     }}
 
     public class FooTests
@@ -361,6 +385,7 @@ namespace MyNamespace
     public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer(string method)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -368,7 +393,7 @@ namespace MyNamespace
 {{
     public interface IFoo
     {{
-        int this[int i] {{ get; }}
+        Task<int> this[int i] {{ get; }}
     }}
 
     public class FooTests
@@ -386,6 +411,7 @@ namespace MyNamespace
     public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string method)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -393,7 +419,7 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public virtual int Bar {{ get; }}
+        public virtual Task<int> Bar {{ get; }}
     }}
 
     public class FooTests
@@ -412,6 +438,7 @@ namespace MyNamespace
     public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string method)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -419,7 +446,7 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public int Bar {{ get; }}
+        public Task<int> Bar {{ get; }}
     }}
 
     public class FooTests
@@ -438,6 +465,7 @@ namespace MyNamespace
     public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualIndexer(string method)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -445,7 +473,7 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public virtual int this[int x] => 0;
+        public virtual Task<int> this[int x] => Task.FromResult(0);
     }}
 
     public class FooTests
@@ -463,6 +491,7 @@ namespace MyNamespace
     public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string method)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -470,7 +499,7 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public int this[int x] => 0;
+        public Task<int> this[int x] => Task.FromResult(0);
     }}
 
     public class FooTests
@@ -490,13 +519,14 @@ namespace MyNamespace
     {
         var source = $@"
 using System;
+using System.Threading.Tasks;
 namespace NSubstitute
 {{
     public class Foo
     {{
-        public int Bar()
+        public Task<int> Bar()
         {{
-            return 1;
+            return Task.FromResult(1);
         }}
     }}
 
@@ -507,7 +537,17 @@ namespace NSubstitute
             return default(T);
         }}
 
+        public static T ThrowsAsync<T>(this Task value) where T: Exception
+        {{
+            return default(T);
+        }}
+
         public static T ThrowsForAnyArgs<T>(this object value) where T: Exception
+        {{
+            return default(T);
+        }}
+
+        public static T ThrowsAsyncForAnyArgs<T>(this Task value) where T: Exception
         {{
             return default(T);
         }}
@@ -530,6 +570,7 @@ namespace NSubstitute
         Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo.Bar", NonVirtualSetupSpecificationDescriptor.Id);
 
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -537,9 +578,9 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public int Bar {{ get; }}
+        public Task<int> Bar {{ get; }}
 
-        public int FooBar {{ get; }}
+        public Task<int> FooBar {{ get; }}
     }}
 
     public class FooTests
@@ -561,23 +602,24 @@ namespace MyNamespace
         Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo`1.Bar", NonVirtualSetupSpecificationDescriptor.Id);
 
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
 namespace MyNamespace
 {{
-    public class Foo<T>
+    public class Foo<T> where T : Task
     {{
         public T Bar {{ get; }}
 
-        public int FooBar {{ get; }}
+        public Task<int> FooBar {{ get; }}
     }}
 
     public class FooTests
     {{
         public void Test()
         {{
-            var substitute = NSubstitute.Substitute.For<Foo<int>>();
+            var substitute = NSubstitute.Substitute.For<Foo<Task<int>>>();
             {method}(substitute.Bar);
             {method}([|substitute.FooBar|]);
         }}
@@ -592,6 +634,7 @@ namespace MyNamespace
         Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar(System.Int32,System.Int32)", NonVirtualSetupSpecificationDescriptor.Id);
 
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -599,14 +642,14 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public int Bar(int x)
+        public Task<int> Bar(int x)
         {{
-            return 1;
+            return Task.FromResult(1);
         }}
 
-        public int Bar(int x, int y)
+        public Task<int> Bar(int x, int y)
         {{
-            return 2;
+            return Task.FromResult(2);
         }}
     }}
 
@@ -629,6 +672,7 @@ namespace MyNamespace
         Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.Foo.Bar``1(``0,``0)", NonVirtualSetupSpecificationDescriptor.Id);
 
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -636,14 +680,14 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public int Bar(int x)
+        public Task<int> Bar(int x)
         {{
-            return 1;
+            return Task.FromResult(1);
         }}
 
-        public int Bar<T>(T x, T y)
+        public Task<int> Bar<T>(T x, T y)
         {{
-            return 2;
+            return Task.FromResult(2);
         }}
     }}
 
@@ -666,6 +710,7 @@ namespace MyNamespace
         Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo.Item(System.Int32,System.Int32)", NonVirtualSetupSpecificationDescriptor.Id);
 
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -673,8 +718,8 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public int this[int x] => 0;
-        public int this[int x, int y] => 0;
+        public Task<int> this[int x] => Task.FromResult(0);
+        public Task<int> this[int x, int y] => Task.FromResult(0);
     }}
 
     public class FooTests
@@ -696,6 +741,7 @@ namespace MyNamespace
         Settings = AnalyzersSettings.CreateWithSuppressions("P:MyNamespace.Foo`1.Item(`0,`0)", NonVirtualSetupSpecificationDescriptor.Id);
 
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -703,8 +749,8 @@ namespace MyNamespace
 {{
     public class Foo<T>
     {{
-        public int this[T x] => 0;
-        public int this[T x, T y] => 0;
+        public Task<int> this[T x] => Task.FromResult(0);
+        public Task<int> this[T x, T y] => Task.FromResult(0);
     }}
 
     public class FooTests
@@ -726,6 +772,7 @@ namespace MyNamespace
         Settings = AnalyzersSettings.CreateWithSuppressions("T:MyNamespace.Foo", NonVirtualSetupSpecificationDescriptor.Id);
 
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -733,21 +780,21 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        public int Bar {{ get; set; }}
-        public int this[int x] => 0;
-        public int FooBar()
+        public Task<int> Bar {{ get; set; }}
+        public Task<int> this[int x] => Task.FromResult(0);
+        public Task<int> FooBar()
         {{
-            return 1;
+            return Task.FromResult(1);
         }}
     }}
 
     public class FooBarBar
     {{
-        public int Bar {{ get;set; }}
-        public int this[int x] => 0;
-        public int FooBar()
+        public Task<int> Bar {{ get;set; }}
+        public Task<int> this[int x] => Task.FromResult(0);
+        public Task<int> FooBar()
         {{
-            return 1;
+            return Task.FromResult(1);
         }}
     }}
 
@@ -787,6 +834,7 @@ namespace MyNamespace
         Settings = AnalyzersSettings.CreateWithSuppressions("T:MyNamespace.Foo`1", NonVirtualSetupSpecificationDescriptor.Id);
 
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -794,21 +842,21 @@ namespace MyNamespace
 {{
     public class Foo<T>
     {{
-        public int Bar {{ get; set; }}
-        public int this[int x] => 0;
-        public int FooBar()
+        public Task<int> Bar {{ get; set; }}
+        public Task<int> this[int x] => Task.FromResult(0);
+        public Task<int> FooBar()
         {{
-            return 1;
+            return Task.FromResult(1);
         }}
     }}
 
     public class FooBarBar<T>
     {{
-        public int Bar {{ get;set; }}
-        public int this[int x] => 0;
-        public int FooBar()
+        public Task<int> Bar {{ get;set; }}
+        public Task<int> this[int x] => Task.FromResult(0);
+        public Task<int> FooBar()
         {{
-            return 1;
+            return Task.FromResult(1);
         }}
     }}
 
@@ -848,6 +896,7 @@ namespace MyNamespace
         Settings = AnalyzersSettings.CreateWithSuppressions("N:MyNamespace", NonVirtualSetupSpecificationDescriptor.Id);
 
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -855,11 +904,11 @@ namespace MyOtherNamespace
 {{
     public class FooBarBar
     {{
-        public int Bar {{ get; set; }}
-        public int this[int x] => 0;
-        public int FooBar()
+        public Task<int> Bar {{ get; set; }}
+        public Task<int> this[int x] => Task.FromResult(0);
+        public Task<int> FooBar()
         {{
-            return 1;
+            return Task.FromResult(1);
         }}
     }}
 }}
@@ -869,11 +918,11 @@ namespace MyNamespace
     using MyOtherNamespace;
     public class Foo
     {{
-        public int Bar {{ get; set; }}
-        public int this[int x] => 0;
-        public int FooBar()
+        public Task<int> Bar {{ get; set; }}
+        public Task<int> this[int x] => Task.FromResult(0);
+        public Task<int> FooBar()
         {{
-            return 1;
+            return Task.FromResult(1);
         }}
     }}
 
@@ -910,9 +959,10 @@ namespace MyNamespace
 
     public override async Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingExtensionMethod(string method)
     {
-        Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.MyExtensions.GetBar(System.Object)~System.Int32", NonVirtualSetupSpecificationDescriptor.Id);
+        Settings = AnalyzersSettings.CreateWithSuppressions("M:MyNamespace.MyExtensions.GetBar(System.Object)~System.Threading.Tasks.Task{System.Int32}", NonVirtualSetupSpecificationDescriptor.Id);
 
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -933,20 +983,20 @@ namespace MyNamespace
     {{
         public static IBar Bar {{ get; set; }}
 
-        public static int GetBar(this object @object)
+        public static Task<int> GetBar(this object @object)
         {{
             return Bar.Foo(@object);
         }}
 
-        public static int GetFooBar(this object @object)
+        public static Task<int> GetFooBar(this object @object)
         {{
-            return 1;
+            return Task.FromResult(1);
         }}
     }}
 
     public interface IBar
     {{
-        int Foo(object @obj);
+        Task<int> Foo(object @obj);
     }}
 }}";
 
@@ -956,6 +1006,7 @@ namespace MyNamespace
     public override async Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -963,16 +1014,16 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        internal virtual object Bar {{ get; }}
+        internal virtual Task<int> Bar {{ get; }}
 
-        internal virtual object FooBar()
+        internal virtual Task<int> FooBar()
         {{
-            return 1;
+            return Task.FromResult(1);
         }}
 
-        internal virtual object this[int x]
+        internal virtual Task<int> this[int x]
         {{
-            get {{ return 1; }}
+            get {{ return Task.FromResult(1); }}
         }}
     }}
 
@@ -992,6 +1043,7 @@ namespace MyNamespace
     public override async Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using System.Runtime.CompilerServices;
@@ -1003,16 +1055,16 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        internal virtual object Bar {{ get; }}
+        internal virtual Task<int> Bar {{ get; }}
 
-        internal virtual object FooBar()
+        internal virtual Task<int> FooBar()
         {{
-            return 1;
+            return Task.FromResult(1);
         }}
 
-        internal virtual object this[int x]
+        internal virtual Task<int> this[int x]
         {{
-            get {{ return 1; }}
+            get {{ return Task.FromResult(1); }}
         }}
     }}
 
@@ -1032,25 +1084,26 @@ namespace MyNamespace
     public override async Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
-using System.Runtime.CompilerServices;
 using NSubstitute.ExceptionExtensions;
+using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo(""OtherAssembly"")]
 
 namespace MyNamespace
 {{
     public class Foo
     {{
-        internal virtual object Bar {{ get; }}
+        internal virtual Task<int> Bar {{ get; }}
 
-        internal virtual object FooBar()
+        internal virtual Task<int> FooBar()
         {{
-            return 1;
+            return Task.FromResult(1);
         }}
 
-        internal virtual object this[int x]
+        internal virtual Task<int> this[int x]
         {{
-            get {{ return 1; }}
+            get {{ return Task.FromResult(1); }}
         }}
     }}
 
@@ -1070,6 +1123,7 @@ namespace MyNamespace
     public override async Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call)
     {
         var source = $@"using System;
+using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
@@ -1077,16 +1131,16 @@ namespace MyNamespace
 {{
     public class Foo
     {{
-        protected internal virtual object Bar {{ get; }}
+        protected internal virtual Task<int> Bar {{ get; }}
 
-        protected internal virtual object FooBar()
+        protected internal virtual Task<int> FooBar()
         {{
-            return 1;
+            return Task.FromResult(1);
         }}
 
-        protected internal virtual object this[int x]
+        protected internal virtual Task<int> this[int x]
         {{
-            get {{ return 1; }}
+            get {{ return Task.FromResult(1); }}
         }}
     }}
 

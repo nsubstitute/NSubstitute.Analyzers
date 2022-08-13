@@ -142,4 +142,57 @@ namespace MyNamespace
 
         await VerifyNoDiagnostic(source);
     }
+
+    public override async Task ReportsNoDiagnostic_WhenThrowsAsyncUsed(string method)
+    {
+        var source = $@"using System;
+using System.Threading.Tasks;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        Task Bar();
+        Task<object> FooBar();
+
+        Task Foo {{ get; set; }}
+        Task<object> FooBarBar {{ get; set; }}
+
+        Task this[int x] {{ get; set; }}
+        Task<object> this[int x, int y] {{ get; set; }}
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<IFoo>();
+            ExceptionExtensions.{method}(substitute.Bar(), new Exception());
+            ExceptionExtensions.{method}(value: substitute.Bar(), ex: new Exception());
+            ExceptionExtensions.{method}(ex: new Exception(), value: substitute.Bar());
+            ExceptionExtensions.{method}(substitute.FooBar(), new Exception());
+            ExceptionExtensions.{method}(value: substitute.FooBar(), ex: new Exception());
+            ExceptionExtensions.{method}(ex: new Exception(), value: substitute.FooBar());
+
+            ExceptionExtensions.{method}(substitute.Foo, new Exception());
+            ExceptionExtensions.{method}(value: substitute.Foo, ex: new Exception());
+            ExceptionExtensions.{method}(ex: new Exception(), value: substitute.Foo);
+            ExceptionExtensions.{method}(substitute.FooBarBar, new Exception());
+            ExceptionExtensions.{method}(value: substitute.FooBarBar, ex: new Exception());
+            ExceptionExtensions.{method}(ex: new Exception(), value: substitute.FooBarBar);
+
+            ExceptionExtensions.{method}(substitute[0], new Exception());
+            ExceptionExtensions.{method}(value: substitute[0], ex: new Exception());
+            ExceptionExtensions.{method}(ex: new Exception(), value: substitute[0]);
+            ExceptionExtensions.{method}(substitute[0, 0], new Exception());
+            ExceptionExtensions.{method}(value: substitute[0, 0], ex: new Exception());
+            ExceptionExtensions.{method}(ex: new Exception(), value: substitute[0, 0]);
+        }}
+    }}
+}}";
+
+        await VerifyNoDiagnostic(source);
+    }
 }

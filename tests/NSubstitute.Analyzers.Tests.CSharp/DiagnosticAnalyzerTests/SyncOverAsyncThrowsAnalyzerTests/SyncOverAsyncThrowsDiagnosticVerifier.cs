@@ -21,6 +21,15 @@ public abstract class SyncOverAsyncThrowsDiagnosticVerifier : CSharpDiagnosticVe
         }
     }
 
+    public static IEnumerable<object[]> ThrowsAsyncTestCases
+    {
+        get
+        {
+            yield return new object[] { "ThrowsAsync" };
+            yield return new object[] { "ThrowsAsyncForAnyArgs" };
+        }
+    }
+
     protected DiagnosticDescriptor SyncOverAsyncThrowsDescriptor => DiagnosticDescriptors<DiagnosticDescriptorsProvider>.SyncOverAsyncThrows;
 
     protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new SyncOverAsyncThrowsAnalyzer();
@@ -40,4 +49,8 @@ public abstract class SyncOverAsyncThrowsDiagnosticVerifier : CSharpDiagnosticVe
     [Theory]
     [MemberData(nameof(ThrowsTestCases))]
     public abstract Task ReportsNoDiagnostic_WhenUsedWithSyncMember(string method);
+
+    [Theory]
+    [MemberData(nameof(ThrowsAsyncTestCases))]
+    public abstract Task ReportsNoDiagnostic_WhenThrowsAsyncUsed(string method);
 }

@@ -11,4 +11,6 @@ public interface ISyncOverAsyncThrowsDiagnosticVerifier
     Task ReportsDiagnostic_WhenUsedInTaskReturningIndexer(string method);
 
     Task ReportsNoDiagnostic_WhenUsedWithSyncMember(string method);
+
+    Task ReportsNoDiagnostic_WhenThrowsAsyncUsed(string method);
 }
