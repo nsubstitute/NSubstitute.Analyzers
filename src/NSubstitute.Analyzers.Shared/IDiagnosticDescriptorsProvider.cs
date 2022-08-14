@@ -52,6 +52,8 @@ internal interface IDiagnosticDescriptorsProvider
 
     DiagnosticDescriptor NonSubstitutableMemberArgumentMatcherUsage { get; }
 
+    DiagnosticDescriptor WithAnyArgsArgumentMatcherUsage { get; }
+
     DiagnosticDescriptor ReceivedUsedInReceivedInOrder { get; }
 
     DiagnosticDescriptor AsyncCallbackUsedInReceivedInOrder { get; }

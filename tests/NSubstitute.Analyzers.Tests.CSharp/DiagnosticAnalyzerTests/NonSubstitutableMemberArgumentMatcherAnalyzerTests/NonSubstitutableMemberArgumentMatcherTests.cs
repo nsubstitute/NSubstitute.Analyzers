@@ -899,7 +899,7 @@ namespace MyNamespace
         "ReceivedWithAnyArgs()",
         "DidNotReceive()",
         "DidNotReceiveWithAnyArgs()")]
-    public override async Task ReportsNoDiagnostics_WhenAssigningArgMatchersToSubstitutableMemberPrecededByReceivedLikeMethod(string receivedMethod, string arg)
+    public override async Task ReportsDiagnostics_WhenAssigningInvalidArgMatchersToMemberPrecededByWithAnyArgsLikeMethod(string receivedMethod, string arg)
     {
         var source = $@"using System;
 using NSubstitute;

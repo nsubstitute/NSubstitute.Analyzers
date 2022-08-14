@@ -375,6 +375,19 @@
     <value>Argument matcher used with a non-virtual member of a class.</value>
         <comment>The title of the diagnostic.</comment>
   </data>
+  
+      <data name="WithAnyArgsArgumentMatcherUsageDescription" xml:space="preserve">
+    <value>Argument matcher used with WithAnyArgs. This matcher may not be executed..</value>
+        <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+    <data name="WithAnyArgsArgumentMatcherUsageMessageFormat" xml:space="preserve">
+    <value>Argument matcher used with WithAnyArgs. This matcher may not be executed..</value>
+        <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+    <data name="WithAnyArgsArgumentMatcherUsageTitle" xml:space="preserve">
+    <value>Argument matcher used with WithAnyArgs. This matcher may not be executed..</value>
+        <comment>The title of the diagnostic.</comment>
+  </data>
 
     <data name="ReceivedUsedInReceivedInOrderDescription" xml:space="preserve">
     <value>Received-like method used in Received.InOrder block.</value>

@@ -93,7 +93,7 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationEx
         CodeFixContext context)
     {
         var updatedMethodName =
-            invocationSymbol.IsThrowsSyncForAnyArgsMethod()
+            invocationSymbol.IsThrowsSyncMethod()
                 ? MetadataNames.NSubstituteThrowsAsyncMethod
                 : MetadataNames.NSubstituteThrowsAsyncForAnyArgsMethod;
 
@@ -120,7 +120,7 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationEx
             CreateFromExceptionInvocationExpression(syntaxGenerator, invocationOperation);
 
         var returnsMethodName =
-            invocationSymbol.IsThrowsSyncForAnyArgsMethod() ? "Returns" : "ReturnsForAnyArgs";
+            invocationSymbol.IsThrowsSyncMethod() ? "Returns" : "ReturnsForAnyArgs";
 
         if (invocationSymbol.MethodKind == MethodKind.Ordinary)
         {
@@ -213,12 +213,12 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider<TInvocationEx
     {
         if (useModernSyntax)
         {
-            return methodSymbol.IsThrowsSyncForAnyArgsMethod()
+            return methodSymbol.IsThrowsSyncMethod()
                 ? MetadataNames.NSubstituteThrowsAsyncMethod
                 : MetadataNames.NSubstituteThrowsAsyncForAnyArgsMethod;
         }
 
-        return methodSymbol.IsThrowsSyncForAnyArgsMethod()
+        return methodSymbol.IsThrowsSyncMethod()
             ? MetadataNames.NSubstituteReturnsMethod
             : MetadataNames.NSubstituteReturnsForAnyArgsMethod;
     }

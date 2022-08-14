@@ -57,10 +57,22 @@ internal class MetadataNames
         [NSubstituteReturnsNullForAnyArgsMethod] = NSubstituteReturnsExtensionsFullTypeName
     };
 
+    public static readonly IReadOnlyDictionary<string, string> ReturnsForAnyArgsMethodNames = new Dictionary<string, string>
+    {
+        [NSubstituteReturnsForAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+        [NSubstituteReturnsNullForAnyArgsMethod] = NSubstituteReturnsExtensionsFullTypeName
+    };
+
     public static readonly IReadOnlyDictionary<string, string> ThrowsMethodNames = new Dictionary<string, string>
     {
         [NSubstituteThrowsMethod] = NSubstituteExceptionExtensionsFullTypeName,
         [NSubstituteThrowsAsyncMethod] = NSubstituteExceptionExtensionsFullTypeName,
+        [NSubstituteThrowsForAnyArgsMethod] = NSubstituteExceptionExtensionsFullTypeName,
+        [NSubstituteThrowsAsyncForAnyArgsMethod] = NSubstituteExceptionExtensionsFullTypeName
+    };
+
+    public static readonly IReadOnlyDictionary<string, string> ThrowsForAnyArgsMethodNames = new Dictionary<string, string>
+    {
         [NSubstituteThrowsForAnyArgsMethod] = NSubstituteExceptionExtensionsFullTypeName,
         [NSubstituteThrowsAsyncForAnyArgsMethod] = NSubstituteExceptionExtensionsFullTypeName
     };
@@ -85,9 +97,26 @@ internal class MetadataNames
         [NSubstituteReceivedWithAnyArgsMethod] = NSubstituteReceivedExtensionsFullTypeName,
     };
 
+    public static readonly IReadOnlyDictionary<string, string> ReceivedWithAnyArgsMethodNames = new Dictionary<string, string>
+    {
+        [NSubstituteReceivedWithAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+        [NSubstituteDidNotReceiveWithAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName
+    };
+
+    public static readonly IReadOnlyDictionary<string, string> ReceivedWithAnyArgsQuantityMethodNames = new Dictionary<string, string>
+    {
+        [NSubstituteReceivedWithAnyArgsMethod] = NSubstituteReceivedExtensionsFullTypeName,
+        [NSubstituteDidNotReceiveWithAnyArgsMethod] = NSubstituteReceivedExtensionsFullTypeName
+    };
+
     public static readonly IReadOnlyDictionary<string, string> WhenMethodNames = new Dictionary<string, string>
     {
         [NSubstituteWhenMethod] = NSubstituteSubstituteExtensionsFullTypeName,
+        [NSubstituteWhenForAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName
+    };
+
+    public static readonly IReadOnlyDictionary<string, string> WhenForAnyArgsMethodNames = new Dictionary<string, string>
+    {
         [NSubstituteWhenForAnyArgsMethod] = NSubstituteSubstituteExtensionsFullTypeName
     };
 
@@ -104,6 +133,22 @@ internal class MetadataNames
     {
         [ArgIsMethodName] = NSubstituteArgCompatFullTypeName,
         [ArgAnyMethodName] = NSubstituteArgCompatFullTypeName,
+        [ArgDoMethodName] = NSubstituteArgCompatFullTypeName,
+        [ArgInvokeMethodName] = NSubstituteArgCompatFullTypeName,
+        [ArgInvokeDelegateMethodName] = NSubstituteArgCompatFullTypeName
+    };
+
+    public static readonly IReadOnlyDictionary<string, string> ArgMatchersIncompatibleWithForAnyArgsMethodNames = new Dictionary<string, string>
+    {
+        [ArgIsMethodName] = NSubstituteArgFullTypeName,
+        [ArgDoMethodName] = NSubstituteArgFullTypeName,
+        [ArgInvokeMethodName] = NSubstituteArgFullTypeName,
+        [ArgInvokeDelegateMethodName] = NSubstituteArgFullTypeName
+    };
+
+    public static readonly IReadOnlyDictionary<string, string> ArgMatchersCompatIncompatibleWithForAnyArgsMethodNames = new Dictionary<string, string>
+    {
+        [ArgIsMethodName] = NSubstituteArgCompatFullTypeName,
         [ArgDoMethodName] = NSubstituteArgCompatFullTypeName,
         [ArgInvokeMethodName] = NSubstituteArgCompatFullTypeName,
         [ArgInvokeDelegateMethodName] = NSubstituteArgCompatFullTypeName
