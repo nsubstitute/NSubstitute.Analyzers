@@ -62,7 +62,7 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider : CodeFixProv
         context.RegisterCodeFix(codeAction, diagnostic);
     }
 
-    protected abstract SyntaxNode UpdateMemberExpression(SyntaxNode invocationExpressionSyntax, SyntaxNode updatedNameSyntax);
+    protected abstract SyntaxNode UpdateMemberExpression(IInvocationOperation invocationOperation, SyntaxNode updatedNameSyntax);
 
     private async Task<Document> CreateChangedDocument(
         CodeFixContext context,
@@ -77,11 +77,10 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider : CodeFixProv
 
         var updatedInvocationExpression = useModernSyntax
             ? await CreateThrowsAsyncInvocationExpression(
-                currentInvocationExpression,
+                invocationOperation,
                 invocationSymbol,
                 context)
             : await CreateReturnInvocationExpression(
-                currentInvocationExpression,
                 invocationOperation,
                 invocationSymbol,
                 context);
@@ -92,7 +91,7 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider : CodeFixProv
     }
 
     private async Task<SyntaxNode> CreateThrowsAsyncInvocationExpression(
-        SyntaxNode currentInvocationExpression,
+        IInvocationOperation invocationOperation,
         IMethodSymbol invocationSymbol,
         CodeFixContext context)
     {
@@ -108,11 +107,10 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider : CodeFixProv
             ? syntaxGenerator.GenericName(updatedMethodName, invocationSymbol.TypeArguments)
             : syntaxGenerator.IdentifierName(updatedMethodName);
 
-        return UpdateMemberExpression(currentInvocationExpression, nameSyntax);
+        return UpdateMemberExpression(invocationOperation, nameSyntax);
     }
 
     private async Task<SyntaxNode> CreateReturnInvocationExpression(
-        SyntaxNode currentInvocationExpression,
         IInvocationOperation invocationOperation,
         IMethodSymbol invocationSymbol,
         CodeFixContext context)
@@ -129,7 +127,6 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider : CodeFixProv
         if (invocationSymbol.MethodKind == MethodKind.Ordinary)
         {
             return CreateReturnOrdinalInvocationExpression(
-                currentInvocationExpression,
                 invocationOperation,
                 syntaxGenerator,
                 fromExceptionInvocationExpression,
@@ -137,7 +134,6 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider : CodeFixProv
         }
 
         return CreateReturnExtensionInvocationExpression(
-            currentInvocationExpression,
             invocationOperation,
             syntaxGenerator,
             fromExceptionInvocationExpression,
@@ -145,7 +141,6 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider : CodeFixProv
     }
 
     private static SyntaxNode CreateReturnOrdinalInvocationExpression(
-        SyntaxNode currentInvocationExpression,
         IInvocationOperation invocationOperation,
         SyntaxGenerator syntaxGenerator,
         SyntaxNode fromExceptionInvocationExpression,
@@ -155,11 +150,10 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider : CodeFixProv
             syntaxGenerator.MemberAccessExpression(
                 syntaxGenerator.DottedName("NSubstitute.SubstituteExtensions"), returnsMethodName),
             invocationOperation.Arguments.First(arg => arg.Parameter.Ordinal == 0).Value.Syntax,
-            fromExceptionInvocationExpression).WithTriviaFrom(currentInvocationExpression);
+            fromExceptionInvocationExpression).WithTriviaFrom(invocationOperation.Syntax);
     }
 
     private SyntaxNode CreateReturnExtensionInvocationExpression(
-        SyntaxNode currentInvocationExpression,
         IInvocationOperation invocationOperation,
         SyntaxGenerator syntaxGenerator,
         SyntaxNode fromExceptionInvocationExpression,
@@ -171,7 +165,7 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider : CodeFixProv
             syntaxGenerator.MemberAccessExpression(substituteNodeSyntax, returnsMethodName);
 
         return syntaxGenerator.InvocationExpression(accessExpression, fromExceptionInvocationExpression)
-            .WithTriviaFrom(currentInvocationExpression);
+            .WithTriviaFrom(invocationOperation.Syntax);
     }
 
     private static SyntaxNode CreateFromExceptionInvocationExpression(

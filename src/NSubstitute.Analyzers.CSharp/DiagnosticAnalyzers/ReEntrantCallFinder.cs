@@ -8,7 +8,7 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 
-internal class ReEntrantCallFinder : AbstractReEntrantCallFinder<InvocationExpressionSyntax, IdentifierNameSyntax>
+internal class ReEntrantCallFinder : AbstractReEntrantCallFinder
 {
     public static ReEntrantCallFinder Instance { get; } = new (SubstitutionNodeFinder.Instance);
 

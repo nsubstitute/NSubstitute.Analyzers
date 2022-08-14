@@ -70,26 +70,28 @@ internal abstract class AbstractReEntrantSetupAnalyzer : AbstractDiagnosticAnaly
     {
         var initializerOperations = GetOperationsFromArrayInitializer(argumentOperation);
 
-        // if array elements can't be extracted, analyze argument itself
-        foreach (var operation in initializerOperations ?? new[] { argumentOperation.Value })
+        if (initializerOperations != null)
         {
-            AnalyzeExpression(context, operation, invocationOperation);
+            foreach (var operation in initializerOperations)
+            {
+                AnalyzeExpression(context, operation, invocationOperation);
+            }
+
+            return;
         }
+
+        // if array elements can't be extracted, analyze argument itself
+        AnalyzeExpression(context, argumentOperation.Value, invocationOperation);
     }
 
     private IEnumerable<IOperation> GetOperationsFromArrayInitializer(IArgumentOperation argumentOperation)
     {
-        if (argumentOperation.Value is IArrayCreationOperation arrayCreationOperation)
+        return argumentOperation.Value switch
         {
-            return arrayCreationOperation.Initializer.ElementValues;
-        }
-
-        if (argumentOperation.Value is IArrayInitializerOperation arrayInitializerOperation)
-        {
-            return arrayInitializerOperation.ElementValues;
-        }
-
-        return null;
+            IArrayCreationOperation arrayCreationOperation => arrayCreationOperation.Initializer.ElementValues,
+            IArrayInitializerOperation arrayInitializerOperation => arrayInitializerOperation.ElementValues,
+            _ => null
+        };
     }
 
     private void AnalyzeExpression(
@@ -108,7 +110,7 @@ internal abstract class AbstractReEntrantSetupAnalyzer : AbstractDiagnosticAnaly
                 DiagnosticDescriptorsProvider.ReEntrantSubstituteCall,
                 operation.Syntax.GetLocation(),
                 invocationOperation.TargetMethod.Name,
-                reentrantSymbol.TargetMethod.Name,
+                reentrantSymbol.ExtractSymbol()?.Name ?? string.Empty,
                 operation.Syntax.ToString());
 
             context.ReportDiagnostic(diagnostic);

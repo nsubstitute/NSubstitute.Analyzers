@@ -1,17 +1,15 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class
-    AbstractReEntrantCallFinder<TInvocationExpressionSyntax, TIdentifierExpressionSyntax> : IReEntrantCallFinder
-    where TInvocationExpressionSyntax : SyntaxNode
-    where TIdentifierExpressionSyntax : SyntaxNode
+internal abstract class AbstractReEntrantCallFinder : IReEntrantCallFinder
 {
     private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
 
@@ -20,19 +18,22 @@ internal abstract class
         _substitutionNodeFinder = substitutionNodeFinder;
     }
 
-    public ImmutableList<IInvocationOperation> GetReEntrantCalls(Compilation compilation, IInvocationOperation invocationOperation, IOperation rootNode)
+    public IReadOnlyList<IOperation> GetReEntrantCalls(
+        Compilation compilation,
+        IInvocationOperation invocationOperation,
+        IOperation rootNode)
     {
         var rootNodeSymbol = rootNode.ExtractSymbol();
 
         if (rootNodeSymbol == null || rootNode.Kind == OperationKind.LocalReference)
         {
-            return ImmutableList<IInvocationOperation>.Empty;
+            return Array.Empty<IOperation>();
         }
 
         var reEntrantSymbols = GetReEntrantSymbols(compilation, invocationOperation, rootNode);
         var otherSubstitutions = GetOtherSubstitutionsForSymbol(compilation, rootNode, rootNodeSymbol);
 
-        return reEntrantSymbols.AddRange(otherSubstitutions);
+        return reEntrantSymbols.Concat(otherSubstitutions).ToList().AsReadOnly();
     }
 
     protected virtual IEnumerable<IInvocationOperation> GetPotentialOtherSubstituteInvocations(Compilation compilation, IEnumerable<IOperation> operations)
@@ -40,6 +41,7 @@ internal abstract class
         foreach (var operation in operations)
         {
             var visitor = new ReEntrantCallVisitor(compilation, operation);
+            visitor.Visit(operation);
             foreach (var visitorInvocationOperation in visitor.InvocationOperations)
             {
                 yield return visitorInvocationOperation;
@@ -55,16 +57,18 @@ internal abstract class
         }
 
         var symbol = GetSemanticModel(compilation, semanticModel, syntaxNode).GetSymbolInfo(syntaxNode);
-        if (symbol.Symbol != null && symbol.Symbol.IsLocal() == false && symbol.Symbol.Locations.Any())
+        if (symbol.Symbol == null || symbol.Symbol.IsLocal() || symbol.Symbol.Locations.Length == 0)
         {
-            foreach (var symbolLocation in symbol.Symbol.Locations.Where(location => location.SourceTree != null))
+            yield break;
+        }
+
+        foreach (var symbolLocation in symbol.Symbol.Locations.Where(location => location.SourceTree != null))
+        {
+            var root = symbolLocation.SourceTree.GetRoot();
+            var relatedNode = root.FindNode(symbolLocation.SourceSpan);
+            if (relatedNode != null)
             {
-                var root = symbolLocation.SourceTree.GetRoot();
-                var relatedNode = root.FindNode(symbolLocation.SourceSpan);
-                if (relatedNode != null)
-                {
-                    yield return relatedNode;
-                }
+                yield return relatedNode;
             }
         }
     }
@@ -86,14 +90,14 @@ internal abstract class
         return symbol.IsInnerReEntryLikeMethod();
     }
 
-    private IEnumerable<IInvocationOperation> GetOtherSubstitutionsForSymbol(Compilation compilation, IOperation rootOperation, ISymbol rootNodeSymbol)
+    private IEnumerable<IOperation> GetOtherSubstitutionsForSymbol(Compilation compilation, IOperation rootOperation, ISymbol rootNodeSymbol)
     {
         if (rootNodeSymbol == null)
         {
             yield break;
         }
 
-        var rootIdentifierNode = GetIdentifierOperation(rootOperation);
+        var rootIdentifierNode = GetLocalReferenceOperation(rootOperation);
 
         var rootIdentifierSymbol = rootIdentifierNode?.ExtractSymbol();
 
@@ -124,24 +128,28 @@ internal abstract class
                 continue;
             }
 
-            // TODO from operation
-            var substituteNodeIdentifier = GetIdentifierOperation(substitutedNode);
+            var substituteNodeIdentifier = GetLocalReferenceOperation(substitutedNode);
 
             if (rootIdentifierSymbol.Equals(substituteNodeIdentifier.ExtractSymbol()))
             {
-                // TODO
-                yield return substitutedNode as IInvocationOperation;
+                yield return substitutedNode;
             }
         }
     }
 
-    private ILocalReferenceOperation GetIdentifierOperation(IOperation node)
+    private IOperation GetLocalReferenceOperation(IOperation node)
     {
         // TODO can it be done better?
-        return node.Children.FirstOrDefault() as ILocalReferenceOperation;
+        var child = node.Children.FirstOrDefault();
+        return child switch
+        {
+            ILocalReferenceOperation _ => child,
+            IFieldReferenceOperation _ => child,
+            _ => null
+        };
     }
 
-    private ImmutableList<IInvocationOperation> GetReEntrantSymbols(Compilation compilation, IInvocationOperation invocationOperation, IOperation rootNode)
+    private IEnumerable<IOperation> GetReEntrantSymbols(Compilation compilation, IInvocationOperation invocationOperation, IOperation rootNode)
     {
         var reentryVisitor = new ReEntrantCallVisitor(compilation, invocationOperation);
         reentryVisitor.Visit(rootNode);
