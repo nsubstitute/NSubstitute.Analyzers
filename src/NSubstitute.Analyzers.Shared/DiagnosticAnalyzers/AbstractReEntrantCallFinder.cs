@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Operations;
@@ -36,7 +35,7 @@ internal abstract class AbstractReEntrantCallFinder : IReEntrantCallFinder
         return reEntrantSymbols.Concat(otherSubstitutions).ToList().AsReadOnly();
     }
 
-    protected virtual IEnumerable<IInvocationOperation> GetPotentialOtherSubstituteInvocations(Compilation compilation, IEnumerable<IOperation> operations)
+    private IEnumerable<IInvocationOperation> GetPotentialOtherSubstituteInvocations(Compilation compilation, IEnumerable<IOperation> operations)
     {
         foreach (var operation in operations)
         {
@@ -47,47 +46,6 @@ internal abstract class AbstractReEntrantCallFinder : IReEntrantCallFinder
                 yield return visitorInvocationOperation;
             }
         }
-    }
-
-    protected IEnumerable<SyntaxNode> GetRelatedNodes(Compilation compilation, SemanticModel semanticModel, SyntaxNode syntaxNode)
-    {
-        if (compilation.ContainsSyntaxTree(syntaxNode.SyntaxTree) == false)
-        {
-            yield break;
-        }
-
-        var symbol = GetSemanticModel(compilation, semanticModel, syntaxNode).GetSymbolInfo(syntaxNode);
-        if (symbol.Symbol == null || symbol.Symbol.IsLocal() || symbol.Symbol.Locations.Length == 0)
-        {
-            yield break;
-        }
-
-        foreach (var symbolLocation in symbol.Symbol.Locations.Where(location => location.SourceTree != null))
-        {
-            var root = symbolLocation.SourceTree.GetRoot();
-            var relatedNode = root.FindNode(symbolLocation.SourceSpan);
-            if (relatedNode != null)
-            {
-                yield return relatedNode;
-            }
-        }
-    }
-
-    protected SemanticModel GetSemanticModel(Compilation compilation, SemanticModel semanticModel, SyntaxNode syntaxNode)
-    {
-        // perf - take original semantic model whenever possible
-        if (semanticModel.SyntaxTree == syntaxNode.SyntaxTree)
-        {
-            return semanticModel;
-        }
-
-        // but keep in mind that we might traverse outside of the original one https://github.com/nsubstitute/NSubstitute.Analyzers/issues/56
-        return compilation.GetSemanticModel(syntaxNode.SyntaxTree);
-    }
-
-    protected bool IsInnerReEntryLikeMethod(SemanticModel semanticModel, ISymbol symbol)
-    {
-        return symbol.IsInnerReEntryLikeMethod();
     }
 
     private IEnumerable<IOperation> GetOtherSubstitutionsForSymbol(Compilation compilation, IOperation rootOperation, ISymbol rootNodeSymbol)
@@ -106,8 +64,10 @@ internal abstract class AbstractReEntrantCallFinder : IReEntrantCallFinder
             yield break;
         }
 
-        var ancestorChildNodes = rootOperation.Ancestors().SelectMany(ancestor => ancestor.Children);
-        foreach (var operation in GetPotentialOtherSubstituteInvocations(compilation, ancestorChildNodes))
+        // TODO make it nicer
+        var constructorOperations = GetConstructorOperations(compilation, rootIdentifierSymbol);
+        var ancestorOperations = rootOperation.Ancestors().SelectMany(ancestor => ancestor.Children).Concat(constructorOperations);
+        foreach (var operation in GetPotentialOtherSubstituteInvocations(compilation, ancestorOperations))
         {
             if (operation.TargetMethod.IsReturnLikeMethod() == false)
             {
@@ -137,16 +97,32 @@ internal abstract class AbstractReEntrantCallFinder : IReEntrantCallFinder
         }
     }
 
+    private static IEnumerable<IOperation> GetConstructorOperations(Compilation compilation, ISymbol fieldReferenceOperation)
+    {
+        // TODO naming
+        foreach (var location in fieldReferenceOperation.ContainingType.GetMembers().OfType<IMethodSymbol>()
+                     .Where(methodSymbol => methodSymbol.MethodKind is MethodKind.Constructor or MethodKind.StaticConstructor && methodSymbol.Locations.Length > 0)
+                     .SelectMany(x => x.Locations)
+                     .Where(location => location.IsInSource))
+        {
+            var root = location.SourceTree.GetRoot();
+            var relatedNode = root.FindNode(location.SourceSpan);
+
+            // TODO reuse semantic model
+            var semanticModel = compilation.GetSemanticModel(location.SourceTree);
+            var operation = semanticModel.GetOperation(relatedNode) ?? semanticModel.GetOperation(relatedNode.Parent);
+
+            if (operation is not null)
+            {
+                yield return operation;
+            }
+        }
+    }
+
     private IOperation GetLocalReferenceOperation(IOperation node)
     {
-        // TODO can it be done better?
         var child = node.Children.FirstOrDefault();
-        return child switch
-        {
-            ILocalReferenceOperation _ => child,
-            IFieldReferenceOperation _ => child,
-            _ => null
-        };
+        return child is ILocalReferenceOperation or IFieldReferenceOperation ? child : null;
     }
 
     private IEnumerable<IOperation> GetReEntrantSymbols(Compilation compilation, IInvocationOperation invocationOperation, IOperation rootNode)
@@ -196,7 +172,10 @@ internal abstract class AbstractReEntrantCallFinder : IReEntrantCallFinder
             {
                 var root = location.SourceTree.GetRoot();
                 var relatedNode = root.FindNode(location.SourceSpan);
-                Visit(GetSemanticModel(relatedNode).GetOperation(relatedNode));
+                var semanticModel = GetSemanticModel(relatedNode);
+                var operation = semanticModel.GetOperation(relatedNode) ??
+                                semanticModel.GetOperation(relatedNode.Parent);
+                Visit(operation);
             }
         }
 
