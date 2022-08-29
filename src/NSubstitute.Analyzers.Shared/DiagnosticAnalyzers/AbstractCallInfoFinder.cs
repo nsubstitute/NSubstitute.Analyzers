@@ -6,8 +6,10 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractCallInfoFinder : ICallInfoFinder
+internal class CallInfoFinder : ICallInfoFinder
 {
+    public static CallInfoFinder Instance { get; } = new ();
+
     public CallInfoContext GetCallInfoContext(IArgumentOperation argumentOperation)
     {
         var callInfoContext = CallInfoContext.Empty;

@@ -19,8 +19,8 @@ internal sealed class ConstructorArgumentsForInterfaceCodeFixProvider : Abstract
     protected override InvocationExpressionSyntax GetInvocationExpressionSyntaxWithNullConstructorArgument(InvocationExpressionSyntax invocationExpressionSyntax)
     {
         var nullSyntax = Argument(LiteralExpression(SyntaxKind.NullLiteralExpression));
-        var seconArgument = invocationExpressionSyntax.ArgumentList.Arguments.Skip(1).First();
-        var argumentListSyntax = invocationExpressionSyntax.ArgumentList.ReplaceNode(seconArgument, nullSyntax);
+        var secondArgument = invocationExpressionSyntax.ArgumentList.Arguments.Skip(1).First();
+        var argumentListSyntax = invocationExpressionSyntax.ArgumentList.ReplaceNode(secondArgument, nullSyntax);
         return invocationExpressionSyntax.WithArgumentList(argumentListSyntax);
     }
 }

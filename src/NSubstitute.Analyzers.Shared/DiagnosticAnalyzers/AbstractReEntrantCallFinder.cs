@@ -8,11 +8,13 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractReEntrantCallFinder : IReEntrantCallFinder
+internal class ReEntrantCallFinder : IReEntrantCallFinder
 {
     private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
 
-    protected AbstractReEntrantCallFinder(ISubstitutionNodeFinder substitutionNodeFinder)
+    public static ReEntrantCallFinder Instance { get; } = new (SubstitutionNodeFinder.Instance);
+
+    protected ReEntrantCallFinder(ISubstitutionNodeFinder substitutionNodeFinder)
     {
         _substitutionNodeFinder = substitutionNodeFinder;
     }

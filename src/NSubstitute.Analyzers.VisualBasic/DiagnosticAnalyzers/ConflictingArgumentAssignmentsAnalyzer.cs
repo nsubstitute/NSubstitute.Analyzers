@@ -9,7 +9,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 internal sealed class ConflictingArgumentAssignmentsAnalyzer : AbstractConflictingArgumentAssignmentsAnalyzer
 {
     public ConflictingArgumentAssignmentsAnalyzer()
-        : base(NSubstitute.Analyzers.VisualBasic.DiagnosticDescriptorsProvider.Instance, CallInfoCallFinder.Instance)
+        : base(NSubstitute.Analyzers.VisualBasic.DiagnosticDescriptorsProvider.Instance, CallInfoFinder.Instance)
     {
     }
 }
