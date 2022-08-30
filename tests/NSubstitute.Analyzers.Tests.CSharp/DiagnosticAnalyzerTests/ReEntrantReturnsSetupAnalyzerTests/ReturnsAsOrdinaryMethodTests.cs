@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
+using MoreLinq;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using NSubstitute.Analyzers.Tests.Shared.Extensions;
 
@@ -32,6 +33,8 @@ namespace MyNamespace
         {{
             var substitute = Substitute.For<IFoo>();
             {method}(substitute.Bar(), [|ReturnThis()|], [|OtherReturn()|]);
+            {method}(value: substitute.Bar(), returnThis: [|ReturnThis()|], returnThese: [|OtherReturn()|]);
+            {method}(returnThis: [|ReturnThis()|], returnThese: [|OtherReturn()|], value: substitute.Bar());
         }}
 
 
@@ -55,7 +58,7 @@ namespace MyNamespace
         {
             $"{plainMethodName}() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => ReturnThis()).",
             $"{plainMethodName}() is set with a method that itself calls Returns. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => OtherReturn())."
-        };
+        }.Repeat(3).ToList();
 
         var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
@@ -85,6 +88,8 @@ namespace MyNamespace
         {{
             var substitute = Substitute.For<IFoo>();
             {method}(substitute.Bar(), [|ReturnThis()|], [|OtherReturn()|]);
+            {method}(value: substitute.Bar(), returnThis: [|ReturnThis()|], returnThese: [|OtherReturn()|]);
+            {method}(returnThis: [|ReturnThis()|], returnThese: [|OtherReturn()|], value: substitute.Bar());
         }}
 
 
@@ -108,7 +113,7 @@ namespace MyNamespace
         {
             $"{plainMethodName}() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => ReturnThis()).",
             $"{plainMethodName}() is set with a method that itself calls ReturnsForAnyArgs. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => OtherReturn())."
-        };
+        }.Repeat(3).ToList();
 
         var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
@@ -138,6 +143,8 @@ namespace MyNamespace
         {{
             var substitute = Substitute.For<IFoo>();
             {method}(substitute.Bar(), [|ReturnThis()|], [|OtherReturn()|]);
+            {method}(value: substitute.Bar(), returnThis: [|ReturnThis()|], returnThese: [|OtherReturn()|]);
+            {method}(returnThis: [|ReturnThis()|], returnThese: [|OtherReturn()|], value: substitute.Bar());
         }}
 
 
@@ -160,7 +167,7 @@ namespace MyNamespace
         {
             $"{plainMethodName}() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => ReturnThis()).",
             $"{plainMethodName}() is set with a method that itself calls Do. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => OtherReturn())."
-        };
+        }.Repeat(3).ToList();
 
         var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
@@ -225,7 +232,7 @@ namespace MyNamespace
             $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => ReturnThis()).",
             $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => OtherReturn()).",
             $"{plainMethodName}() is set with a method that itself calls {plainMethodName}. This can cause problems with NSubstitute. Consider replacing with a lambda: {plainMethodName}(x => NestedReturnThis())."
-        };
+        }.Repeat(2).ToList();
 
         var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(Descriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
@@ -256,6 +263,8 @@ namespace MyNamespace
         {{
             var substitute = Substitute.For<IFoo>();
             {method}(substitute.Bar(), x => ReturnThis());
+            {method}(value: substitute.Bar(), returnThis: x => ReturnThis());
+            {method}(returnThis: x => ReturnThis(), value: substitute.Bar());
         }}
 
         private int ReturnThis()
@@ -311,6 +320,8 @@ namespace MyNamespace
             {localVariable}
             var substitute = Substitute.For<IFoo>();
             {method}(substitute.Bar(), bar);
+            {method}(value: substitute.Bar(), returnThis: bar);
+            {method}(returnThis: bar, value: substitute.Bar());
         }}
 
         public IBar Bar()
@@ -348,6 +359,8 @@ namespace MyNamespace
         {{
             var substitute = Substitute.For<IFoo>();
             {method}(substitute.Bar(), {rootCall});
+            {method}(value: substitute.Bar(), returnThis: {rootCall});
+            {method}(returnThis: {rootCall}, value: substitute.Bar());
         }}
 
         private int ReturnThis()
@@ -405,6 +418,8 @@ namespace MyNamespace
         {{
             var substitute = Substitute.For<IFoo>();
             {method}(substitute.Bar(), {rootCall});
+            {method}(value: substitute.Bar(), returnThis: {rootCall});
+            {method}(returnThis: {rootCall}, value: substitute.Bar());
         }}
 
         private int ReturnThis()
@@ -456,6 +471,7 @@ namespace MyNamespace
         {{
             var substitute = Substitute.For<IFoo>();
             {method}(substitute.Bar(), {firstReturn}, {secondReturn});
+            {method}(value: substitute.Bar(), returnThis: {firstReturn}, returnThese: {secondReturn});
         }}
 
 
@@ -507,6 +523,8 @@ namespace MyNamespace
         {{
             var substitute = Substitute.For<IFoo>();
             {method}(substitute.Bar(), [|FooBar.ReturnThis()|]);
+            {method}(value: substitute.Bar(), returnThis: [|FooBar.ReturnThis()|]);
+            {method}(returnThis: [|FooBar.ReturnThis()|], value: substitute.Bar());
         }}
     }}
 }}";
@@ -550,6 +568,8 @@ namespace MyNamespace
         {{
             var substitute = Substitute.For<IFoo>();
             {method}(substitute.Bar(), [|await ReturnThis()|]);
+            {method}(value: substitute.Bar(), returnThis: [|await ReturnThis()|]);
+            {method}(returnThis: [|await ReturnThis()|], value: substitute.Bar());
         }}
 
         private async Task<int> ReturnThis()
@@ -584,6 +604,8 @@ namespace MyNamespace
         {{
             var substitute = Substitute.For<IFoo>();
             {method}(substitute.Bar(), 1, {reEntrantArrayCall});
+            {method}(value: substitute.Bar(), returnThis: 1, returnThese: {reEntrantArrayCall});
+            {method}(returnThis: 1, returnThese: {reEntrantArrayCall}, value: substitute.Bar());
         }}
 
         private int ReturnThis()
@@ -622,6 +644,7 @@ namespace MyNamespace
             var substitute = Substitute.For<IFoo>();
             var array = new[] {{ ReturnThis() }};
             {method}(substitute.Bar(), 1, array);
+            {method}(value: substitute.Bar(), returnThis: 1, returnThese: array);
         }}
 
         private int ReturnThis()
@@ -673,6 +696,8 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute.FooBar(), typeof({type}));
+            {method}(value: substitute.FooBar(), returnThis: typeof({type}));
+            {method}(returnThis: typeof({type}), value: substitute.FooBar());
         }}
     }}
 }}";
@@ -704,6 +729,8 @@ namespace MyNamespace
             foreach (var fooBar in new FooBar[0])
             {{
                 {method}(substitute.Bar(), fooBar.Value);
+                {method}(value: substitute.Bar(), returnThis: fooBar.Value);
+                {method}(returnThis: fooBar.Value, value: substitute.Bar());
             }}
         }}
     }}
@@ -731,10 +758,20 @@ namespace MyNamespace
             foreach (var value in Enumerable.Empty<int>())
             {{
                 {method}(firstEnumerator.Current, value + 1);
+                {method}(value: firstEnumerator.Current, returnThis: value + 1);
+                {method}(returnThis: value + 1, value: firstEnumerator.Current);
                 {method}(firstEnumerator.Current, value + 1);
+                {method}(value: firstEnumerator.Current, returnThis: value + 1);
+                {method}(returnThis: value + 1, value: firstEnumerator.Current);
                 {method}(secondEnumerator.Current, value + 1);
+                {method}(value: secondEnumerator.Current, returnThis: value + 1);
+                {method}(returnThis: value + 1, value: secondEnumerator.Current);
                 {method}(thirdEnumerator.Current, value + 1);
+                {method}(value: thirdEnumerator.Current, returnThis: value + 1);
+                {method}(returnThis: value + 1, value: thirdEnumerator.Current);
                 {method}(fourthEnumerator.Current, value + 1);
+                {method}(value: fourthEnumerator.Current, returnThis: value + 1);
+                {method}(returnThis: value + 1, value: fourthEnumerator.Current);
             }}
         }}
     }}
@@ -764,6 +801,8 @@ namespace MyNamespace
 
             var secondSubstitute = Substitute.For<IFoo>();
             {method}(secondSubstitute.Id, [|firstSubstitute.Id|]);
+            {method}(value: secondSubstitute.Id, returnThis: [|firstSubstitute.Id|]);
+            {method}(returnThis: [|firstSubstitute.Id|], value: secondSubstitute.Id);
         }}
     }} 
 }}";
@@ -796,6 +835,8 @@ namespace MyNamespace
         {{
             var secondSubstitute = Substitute.For<IFoo>();
             {method}(secondSubstitute.Id, [|firstSubstitute.Id|]);
+            {method}(value: secondSubstitute.Id, returnThis: [|firstSubstitute.Id|]);
+            {method}(returnThis: [|firstSubstitute.Id|], value: secondSubstitute.Id);
         }}
     }} 
 }}";
@@ -825,6 +866,8 @@ namespace MyNamespace
         {{
             var secondSubstitute = Substitute.For<IFoo>();
             {method}(secondSubstitute.Id, [|firstSubstitute.Id|]);
+            {method}(value: secondSubstitute.Id, returnThis: [|firstSubstitute.Id|]);
+            {method}(returnThis: [|firstSubstitute.Id|], value: secondSubstitute.Id);
         }}
     }} 
 }}";
@@ -859,7 +902,11 @@ namespace MyNamespace
             var value = fourthSubstitute.Id;
 
             {method}(secondSubstitute.Id, firstSubstitute.Id);
+            {method}(value: secondSubstitute.Id, returnThis: firstSubstitute.Id);
+            {method}(returnThis: firstSubstitute.Id, value: secondSubstitute.Id);
             {method}(secondSubstitute.Id, value);
+            {method}(value: secondSubstitute.Id, returnThis: value);
+            {method}(returnThis: value, value: secondSubstitute.Id);
         }}
     }} 
 }}";
@@ -890,6 +937,8 @@ namespace MyNamespace
         {{
             var substitute = Substitute.For<IFoo>();
             {method}(substitute.Bar(), _ => 1, new Func<CallInfo, int>[] {{ _ => OtherReturn() }});
+            {method}(value: substitute.Bar(), returnThis: _ => 1, returnThese: new Func<CallInfo, int>[] {{ _ => OtherReturn() }});
+            {method}(returnThis: _ => 1, returnThese: new Func<CallInfo, int>[] {{ _ => OtherReturn() }}, value: substitute.Bar());
         }}
 
         private int OtherReturn()

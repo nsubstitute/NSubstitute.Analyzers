@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using NSubstitute.Analyzers.Tests.Shared.Extensions;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.SubstituteAnalyzerTests;
@@ -21,6 +23,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For(new [] { typeof(IFoo) }, null);
+            var otherSubstitute = NSubstitute.Substitute.For(typesToProxy: new [] { typeof(IFoo) }, constructorArguments: null);
+            var yetAnotherSubstitute = NSubstitute.Substitute.For(constructorArguments: null, typesToProxy: new [] { typeof(IFoo) });
         }
     }
 }";
@@ -44,6 +48,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For(new [] { typeof(IFoo) }, new object[] { });
+            var otherSubstitute = NSubstitute.Substitute.For(typesToProxy: new [] { typeof(IFoo) }, constructorArguments: new object[] { });
+            var yetAnotherSubstitute = NSubstitute.Substitute.For(constructorArguments: new object[] { }, typesToProxy: new [] { typeof(IFoo) });
         }
     }
 }";
@@ -67,6 +73,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|NSubstitute.Substitute.For(new [] { typeof(IFoo) }, new object[] { 1 })|];
+            var otherSubstitute = [|NSubstitute.Substitute.For(typesToProxy: new [] { typeof(IFoo) }, constructorArguments: new object[] { 1 })|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For(constructorArguments: new object[] { 1 }, typesToProxy: new [] { typeof(IFoo) })|];
         }
     }
 }";
@@ -89,6 +97,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For(new [] { typeof(Func<int>) }, null);
+            var otherSubstitute = NSubstitute.Substitute.For(typesToProxy: new [] { typeof(Func<int>) }, constructorArguments: null);
+            var yetAnotherSubstitute = NSubstitute.Substitute.For(constructorArguments: null, typesToProxy: new [] { typeof(Func<int>) });
         }
     }
 }";
@@ -107,11 +117,24 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|NSubstitute.Substitute.For(new [] { typeof(Func<int>) }, new object[] { 1 })|];
+            var otherSubstitute = [|NSubstitute.Substitute.For(typesToProxy: new [] { typeof(Func<int>) }, constructorArguments: new object[] { 1 })|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For(constructorArguments: new object[] { 1 }, typesToProxy: new [] { typeof(Func<int>) })|];
         }
     }
 }";
-        await VerifyDiagnostic(source, SubstituteConstructorArgumentsForDelegateDescriptor, "Can not provide constructor arguments when substituting for a delegate. Use NSubstitute.Substitute.For(new [] { typeof(Func<int>) },null) instead.");
-    }
+        var textParserResult = TextParser.GetSpans(source);
+
+            // TODO
+        var diagnosticMessages = new[]
+            {
+                "Can not provide constructor arguments when substituting for a delegate. Use NSubstitute.Substitute.For(new [] { typeof(Func<int>) },null) instead.",
+                "Can not provide constructor arguments when substituting for a delegate. Use NSubstitute.Substitute.For(typesToProxy: new [] { typeof(Func<int>) },null) instead.",
+                "Can not provide constructor arguments when substituting for a delegate. Use NSubstitute.Substitute.For(constructorArguments: new object[] { 1 },null)"
+            };
+
+        var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(SubstituteConstructorArgumentsForDelegateDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
+        await VerifyDiagnostic(textParserResult.Text, diagnostics);
+        }
 
     [Theory]
     [InlineData("new [] { typeof(Bar), new Foo().GetType() }")]
@@ -136,6 +159,8 @@ namespace MyNamespace
         {{
             var bar = new Bar();
             var substitute = NSubstitute.Substitute.For({proxyExpression}, null);
+            var otherSubstitute = NSubstitute.Substitute.For(typesToProxy: {proxyExpression}, constructorArguments: null);
+            var yetAnotherSubstitute = NSubstitute.Substitute.For(constructorArguments: null, typesToProxy: {proxyExpression});
         }}
     }}
 }}";
@@ -163,6 +188,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|NSubstitute.Substitute.For(new [] { typeof(Foo), typeof(Bar) }, null)|];
+            var otherSubstitute = [|NSubstitute.Substitute.For(typesToProxy: new [] { typeof(Foo), typeof(Bar) }, constructorArguments: null)|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For(constructorArguments: null, typesToProxy: new [] { typeof(Foo), typeof(Bar) })|];
         }
     }
 }";
@@ -185,6 +212,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo), typeof(Foo) }, null);
+            var otherSubstitute = NSubstitute.Substitute.For(typesToProxy: new [] { typeof(Foo), typeof(Foo) }, constructorArguments: null);
+            var yetAnotherSubstitute = NSubstitute.Substitute.For(constructorArguments: null, typesToProxy: new [] { typeof(Foo), typeof(Foo) });
         }
     }
 }";
@@ -212,6 +241,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For(new [] { typeof(IFoo), typeof(IBar) }, null);
+            var otherSubstitute = NSubstitute.Substitute.For(typesToProxy: new [] { typeof(IFoo), typeof(IBar) }, constructorArguments: null);
+            var yetAnotherSubstitute = NSubstitute.Substitute.For(constructorArguments: null, typesToProxy: new [] { typeof(IFoo), typeof(IBar) });
         }
     }
 }";
@@ -239,6 +270,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For(new [] { typeof(IFoo), typeof(Bar) }, null);
+            var otherSubstitute = NSubstitute.Substitute.For(typesToProxy: new [] { typeof(IFoo), typeof(Bar) }, constructorArguments: null);
+            var yetAnotherSubstitute = NSubstitute.Substitute.For(constructorArguments: null, typesToProxy: new [] { typeof(IFoo), typeof(Bar) });
         }
     }
 }";
@@ -266,6 +299,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|NSubstitute.Substitute.For(new [] { typeof(IFoo), typeof(Bar) }, new object[] { 1 })|];
+            var otherSubstitute = [|NSubstitute.Substitute.For(typesToProxy: new [] { typeof(IFoo), typeof(Bar) }, constructorArguments: new object[] { 1 })|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For(constructorArguments: new object[] { 1 }, typesToProxy: new [] { typeof(IFoo), typeof(Bar) })|];
         }
     }
 }";
@@ -292,6 +327,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|NSubstitute.Substitute.For(new [] { typeof(Foo) }, null)|];
+            var otherSubstitute = [|NSubstitute.Substitute.For(typesToProxy: new [] { typeof(Foo) }, constructorArguments: null)|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For(constructorArguments: null, typesToProxy: new [] { typeof(Foo) })|];
         }
     }
 }";
@@ -316,6 +353,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|NSubstitute.Substitute.For(new [] { typeof(Foo) }, null)|];
+            var otherSubstitute = [|NSubstitute.Substitute.For(typesToProxy: new [] { typeof(Foo) }, constructorArguments: null)|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For(constructorArguments: null, typesToProxy: new [] { typeof(Foo) })|];
         }
     }
 }";
@@ -340,6 +379,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|NSubstitute.Substitute.For(new [] { typeof(Foo) }, null)|];
+            var otherSubstitute = [|NSubstitute.Substitute.For(typesToProxy: new [] { typeof(Foo) }, constructorArguments: null)|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For(constructorArguments: null, typesToProxy: new [] { typeof(Foo) })|];
         }
     }
 }";
@@ -366,6 +407,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo) }, null);
+            var otherSubstitute = NSubstitute.Substitute.For(typesToProxy: new [] { typeof(Foo) }, constructorArguments: null);
+            var yetAnotherSubstitute = NSubstitute.Substitute.For(constructorArguments: null, typesToProxy: new [] { typeof(Foo) });
         }
     }
 }";
@@ -392,6 +435,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For(new [] { typeof(Foo) }, null);
+            var otherSubstitute = NSubstitute.Substitute.For(typesToProxy: new [] { typeof(Foo) }, constructorArguments: null);
+            var yetAnotherSubstitute = NSubstitute.Substitute.For(constructorArguments: null, typesToProxy: new [] { typeof(Foo) });
         }
     }
 }";
@@ -417,6 +462,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|NSubstitute.Substitute.For(new [] { typeof(Foo) }, new object[] { 1, 2, 3 })|];
+            var otherSubstitute = [|NSubstitute.Substitute.For(typesToProxy: new [] { typeof(Foo) }, constructorArguments: new object[] { 1, 2, 3 })|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For(constructorArguments: new object[] { 1, 2, 3 }, typesToProxy: new [] { typeof(Foo) })|];
         }
     }
 }";
@@ -442,6 +489,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|NSubstitute.Substitute.For(new [] { typeof(Foo) }, new object[] { 1 })|];
+            var otherSubstitute = [|NSubstitute.Substitute.For(typesToProxy: new [] { typeof(Foo) }, constructorArguments: new object[] { 1 })|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For(constructorArguments: new object[] { 1 }, typesToProxy: new [] { typeof(Foo) })|];
         }
     }
 }";
@@ -467,6 +516,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|NSubstitute.Substitute.For(new [] { typeof(Foo) }, new object[] { 1 })|];
+            var otherSubstitute = [|NSubstitute.Substitute.For(typesToProxy: new [] { typeof(Foo) }, constructorArguments: new object[] { 1 })|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For(constructorArguments: new object[] { 1 }, typesToProxy: new [] { typeof(Foo) })|];
         }
     }
 }";
@@ -488,6 +539,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|NSubstitute.Substitute.For(new [] { typeof(Foo) }, null)|];
+            var otherSubstitute = [|NSubstitute.Substitute.For(typesToProxy: new [] { typeof(Foo) }, constructorArguments: null)|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For(constructorArguments: null, typesToProxy: new [] { typeof(Foo) })|];
         }
     }
 }";
@@ -510,6 +563,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For(new [] {{ typeof(Foo) }}, null );
+            var otherSubstitute = NSubstitute.Substitute.For(typesToProxy: new [] {{ typeof(Foo) }}, constructorArguments: null );
+            var yetAnotherSubstitute = NSubstitute.Substitute.For(constructorArguments: null, typesToProxy: new [] {{ typeof(Foo) }});
         }}
     }}
 }}";
@@ -532,6 +587,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = [|NSubstitute.Substitute.For(new [] {{ typeof(Foo) }}, null)|];
+            var otherSubstitute = [|NSubstitute.Substitute.For(typesToProxy: new [] {{ typeof(Foo) }}, constructorArguments: null)|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For(constructorArguments: null, typesToProxy: new [] {{ typeof(Foo) }})|];
         }}
     }}
 }}";
@@ -566,6 +623,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = [|NSubstitute.Substitute.For(new [] {{ typeof(Foo) }}, new object[] {{{invocationValues}}})|];
+            var otherSubstitute = [|NSubstitute.Substitute.For(typesToProxy: new [] {{ typeof(Foo) }}, constructorArguments: new object[] {{{invocationValues}}})|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For(constructorArguments: new object[] {{{invocationValues}}}, typesToProxy: new [] {{ typeof(Foo) }})|];
         }}
     }}
 }}";
@@ -601,7 +660,7 @@ namespace MyNamespace
     {{
         public void Test()
         {{
-            var substitute = NSubstitute.Substitute.For(new [] {{ typeof(Foo) }}, {invocationValues});
+            var yetAnotherSubstitute = NSubstitute.Substitute.For(constructorArguments: {invocationValues}, typesToProxy: new [] {{ typeof(Foo) }});
         }}
     }}
 }}";
@@ -618,6 +677,8 @@ namespace MyNamespace
     {
         public T Foo<T>() where T : class
         {
+            Substitute.For(typesToProxy: new [] { typeof(T)}, constructorArguments: null);
+            Substitute.For(constructorArguments: null, typesToProxy: new [] { typeof(T)});
             return (T)Substitute.For(new [] { typeof(T)}, null);
         }
     }

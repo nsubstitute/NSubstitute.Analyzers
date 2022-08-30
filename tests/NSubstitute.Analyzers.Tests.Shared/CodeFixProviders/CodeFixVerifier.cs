@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,6 +32,7 @@ public abstract class CodeFixVerifier : CodeVerifier
         NSubstituteVersion version = NSubstituteVersion.Latest)
     {
         using var workspace = new AdhocWorkspace();
+        codeFixIndex ??= 0;
         var project = AddProject(workspace.CurrentSolution, oldSource);
 
         project = UpdateNSubstituteMetadataReference(project, version);
@@ -60,12 +62,18 @@ public abstract class CodeFixVerifier : CodeVerifier
                 break;
             }
 
-            document = await document.ApplyCodeAction(actions[codeFixIndex ?? 0]);
+            document = await document.ApplyCodeAction(actions[codeFixIndex.Value]);
             compilation = await document.Project.GetCompilationAsync();
 
             compilerDiagnostics = compilation.GetDiagnostics();
 
-            VerifyNoCompilerDiagnosticErrors(compilerDiagnostics);
+            var compilationErrorDiagnostics = GetCompilationErrorDiagnostics(compilerDiagnostics);
+
+            if (compilationErrorDiagnostics.Any())
+            {
+                Execute.Assertion.Fail(
+                    $"Fix {codeFixIndex} for diagnostic {analyzerDiagnostics[i].ToString()} introduced compilation error(s): {compilationErrorDiagnostics.ToDebugString()} New document:{Environment.NewLine}{await document.ToFullString()}");
+            }
 
             analyzerDiagnostics = await compilation.GetSortedAnalyzerDiagnostics(
                 DiagnosticAnalyzer,
@@ -85,5 +93,14 @@ public abstract class CodeFixVerifier : CodeVerifier
         var actual = await document.ToFullString();
 
         actual.Should().Be(newSource);
+    }
+
+    protected static IReadOnlyList<Diagnostic> GetCompilationErrorDiagnostics(ImmutableArray<Diagnostic> diagnostics)
+    {
+        var compilationErrorDiagnostics = diagnostics.Where(diagnostic =>
+                diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error)
+            .ToList();
+
+        return compilationErrorDiagnostics;
     }
 }

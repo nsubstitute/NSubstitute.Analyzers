@@ -22,6 +22,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(IFoo)}, null)|];
+            var otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new Type[] { typeof(IFoo)}, constructorArguments: null)|];
+            var yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: null, typesToProxy: new Type[] { typeof(IFoo)})|];
         }
     }
 }";
@@ -45,6 +47,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Func<int>)}, null)|];
+            var otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new Type[] { typeof(Func<int>)}, constructorArguments: null)|];
+            var yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: null, typesToProxy: new Type[] { typeof(Func<int>)})|];
         }
     }
 }";
@@ -71,6 +75,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, null)|];
+            var otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new Type[] { typeof(Foo)}, constructorArguments: null)|];
+            var yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: null, typesToProxy: new Type[] { typeof(Foo)})|];
         }
     }
 }";
@@ -96,6 +102,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, null)|];
+            var otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new Type[] { typeof(Foo)}, constructorArguments: null)|];
+            var yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: null, typesToProxy: new Type[] { typeof(Foo)})|];
         }
     }
 }";
@@ -121,6 +129,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, null)|];
+            var otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new Type[] { typeof(Foo)}, constructorArguments: null)|];
+            var yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: null, typesToProxy: new Type[] { typeof(Foo)})|];
         }
     }
 }";
@@ -148,6 +158,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, null);
+            var otherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new Type[] { typeof(Foo)}, constructorArguments: null);
+            var yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: null, typesToProxy: new Type[] { typeof(Foo)});
         }
     }
 }";
@@ -175,6 +187,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, null);
+            var otherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new Type[] { typeof(Foo)}, constructorArguments: null);
+            var yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: null, typesToProxy: new Type[] { typeof(Foo)});
         }
     }
 }";
@@ -201,6 +215,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, new object[] { 1, 2, 3})|];
+            var otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new Type[] { typeof(Foo)}, constructorArguments: new object[] { 1, 2, 3})|];
+            var yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: new object[] { 1, 2, 3}, typesToProxy: new Type[] { typeof(Foo)})|];
         }
     }
 }";
@@ -227,6 +243,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, new object[] { 1 })|];
+            var otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new Type[] { typeof(Foo)}, constructorArguments: new object[] { 1 })|];
+            var yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: new object[] { 1 }, typesToProxy: new Type[] { typeof(Foo)})|];
         }
     }
 }";
@@ -254,6 +272,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, new object[] { 1 })|];
+            var otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new Type[] { typeof(Foo)}, constructorArguments: new object[] { 1 })|];
+            var yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: new object[] { 1 }, typesToProxy: new Type[] { typeof(Foo)})|];
         }
     }
 }";
@@ -277,6 +297,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, null)|];
+            var otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new Type[] { typeof(Foo)}, constructorArguments: null)|];
+            var yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: null, typesToProxy: new Type[] { typeof(Foo)})|];
         }
     }
 }";
@@ -302,6 +324,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] {{ typeof(Foo)}}, null);
+            var otherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new Type[] {{ typeof(Foo)}}, constructorArguments: null);
+            var yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: null, typesToProxy: new Type[] {{ typeof(Foo)}});
         }}
     }}
 }}";
@@ -327,6 +351,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] {{ typeof(Foo)}}, null)|];
+            var otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new Type[] {{ typeof(Foo)}}, constructorArguments: null)|];
+            var yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: null, typesToProxy: new Type[] {{ typeof(Foo)}})|];
         }}
     }}
 }}";
@@ -363,6 +389,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(new[] {{typeof(Foo)}}, new object[] {{{invocationValues}}})|];
+            var otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new[] {{typeof(Foo)}}, constructorArguments: new object[] {{{invocationValues}}})|];
+            var yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: new object[] {{{invocationValues}}}, typesToProxy: new[] {{typeof(Foo)}})|];
         }}
     }}
 }}";
@@ -401,6 +429,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new[] {{typeof(Foo)}}, {invocationValues});
+            var otherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new[] {{typeof(Foo)}}, constructorArguments: {invocationValues});
+            var yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: {invocationValues}, typesToProxy: new[] {{typeof(Foo)}});
         }}
     }}
 }}";
@@ -420,7 +450,11 @@ namespace MyNamespace
     {
         public T Foo<T>() where T : class
         {
-            return (T) SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] {typeof(T)}, null);
+            var substitute =  (T)SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] {typeof(T)}, null);
+            var otherSubstitute =  (T)SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new Type[] {typeof(T)}, constructorArguments: null);
+            var yetAnotherSubstitute =  (T)SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: null, typesToProxy: new Type[] {typeof(T)});
+
+            return substitute;
         }
     }
 }";

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using MoreLinq.Extensions;
 using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Shared.Settings;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
@@ -860,6 +861,8 @@ Namespace MyNamespace
             Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar)()
 
             {method}([|substituteFooBarBar(1)|], New Exception())
+            {method}(value:= [|substituteFooBarBar(1)|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substituteFooBarBar(1)|])
             {method}([|substituteFooBarBar.Bar|], New Exception())
             {method}([|substituteFooBarBar.FooBar()|], New Exception())
         End Sub
@@ -874,7 +877,7 @@ End Namespace
             "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
             "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
             "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted."
-        };
+        }.Repeat(2).ToList();
 
         var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(NonVirtualSetupSpecificationDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
@@ -928,6 +931,8 @@ Namespace MyNamespace
             Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar(Of Integer))()
 
             {method}([|substituteFooBarBar(1)|], New Exception())
+            {method}(value:= [|substituteFooBarBar(1)|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substituteFooBarBar(1)|])
             {method}([|substituteFooBarBar.Bar|], New Exception())
             {method}([|substituteFooBarBar.FooBar()|], New Exception())
         End Sub
@@ -942,7 +947,7 @@ End Namespace
             "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
             "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
             "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted."
-        };
+        }.Repeat(2).ToList();
 
         var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(NonVirtualSetupSpecificationDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 
@@ -999,6 +1004,8 @@ Namespace MyNamespace
             Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar)()
 
             {method}([|substituteFooBarBar(1)|], New Exception())
+            {method}(value:= [|substituteFooBarBar(1)|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substituteFooBarBar(1)|])
             {method}([|substituteFooBarBar.Bar|], New Exception())
             {method}([|substituteFooBarBar.FooBar()|], New Exception())
         End Sub
@@ -1013,7 +1020,7 @@ End Namespace
             "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
             "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
             "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted."
-        };
+        }.Repeat(2).ToList();
 
         var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(NonVirtualSetupSpecificationDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 

@@ -46,6 +46,16 @@ namespace MyNamespace
                 {argAccess}
                 return new Exception();
             }});
+            {method}(value: returnedValue, createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }});
+            {method}(createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }}, value: returnedValue);
         }}
     }}
 }}";
@@ -80,6 +90,16 @@ namespace MyNamespace
                 {argAccess}
                 return new Exception();
             }});
+            {method}(value: {call}, createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }});
+            {method}(createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }}, value: {call});
         }}
     }}
 }}";
@@ -119,6 +139,16 @@ namespace MyNamespace
                 {argAccess}
                 return new Exception();
             }});
+            {method}(value: {call}, createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }});
+            {method}(createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }}, value: {call});
         }}
     }}
 }}";
@@ -246,6 +276,16 @@ namespace MyNamespace
                 {argAccess}
                 return new Exception();
             }});
+            {method}(value: {call}, createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }});
+            {method}(createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }}, value: {call});
         }}
     }}
 }}";
@@ -300,6 +340,11 @@ namespace MyNamespace
                 {argAccess}
                 return new Exception();
             }});
+            {method}(createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }}, value: {call});
         }}
     }}
 }}";
@@ -345,6 +390,16 @@ namespace MyNamespace
                 {argAccess}
                 return new Exception();
             }});
+            {method}(value: {call}, createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }});
+            {method}(createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }}, value: {call});
         }}
     }}
 }}";
@@ -397,6 +452,11 @@ namespace MyNamespace
                 {argAccess}
                 return new Exception();
             }});
+            {method}(createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }}, value: {call});
         }}
     }}
 }}";
@@ -433,6 +493,16 @@ namespace MyNamespace
                 {argAccess}
                 return new Exception();
             }});
+            {method}(value: {callInfo}, createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }});
+            {method}(createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }}, value: {callInfo});
         }}
     }}
 }}";
@@ -474,6 +544,11 @@ namespace MyNamespace
                 {argAccess}
                 return new Exception();
             }});
+            {method}(createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }}, value: {call});
         }}
     }}
 }}";
@@ -508,6 +583,16 @@ namespace MyNamespace
                 {argAccess}
                 return new Exception();
             }});
+            {method}(value: {call}, createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }});
+            {method}(createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }}, value: {call});
         }}
     }}
 }}";
@@ -660,6 +745,16 @@ namespace MyNamespace
                 {argAccess}
                 return new Exception();
             }});
+            {method}(value: {call}, createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }});
+            {method}(createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }}, value: {call});
         }}
     }}
 }}";
@@ -749,6 +844,16 @@ namespace MyNamespace
                 {argAccess}
                 return new Exception();
             }});
+            {method}(value: {call}, createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }});
+            {method}(createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }}, value: {call});
         }}
     }}
 }}";
@@ -790,6 +895,16 @@ namespace MyNamespace
                 {argAccess}
                 return new Exception();
             }});
+            {method}(value: {call}, createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }});
+            {method}(createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }}, value: {call});
         }}
     }}
 }}";
@@ -828,6 +943,11 @@ namespace MyNamespace
                 [|callInfo[1]|] = 1;
                 return new Exception();
             }});
+            {method}(createException: callInfo =>
+            {{
+                [|callInfo[1]|] = 1;
+                return new Exception();
+            }}, value: {call});
         }}
     }}
 }}";
@@ -864,6 +984,16 @@ namespace MyNamespace
                 callInfo[0] = 1;
                 return new Exception();
             }});
+            {method}(value: substitute.Bar(ref value), createException: callInfo =>
+            {{
+                callInfo[0] = 1;
+                return new Exception();
+            }});
+            {method}(createException: callInfo =>
+            {{
+                callInfo[0] = 1;
+                return new Exception();
+            }}, value: substitute.Bar(ref value));
         }}
     }}
 }}";
@@ -895,6 +1025,16 @@ namespace MyNamespace
                 callInfo[0] = 1;
                 return new Exception();
             }});
+            {method}(value: substitute.Bar(out value), createException: callInfo =>
+            {{
+                callInfo[0] = 1;
+                return new Exception();
+            }});
+            {method}(createException: callInfo =>
+            {{
+                callInfo[0] = 1;
+                return new Exception();
+            }}, value: substitute.Bar(out value));
         }}
     }}
 }}";
@@ -931,6 +1071,11 @@ namespace MyNamespace
                 [|callInfo[1]|] = 1;
                 return new Exception();
             }});
+            {method}(createException: callInfo =>
+            {{
+                [|callInfo[1]|] = 1;
+                return new Exception();
+            }}, value: substitute.Bar(out value));
         }}
     }}
 }}";
@@ -963,6 +1108,16 @@ namespace MyNamespace
                 [|callInfo[0]|] = {right};
                 return new Exception();
             }});
+            {method}(value: substitute.Bar(out value), createException: callInfo =>
+            {{
+                [|callInfo[0]|] = {right};
+                return new Exception();
+            }});
+            {method}(createException: callInfo =>
+            {{
+                [|callInfo[0]|] = {right};
+                return new Exception();
+            }}, value: substitute.Bar(out value));
         }}
     }}
 }}";
@@ -1001,6 +1156,16 @@ namespace MyNamespace
                 callInfo[0] = {right};
                 return new Exception();
             }});
+            {method}(value: substitute.Bar(out value), createException: callInfo =>
+            {{
+                callInfo[0] = {right};
+                return new Exception();
+            }});
+            {method}(createException: callInfo =>
+            {{
+                callInfo[0] = {right};
+                return new Exception();
+            }}, value: substitute.Bar(out value));
         }}
     }}
 }}";

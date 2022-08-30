@@ -84,6 +84,14 @@ namespace MyNamespace
             {{
                 {argAccess}
             }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
         }}
     }}
 }}";
@@ -112,6 +120,14 @@ namespace MyNamespace
         {{
             var sub = NSubstitute.Substitute.For<Foo>();
             {method}(sub, substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
             {{
                 {argAccess}
             }});
@@ -250,6 +266,14 @@ namespace MyNamespace
             {{
                 {argAccess}
             }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
         }}
     }}
 }}";
@@ -293,6 +317,14 @@ namespace MyNamespace
         {{
             var sub = NSubstitute.Substitute.For<Foo>();
             {method}(sub, substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
             {{
                 {argAccess}
             }});
@@ -450,6 +482,14 @@ namespace MyNamespace
             {{
                 {argAccess}
             }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
         }}
     }}
 }}";
@@ -519,6 +559,14 @@ namespace MyNamespace
         {{
             var sub = NSubstitute.Substitute.For<Foo>();
             {method}(sub, substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
             {{
                 {argAccess}
             }});
@@ -763,6 +811,14 @@ namespace MyNamespace
             {{
                 {argAccess}
             }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = {call}; }}).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
+            {method}(substituteCall: substitute => {{var _ = {call}; }}, substitute: sub).Do(callInfo =>
+            {{
+                {argAccess}
+            }});
         }}
     }}
 }}";
@@ -905,6 +961,14 @@ namespace MyNamespace
             int value = 0;
             var sub = NSubstitute.Substitute.For<Foo>();
             {method}(sub, substitute => {{var _ = substitute.Bar(out value); }}).Do(callInfo =>
+            {{
+                callInfo[0] = 1;
+            }});
+            {method}(substitute: sub, substituteCall: substitute => {{var _ = substitute.Bar(out value); }}).Do(callInfo =>
+            {{
+                callInfo[0] = 1;
+            }});
+            {method}(substituteCall: substitute => {{var _ = substitute.Bar(out value); }}, substitute: sub).Do(callInfo =>
             {{
                 callInfo[0] = 1;
             }});
