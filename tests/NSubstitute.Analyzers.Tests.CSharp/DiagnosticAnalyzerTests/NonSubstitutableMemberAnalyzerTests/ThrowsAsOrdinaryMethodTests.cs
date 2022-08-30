@@ -35,6 +35,7 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
+            {method}([|substitute.Bar()|], new Exception());
             {method}(value: [|substitute.Bar()|], ex: new Exception());
             {method}(ex: new Exception(), value: [|substitute.Bar()|]);
         }}
@@ -626,7 +627,11 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute.Bar, new Exception());
+            {method}(value: substitute.Bar, ex: new Exception());
+            {method}(ex: new Exception(), value: substitute.Bar);
             {method}([|substitute.FooBar|], new Exception());
+            {method}(value: [|substitute.FooBar|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|substitute.FooBar|]);
         }}
     }}
 }}";
@@ -658,7 +663,11 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo<Task<int>>>();
             {method}(substitute.Bar, new Exception());
+            {method}(value: substitute.Bar, ex: new Exception());
+            {method}(ex: new Exception(), value: substitute.Bar);
             {method}([|substitute.FooBar|], new Exception());
+            {method}(value: [|substitute.FooBar|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|substitute.FooBar|]);
         }}
     }}
 }}";
@@ -696,7 +705,11 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute.Bar(1, 2), new Exception());
+            {method}(value: substitute.Bar(1, 2), ex: new Exception());
+            {method}(ex: new Exception(), value: substitute.Bar(1, 2));
             {method}([|substitute.Bar(1)|], new Exception());
+            {method}(value: [|substitute.Bar(1)|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|substitute.Bar(1)|]);
         }}
     }}
 }}";
@@ -734,7 +747,11 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute.Bar<int>(1, 2), new Exception());
+            {method}(value: substitute.Bar<int>(1, 2), ex: new Exception());
+            {method}(ex: new Exception(), value: substitute.Bar<int>(1, 2));
             {method}([|substitute.Bar(1)|], new Exception());
+            {method}(value: [|substitute.Bar(1)|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|substitute.Bar(1)|]);
         }}
     }}
 }}";
@@ -765,7 +782,11 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute[1,2], new Exception());
+            {method}(value: substitute[1,2], ex: new Exception());
+            {method}(ex: new Exception(), value: substitute[1,2]);
             {method}([|substitute[1]|], new Exception());
+            {method}(value: [|substitute[1]|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|substitute[1]|]);
         }}
     }}
 }}";
@@ -796,7 +817,11 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo<int>>();
             {method}(substitute[1, 2], new Exception());
+            {method}(value: substitute[1, 2], ex: new Exception());
+            {method}(ex: new Exception(), value: substitute[1, 2]);
             {method}([|substitute[1]|], new Exception());
+            {method}(value: [|substitute[1]|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|substitute[1]|]);
         }}
     }}
 }}";
@@ -841,13 +866,25 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute[1], new Exception());
+            {method}(value: substitute[1], ex: new Exception());
+            {method}(ex: new Exception(), value: substitute[1]);
             {method}(substitute.Bar, new Exception());
+            {method}(value: substitute.Bar, ex: new Exception());
+            {method}(ex: new Exception(), value: substitute.Bar);
             {method}(substitute.FooBar(), new Exception());
+            {method}(value: substitute.FooBar(), ex: new Exception());
+            {method}(ex: new Exception(), value: substitute.FooBar());
 
             var substituteFooBarBar = NSubstitute.Substitute.For<FooBarBar>();
             {method}([|substituteFooBarBar[1]|], new Exception());
+            {method}(value: [|substituteFooBarBar[1]|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|substituteFooBarBar[1]|]);
             {method}([|substituteFooBarBar.Bar|], new Exception());
+            {method}(value: [|substituteFooBarBar.Bar|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|substituteFooBarBar.Bar|]);
             {method}([|substituteFooBarBar.FooBar()|], new Exception());
+            {method}(value: [|substituteFooBarBar.FooBar()|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|substituteFooBarBar.FooBar()|]);
         }}
     }}
 }}";
@@ -857,7 +894,13 @@ namespace MyNamespace
         var diagnosticMessages = new[]
         {
             "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+            "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+            "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
             "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+            "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+            "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+            "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+            "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
             "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted."
         };
 
@@ -903,13 +946,25 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo<int>>();
             {method}(substitute[1], new Exception());
+            {method}(value: substitute[1], ex: new Exception());
+            {method}(ex: new Exception(), value: substitute[1]);
             {method}(substitute.Bar, new Exception());
+            {method}(value: substitute.Bar, ex: new Exception());
+            {method}(ex: new Exception(), value: substitute.Bar);
             {method}(substitute.FooBar(), new Exception());
+            {method}(value: substitute.FooBar(), ex: new Exception());
+            {method}(ex: new Exception(), value: substitute.FooBar());
 
             var substituteFooBarBar = NSubstitute.Substitute.For<FooBarBar<int>>();
             {method}([|substituteFooBarBar[1]|], new Exception());
+            {method}(value: [|substituteFooBarBar[1]|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|substituteFooBarBar[1]|]);
             {method}([|substituteFooBarBar.Bar|], new Exception());
+            {method}(value: [|substituteFooBarBar.Bar|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|substituteFooBarBar.Bar|]);
             {method}([|substituteFooBarBar.FooBar()|], new Exception());
+            {method}(value: [|substituteFooBarBar.FooBar()|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|substituteFooBarBar.FooBar()|]);
         }}
     }}
 }}";
@@ -919,7 +974,13 @@ namespace MyNamespace
         var diagnosticMessages = new[]
         {
             "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+            "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+            "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
             "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+            "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+            "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+            "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+            "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
             "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted."
         };
 
@@ -969,13 +1030,25 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute[1], new Exception());
+            {method}(value: substitute[1], ex: new Exception());
+            {method}(ex: new Exception(), value: substitute[1]);
             {method}(substitute.Bar, new Exception());
+            {method}(value: substitute.Bar, ex: new Exception());
+            {method}(ex: new Exception(), value: substitute.Bar);
             {method}(substitute.FooBar(), new Exception());
+            {method}(value: substitute.FooBar(), ex: new Exception());
+            {method}(ex: new Exception(), value: substitute.FooBar());
 
             var substituteFooBarBar = NSubstitute.Substitute.For<FooBarBar>();
             {method}([|substituteFooBarBar[1]|], new Exception());
+            {method}(value: [|substituteFooBarBar[1]|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|substituteFooBarBar[1]|]);
             {method}([|substituteFooBarBar.Bar|], new Exception());
+            {method}(value: [|substituteFooBarBar.Bar|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|substituteFooBarBar.Bar|]);
             {method}([|substituteFooBarBar.FooBar()|], new Exception());
+            {method}(value: [|substituteFooBarBar.FooBar()|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|substituteFooBarBar.FooBar()|]);
         }}
     }}
 }}";
@@ -985,7 +1058,13 @@ namespace MyNamespace
         var diagnosticMessages = new[]
         {
             "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+            "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+            "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
             "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+            "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+            "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+            "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
+            "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.",
             "Member FooBar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted."
         };
 
@@ -1012,7 +1091,11 @@ namespace MyNamespace
             MyExtensions.Bar = Substitute.For<IBar>();
             var substitute = Substitute.For<object>();
             {method}(substitute.GetBar(), new Exception());
+            {method}(value: substitute.GetBar(), ex: new Exception());
+            {method}(ex: new Exception(), value: substitute.GetBar());
             {method}([|substitute.GetFooBar()|], new Exception());
+            {method}(value: [|substitute.GetFooBar()|], ex: new Exception());
+            {method}(ex: new Exception(), value: [|substitute.GetFooBar()|]);
         }}
     }}
 

@@ -925,6 +925,7 @@ namespace MyNamespace
         {{
             int i = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
+            {method}(substitute, {call}).Do(callInfo => i++);
             {method}(substitute: substitute, substituteCall: {call}).Do(callInfo => i++);
             {method}(substituteCall: {call}, substitute: substitute).Do(callInfo => i++);
         }}
