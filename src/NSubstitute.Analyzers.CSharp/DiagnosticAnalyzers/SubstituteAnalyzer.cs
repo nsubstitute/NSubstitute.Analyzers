@@ -37,8 +37,18 @@ internal sealed class SubstituteAnalyzer : AbstractSubstituteAnalyzer
         }
         else
         {
-            var nullSyntax = Argument(LiteralExpression(SyntaxKind.NullLiteralExpression));
-            argumentListSyntax = ArgumentList(SeparatedList(invocationExpressionSyntax.ArgumentList.Arguments.Take(1)).Add(nullSyntax));
+            var arguments = invocationOperation.Arguments.Select(argumentOperation =>
+            {
+                var argumentSyntax = (ArgumentSyntax)argumentOperation.Syntax;
+                if (argumentOperation.Parameter.Ordinal > 0)
+                {
+                    argumentSyntax = argumentSyntax.WithExpression(LiteralExpression(SyntaxKind.NullLiteralExpression));
+                }
+
+                return argumentSyntax;
+            });
+
+            argumentListSyntax = ArgumentList(SeparatedList(arguments));
         }
 
         return invocationExpressionSyntax.WithArgumentList(argumentListSyntax);

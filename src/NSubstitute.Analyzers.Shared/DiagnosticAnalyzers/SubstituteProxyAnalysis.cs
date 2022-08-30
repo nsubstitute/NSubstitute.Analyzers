@@ -44,7 +44,7 @@ internal class SubstituteProxyAnalysis : ISubstituteProxyAnalysis
 
     private IArrayInitializerOperation GetArrayInitializerArguments(IInvocationOperation invocationOperation)
     {
-        return invocationOperation.Arguments.FirstOrDefault()?.Value switch
+        return invocationOperation.Arguments.FirstOrDefault(arg => arg.Parameter.Ordinal == 0)?.Value switch
         {
             IArrayCreationOperation operation => operation.Initializer,
             _ => null

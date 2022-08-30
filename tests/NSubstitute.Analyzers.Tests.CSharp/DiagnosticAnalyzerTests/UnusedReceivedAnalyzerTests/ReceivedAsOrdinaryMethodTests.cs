@@ -36,7 +36,10 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.UnusedRecei
         {
             var plainMethodName = method.Replace("<Foo>", string.Empty)
                 .Replace("(substitute, Quantity.None())", string.Empty)
-                .Replace("(substitute)", string.Empty);
+                .Replace("(substitute)", string.Empty)
+                .Replace("(substitute: substitute)", string.Empty)
+                .Replace("(substitute: substitute, requiredQuantity: Quantity.None())", string.Empty)
+                .Replace("(requiredQuantity: Quantity.None(), substitute: substitute)", string.Empty);
 
             var planMethodNameWithoutNamespace = plainMethodName.Replace("SubstituteExtensions.", string.Empty)
                 .Replace("ReceivedExtensions.", string.Empty);

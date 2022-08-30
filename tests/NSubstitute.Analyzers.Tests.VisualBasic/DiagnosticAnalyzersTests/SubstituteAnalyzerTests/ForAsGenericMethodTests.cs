@@ -36,6 +36,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|NSubstitute.Substitute.[For](Of IFoo)(1)|]
+            Dim otherSubstitute = [|NSubstitute.Substitute.[For](Of IFoo)(New Integer() { 1 })|]
         End Sub
     End Class
 End Namespace";
@@ -73,6 +74,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|NSubstitute.Substitute.[For](Of Func(Of Integer))(1)|]
+            Dim otherSubstitute = [|NSubstitute.Substitute.[For](Of Func(Of Integer))(New Integer() { 1 })|]
         End Sub
     End Class
 End Namespace
@@ -183,6 +185,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|NSubstitute.Substitute.[For](Of IFoo, Bar)(1)|]
+            Dim otherSubstitute = [|NSubstitute.Substitute.[For](Of IFoo, Bar)(New Integer() { 1 })|]
         End Sub
     End Class
 End Namespace
@@ -307,6 +310,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|NSubstitute.Substitute.[For](Of Foo)(1, 2, 3)|]
+            Dim otherSubstitute = [|NSubstitute.Substitute.[For](Of Foo)(New Integer() { 1, 2, 3 })|]
         End Sub
     End Class
 End Namespace
@@ -327,6 +331,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|NSubstitute.Substitute.[For](Of Foo)(1)|]
+            Dim otherSubstitute = [|NSubstitute.Substitute.[For](Of Foo)(New Integer() { 1 })|]
         End Sub
     End Class
 End Namespace
@@ -347,6 +352,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|NSubstitute.Substitute.[For](Of Foo)(1)|]
+            Dim otherSubstitute = [|NSubstitute.Substitute.[For](Of Foo)(New Integer() { 1 })|]
         End Sub
     End Class
 End Namespace

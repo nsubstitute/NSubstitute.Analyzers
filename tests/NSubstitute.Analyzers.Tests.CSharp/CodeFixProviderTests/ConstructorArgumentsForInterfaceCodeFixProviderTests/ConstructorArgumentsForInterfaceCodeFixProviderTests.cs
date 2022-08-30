@@ -47,6 +47,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<IFoo>();
+            var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
         }
     }
 }";

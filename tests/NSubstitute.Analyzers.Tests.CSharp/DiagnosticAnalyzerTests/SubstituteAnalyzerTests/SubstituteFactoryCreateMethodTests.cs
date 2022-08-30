@@ -1,4 +1,6 @@
+using System.Linq;
 using System.Threading.Tasks;
+using NSubstitute.Analyzers.Tests.Shared.Extensions;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.SubstituteAnalyzerTests;
@@ -54,7 +56,17 @@ namespace MyNamespace
     }
 }";
 
-        await VerifyDiagnostic(source, SubstituteConstructorArgumentsForInterfaceDescriptor, "Can not provide constructor arguments when substituting for an interface. Use SubstitutionContext.Current.SubstituteFactory.Create(new[] {typeof(IFoo)},null) instead.");
+        var textParserResult = TextParser.GetSpans(source);
+
+        var diagnosticMessages = new[]
+        {
+            "Can not provide constructor arguments when substituting for an interface. Use SubstitutionContext.Current.SubstituteFactory.Create(new[] {typeof(IFoo)},null) instead.",
+            "Can not provide constructor arguments when substituting for an interface. Use SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy: new[] {typeof(IFoo)},constructorArguments: null) instead.",
+            "Can not provide constructor arguments when substituting for an interface. Use SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments: null,typesToProxy: new[] {typeof(IFoo)}) instead."
+        };
+
+        var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(SubstituteConstructorArgumentsForInterfaceDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
+        await VerifyDiagnostic(textParserResult.Text, diagnostics);
     }
 
     [Fact]
@@ -104,7 +116,17 @@ namespace MyNamespace
         }
     }
 }";
-        await VerifyDiagnostic(source, SubstituteConstructorArgumentsForDelegateDescriptor, "Can not provide constructor arguments when substituting for a delegate. Use SubstitutionContext.Current.SubstituteFactory.Create(new[] {typeof(Func<int>)},null) instead.");
+        var textParserResult = TextParser.GetSpans(source);
+
+        var diagnosticMessages = new[]
+        {
+            "Can not provide constructor arguments when substituting for a delegate. Use SubstitutionContext.Current.SubstituteFactory.Create(new[] {typeof(Func<int>)},null) instead.",
+            "Can not provide constructor arguments when substituting for a delegate. Use SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy: new[] {typeof(Func<int>)},constructorArguments: null) instead.",
+            "Can not provide constructor arguments when substituting for a delegate. Use SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments: null,typesToProxy: new[] {typeof(Func<int>)}) instead."
+        };
+
+        var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(SubstituteConstructorArgumentsForDelegateDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
+        await VerifyDiagnostic(textParserResult.Text, diagnostics);
     }
 
     [Fact]

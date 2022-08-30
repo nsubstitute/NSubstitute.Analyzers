@@ -91,21 +91,19 @@ public abstract class DiagnosticVerifier : CodeVerifier
 
     private async Task VerifyDiagnosticsInternal(string[] sources, Diagnostic[] expectedDiagnostics)
     {
-        using (var workspace = new AdhocWorkspace())
-        {
-            var project = AddProject(
-                workspace.CurrentSolution,
-                sources);
+        using var workspace = new AdhocWorkspace();
+        var project = AddProject(
+            workspace.CurrentSolution,
+            sources);
 
-            var compilation = await project.GetCompilationAsync();
+        var compilation = await project.GetCompilationAsync();
 
-            var compilerDiagnostics = compilation.GetDiagnostics();
-            VerifyNoCompilerDiagnosticErrors(compilerDiagnostics);
+        var compilerDiagnostics = compilation.GetDiagnostics();
+        VerifyNoCompilerDiagnosticErrors(compilerDiagnostics);
 
-            var diagnostics = await compilation.GetSortedAnalyzerDiagnostics(DiagnosticAnalyzer, project.AnalyzerOptions);
+        var diagnostics = await compilation.GetSortedAnalyzerDiagnostics(DiagnosticAnalyzer, project.AnalyzerOptions);
 
-            VerifyDiagnosticResults(diagnostics, ImmutableArray.Create(expectedDiagnostics));
-        }
+        VerifyDiagnosticResults(diagnostics, ImmutableArray.Create(expectedDiagnostics));
     }
 
     private static void VerifyDiagnosticResults(ImmutableArray<Diagnostic> actualResults, ImmutableArray<Diagnostic> expectedResults)

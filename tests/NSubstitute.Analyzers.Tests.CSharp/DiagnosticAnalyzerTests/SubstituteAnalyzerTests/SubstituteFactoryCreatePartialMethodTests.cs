@@ -1,4 +1,6 @@
+using System.Linq;
 using System.Threading.Tasks;
+using NSubstitute.Analyzers.Tests.Shared.Extensions;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.SubstituteAnalyzerTests;
@@ -27,7 +29,17 @@ namespace MyNamespace
         }
     }
 }";
-        await VerifyDiagnostic(source, PartialSubstituteForUnsupportedTypeDescriptor, "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(new Type[] { typeof(IFoo)}, null) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(IFoo)}, null) here.");
+        var textParserResult = TextParser.GetSpans(source);
+
+        var diagnosticMessages = new[]
+        {
+            "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(new Type[] { typeof(IFoo)}, null) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(IFoo)}, null) here.",
+            "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy: new Type[] { typeof(IFoo)}, constructorArguments: null) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new Type[] { typeof(IFoo)}, constructorArguments: null) here.",
+            "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments: null, typesToProxy: new Type[] { typeof(IFoo)}) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: null, typesToProxy: new Type[] { typeof(IFoo)}) here.",
+        };
+
+        var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(PartialSubstituteForUnsupportedTypeDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
+        await VerifyDiagnostic(textParserResult.Text, diagnostics);
     }
 
     [Fact]
@@ -52,7 +64,17 @@ namespace MyNamespace
         }
     }
 }";
-        await VerifyDiagnostic(source, PartialSubstituteForUnsupportedTypeDescriptor, "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(new Type[] { typeof(Func<int>)}, null) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Func<int>)}, null) here.");
+        var textParserResult = TextParser.GetSpans(source);
+
+        var diagnosticMessages = new[]
+        {
+            "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(new Type[] { typeof(Func<int>)}, null) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Func<int>)}, null) here.",
+            "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy: new Type[] { typeof(Func<int>)}, constructorArguments: null) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new Type[] { typeof(Func<int>)}, constructorArguments: null) here.",
+            "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments: null, typesToProxy: new Type[] { typeof(Func<int>)}) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: null, typesToProxy: new Type[] { typeof(Func<int>)}) here.",
+        };
+
+        var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(PartialSubstituteForUnsupportedTypeDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
+        await VerifyDiagnostic(textParserResult.Text, diagnostics);
     }
 
     [Fact]

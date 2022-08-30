@@ -161,6 +161,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|NSubstitute.Substitute.ForPartsOf(Of Foo)(1, 2, 3)|]
+            Dim otherSubstitute = [|NSubstitute.Substitute.ForPartsOf(Of Foo)(New Integer() { 1, 2, 3 })|]
         End Sub
     End Class
 End Namespace
@@ -181,6 +182,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|NSubstitute.Substitute.ForPartsOf(Of Foo)(1)|]
+            Dim otherSubstitute = [|NSubstitute.Substitute.ForPartsOf(Of Foo)(New Object() { 1 })|]
         End Sub
     End Class
 End Namespace
@@ -201,6 +203,7 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|NSubstitute.Substitute.ForPartsOf(Of Foo)(1)|]
+            Dim otherSubstitute = [|NSubstitute.Substitute.ForPartsOf(Of Foo)(New Object() { 1 })|]
         End Sub
     End Class
 End Namespace
