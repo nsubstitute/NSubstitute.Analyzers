@@ -6,7 +6,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic;
 
 public class VisualBasicWorkspaceFactory : WorkspaceFactory
 {
-    public static VisualBasicWorkspaceFactory Default { get; } = new (VisualBasicProjectOptions.Default);
+    public static VisualBasicWorkspaceFactory Default { get; } = new(VisualBasicProjectOptions.Default);
 
     protected override string DocumentExtension { get; } = "vb";
 
