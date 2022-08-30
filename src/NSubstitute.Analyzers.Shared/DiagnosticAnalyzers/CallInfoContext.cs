@@ -8,7 +8,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 internal class CallInfoContext
 {
-    public static CallInfoContext Empty { get; } = new (
+    public static CallInfoContext Empty { get; } = new(
         Array.Empty<IInvocationOperation>(),
         Array.Empty<IInvocationOperation>(),
         Array.Empty<IOperation>());

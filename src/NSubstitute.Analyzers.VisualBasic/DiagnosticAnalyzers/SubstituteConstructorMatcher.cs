@@ -6,7 +6,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 
 internal class SubstituteConstructorMatcher : AbstractSubstituteConstructorMatcher
 {
-    public static SubstituteConstructorMatcher Instance { get; } = new ();
+    public static SubstituteConstructorMatcher Instance { get; } = new();
 
     private SubstituteConstructorMatcher()
     {

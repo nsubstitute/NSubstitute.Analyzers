@@ -8,7 +8,7 @@ namespace NSubstitute.Analyzers.Shared.TinyJson;
 [ExcludeFromCodeCoverage]
 internal class JsonBuilder
 {
-    private StringBuilder _builder = new ();
+    private StringBuilder _builder = new();
     private bool _pretty = false;
     private int _level;
 

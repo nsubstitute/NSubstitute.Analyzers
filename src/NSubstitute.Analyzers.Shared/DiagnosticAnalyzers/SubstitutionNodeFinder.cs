@@ -9,7 +9,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 internal class SubstitutionNodeFinder : ISubstitutionNodeFinder
 {
-    public static SubstitutionNodeFinder Instance { get; } = new ();
+    public static SubstitutionNodeFinder Instance { get; } = new();
 
     public IEnumerable<IOperation> Find(
         Compilation compilation,
@@ -133,9 +133,9 @@ internal class SubstitutionNodeFinder : ISubstitutionNodeFinder
         private readonly Compilation _compilation;
         private readonly IInvocationOperation _whenInvocationOperation;
         private readonly bool _includeAll;
-        private readonly HashSet<IOperation> _operations = new ();
+        private readonly HashSet<IOperation> _operations = new();
 
-        private readonly Dictionary<SyntaxTree, SemanticModel> _semanticModelCache = new (1);
+        private readonly Dictionary<SyntaxTree, SemanticModel> _semanticModelCache = new(1);
 
         public WhenVisitor(
             Compilation compilation,

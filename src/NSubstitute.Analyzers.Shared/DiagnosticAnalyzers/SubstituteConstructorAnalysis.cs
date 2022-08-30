@@ -8,7 +8,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 internal class SubstituteConstructorAnalysis : ISubstituteConstructorAnalysis
 {
-    public static SubstituteConstructorAnalysis Instance { get; } = new ();
+    public static SubstituteConstructorAnalysis Instance { get; } = new();
 
     public ConstructorContext CollectConstructorContext(SubstituteContext substituteContext, ITypeSymbol proxyTypeSymbol)
     {

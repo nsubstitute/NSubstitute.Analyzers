@@ -4,7 +4,7 @@ namespace NSubstitute.Analyzers.Shared.Settings;
 
 internal class AnalyzersSettings
 {
-    public static AnalyzersSettings Default => new ();
+    public static AnalyzersSettings Default => new();
 
     public List<Suppression> Suppressions { get; set; }
 
@@ -24,7 +24,7 @@ internal class AnalyzersSettings
     {
         return new AnalyzersSettings(new List<Suppression>
         {
-            new ()
+            new()
             {
                 Target = target,
                 Rules = new List<string>

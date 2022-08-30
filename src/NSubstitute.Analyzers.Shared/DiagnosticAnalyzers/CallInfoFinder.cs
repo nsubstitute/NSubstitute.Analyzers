@@ -8,7 +8,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 internal class CallInfoFinder : ICallInfoFinder
 {
-    public static CallInfoFinder Instance { get; } = new ();
+    public static CallInfoFinder Instance { get; } = new();
 
     public CallInfoContext GetCallInfoContext(IArgumentOperation argumentOperation)
     {
@@ -121,11 +121,11 @@ internal class CallInfoFinder : ICallInfoFinder
 
     private class CallInfoVisitor : OperationWalker
     {
-        public List<IInvocationOperation> ArgAtInvocations { get; } = new ();
+        public List<IInvocationOperation> ArgAtInvocations { get; } = new();
 
-        public List<IInvocationOperation> ArgInvocations { get; } = new ();
+        public List<IInvocationOperation> ArgInvocations { get; } = new();
 
-        public List<IOperation> DirectIndexerAccesses { get; } = new ();
+        public List<IOperation> DirectIndexerAccesses { get; } = new();
 
         public override void VisitInvocation(IInvocationOperation operation)
         {

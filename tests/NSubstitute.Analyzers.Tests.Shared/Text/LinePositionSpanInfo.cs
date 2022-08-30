@@ -16,5 +16,5 @@ public readonly struct LinePositionSpanInfo
 
     public TextSpan Span => TextSpan.FromBounds(Start.Index, End.Index);
 
-    public LinePositionSpan LineSpan => new (Start.LinePosition, End.LinePosition);
+    public LinePositionSpan LineSpan => new(Start.LinePosition, End.LinePosition);
 }

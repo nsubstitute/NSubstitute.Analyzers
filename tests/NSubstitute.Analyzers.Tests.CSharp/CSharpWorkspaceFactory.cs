@@ -5,7 +5,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp;
 
 public class CSharpWorkspaceFactory : WorkspaceFactory
 {
-    public static CSharpWorkspaceFactory Default { get; } = new (CSharpProjectOptions.Default);
+    public static CSharpWorkspaceFactory Default { get; } = new(CSharpProjectOptions.Default);
 
     protected override string DocumentExtension { get; } = "cs";
 

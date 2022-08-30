@@ -17,5 +17,5 @@ public readonly struct LinePositionInfo
 
     public int ColumnIndex { get; }
 
-    public LinePosition LinePosition => new (LineIndex, ColumnIndex);
+    public LinePosition LinePosition => new(LineIndex, ColumnIndex);
 }

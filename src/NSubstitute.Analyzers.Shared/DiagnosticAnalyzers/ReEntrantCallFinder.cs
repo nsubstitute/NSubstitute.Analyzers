@@ -12,7 +12,7 @@ internal class ReEntrantCallFinder : IReEntrantCallFinder
 {
     private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
 
-    public static ReEntrantCallFinder Instance { get; } = new (SubstitutionNodeFinder.Instance);
+    public static ReEntrantCallFinder Instance { get; } = new(SubstitutionNodeFinder.Instance);
 
     protected ReEntrantCallFinder(ISubstitutionNodeFinder substitutionNodeFinder)
     {
@@ -138,9 +138,9 @@ internal class ReEntrantCallFinder : IReEntrantCallFinder
     private class ReEntrantCallVisitor : OperationWalker
     {
         private readonly Compilation _compilation;
-        private readonly HashSet<IOperation> _visitedOperations = new ();
-        private readonly List<IInvocationOperation> _invocationOperation = new ();
-        private readonly Dictionary<SyntaxTree, SemanticModel> _semanticModelCache = new (1);
+        private readonly HashSet<IOperation> _visitedOperations = new();
+        private readonly List<IInvocationOperation> _invocationOperation = new();
+        private readonly Dictionary<SyntaxTree, SemanticModel> _semanticModelCache = new(1);
 
         public ImmutableList<IInvocationOperation> InvocationOperations => _invocationOperation.ToImmutableList();
 

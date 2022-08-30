@@ -7,7 +7,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 internal class SubstituteProxyAnalysis : ISubstituteProxyAnalysis
 {
-    public static SubstituteProxyAnalysis Instance { get; } = new ();
+    public static SubstituteProxyAnalysis Instance { get; } = new();
 
     public ITypeSymbol GetActualProxyTypeSymbol(IInvocationOperation invocationOperation)
     {
