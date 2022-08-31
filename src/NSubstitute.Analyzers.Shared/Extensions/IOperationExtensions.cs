@@ -94,13 +94,11 @@ internal static class IOperationExtensions
 
     public static ITypeSymbol GetTypeSymbol(this IAssignmentOperation assignmentOperation)
     {
-        var conversionTypeSymbol = assignmentOperation.Value switch
+        return assignmentOperation.Value switch
         {
             IConversionOperation conversionOperation => conversionOperation.Operand.Type,
-            _ => null
+            _ => assignmentOperation.Value.Type
         };
-
-        return conversionTypeSymbol ?? assignmentOperation.Value.Type;
     }
 
     public static IEnumerable<IOperation> Ancestors(this IOperation operation)
