@@ -14,7 +14,7 @@ internal class NonSubstitutableMemberAnalysis : INonSubstitutableMemberAnalysis
 
     public NonSubstitutableMemberAnalysisResult Analyze(IOperation operation)
     {
-        var symbol = ExtractSymbol(operation);
+        var symbol = operation.ExtractSymbol();
 
         return Analyze(operation, symbol);
     }
@@ -83,19 +83,6 @@ internal class NonSubstitutableMemberAnalysis : INonSubstitutableMemberAnalysis
                         || symbol.IsAbstract;
 
         return isVirtual;
-    }
-
-    private static ISymbol ExtractSymbol(IOperation operation)
-    {
-        var symbol = operation switch
-        {
-            IInvocationOperation invocationOperation => invocationOperation.TargetMethod,
-            IPropertyReferenceOperation propertyReferenceOperation => propertyReferenceOperation.Property,
-            IConversionOperation conversionOperation => ExtractSymbol(conversionOperation.Operand),
-            IMemberReferenceOperation memberReferenceOperation => memberReferenceOperation.Member,
-            _ => null
-        };
-        return symbol;
     }
 
     private static IOperation ExtractActualOperation(IOperation operation)

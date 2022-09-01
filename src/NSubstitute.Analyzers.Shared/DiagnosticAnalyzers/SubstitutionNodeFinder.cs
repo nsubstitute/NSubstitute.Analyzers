@@ -66,7 +66,7 @@ internal class SubstitutionNodeFinder : ISubstitutionNodeFinder
 
         foreach (var operation in whenVisitor.Operations)
         {
-            var symbol = ExtractSymbol(operation);
+            var symbol = operation.ExtractSymbol();
 
             if (symbol != null && ContainsSymbol(typeSymbol, symbol))
             {
@@ -104,18 +104,6 @@ internal class SubstitutionNodeFinder : ISubstitutionNodeFinder
             yield return current;
             current = current.BaseType;
         }
-    }
-
-    private static ISymbol ExtractSymbol(IOperation operation)
-    {
-        var symbol = operation switch
-        {
-            IInvocationOperation invocationOperation => invocationOperation.TargetMethod,
-            IPropertyReferenceOperation propertyReferenceOperation => propertyReferenceOperation.Property,
-            IConversionOperation conversionOperation => ExtractSymbol(conversionOperation.Operand),
-            _ => null
-        };
-        return symbol;
     }
 
     private IOperation FindForAndDoesExpression(IInvocationOperation invocationOperation)
