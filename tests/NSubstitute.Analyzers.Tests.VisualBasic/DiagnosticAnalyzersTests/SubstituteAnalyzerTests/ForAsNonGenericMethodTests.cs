@@ -643,6 +643,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, New Object() {1, 2, 3})
+            Dim otherSubstitute = NSubstitute.Substitute.[For](typesToProxy:= {GetType(Foo)}, constructorArguments:= New Object() {1, 2, 3})
+            Dim yetAnotherSubstitute = NSubstitute.Substitute.[For](constructorArguments:= New Object() {1, 2, 3}, typesToProxy:= {GetType(Foo)})
         End Sub
     End Class
 End Namespace
@@ -663,6 +665,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|NSubstitute.Substitute.[For]({GetType(Foo)}, New Object() {1})|]
+            Dim otherSubstitute = [|NSubstitute.Substitute.[For](typesToProxy:= {GetType(Foo)}, constructorArguments:= New Object() {1})|]
+            Dim yetAnotherSubstitute = [|NSubstitute.Substitute.[For](constructorArguments:= New Object() {1}, typesToProxy:= {GetType(Foo)})|]
         End Sub
     End Class
 End Namespace

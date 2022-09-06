@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
+using MoreLinq;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using NSubstitute.Analyzers.Tests.Shared.Extensions;
 
@@ -187,6 +188,28 @@ Namespace MyNamespace
                         Return 1
                     End Function)
                 End Function)
+            {method}(substitute:= substitute, substituteCall:= Function([sub]) [sub].FooBaz(Arg.Any (Of Integer)(), Arg.Any (Of Integer)())).[Do](
+                Function(outerCallInfo)
+                    Dim otherSubstitute = NSubstitute.Substitute.[For] (Of IFoo)()
+                    otherSubstitute.Bar(Arg.Any (Of Integer)()).Returns(Function(innerCallInfo)
+                        Dim x = outerCallInfo.ArgAt (Of Integer)(1)
+                        Dim y = outerCallInfo(1)
+                        Dim xx = innerCallInfo.ArgAt (Of Integer)(0)
+                        Dim yy = innerCallInfo(0)
+                        Return 1
+                    End Function)
+                End Function)
+            {method}(substituteCall:= Function([sub]) [sub].FooBaz(Arg.Any (Of Integer)(), Arg.Any (Of Integer)()), substitute:= substitute).[Do](
+                Function(outerCallInfo)
+                    Dim otherSubstitute = NSubstitute.Substitute.[For] (Of IFoo)()
+                    otherSubstitute.Bar(Arg.Any (Of Integer)()).Returns(Function(innerCallInfo)
+                        Dim x = outerCallInfo.ArgAt (Of Integer)(1)
+                        Dim y = outerCallInfo(1)
+                        Dim xx = innerCallInfo.ArgAt (Of Integer)(0)
+                        Dim yy = innerCallInfo(0)
+                        Return 1
+                    End Function)
+                End Function)
         End Sub
     End Class
 End Namespace";
@@ -224,6 +247,32 @@ Namespace MyNamespace
                         Return 1
                     End Function)
                 End Function)
+            {method}(substitute:= substitute, substituteCall:= Sub([sub]) [sub].FooBaz(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())).[Do](
+                Function(outerCallInfo)
+                    Dim otherSubstitute = NSubstitute.Substitute.[For](Of IFoo)()
+                    otherSubstitute.Bar(Arg.Any(Of Integer)()).Returns(Function(innerCallInfo)
+                        Dim x = [|outerCallInfo.ArgAt(Of Integer)(2)|]
+                        Dim y = [|outerCallInfo(2)|]
+                        Dim z = outerCallInfo(1)
+                        Dim xx = [|innerCallInfo.ArgAt(Of Integer)(1)|]
+                        Dim yy = [|innerCallInfo(1)|]
+                        Dim zz = innerCallInfo(0)
+                        Return 1
+                    End Function)
+                End Function)
+            {method}(substituteCall:= Sub([sub]) [sub].FooBaz(Arg.Any(Of Integer)(), Arg.Any(Of Integer)()), substitute:= substitute).[Do](
+                Function(outerCallInfo)
+                    Dim otherSubstitute = NSubstitute.Substitute.[For](Of IFoo)()
+                    otherSubstitute.Bar(Arg.Any(Of Integer)()).Returns(Function(innerCallInfo)
+                        Dim x = [|outerCallInfo.ArgAt(Of Integer)(2)|]
+                        Dim y = [|outerCallInfo(2)|]
+                        Dim z = outerCallInfo(1)
+                        Dim xx = [|innerCallInfo.ArgAt(Of Integer)(1)|]
+                        Dim yy = [|innerCallInfo(1)|]
+                        Dim zz = innerCallInfo(0)
+                        Return 1
+                    End Function)
+                End Function)
         End Sub
     End Class
 End Namespace";
@@ -235,7 +284,7 @@ End Namespace";
             "There is no argument at position 2",
             "There is no argument at position 1",
             "There is no argument at position 1"
-        };
+        }.Repeat(3).ToArray();
 
         var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(CallInfoArgumentOutOfRangeDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
         await VerifyDiagnostic(textParserResult.Text, diagnostics);
@@ -608,6 +657,20 @@ Namespace MyNamespace
                     Return innerCallInfo.Arg(Of Integer)()
                 End Function)
             End Function)
+            {method}(substitute:= substitute, substituteCall:= Sub([sub]) [sub].FooBaz(Arg.Any(Of String)())).[Do](Function(outerCallInfo)
+                Dim otherSubstitute = NSubstitute.Substitute.[For](Of IFoo)()
+                otherSubstitute.Bar(Arg.Any(Of Integer)()).Returns(Function(innerCallInfo)
+                    Dim x = outerCallInfo.Arg(Of String)()
+                    Return innerCallInfo.Arg(Of Integer)()
+                End Function)
+            End Function)
+            {method}(substituteCall:= Sub([sub]) [sub].FooBaz(Arg.Any(Of String)()), substitute:= substitute).[Do](Function(outerCallInfo)
+                Dim otherSubstitute = NSubstitute.Substitute.[For](Of IFoo)()
+                otherSubstitute.Bar(Arg.Any(Of Integer)()).Returns(Function(innerCallInfo)
+                    Dim x = outerCallInfo.Arg(Of String)()
+                    Return innerCallInfo.Arg(Of Integer)()
+                End Function)
+            End Function)
         End Sub
     End Class
 End Namespace";
@@ -932,6 +995,22 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFooBar)()
             {method}(substitute, Sub([sub]) [sub].FooBaz(Arg.Any(Of Integer)())).[Do](Function(outerCallInfo)
+                Dim otherSubstitute = NSubstitute.Substitute.[For](Of IFoo)()
+                otherSubstitute.Bar(Arg.Any(Of Integer)()).Returns(Function(innerCallInfo)
+                    Dim x = [|outerCallInfo.Arg(Of String)()|]
+                    Dim y = [|innerCallInfo.Arg(Of String)()|]
+                    Return 1
+                End Function)
+            End Function)
+            {method}(substitute:= substitute, substituteCall:= Sub([sub]) [sub].FooBaz(Arg.Any(Of Integer)())).[Do](Function(outerCallInfo)
+                Dim otherSubstitute = NSubstitute.Substitute.[For](Of IFoo)()
+                otherSubstitute.Bar(Arg.Any(Of Integer)()).Returns(Function(innerCallInfo)
+                    Dim x = [|outerCallInfo.Arg(Of String)()|]
+                    Dim y = [|innerCallInfo.Arg(Of String)()|]
+                    Return 1
+                End Function)
+            End Function)
+            {method}(substituteCall:= Sub([sub]) [sub].FooBaz(Arg.Any(Of Integer)()), substitute:= substitute).[Do](Function(outerCallInfo)
                 Dim otherSubstitute = NSubstitute.Substitute.[For](Of IFoo)()
                 otherSubstitute.Bar(Arg.Any(Of Integer)()).Returns(Function(innerCallInfo)
                     Dim x = [|outerCallInfo.Arg(Of String)()|]

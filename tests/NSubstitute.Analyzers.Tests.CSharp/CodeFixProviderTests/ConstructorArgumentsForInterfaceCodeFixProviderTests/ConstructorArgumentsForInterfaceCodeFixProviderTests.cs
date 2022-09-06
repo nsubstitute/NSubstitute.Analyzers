@@ -30,7 +30,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<IFoo>(1, 2, 3);
-            var otherSubstitute = NSubstitute.Substitute.For<IFoo>(constructorArguments: new [] { 1, 2, 3 });
+            var otherSubstitute = NSubstitute.Substitute.For<IFoo>(new [] { 1, 2, 3 });
+            var yetAnotherSubstitute = NSubstitute.Substitute.For<IFoo>(constructorArguments: new [] { 1, 2, 3 });
         }
     }
 }";
@@ -48,6 +49,7 @@ namespace MyNamespace
         {
             var substitute = NSubstitute.Substitute.For<IFoo>();
             var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+            var yetAnotherSubstitute = NSubstitute.Substitute.For<IFoo>();
         }
     }
 }";

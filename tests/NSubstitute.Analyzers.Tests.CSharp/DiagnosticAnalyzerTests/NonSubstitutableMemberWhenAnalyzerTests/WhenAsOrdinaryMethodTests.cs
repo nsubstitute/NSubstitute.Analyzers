@@ -382,6 +382,8 @@ namespace NSubstitute
         {{
             Foo substitute = null;
             {method}(substitute, {whenAction}, 1);
+            {method}(substituteCall: {whenAction}, substitute: substitute, x: 1);
+            {method}(substitute: substitute, substituteCall: {whenAction}, x: 1);
         }}
     }}
 }}";

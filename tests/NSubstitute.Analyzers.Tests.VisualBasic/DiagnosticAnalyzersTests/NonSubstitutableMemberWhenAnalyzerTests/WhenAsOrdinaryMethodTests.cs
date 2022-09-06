@@ -187,8 +187,9 @@ Namespace MyNamespace
         Public Sub Test()
             Dim i As Integer = 1
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            {method}(substitute,{whenAction}).[Do](Sub(callInfo) i = i +1)
+            {method}(substitute, {whenAction}).[Do](Sub(callInfo) i = i +1)
             {method}(substitute:= substitute, substituteCall:= {whenAction}).[Do](Sub(callInfo) i = i +1)
+            {method}(substituteCall:= {whenAction}, substitute:= substitute).[Do](Sub(callInfo) i = i +1)
         End Sub
     End Class
 End Namespace
@@ -210,6 +211,7 @@ Namespace MyNamespace
         Public Sub Test()
             Dim i As Integer = 1
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            {method}(substitute, {whenAction}).[Do](Sub(callInfo) i = i +1)
             {method}(substitute:= substitute, substituteCall:= {whenAction}).[Do](Sub(callInfo) i = i +1)
             {method}(substituteCall:= {whenAction}, substitute:= substitute).[Do](Sub(callInfo) i = i +1)
         End Sub
@@ -231,7 +233,7 @@ Namespace MyNamespace
             Dim i As Integer = 1
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute, {whenAction}).[Do](Sub(callInfo) i = i + 1)
-            {method}(substitute: =substitute, substituteCall:= {whenAction}).[Do](Sub(callInfo) i = i + 1)
+            {method}(substitute:= substitute, substituteCall:= {whenAction}).[Do](Sub(callInfo) i = i + 1)
             {method}(substituteCall:= {whenAction}, substitute:= substitute).[Do](Sub(callInfo) i = i + 1)
         End Sub
     End Class
@@ -263,6 +265,7 @@ Namespace MyNamespace
         End Sub
     End Class
 End Namespace";
+
         await VerifyNoDiagnostic(source);
     }
 

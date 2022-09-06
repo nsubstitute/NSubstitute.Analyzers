@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
 using NSubstitute.Analyzers.Shared;
 
-namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.NonSubstitutableMemberAnalyzerSuppressDiagnosticsCodeFixProviderTests;
+namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.NonSubstitutableMemberSuppressDiagnosticsCodeFixProviderTests;
 
-public class ReturnsAsOrdinaryMethodTests : NonSubstitutableMemberSuppressDiagnosticsCodeFixVerifier
+public class ReturnsAsExtensionMethodTests : NonSubstitutableMemberSuppressDiagnosticsCodeFixVerifier
 {
     public override async Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualMethod()
     {
@@ -22,7 +22,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
-            SubstituteExtensions.Returns(substitute.Bar(), 1)
+            substitute.Bar().Returns(1)
         End Sub
     End Class
 End Namespace
@@ -46,7 +46,7 @@ Namespace MyNamespace
     Public Class FooTests
 
         Public Sub Test()
-            SubstituteExtensions.Returns(Foo.Bar(), 1)
+            Foo.Bar().Returns(1)
         End Sub
     End Class
 End Namespace
@@ -64,7 +64,7 @@ Namespace MyNamespace
         Public Sub Test()
             Bar = NSubstitute.Substitute.[For](Of IBar)()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            SubstituteExtensions.Returns(substitute.GetBar(), 1)
+            substitute.GetBar().Returns(1)
         End Sub
     End Class
 
@@ -116,12 +116,11 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo2)()
-            SubstituteExtensions.Returns(substitute.Bar(), 1)
+            substitute.Bar().Returns(1)
         End Sub
     End Class
 End Namespace
 ";
-
         await VerifySuppressionSettings(source, "M:MyNamespace.Foo2.Bar~System.Int32", DiagnosticIdentifiers.NonVirtualSetupSpecification);
     }
 
@@ -143,7 +142,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            SubstituteExtensions.Returns(substitute.Bar, 1)
+            substitute.Bar.Returns(1)
         End Sub
     End Class
 End Namespace";
@@ -171,7 +170,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            SubstituteExtensions.Returns(substitute(1), 1)
+            substitute(1).Returns(1)
         End Sub
     End Class
 End Namespace";
@@ -199,7 +198,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            SubstituteExtensions.Returns(substitute(1), 1)
+            substitute(1).Returns(1)
         End Sub
     End Class
 End Namespace";
@@ -227,7 +226,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            SubstituteExtensions.Returns(substitute(1), 1)
+            substitute(1).Returns(1)
         End Sub
     End Class
 End Namespace";

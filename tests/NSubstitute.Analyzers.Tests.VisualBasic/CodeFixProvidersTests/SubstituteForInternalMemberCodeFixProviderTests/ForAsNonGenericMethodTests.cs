@@ -1,12 +1,10 @@
 ﻿using System.Threading.Tasks;
-using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.SubstituteForInternalMemberCodeFixProviderTests;
 
 public class ForAsNonGenericMethodTests : SubstituteForInternalMemberCodeFixVerifier
 {
-    [Fact]
-    public override async Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalClass()
+    public override async Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalClass(int diagnosticIndex)
     {
         var oldSource = @"Imports NSubstitute.Core
 
@@ -18,6 +16,8 @@ Namespace MyNamespace
         Public Class FooTests
             Public Sub Test()
                 Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, Nothing)
+                Dim otherSubstitute = NSubstitute.Substitute.[For](typesToProxy:= {GetType(Foo)}, constructorArguments:= Nothing)
+                Dim yetAnotherSubstitute = NSubstitute.Substitute.[For](constructorArguments:= Nothing, typesToProxy:= {GetType(Foo)})
             End Sub
         End Class
     End Namespace
@@ -34,16 +34,17 @@ Namespace MyNamespace
         Public Class FooTests
             Public Sub Test()
                 Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, Nothing)
+                Dim otherSubstitute = NSubstitute.Substitute.[For](typesToProxy:= {GetType(Foo)}, constructorArguments:= Nothing)
+                Dim yetAnotherSubstitute = NSubstitute.Substitute.[For](constructorArguments:= Nothing, typesToProxy:= {GetType(Foo)})
             End Sub
         End Class
     End Namespace
 End Namespace
 ";
-        await VerifyFix(oldSource, newSource);
+        await VerifyFix(oldSource, newSource, diagnosticIndex: diagnosticIndex);
     }
 
-    [Fact]
-    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass()
+    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass(int diagnosticIndex)
     {
         var oldSource = @"Imports NSubstitute.Core
 
@@ -54,6 +55,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, Nothing)
+            Dim otherSubstitute = NSubstitute.Substitute.[For](typesToProxy:= {GetType(Foo)}, constructorArguments:= Nothing)
+            Dim yetAnotherSubstitute = NSubstitute.Substitute.[For](constructorArguments:= Nothing, typesToProxy:= {GetType(Foo)})
         End Sub
     End Class
 End Namespace
@@ -68,15 +71,16 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, Nothing)
+            Dim otherSubstitute = NSubstitute.Substitute.[For](typesToProxy:= {GetType(Foo)}, constructorArguments:= Nothing)
+            Dim yetAnotherSubstitute = NSubstitute.Substitute.[For](constructorArguments:= Nothing, typesToProxy:= {GetType(Foo)})
         End Sub
     End Class
 End Namespace
 ";
-        await VerifyFix(oldSource, newSource);
+        await VerifyFix(oldSource, newSource, diagnosticIndex: diagnosticIndex);
     }
 
-    [Fact]
-    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass_AndArgumentListNotEmpty()
+    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass_AndArgumentListNotEmpty(int diagnosticIndex)
     {
         var oldSource = @"Imports System.Reflection
 Imports NSubstitute.Core
@@ -88,6 +92,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, Nothing)
+            Dim otherSubstitute = NSubstitute.Substitute.[For](typesToProxy:= {GetType(Foo)}, constructorArguments:= Nothing)
+            Dim yetAnotherSubstitute = NSubstitute.Substitute.[For](constructorArguments:= Nothing, typesToProxy:= {GetType(Foo)})
         End Sub
     End Class
 End Namespace
@@ -103,15 +109,16 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo)}, Nothing)
+            Dim otherSubstitute = NSubstitute.Substitute.[For](typesToProxy:= {GetType(Foo)}, constructorArguments:= Nothing)
+            Dim yetAnotherSubstitute = NSubstitute.Substitute.[For](constructorArguments:= Nothing, typesToProxy:= {GetType(Foo)})
         End Sub
     End Class
 End Namespace
 ";
-        await VerifyFix(oldSource, newSource);
+        await VerifyFix(oldSource, newSource, diagnosticIndex: diagnosticIndex);
     }
 
-    [Fact]
-    public override async Task AppendsInternalsVisibleTo_WhenUsedWithNestedInternalClass()
+    public override async Task AppendsInternalsVisibleTo_WhenUsedWithNestedInternalClass(int diagnosticIndex)
     {
         var oldSource = @"Imports NSubstitute.Core
 
@@ -124,6 +131,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo.Bar)}, Nothing)
+            Dim otherSubstitute = NSubstitute.Substitute.[For](typesToProxy:= {GetType(Foo.Bar)}, constructorArguments:= Nothing)
+            Dim yetAnotherSubstitute = NSubstitute.Substitute.[For](constructorArguments:= Nothing, typesToProxy:= {GetType(Foo.Bar)})
         End Sub
     End Class
 End Namespace
@@ -140,14 +149,15 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For]({GetType(Foo.Bar)}, Nothing)
+            Dim otherSubstitute = NSubstitute.Substitute.[For](typesToProxy:= {GetType(Foo.Bar)}, constructorArguments:= Nothing)
+            Dim yetAnotherSubstitute = NSubstitute.Substitute.[For](constructorArguments:= Nothing, typesToProxy:= {GetType(Foo.Bar)})
         End Sub
     End Class
 End Namespace
 ";
-        await VerifyFix(oldSource, newSource);
+        await VerifyFix(oldSource, newSource, diagnosticIndex: diagnosticIndex);
     }
 
-    [Fact]
     public override async Task DoesNot_AppendsInternalsVisibleTo_WhenUsedWithPublicClass()
     {
         var oldSource = @"Imports NSubstitute.Core
@@ -166,7 +176,6 @@ End Namespace
         await VerifyFix(oldSource, oldSource);
     }
 
-    [Fact]
     public override async Task DoesNot_AppendsInternalsVisibleTo_WhenInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
     {
         var oldSource = @"Imports NSubstitute.Core

@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
+using MoreLinq;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using NSubstitute.Analyzers.Tests.Shared.Extensions;
 
@@ -37,11 +38,6 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
             var returnedValue = {call};
             {method}(returnedValue, callInfo =>
-            {{
-                {argAccess}
-                return new Exception();
-            }});
-            {method}(value: returnedValue, createException: callInfo =>
             {{
                 {argAccess}
                 return new Exception();
@@ -139,11 +135,6 @@ namespace MyNamespace
                 {argAccess}
                 return new Exception();
             }});
-            {method}(value: {call}, createException: callInfo =>
-            {{
-                {argAccess}
-                return new Exception();
-            }});
             {method}(createException: callInfo =>
             {{
                 {argAccess}
@@ -184,6 +175,16 @@ namespace MyNamespace
                 {argAccess}
                 return new Exception();
             }});
+            {method}(value: {call}, createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }});
+            {method}(createException: callInfo =>
+            {{
+                {argAccess}
+                return new Exception();
+            }}, value: {call});
         }}
     }}
 }}";
@@ -230,6 +231,38 @@ namespace MyNamespace
 
                     return new Exception();
                 }});
+            {method}(value: substitute.FooBaz(Arg.Any<int>(), Arg.Any<int>()), createException: outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                {method}(otherSubstitute.Bar(Arg.Any<int>()), innerCallInfo =>
+                {{
+                    var x = outerCallInfo.ArgAt<int>(1);
+                    var y = outerCallInfo[1];
+
+                        var xx = innerCallInfo.ArgAt<int>(0);
+                        var yy = innerCallInfo[0];
+
+                        return new Exception();
+                    }});
+
+                    return new Exception();
+                }});
+            {method}(createException: outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                {method}(otherSubstitute.Bar(Arg.Any<int>()), innerCallInfo =>
+                {{
+                    var x = outerCallInfo.ArgAt<int>(1);
+                    var y = outerCallInfo[1];
+
+                        var xx = innerCallInfo.ArgAt<int>(0);
+                        var yy = innerCallInfo[0];
+
+                        return new Exception();
+                    }});
+
+                    return new Exception();
+                }}, value: substitute.FooBaz(Arg.Any<int>(), Arg.Any<int>()));
 
         }}
     }}
@@ -267,11 +300,6 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}({call}, callInfo =>
-            {{
-                {argAccess}
-                return new Exception();
-            }});
-            {method}(value: {call}, createException: callInfo =>
             {{
                 {argAccess}
                 return new Exception();
@@ -637,6 +665,34 @@ namespace MyNamespace
 
                 return new Exception();
             }});
+            {method}(value: substitute.FooBaz(Arg.Any<int>()), createException: outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                {method}(otherSubstitute.Bar(Arg.Any<int>()), innerCallInfo =>
+                {{
+                    var x = [|outerCallInfo.Arg<string>()|];
+                    var y = [|innerCallInfo.Arg<string>()|];
+                    var z = outerCallInfo.Arg<object>();
+
+                    return new Exception();
+                }});
+
+                return new Exception();
+            }});
+            {method}(createException: outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                {method}(otherSubstitute.Bar(Arg.Any<int>()), innerCallInfo =>
+                {{
+                    var x = [|outerCallInfo.Arg<string>()|];
+                    var y = [|innerCallInfo.Arg<string>()|];
+                    var z = outerCallInfo.Arg<object>();
+
+                    return new Exception();
+                }});
+
+                return new Exception();
+            }}, value: substitute.FooBaz(Arg.Any<int>()));
         }}
     }}
 }}";
@@ -685,6 +741,42 @@ namespace MyNamespace
 
                 return new Exception();
             }});
+            {method}(value: substitute.FooBaz(Arg.Any<int>(), Arg.Any<int>()), createException: outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                {method}(otherSubstitute.Bar(Arg.Any<int>()), innerCallInfo =>
+                {{
+                    var x = [|outerCallInfo.ArgAt<int>(2)|];
+                    var y = [|outerCallInfo[2]|];
+                    var z = outerCallInfo[1];
+
+                    var xx = [|innerCallInfo.ArgAt<int>(1)|];
+                    var yy = [|innerCallInfo[1]|];
+                    var zz = innerCallInfo[0];
+
+                    return new Exception();
+                }});
+
+                return new Exception();
+            }});
+            {method}(createException: outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                {method}(otherSubstitute.Bar(Arg.Any<int>()), innerCallInfo =>
+                {{
+                    var x = [|outerCallInfo.ArgAt<int>(2)|];
+                    var y = [|outerCallInfo[2]|];
+                    var z = outerCallInfo[1];
+
+                    var xx = [|innerCallInfo.ArgAt<int>(1)|];
+                    var yy = [|innerCallInfo[1]|];
+                    var zz = innerCallInfo[0];
+
+                    return new Exception();
+                }});
+
+                return new Exception();
+            }}, value: substitute.FooBaz(Arg.Any<int>(), Arg.Any<int>()));
 
         }}
     }}
@@ -697,7 +789,7 @@ namespace MyNamespace
             "There is no argument at position 2",
             "There is no argument at position 1",
             "There is no argument at position 1"
-        };
+        }.Repeat(3).ToArray();
 
         var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(CallInfoArgumentOutOfRangeDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
         await VerifyDiagnostic(textParserResult.Text, diagnostics);
@@ -798,6 +890,30 @@ namespace MyNamespace
 
                 return new Exception();
             }});
+            {method}(value: substitute.FooBaz(Arg.Any<string>()), createException: outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                {method}(otherSubstitute.Bar(Arg.Any<int>()), innerCallInfo =>
+                {{
+                    var x = outerCallInfo.Arg<string>();
+                    var z = innerCallInfo.Arg<int>();
+                    return new Exception();
+                }});
+
+                return new Exception();
+            }});
+            {method}(createException: outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                {method}(otherSubstitute.Bar(Arg.Any<int>()), innerCallInfo =>
+                {{
+                    var x = outerCallInfo.Arg<string>();
+                    var z = innerCallInfo.Arg<int>();
+                    return new Exception();
+                }});
+
+                return new Exception();
+            }}, value: substitute.FooBaz(Arg.Any<string>()));
 
         }}
     }}
@@ -835,11 +951,6 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}({call}, callInfo =>
-            {{
-                {argAccess}
-                return new Exception();
-            }});
-            {method}(value: {call}, createException: callInfo =>
             {{
                 {argAccess}
                 return new Exception();
@@ -975,11 +1086,6 @@ namespace MyNamespace
             int value = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute.Bar(ref value), callInfo =>
-            {{
-                callInfo[0] = 1;
-                return new Exception();
-            }});
-            {method}(value: substitute.Bar(ref value), createException: callInfo =>
             {{
                 callInfo[0] = 1;
                 return new Exception();
@@ -1147,11 +1253,6 @@ namespace MyNamespace
             {left} value = default({left});
             var substitute = NSubstitute.Substitute.For<Foo>();
             {method}(substitute.Bar(out value), callInfo =>
-            {{
-                callInfo[0] = {right};
-                return new Exception();
-            }});
-            {method}(value: substitute.Bar(out value), createException: callInfo =>
             {{
                 callInfo[0] = {right};
                 return new Exception();

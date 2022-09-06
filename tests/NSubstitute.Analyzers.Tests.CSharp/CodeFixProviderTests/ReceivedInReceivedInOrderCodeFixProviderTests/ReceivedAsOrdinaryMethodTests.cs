@@ -84,7 +84,14 @@ namespace MyNamespace
             Received.InOrder(() =>
             { 
                 SubstituteExtensions.Received(substitute, 1).Bar();
+                SubstituteExtensions.Received(substitute: substitute, requiredNumberOfCalls: 1).Bar();
+                SubstituteExtensions.Received(requiredNumberOfCalls: 1, substitute: substitute).Bar();
                 SubstituteExtensions.Received(substitute, 1).Bar(Arg.Any<int>());
+                SubstituteExtensions.Received(substitute: substitute, requiredNumberOfCalls: 1).Bar(Arg.Any<int>());
+                SubstituteExtensions.Received(requiredNumberOfCalls: 1, substitute: substitute).Bar(Arg.Any<int>());
+                SubstituteExtensions.ReceivedWithAnyArgs(substitute, 1).Bar(Arg.Any<int>());
+                SubstituteExtensions.ReceivedWithAnyArgs(substitute: substitute, requiredNumberOfCalls: 1).Bar(Arg.Any<int>());
+                SubstituteExtensions.ReceivedWithAnyArgs(requiredNumberOfCalls: 1, substitute: substitute).Bar(Arg.Any<int>());
             });
         }
     }
@@ -109,6 +116,13 @@ namespace MyNamespace
             Received.InOrder(() =>
             { 
                 substitute.Bar();
+                substitute.Bar();
+                substitute.Bar();
+                substitute.Bar(Arg.Any<int>());
+                substitute.Bar(Arg.Any<int>());
+                substitute.Bar(Arg.Any<int>());
+                substitute.Bar(Arg.Any<int>());
+                substitute.Bar(Arg.Any<int>());
                 substitute.Bar(Arg.Any<int>());
             });
         }

@@ -686,6 +686,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = SubstitutionContext.Current.SubstituteFactory.Create(new [] { typeof(Foo) }, new object[] { 1 });
+            var otherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy: new [] { typeof(Foo) }, constructorArguments: new object[] { 1 });
+            var yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments: new object[] { 1 }, typesToProxy: new [] { typeof(Foo) });
         }
     }
 }";
@@ -711,6 +713,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = SubstitutionContext.Current.SubstituteFactory.Create(new [] { typeof(Foo) }, new object[] { 1, 2, 3 });
+            var otherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy: new [] { typeof(Foo) }, constructorArguments: new object[] { 1, 2, 3 });
+            var yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments: new object[] { 1, 2, 3 }, typesToProxy: new [] { typeof(Foo) });
         }
     }
 }";
@@ -736,6 +740,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|SubstitutionContext.Current.SubstituteFactory.Create(new [] { typeof(Foo) }, new object[] { 1 })|];
+            var otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy: new [] { typeof(Foo) }, constructorArguments: new object[] { 1 })|];
+            var yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments: new object[] { 1 }, typesToProxy: new [] { typeof(Foo) })|];
         }
     }
 }";

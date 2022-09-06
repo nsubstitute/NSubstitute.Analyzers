@@ -527,6 +527,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new [] { typeof(Foo) }, new object[] { 1, 2, 3 });
+            var otherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new [] { typeof(Foo) }, constructorArguments: new object[] { 1, 2, 3 });
+            var yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: new object[] { 1, 2, 3 }, typesToProxy: new [] { typeof(Foo) });
         }
     }
 }";
@@ -552,6 +554,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(new [] { typeof(Foo) }, new object[] { 1 })|];
+            var otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new [] { typeof(Foo) }, constructorArguments: new object[] { 1 })|];
+            var yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: new object[] { 1 }, typesToProxy: new [] { typeof(Foo) })|];
         }
     }
 }";

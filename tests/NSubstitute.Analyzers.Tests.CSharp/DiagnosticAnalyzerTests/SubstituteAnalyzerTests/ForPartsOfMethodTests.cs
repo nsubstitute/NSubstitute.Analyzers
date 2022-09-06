@@ -457,6 +457,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.ForPartsOf<Foo>(1, 2, 3);
+            var otherSubstitute = NSubstitute.Substitute.ForPartsOf<Foo>(new object[] { 1, new int[] { 2, 3 } });
+            var yetAnotherSubstitute = NSubstitute.Substitute.ForPartsOf<Foo>(constructorArguments: new object[] { 1, new int[] { 2, 3 } });
         }
     }
 }";
@@ -481,6 +483,10 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|NSubstitute.Substitute.ForPartsOf<Foo>(1)|];
+            var otherSubstitute = [|NSubstitute.Substitute.ForPartsOf<Foo>(new [] { 1 })|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.ForPartsOf<Foo>(new [] { 1, 2 })|];
+            var someOtherSubstitute = [|NSubstitute.Substitute.ForPartsOf<Foo>(constructorArguments: new [] { 1 })|];
+            var yetSomeOtherSubstitute = [|NSubstitute.Substitute.ForPartsOf<Foo>(constructorArguments: new [] { 1, 2 })|];
         }
     }
 }";

@@ -669,6 +669,8 @@ namespace MyNamespace
     {{
         public void Test()
         {{
+            var substitute = NSubstitute.Substitute.For(new [] {{ typeof(Foo) }}, {invocationValues});
+            var otherSubstitute = NSubstitute.Substitute.For(typesToProxy: new [] {{ typeof(Foo) }}, constructorArguments: {invocationValues});
             var yetAnotherSubstitute = NSubstitute.Substitute.For(constructorArguments: {invocationValues}, typesToProxy: new [] {{ typeof(Foo) }});
         }}
     }}
@@ -713,6 +715,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = Substitute.For(new [] { typeof(Foo) }, new object[] { 1 });
+            var otherSubstitute = Substitute.For(typesToProxy: new [] { typeof(Foo) }, constructorArguments: new object[] { 1 });
+            var yetAnotherSubstitute = Substitute.For(constructorArguments: new object[] { 1 }, typesToProxy: new [] { typeof(Foo) });
         }
     }
 }";
@@ -737,6 +741,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = Substitute.For(new [] { typeof(Foo) }, new object[] { 1, 2, 3 });
+            var otherSubstitute = Substitute.For(typesToProxy: new [] { typeof(Foo) }, constructorArguments: new object[] { 1, 2, 3 });
+            var yetAnotherSubstitute = Substitute.For(constructorArguments: new object[] { 1, 2, 3 }, typesToProxy: new [] { typeof(Foo) });
         }
     }
 }";
@@ -761,6 +767,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|Substitute.For(new [] { typeof(Foo) }, new object[] { 1 })|];
+            var otherSubstitute = [|Substitute.For(typesToProxy: new [] { typeof(Foo) }, constructorArguments: new object[] { 1 })|];
+            var yetAnotherSubstitute = [|Substitute.For(constructorArguments: new object[] { 1 }, typesToProxy: new [] { typeof(Foo) })|];
         }
     }
 }";

@@ -34,6 +34,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            {method}([|substitute.Bar()|], New Exception())
             {method}(value:= [|substitute.Bar()|], ex:= New Exception())
             {method}(ex:= New Exception(), value:= [|substitute.Bar()|])
         End Sub
@@ -123,6 +124,7 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute.Bar(), New Exception())
             {method}(value:= substitute.Bar(), ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute.Bar())
         End Sub
     End Class
 End Namespace
@@ -599,6 +601,8 @@ Namespace NSubstitute
         Public Sub Test()
             Dim substitute As Foo = Nothing
             {method}(substitute.Bar(), New Exception())
+            {method}(returnValue:= substitute.Bar(), ex:= New Exception())
+            {method}(ex:= New Exception(), returnValue:= substitute.Bar())
         End Sub
     End Class
 End Namespace

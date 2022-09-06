@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
+using MoreLinq;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using NSubstitute.Analyzers.Tests.Shared.Extensions;
 
@@ -217,6 +218,38 @@ namespace MyNamespace
 
                 return 1;
             }});
+            {method}(value: substitute.FooBaz(Arg.Any<int>(), Arg.Any<int>()), returnThis: outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                {method}(otherSubstitute.Bar(Arg.Any<int>()), innerCallInfo =>
+                {{
+                    var x = outerCallInfo.ArgAt<int>(1);
+                    var y = outerCallInfo[1];
+
+                    var xx = innerCallInfo.ArgAt<int>(0);
+                    var yy = innerCallInfo[0];
+
+                    return 1;
+                }});
+
+                return 1;
+            }});
+            {method}(returnThis: outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                {method}(otherSubstitute.Bar(Arg.Any<int>()), innerCallInfo =>
+                {{
+                    var x = outerCallInfo.ArgAt<int>(1);
+                    var y = outerCallInfo[1];
+
+                    var xx = innerCallInfo.ArgAt<int>(0);
+                    var yy = innerCallInfo[0];
+
+                    return 1;
+                }});
+
+                return 1;
+            }}, value: substitute.FooBaz(Arg.Any<int>(), Arg.Any<int>()));
 
         }}
     }}
@@ -604,6 +637,34 @@ namespace MyNamespace
 
                 return 1;
             }});
+            {method}(value: substitute.FooBaz(Arg.Any<object>()), returnThis: outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                {method}(otherSubstitute.Bar(Arg.Any<int>()), innerCallInfo =>
+                {{
+                    var x = [|outerCallInfo.Arg<string>()|];
+                    var y = [|innerCallInfo.Arg<string>()|];
+                    var z = outerCallInfo.Arg<object>();
+
+                    return 1;
+                }});
+
+                return 1;
+            }});
+            {method}(returnThis: outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                {method}(otherSubstitute.Bar(Arg.Any<int>()), innerCallInfo =>
+                {{
+                    var x = [|outerCallInfo.Arg<string>()|];
+                    var y = [|innerCallInfo.Arg<string>()|];
+                    var z = outerCallInfo.Arg<object>();
+
+                    return 1;
+                }});
+
+                return 1;
+            }}, value: substitute.FooBaz(Arg.Any<object>()));
         }}
     }}
 }}";
@@ -650,7 +711,42 @@ namespace MyNamespace
 
                 return 1;
             }});
+            {method}(value: substitute.FooBaz(Arg.Any<int>(), Arg.Any<int>()), returnThis: outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                {method}(otherSubstitute.Bar(Arg.Any<int>()), innerCallInfo =>
+                {{
+                    var x = [|outerCallInfo.ArgAt<int>(2)|];
+                    var y = [|outerCallInfo[2]|];
+                    var z = outerCallInfo[1];
 
+                    var xx = [|innerCallInfo.ArgAt<int>(1)|];
+                    var yy = [|innerCallInfo[1]|];
+                    var zz = innerCallInfo[0];
+
+                    return 1;
+                }});
+
+                return 1;
+            }});
+            {method}(returnThis: outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                {method}(otherSubstitute.Bar(Arg.Any<int>()), innerCallInfo =>
+                {{
+                    var x = [|outerCallInfo.ArgAt<int>(2)|];
+                    var y = [|outerCallInfo[2]|];
+                    var z = outerCallInfo[1];
+
+                    var xx = [|innerCallInfo.ArgAt<int>(1)|];
+                    var yy = [|innerCallInfo[1]|];
+                    var zz = innerCallInfo[0];
+
+                    return 1;
+                }});
+
+                return 1;
+            }}, value: substitute.FooBaz(Arg.Any<int>(), Arg.Any<int>()));
         }}
     }}
 }}";
@@ -662,7 +758,7 @@ namespace MyNamespace
             "There is no argument at position 2",
             "There is no argument at position 1",
             "There is no argument at position 1"
-        };
+        }.Repeat(3).ToArray();
 
         var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(CallInfoArgumentOutOfRangeDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
         await VerifyDiagnostic(textParserResult.Text, diagnostics);
@@ -758,6 +854,28 @@ namespace MyNamespace
 
                 return 1;
             }});
+            {method}(value: substitute.FooBaz(Arg.Any<string>()), returnThis: outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                {method}(otherSubstitute.Bar(Arg.Any<int>()), innerCallInfo =>
+                {{
+                    var x = outerCallInfo.Arg<string>();
+                    return innerCallInfo.Arg<int>();
+                }});
+
+                return 1;
+            }});
+            {method}(returnThis: outerCallInfo =>
+            {{
+                var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+                {method}(otherSubstitute.Bar(Arg.Any<int>()), innerCallInfo =>
+                {{
+                    var x = outerCallInfo.Arg<string>();
+                    return innerCallInfo.Arg<int>();
+                }});
+
+                return 1;
+            }}, value: substitute.FooBaz(Arg.Any<string>()));
 
         }}
     }}

@@ -584,7 +584,11 @@ namespace MyNamespace
         {{
             var substitute = NSubstitute.Substitute.For<Foo<int>>();
             {method}(substitute.Bar, 1);
+            {method}(value: substitute.Bar, returnThis: 1);
+            {method}(returnThis: 1, value: substitute.Bar);
             {method}([|substitute.FooBar|], 1);
+            {method}(value: [|substitute.FooBar|], returnThis: 1);
+            {method}(returnThis: 1, value: [|substitute.FooBar|]);
         }}
     }}
 }}";

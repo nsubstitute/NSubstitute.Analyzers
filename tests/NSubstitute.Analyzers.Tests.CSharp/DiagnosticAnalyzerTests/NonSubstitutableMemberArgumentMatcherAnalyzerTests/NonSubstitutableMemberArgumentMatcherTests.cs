@@ -771,6 +771,10 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
             substitute.Bar({arg}, {arg});
             substitute.Bar([|{arg}|]);
+            substitute.When(x => x.Bar([|{arg}|]));
+            SubstituteExtensions.When(substitute, x => x.Bar([|{arg}|]));
+            SubstituteExtensions.When(substitute: substitute, substituteCall: x => x.Bar([|{arg}|]));
+            SubstituteExtensions.When(substituteCall: x => x.Bar([|{arg}|]), substitute: substitute);
         }}
     }}
 }}";
