@@ -37,9 +37,19 @@ internal static class SubstituteSymbolExtensions
         return IsMember(symbol, MetadataNames.ReturnsMethodNames);
     }
 
+    public static bool IsReturnForAnyArgsLikeMethod(this ISymbol symbol)
+    {
+        return IsMember(symbol, MetadataNames.ReturnsForAnyArgsMethodNames);
+    }
+
     public static bool IsThrowLikeMethod(this ISymbol symbol)
     {
         return IsMember(symbol, MetadataNames.ThrowsMethodNames);
+    }
+
+    public static bool IsThrowForAnyArgsLikeMethod(this ISymbol symbol)
+    {
+        return IsMember(symbol, MetadataNames.ThrowsForAnyArgsMethodNames);
     }
 
     public static bool IsThrowSyncLikeMethod(this ISymbol symbol)
@@ -47,7 +57,7 @@ internal static class SubstituteSymbolExtensions
         return IsMember(symbol, MetadataNames.ThrowsSyncMethodNames);
     }
 
-    public static bool IsThrowsSyncForAnyArgsMethod(this ISymbol symbol)
+    public static bool IsThrowsSyncMethod(this ISymbol symbol)
     {
         return IsMember(
             symbol,
@@ -61,6 +71,11 @@ internal static class SubstituteSymbolExtensions
                IsMember(symbol, MetadataNames.ReceivedWithQuantityMethodNames);
     }
 
+    public static bool IsReceivedWithAnyArgsLikeMethod(this ISymbol symbol)
+    {
+        return IsMember(symbol, MetadataNames.ReceivedWithAnyArgsMethodNames) || IsMember(symbol, MetadataNames.ReceivedWithAnyArgsQuantityMethodNames);
+    }
+
     public static bool IsReceivedInOrderMethod(this ISymbol symbol)
     {
         return IsMember(symbol, MetadataNames.NSubstituteInOrderMethod, MetadataNames.NSubstituteReceivedFullTypeName);
@@ -71,9 +86,20 @@ internal static class SubstituteSymbolExtensions
         return IsMember(symbol, MetadataNames.WhenMethodNames);
     }
 
+    public static bool IsWhenForAnyArgsLikeMethod(this ISymbol symbol)
+    {
+        return IsMember(symbol, MetadataNames.WhenForAnyArgsMethodNames);
+    }
+
     public static bool IsArgMatcherLikeMethod(this ISymbol symbol)
     {
         return IsMember(symbol, MetadataNames.ArgMatchersMethodNames) || IsMember(symbol, MetadataNames.ArgMatchersCompatMethodNames);
+    }
+
+    public static bool IsWithAnyArgsIncompatibleArgMatcherLikeMethod(this ISymbol symbol)
+    {
+        return IsMember(symbol, MetadataNames.ArgMatchersIncompatibleWithForAnyArgsMethodNames) ||
+               IsMember(symbol, MetadataNames.ArgMatchersCompatIncompatibleWithForAnyArgsMethodNames);
     }
 
     public static bool IsArgDoLikeMethod(this ISymbol symbol)

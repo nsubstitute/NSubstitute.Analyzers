@@ -18,7 +18,7 @@ namespace NSubstitute.Analyzers.Benchmarks.Source.CSharp.Models
 
         ConfiguredCall ConfiguredCallReturningProperty { get; }
 
-        int IntReturningProperty { get; }
+        int IntReturningProperty { get; set; }
 
         IFoo ObjectReturningProperty { get; }
 

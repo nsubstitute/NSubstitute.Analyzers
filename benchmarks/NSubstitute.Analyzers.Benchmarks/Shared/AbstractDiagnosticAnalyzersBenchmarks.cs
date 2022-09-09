@@ -40,6 +40,8 @@ public abstract class AbstractDiagnosticAnalyzersBenchmarks
 
     protected abstract AnalyzerBenchmark SyncOverAsyncThrowsAnalyzerBenchmark { get; }
 
+    protected abstract AnalyzerBenchmark WithAnyArgsAnalyzerBenchmark { get; }
+
     protected abstract AbstractSolutionLoader SolutionLoader { get; }
 
     protected abstract string SourceProjectFolderName { get; }

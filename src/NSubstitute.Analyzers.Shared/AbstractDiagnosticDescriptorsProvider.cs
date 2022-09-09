@@ -52,6 +52,8 @@ internal class AbstractDiagnosticDescriptorsProvider<T> : IDiagnosticDescriptors
 
     public DiagnosticDescriptor NonSubstitutableMemberArgumentMatcherUsage { get; } = DiagnosticDescriptors<T>.NonSubstitutableMemberArgumentMatcherUsage;
 
+    public DiagnosticDescriptor WithAnyArgsArgumentMatcherUsage { get; } = DiagnosticDescriptors<T>.WithAnyArgsArgumentMatcherUsage;
+
     public DiagnosticDescriptor ReceivedUsedInReceivedInOrder { get; } = DiagnosticDescriptors<T>.ReceivedUsedInReceivedInOrder;
 
     public DiagnosticDescriptor AsyncCallbackUsedInReceivedInOrder { get; } = DiagnosticDescriptors<T>.AsyncCallbackUsedInReceivedInOrder;

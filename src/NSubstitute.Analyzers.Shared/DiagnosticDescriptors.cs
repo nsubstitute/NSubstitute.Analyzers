@@ -205,6 +205,14 @@ internal class DiagnosticDescriptors<T>
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true);
 
+    public static DiagnosticDescriptor WithAnyArgsArgumentMatcherUsage { get; } =
+        CreateDiagnosticDescriptor(
+            name: nameof(WithAnyArgsArgumentMatcherUsage),
+            id: DiagnosticIdentifiers.WithAnyArgsArgumentMatcherUsage,
+            category: DiagnosticCategory.Usage.GetDisplayName(),
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
+
     public static DiagnosticDescriptor ReceivedUsedInReceivedInOrder { get; } = CreateDiagnosticDescriptor(
         name: nameof(ReceivedUsedInReceivedInOrder),
         id: DiagnosticIdentifiers.ReceivedUsedInReceivedInOrder,

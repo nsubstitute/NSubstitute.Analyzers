@@ -25,6 +25,7 @@ internal sealed class SubstitutionNodeFinder : AbstractSubstitutionNodeFinder
         return syntaxNode.GetSubstitutionActualNode(node => syntaxNodeContext.SemanticModel.GetSymbolInfo(node).Symbol);
     }
 
+    // TODO replace with SyntaxVisitor or OperationVisitor
     protected override IEnumerable<SyntaxNode> FindInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode argumentSyntax)
     {
         SyntaxNode body = null;
