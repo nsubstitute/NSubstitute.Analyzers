@@ -38,25 +38,29 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider : CodeFixProv
 
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
-        if (root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true) is not { } invocation)
+        if (root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true) is not { } invocationExpression)
         {
             return;
         }
 
         var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
-        var methodSymbol = (IMethodSymbol)semanticModel.GetSymbolInfo(invocation).Symbol;
+        if (semanticModel.GetOperation(invocationExpression) is not IInvocationOperation invocationOperation)
+        {
+           return;
+        }
+
         var supportsThrowsAsync = SupportsThrowsAsync(semanticModel.Compilation);
 
-        if (!supportsThrowsAsync && methodSymbol.Parameters.Any(param => param.Type.IsCallInfoDelegate(semanticModel.Compilation)))
+        if (!supportsThrowsAsync && invocationOperation.TargetMethod.Parameters.Any(param => param.Type.IsCallInfoDelegate(semanticModel.Compilation)))
         {
             return;
         }
 
-        var replacementMethod = GetReplacementMethodName(methodSymbol, useModernSyntax: supportsThrowsAsync);
+        var replacementMethod = GetReplacementMethodName(invocationOperation, useModernSyntax: supportsThrowsAsync);
 
         var codeAction = CodeAction.Create(
             $"Replace with {replacementMethod}",
-            ct => CreateChangedDocument(context, semanticModel, invocation, methodSymbol, supportsThrowsAsync, ct),
+            ct => CreateChangedDocument(context, semanticModel, invocationOperation, supportsThrowsAsync, ct),
             nameof(AbstractSyncOverAsyncThrowsCodeFixProvider));
 
         context.RegisterCodeFix(codeAction, diagnostic);
@@ -67,13 +71,12 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider : CodeFixProv
     private async Task<Document> CreateChangedDocument(
         CodeFixContext context,
         SemanticModel semanticModel,
-        SyntaxNode currentInvocationExpression,
-        IMethodSymbol invocationSymbol,
+        IInvocationOperation invocationOperation,
         bool useModernSyntax,
         CancellationToken cancellationToken)
     {
         var documentEditor = await DocumentEditor.CreateAsync(context.Document, cancellationToken);
-        var invocationOperation = (IInvocationOperation)semanticModel.GetOperation(currentInvocationExpression);
+        var invocationSymbol = (IMethodSymbol)semanticModel.GetSymbolInfo(invocationOperation.Syntax).Symbol;
 
         var updatedInvocationExpression = useModernSyntax
             ? await CreateThrowsAsyncInvocationExpression(
@@ -85,7 +88,7 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider : CodeFixProv
                 invocationSymbol,
                 context);
 
-        documentEditor.ReplaceNode(currentInvocationExpression, updatedInvocationExpression);
+        documentEditor.ReplaceNode(invocationOperation.Syntax, updatedInvocationExpression);
 
         return documentEditor.GetChangedDocument();
     }
@@ -209,16 +212,18 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider : CodeFixProv
                exceptionExtensionsTypeSymbol.GetMembers(MetadataNames.NSubstituteThrowsAsyncMethod).IsEmpty == false;
     }
 
-    private static string GetReplacementMethodName(IMethodSymbol methodSymbol, bool useModernSyntax)
+    private static string GetReplacementMethodName(IInvocationOperation invocationOperation, bool useModernSyntax)
     {
+        var isThrowsSyncMethod = invocationOperation.TargetMethod.IsThrowsSyncMethod();
+
         if (useModernSyntax)
         {
-            return methodSymbol.IsThrowsSyncMethod()
+            return isThrowsSyncMethod
                 ? MetadataNames.NSubstituteThrowsAsyncMethod
                 : MetadataNames.NSubstituteThrowsAsyncForAnyArgsMethod;
         }
 
-        return methodSymbol.IsThrowsSyncMethod()
+        return isThrowsSyncMethod
             ? MetadataNames.NSubstituteReturnsMethod
             : MetadataNames.NSubstituteReturnsForAnyArgsMethod;
     }
