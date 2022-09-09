@@ -57,14 +57,14 @@ internal abstract class AbstractConflictingArgumentAssignmentsAnalyzer : Abstrac
 
         var previousCallIndexers = FindCallInfoIndexers(substituteOperation);
 
-        var immutableHashSet = previousCallIndexers
+        var previousCallIndexerPositions = previousCallIndexers
             .Select(indexerPropertyReferenceOperation => indexerPropertyReferenceOperation.GetIndexerPosition())
             .ToImmutableHashSet();
 
         foreach (var indexerExpressionSyntax in andDoesIndexers)
         {
             var position = indexerExpressionSyntax.GetIndexerPosition();
-            if (position.HasValue && immutableHashSet.Contains(position.Value))
+            if (position.HasValue && previousCallIndexerPositions.Contains(position.Value))
             {
                 syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
                     DiagnosticDescriptorsProvider.ConflictingArgumentAssignments,
@@ -81,7 +81,7 @@ internal abstract class AbstractConflictingArgumentAssignmentsAnalyzer : Abstrac
             foreach (var propertyReference in _callInfoFinder
                          .GetCallInfoContext(argumentOperation).IndexerAccessesOperations)
             {
-                if (propertyReference.Parent is ISimpleAssignmentOperation)
+                if (propertyReference is IPropertyReferenceOperation && propertyReference.Parent is ISimpleAssignmentOperation)
                 {
                     yield return propertyReference;
                 }
