@@ -145,6 +145,22 @@ namespace MyNamespace
             {{
                 callInfo[0] = 1;
             }}, callInfo => {{}});
+            {method}(value: substitute.Bar(Arg.Any<int>()), returnThis: callInfo =>
+            {{
+                callInfo[0] = 1;
+                return 1;
+            }}).AndDoes(callInfo =>
+            {{
+                callInfo[0] = 1;
+            }}, callInfo => {{}});
+            {method}(returnThis: callInfo =>
+            {{
+                callInfo[0] = 1;
+                return 1;
+            }}, value: substitute.Bar(Arg.Any<int>())).AndDoes(callInfo =>
+            {{
+                callInfo[0] = 1;
+            }}, callInfo => {{}});
         }}
     }}
 

@@ -343,6 +343,8 @@ Namespace NSubstitute
         Public Sub Test()
             Dim substitute As Foo = Nothing
             {method}(substitute, {whenAction}, 1)
+            {method}(substitute:= substitute, substituteCall:= {whenAction}, x:= 1)
+            {method}(substituteCall:= {whenAction}, x:= 1, substitute:= substitute)
         End Sub
     End Class
 End Namespace

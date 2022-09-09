@@ -4,7 +4,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.SubstituteForI
 
 public class ForAsNonGenericMethodTests : SubstituteForInternalMemberCodeFixVerifier
 {
-    public override async Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalClass(int diagnosticIndex)
+    public override async Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalClass()
     {
         var oldSource = @"using NSubstitute;
 namespace MyNamespace
@@ -20,8 +20,6 @@ namespace MyNamespace
             public void Test()
             {
                 var substitute = Substitute.For(new[] {typeof(Foo)}, null);
-                var otherSubstitute = Substitute.For(typesToProxy: new[] {typeof(Foo)}, constructorArguments: null);
-                var yetAnotherSubstitute = Substitute.For(constructorArguments: null, typesToProxy: new[] {typeof(Foo)});
             }
         }
     }
@@ -43,16 +41,14 @@ namespace MyNamespace
             public void Test()
             {
                 var substitute = Substitute.For(new[] {typeof(Foo)}, null);
-                var otherSubstitute = Substitute.For(typesToProxy: new[] {typeof(Foo)}, constructorArguments: null);
-                var yetAnotherSubstitute = Substitute.For(constructorArguments: null, typesToProxy: new[] {typeof(Foo)});
             }
         }
     }
 }";
-        await VerifyFix(oldSource, newSource, diagnosticIndex: diagnosticIndex);
+        await VerifyFix(oldSource, newSource);
     }
 
-    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass(int diagnosticIndex)
+    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass()
     {
         var oldSource = @"using NSubstitute;
 namespace MyNamespace
@@ -66,8 +62,6 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = Substitute.For(new[] {typeof(Foo)}, null);
-            var otherSubstitute = Substitute.For(typesToProxy: new[] {typeof(Foo)}, constructorArguments: null);
-            var yetAnotherSubstitute = Substitute.For(constructorArguments: null, typesToProxy: new[] {typeof(Foo)});
         }
     }
 }";
@@ -86,15 +80,13 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = Substitute.For(new[] {typeof(Foo)}, null);
-            var otherSubstitute = Substitute.For(typesToProxy: new[] {typeof(Foo)}, constructorArguments: null);
-            var yetAnotherSubstitute = Substitute.For(constructorArguments: null, typesToProxy: new[] {typeof(Foo)});
         }
     }
 }";
-        await VerifyFix(oldSource, newSource, diagnosticIndex: diagnosticIndex);
+        await VerifyFix(oldSource, newSource);
     }
 
-    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass_AndArgumentListNotEmpty(int diagnosticIndex)
+    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass_AndArgumentListNotEmpty()
     {
         var oldSource = @"using System.Reflection;
 using NSubstitute;
@@ -110,8 +102,6 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = Substitute.For(new[] {typeof(Foo)}, null);
-            var otherSubstitute = Substitute.For(typesToProxy: new[] {typeof(Foo)}, constructorArguments: null);
-            var yetAnotherSubstitute = Substitute.For(constructorArguments: null, typesToProxy: new[] {typeof(Foo)});
         }
     }
 }";
@@ -131,15 +121,13 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = Substitute.For(new[] {typeof(Foo)}, null);
-            var otherSubstitute = Substitute.For(typesToProxy: new[] {typeof(Foo)}, constructorArguments: null);
-            var yetAnotherSubstitute = Substitute.For(constructorArguments: null, typesToProxy: new[] {typeof(Foo)});
         }
     }
 }";
-        await VerifyFix(oldSource, newSource, diagnosticIndex: diagnosticIndex);
+        await VerifyFix(oldSource, newSource);
     }
 
-    public override async Task AppendsInternalsVisibleTo_WhenUsedWithNestedInternalClass(int diagnosticIndex)
+    public override async Task AppendsInternalsVisibleTo_WhenUsedWithNestedInternalClass()
     {
         var oldSource = @"using NSubstitute;
 namespace MyNamespace
@@ -157,8 +145,6 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = Substitute.For(new[] {typeof(Foo.Bar)}, null);
-            var otherSubstitute = Substitute.For(typesToProxy: new[] {typeof(Foo.Bar)}, constructorArguments: null);
-            var yetAnotherSubstitute = Substitute.For(constructorArguments: null, typesToProxy: new[] {typeof(Foo.Bar)});
         }
     }
 }";
@@ -181,12 +167,10 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = Substitute.For(new[] {typeof(Foo.Bar)}, null);
-            var otherSubstitute = Substitute.For(typesToProxy: new[] {typeof(Foo.Bar)}, constructorArguments: null);
-            var yetAnotherSubstitute = Substitute.For(constructorArguments: null, typesToProxy: new[] {typeof(Foo.Bar)});
         }
     }
 }";
-        await VerifyFix(oldSource, newSource, diagnosticIndex: diagnosticIndex);
+        await VerifyFix(oldSource, newSource);
     }
 
     public override async Task DoesNot_AppendsInternalsVisibleTo_WhenUsedWithPublicClass()

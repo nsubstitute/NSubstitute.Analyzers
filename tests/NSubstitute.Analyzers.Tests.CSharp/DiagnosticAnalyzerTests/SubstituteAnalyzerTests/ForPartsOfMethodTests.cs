@@ -433,6 +433,7 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.ForPartsOf<Foo>(1);
+            var otherSubstitute = NSubstitute.Substitute.ForPartsOf<Foo>(constructorArguments: 1);
         }
     }
 }";

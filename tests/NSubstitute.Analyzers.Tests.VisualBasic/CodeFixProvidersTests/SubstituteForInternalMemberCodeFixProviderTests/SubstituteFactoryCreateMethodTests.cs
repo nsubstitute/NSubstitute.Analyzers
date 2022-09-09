@@ -4,7 +4,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.Substitu
 
 public class SubstituteFactoryCreateMethodTests : SubstituteForInternalMemberCodeFixVerifier
 {
-    public override async Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalClass(int diagnosticIndex)
+    public override async Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalClass()
     {
         var oldSource = @"Imports NSubstitute.Core
 
@@ -16,8 +16,6 @@ Namespace MyNamespace
         Public Class FooTests
             Public Sub Test()
                 Dim substitute = SubstitutionContext.Current.SubstituteFactory.Create({GetType(Foo)}, Nothing)
-                Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy:= {GetType(Foo)}, constructorArguments:= Nothing)
-                Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments:= Nothing, typesToProxy:= {GetType(Foo)})
             End Sub
         End Class
     End Namespace
@@ -34,17 +32,15 @@ Namespace MyNamespace
         Public Class FooTests
             Public Sub Test()
                 Dim substitute = SubstitutionContext.Current.SubstituteFactory.Create({GetType(Foo)}, Nothing)
-                Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy:= {GetType(Foo)}, constructorArguments:= Nothing)
-                Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments:= Nothing, typesToProxy:= {GetType(Foo)})
             End Sub
         End Class
     End Namespace
 End Namespace
 ";
-        await VerifyFix(oldSource, newSource, diagnosticIndex: diagnosticIndex);
+        await VerifyFix(oldSource, newSource);
     }
 
-    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass(int diagnosticIndex)
+    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass()
     {
         var oldSource = @"Imports NSubstitute.Core
 
@@ -55,8 +51,6 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = SubstitutionContext.Current.SubstituteFactory.Create({GetType(Foo)}, Nothing)
-            Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy:= {GetType(Foo)}, constructorArguments:= Nothing)
-            Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments:= Nothing, typesToProxy:= {GetType(Foo)})
         End Sub
     End Class
 End Namespace
@@ -71,16 +65,14 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = SubstitutionContext.Current.SubstituteFactory.Create({GetType(Foo)}, Nothing)
-            Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy:= {GetType(Foo)}, constructorArguments:= Nothing)
-            Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments:= Nothing, typesToProxy:= {GetType(Foo)})
         End Sub
     End Class
 End Namespace
 ";
-        await VerifyFix(oldSource, newSource, diagnosticIndex: diagnosticIndex);
+        await VerifyFix(oldSource, newSource);
     }
 
-    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass_AndArgumentListNotEmpty(int diagnosticIndex)
+    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass_AndArgumentListNotEmpty()
     {
         var oldSource = @"Imports System.Reflection
 Imports NSubstitute.Core
@@ -92,8 +84,6 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = SubstitutionContext.Current.SubstituteFactory.Create({GetType(Foo)}, Nothing)
-            Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy:= {GetType(Foo)}, constructorArguments:= Nothing)
-            Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments:= Nothing, typesToProxy:= {GetType(Foo)})
         End Sub
     End Class
 End Namespace
@@ -109,16 +99,14 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = SubstitutionContext.Current.SubstituteFactory.Create({GetType(Foo)}, Nothing)
-            Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy:= {GetType(Foo)}, constructorArguments:= Nothing)
-            Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments:= Nothing, typesToProxy:= {GetType(Foo)})
         End Sub
     End Class
 End Namespace
 ";
-        await VerifyFix(oldSource, newSource, diagnosticIndex: diagnosticIndex);
+        await VerifyFix(oldSource, newSource);
     }
 
-    public override async Task AppendsInternalsVisibleTo_WhenUsedWithNestedInternalClass(int diagnosticIndex)
+    public override async Task AppendsInternalsVisibleTo_WhenUsedWithNestedInternalClass()
     {
         var oldSource = @"Imports NSubstitute.Core
 
@@ -131,8 +119,6 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = SubstitutionContext.Current.SubstituteFactory.Create({GetType(Foo.Bar)}, Nothing)
-            Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy:= {GetType(Foo.Bar)}, constructorArguments:= Nothing)
-            Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments:= Nothing, typesToProxy:= {GetType(Foo.Bar)})
         End Sub
     End Class
 End Namespace
@@ -149,13 +135,11 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = SubstitutionContext.Current.SubstituteFactory.Create({GetType(Foo.Bar)}, Nothing)
-            Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy:= {GetType(Foo.Bar)}, constructorArguments:= Nothing)
-            Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments:= Nothing, typesToProxy:= {GetType(Foo.Bar)})
         End Sub
     End Class
 End Namespace
 ";
-        await VerifyFix(oldSource, newSource, diagnosticIndex: diagnosticIndex);
+        await VerifyFix(oldSource, newSource);
     }
 
     public override async Task DoesNot_AppendsInternalsVisibleTo_WhenUsedWithPublicClass()

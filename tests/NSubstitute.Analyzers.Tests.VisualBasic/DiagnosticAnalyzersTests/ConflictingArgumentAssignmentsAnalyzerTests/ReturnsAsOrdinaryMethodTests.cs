@@ -118,6 +118,24 @@ Namespace MyNamespace
             Function(callInfo)
                 callInfo(0) = 1
             End Function)
+            {method}(value:= substitute.Bar(Arg.Any(Of Integer)()), returnThis:= Function(callInfo)
+                callInfo(0) = 1
+                Return 1
+            End Function).AndDoes(Function(callInfo)
+                callInfo(0) = 1
+            End Function,
+            Function(callInfo)
+                callInfo(0) = 1
+            End Function)
+            {method}(returnThis:= Function(callInfo)
+                callInfo(0) = 1
+                Return 1
+            End Function, value:= substitute.Bar(Arg.Any(Of Integer)())).AndDoes(Function(callInfo)
+                callInfo(0) = 1
+            End Function,
+            Function(callInfo)
+                callInfo(0) = 1
+            End Function)
         End Sub
     End Class
 

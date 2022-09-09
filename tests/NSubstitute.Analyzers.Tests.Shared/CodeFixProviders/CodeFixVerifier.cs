@@ -25,34 +25,9 @@ public abstract class CodeFixVerifier : CodeVerifier
 
     protected abstract DiagnosticAnalyzer DiagnosticAnalyzer { get; }
 
-    protected Task VerifyFix(
-        string oldSource,
-        string newSource) =>
-        VerifyFix(oldSource, newSource, null, NSubstituteVersion.Latest);
-
-    protected Task VerifyFix(
-        string oldSource,
-        string newSource,
-        int codeFixIndex) =>
-        VerifyFix(oldSource, newSource, codeFixIndex, NSubstituteVersion.Latest);
-
-    protected Task VerifyFix(
-        string oldSource,
-        string newSource,
-        NSubstituteVersion version) =>
-        VerifyFix(oldSource, newSource, diagnosticIndex: null, codeFixIndex: null, version);
-
-    protected Task VerifyFix(
-        string oldSource,
-        string newSource,
-        int? codeFixIndex = null,
-        NSubstituteVersion version = NSubstituteVersion.Latest) =>
-        VerifyFix(oldSource, newSource, null, codeFixIndex, version);
-
     protected async Task VerifyFix(
         string oldSource,
         string newSource,
-        int? diagnosticIndex = null,
         int? codeFixIndex = null,
         NSubstituteVersion version = NSubstituteVersion.Latest)
     {
@@ -74,12 +49,12 @@ public abstract class CodeFixVerifier : CodeVerifier
             project.AnalyzerOptions);
 
         var previousAnalyzerDiagnostics = analyzerDiagnostics;
-        var attempts = !diagnosticIndex.HasValue ? analyzerDiagnostics.Length : 1;
+        var attempts = analyzerDiagnostics.Length;
 
         for (var i = 0; i < attempts; ++i)
         {
             var actions = new List<CodeAction>();
-            var context = new CodeFixContext(document, analyzerDiagnostics[diagnosticIndex ?? 0], (a, _) => actions.Add(a), CancellationToken.None);
+            var context = new CodeFixContext(document, analyzerDiagnostics[0], (a, _) => actions.Add(a), CancellationToken.None);
             await CodeFixProvider.RegisterCodeFixesAsync(context);
 
             if (!actions.Any())

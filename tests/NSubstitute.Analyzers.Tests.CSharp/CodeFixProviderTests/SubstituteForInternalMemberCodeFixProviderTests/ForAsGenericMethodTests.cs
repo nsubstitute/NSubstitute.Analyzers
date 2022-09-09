@@ -4,7 +4,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.SubstituteForI
 
 public class ForAsGenericMethodTests : SubstituteForInternalMemberCodeFixVerifier
 {
-    public override async Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalClass(int diagnosticIndex)
+    public override async Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalClass()
     {
         var oldSource = @"using NSubstitute;
 namespace MyNamespace
@@ -48,7 +48,7 @@ namespace MyNamespace
         await VerifyFix(oldSource, newSource);
     }
 
-    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass(int diagnosticIndex)
+    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass()
     {
         var oldSource = @"using NSubstitute;
 namespace MyNamespace
@@ -86,7 +86,7 @@ namespace MyNamespace
         await VerifyFix(oldSource, newSource);
     }
 
-    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass_AndArgumentListNotEmpty(int diagnosticIndex)
+    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass_AndArgumentListNotEmpty()
     {
         var oldSource = @"using System.Reflection;
 using NSubstitute;
@@ -127,7 +127,7 @@ namespace MyNamespace
         await VerifyFix(oldSource, newSource);
     }
 
-    public override async Task AppendsInternalsVisibleTo_WhenUsedWithNestedInternalClass(int diagnosticIndex)
+    public override async Task AppendsInternalsVisibleTo_WhenUsedWithNestedInternalClass()
     {
         var oldSource = @"using NSubstitute;
 namespace MyNamespace

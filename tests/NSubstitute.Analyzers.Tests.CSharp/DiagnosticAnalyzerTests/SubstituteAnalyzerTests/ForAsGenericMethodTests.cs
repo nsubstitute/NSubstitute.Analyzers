@@ -637,6 +637,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>(1, 2, 3);
+            var otherSubstitute = NSubstitute.Substitute.For<Foo>(new object[] { 1, 2, 3 });
+            var yetAnotherSubstitute = NSubstitute.Substitute.For<Foo>(constructorArguments: new object[] { 1, 2, 3 });
         }
     }
 }";
@@ -661,6 +663,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|NSubstitute.Substitute.For<Foo>(1)|];
+            var otherSubstitute = [|NSubstitute.Substitute.For<Foo>(new [] { 1 })|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For<Foo>(constructorArguments: new [] { 1 })|];
         }
     }
 }";

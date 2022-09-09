@@ -4,7 +4,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.Substitu
 
 public class ForPartsOfMethodTests : SubstituteForInternalMemberCodeFixVerifier
 {
-    public override async Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalClass(int diagnosticIndex)
+    public override async Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalClass()
     {
         var oldSource = @"Imports NSubstitute
 
@@ -40,7 +40,7 @@ End Namespace
         await VerifyFix(oldSource, newSource);
     }
 
-    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass(int diagnosticIndex)
+    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass()
     {
         var oldSource = @"Imports NSubstitute.Core
 
@@ -72,8 +72,7 @@ End Namespace
         await VerifyFix(oldSource, newSource);
     }
 
-    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass_AndArgumentListNotEmpty(
-        int diagnosticIndex)
+    public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass_AndArgumentListNotEmpty()
     {
         var oldSource = @"Imports System.Reflection
 Imports NSubstitute.Core
@@ -107,7 +106,7 @@ End Namespace
         await VerifyFix(oldSource, newSource);
     }
 
-    public override async Task AppendsInternalsVisibleTo_WhenUsedWithNestedInternalClass(int diagnosticIndex)
+    public override async Task AppendsInternalsVisibleTo_WhenUsedWithNestedInternalClass()
     {
         var oldSource = @"Imports NSubstitute.Core
 

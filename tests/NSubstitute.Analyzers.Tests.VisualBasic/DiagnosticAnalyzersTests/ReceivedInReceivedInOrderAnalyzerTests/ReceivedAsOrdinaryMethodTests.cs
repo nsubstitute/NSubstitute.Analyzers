@@ -139,17 +139,40 @@ End Namespace
 
         [CombinatoryData(
             "ReceivedExtensions.Received(substitute, Quantity.None())",
+            "ReceivedExtensions.Received(substitute:= substitute, x:= Quantity.None())",
+            "ReceivedExtensions.Received(x:= Quantity.None(), substitute:= substitute)",
             "ReceivedExtensions.Received(Of Foo)(substitute, Quantity.None())",
+            "ReceivedExtensions.Received(Of Foo)(substitute:= substitute, x: =Quantity.None())",
+            "ReceivedExtensions.Received(Of Foo)(x:= Quantity.None(), substitute:= substitute)",
             "SubstituteExtensions.Received(substitute, 1, 1)",
+            "SubstituteExtensions.Received(substitute:= substitute, x:= 1, y:= 1)",
+            "SubstituteExtensions.Received(x:= 1, y:= 1, substitute:= substitute)",
             "SubstituteExtensions.Received(Of Foo)(substitute, 1, 1)",
+            "SubstituteExtensions.Received(Of Foo)(substitute:= substitute, x:= 1, y:= 1)",
+            "SubstituteExtensions.Received(Of Foo)(x:= 1, y:= 1, substitute:= substitute)",
             "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
+            "ReceivedExtensions.ReceivedWithAnyArgs(substitute:= substitute, x:= Quantity.None())",
+            "ReceivedExtensions.ReceivedWithAnyArgs(x:= Quantity.None(), substitute:= substitute)",
             "ReceivedExtensions.ReceivedWithAnyArgs(Of Foo)(substitute, Quantity.None())",
+            "ReceivedExtensions.ReceivedWithAnyArgs(Of Foo)(substitute:= substitute, x:= Quantity.None())",
+            "ReceivedExtensions.ReceivedWithAnyArgs(Of Foo)(x:= Quantity.None(), substitute:= substitute)",
             "SubstituteExtensions.ReceivedWithAnyArgs(substitute, 1, 1)",
+            "SubstituteExtensions.ReceivedWithAnyArgs(substitute:= substitute, x:= 1, y:= 1)",
+            "SubstituteExtensions.ReceivedWithAnyArgs(x:= 1, y:= 1, substitute:= substitute)",
             "SubstituteExtensions.ReceivedWithAnyArgs(Of Foo)(substitute, 1, 1)",
+            "SubstituteExtensions.ReceivedWithAnyArgs(Of Foo)(substitute:= substitute, x:= 1, y:= 1)",
             "SubstituteExtensions.DidNotReceive(substitute, 1, 1)",
+            "SubstituteExtensions.DidNotReceive(substitute:= substitute, x:= 1, y:= 1)",
+            "SubstituteExtensions.DidNotReceive(x:= 1, y:= 1, substitute:= substitute)",
             "SubstituteExtensions.DidNotReceive(Of Foo)(substitute, 1, 1)",
+            "SubstituteExtensions.DidNotReceive(Of Foo)(substitute:= substitute, x:= 1, y:= 1)",
+            "SubstituteExtensions.DidNotReceive(Of Foo)(x:= 1, y:= 1, substitute:= substitute)",
             "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute, 1, 1)",
-            "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Foo)(substitute, 1, 1)")]
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute:= substitute, x:= 1, y:= 1)",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs(x:= 1, y:= 1, substitute:= substitute)",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Foo)(substitute, 1, 1)",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Foo)(substitute:= substitute, x:= 1, y:= 1)",
+            "SubstituteExtensions.DidNotReceiveWithAnyArgs(Of Foo)(x:= 1, y:= 1, substitute:= substitute)")]
         public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method)
         {
             var source = $@"Imports System
