@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -124,6 +123,15 @@ internal static class IOperationExtensions
             _ => null
         };
         return symbol;
+    }
+
+    public static IEnumerable<IOperation> GetArrayElementValues(this IOperation operation)
+    {
+        return operation switch
+        {
+            IArrayCreationOperation arrayCreationOperation => arrayCreationOperation.Initializer.ElementValues,
+            _ => null
+        };
     }
 
     private static bool IsImplicitlyProvidedArrayWithoutValues(IArgumentOperation arg)

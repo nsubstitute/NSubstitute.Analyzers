@@ -1,6 +1,5 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.VisualBasic;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;

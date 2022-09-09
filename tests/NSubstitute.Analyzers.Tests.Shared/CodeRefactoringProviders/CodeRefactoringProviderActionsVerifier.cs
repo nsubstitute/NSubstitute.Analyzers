@@ -30,21 +30,19 @@ public abstract class CodeRefactoringProviderActionsVerifier : CodeVerifier
             throw new ArgumentException("Refactoring spans should not be empty", nameof(source));
         }
 
-        using (var workspace = new AdhocWorkspace())
-        {
-            var project = AddProject(workspace.CurrentSolution, parserResult.Text);
-            var document = project.Documents.Single();
+        using var workspace = new AdhocWorkspace();
+        var project = AddProject(workspace.CurrentSolution, parserResult.Text);
+        var document = project.Documents.Single();
 
-            var codeActionTasks = spans
-                .Select(span => RegisterCodeRefactoringActions(document, span)).ToList();
+        var codeActionTasks = spans
+            .Select(span => RegisterCodeRefactoringActions(document, span)).ToList();
 
-            await Task.WhenAll(codeActionTasks);
+        await Task.WhenAll(codeActionTasks);
 
-            var codeActions = codeActionTasks.SelectMany(task => task.Result).ToList();
+        var codeActions = codeActionTasks.SelectMany(task => task.Result).ToList();
 
-            codeActions.Should().NotBeNull();
-            codeActions.Select(action => action.Title).Should().BeEquivalentTo(expectedCodeActionTitles ?? Array.Empty<string>());
-        }
+        codeActions.Should().NotBeNull();
+        codeActions.Select(action => action.Title).Should().BeEquivalentTo(expectedCodeActionTitles ?? Array.Empty<string>());
     }
 
     private async Task<ImmutableArray<CodeAction>> RegisterCodeRefactoringActions(Document document, TextSpan span)

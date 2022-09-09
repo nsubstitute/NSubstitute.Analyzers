@@ -74,16 +74,6 @@ internal abstract class AbstractReEntrantSetupCodeFixProvider<TArgumentSyntax> :
     // generate array expression per language on our own
     protected abstract SyntaxNode CreateArrayCreationExpression(SyntaxNode typeSyntax, IEnumerable<SyntaxNode> elements);
 
-    private IEnumerable<IOperation> GetArrayOperationValues(IArgumentOperation argumentOperation)
-    {
-        return argumentOperation.Value switch
-        {
-            IArrayCreationOperation arrayCreationOperation => arrayCreationOperation.Initializer.ElementValues,
-            IArrayInitializerOperation arrayInitializerOperation => arrayInitializerOperation.ElementValues,
-            _ => null
-        };
-    }
-
     private async Task<Document> CreateChangedDocument(
         CodeFixContext context,
         SemanticModel semanticModel,
@@ -141,7 +131,7 @@ internal abstract class AbstractReEntrantSetupCodeFixProvider<TArgumentSyntax> :
     {
         var lambdaType = ConstructCallInfoLambdaType(methodSymbol, semanticModel.Compilation);
         var lambdaTypeSyntax = syntaxGenerator.TypeExpression(lambdaType);
-        var arrayElements = GetArrayOperationValues(argumentOperation)
+        var arrayElements = argumentOperation.Value.GetArrayElementValues()
             .Select(operation => CreateLambdaExpression(syntaxGenerator, operation.Syntax));
         var arrayCreationExpression =
             CreateArrayCreationExpression(lambdaTypeSyntax, arrayElements);
@@ -180,7 +170,7 @@ internal abstract class AbstractReEntrantSetupCodeFixProvider<TArgumentSyntax> :
                 return false;
             }
 
-            var arrayValues = GetArrayOperationValues(argumentOperation);
+            var arrayValues = argumentOperation.Value.GetArrayElementValues();
             return IsArrayParamsArgument(argumentOperation) == false || (arrayValues != null && arrayValues.All(exp => exp is not IAwaitOperation));
         });
     }

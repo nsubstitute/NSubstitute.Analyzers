@@ -213,14 +213,12 @@ public abstract class AbstractDiagnosticAnalyzersBenchmarks
         foreach (var projectId in projectGraph.GetTopologicallySortedProjects())
         {
             var projectCompilation = solution.GetProject(projectId).GetCompilationAsync().Result;
-            using (var stream = new MemoryStream())
+            using var stream = new MemoryStream();
+            var result = projectCompilation.Emit(stream);
+            if (result.Success == false)
             {
-                var result = projectCompilation.Emit(stream);
-                if (result.Success == false)
-                {
-                    throw new InvalidOperationException(
-                        $"Compilation for benchmark source failed {Environment.NewLine} {string.Join(Environment.NewLine, result.Diagnostics.Select(diag => diag.ToString()))}");
-                }
+                throw new InvalidOperationException(
+                    $"Compilation for benchmark source failed {Environment.NewLine} {string.Join(Environment.NewLine, result.Diagnostics.Select(diag => diag.ToString()))}");
             }
         }
 

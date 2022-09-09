@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;

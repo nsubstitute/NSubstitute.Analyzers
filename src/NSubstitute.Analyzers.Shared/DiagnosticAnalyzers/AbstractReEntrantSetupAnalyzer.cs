@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -68,7 +67,7 @@ internal abstract class AbstractReEntrantSetupAnalyzer : AbstractDiagnosticAnaly
         IArgumentOperation argumentOperation,
         IInvocationOperation invocationOperation)
     {
-        var initializerOperations = GetOperationsFromArrayInitializer(argumentOperation);
+        var initializerOperations = argumentOperation.Value.GetArrayElementValues();
 
         if (initializerOperations != null)
         {
@@ -82,16 +81,6 @@ internal abstract class AbstractReEntrantSetupAnalyzer : AbstractDiagnosticAnaly
 
         // if array elements can't be extracted, analyze argument itself
         AnalyzeExpression(context, argumentOperation.Value, invocationOperation);
-    }
-
-    private IEnumerable<IOperation> GetOperationsFromArrayInitializer(IArgumentOperation argumentOperation)
-    {
-        return argumentOperation.Value switch
-        {
-            IArrayCreationOperation arrayCreationOperation => arrayCreationOperation.Initializer.ElementValues,
-            IArrayInitializerOperation arrayInitializerOperation => arrayInitializerOperation.ElementValues,
-            _ => null
-        };
     }
 
     private void AnalyzeExpression(

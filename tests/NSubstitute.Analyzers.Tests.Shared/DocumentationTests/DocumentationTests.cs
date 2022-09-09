@@ -199,12 +199,10 @@ public class DocumentationTests
 
     private static string GetBlockText(LeafBlock heading)
     {
-        using (var stringWriter = new StringWriter())
-        {
-            var renderer = new NormalizeRenderer(stringWriter);
-            renderer.Write(heading.Inline);
-            return stringWriter.ToString();
-        }
+        using var stringWriter = new StringWriter();
+        var renderer = new NormalizeRenderer(stringWriter);
+        renderer.Write(heading.Inline);
+        return stringWriter.ToString();
     }
 
     private class HeadingContainer

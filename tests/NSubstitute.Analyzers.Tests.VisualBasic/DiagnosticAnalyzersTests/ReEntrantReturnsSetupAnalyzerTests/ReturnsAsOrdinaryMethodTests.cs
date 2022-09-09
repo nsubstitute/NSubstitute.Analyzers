@@ -1,6 +1,5 @@
 using System.Linq;
 using System.Threading.Tasks;
-using MoreLinq.Extensions;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using NSubstitute.Analyzers.Tests.Shared.Extensions;
 

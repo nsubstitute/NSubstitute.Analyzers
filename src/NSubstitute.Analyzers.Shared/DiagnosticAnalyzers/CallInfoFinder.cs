@@ -99,8 +99,7 @@ internal class CallInfoFinder : ICallInfoFinder
             yield break;
         }
 
-        var initializerElementValues =
-            (argumentOperation.Value as IArrayCreationOperation)?.Initializer.ElementValues;
+        var initializerElementValues = argumentOperation.Value.GetArrayElementValues();
 
         foreach (var operation in initializerElementValues ?? Enumerable.Empty<IOperation>())
         {

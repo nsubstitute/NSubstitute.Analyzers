@@ -61,14 +61,14 @@ internal abstract class AbstractConflictingArgumentAssignmentsAnalyzer : Abstrac
             .Select(indexerPropertyReferenceOperation => indexerPropertyReferenceOperation.GetIndexerPosition())
             .ToImmutableHashSet();
 
-        foreach (var indexerExpressionSyntax in andDoesIndexers)
+        foreach (var indexerOperation in andDoesIndexers)
         {
-            var position = indexerExpressionSyntax.GetIndexerPosition();
+            var position = indexerOperation.GetIndexerPosition();
             if (position.HasValue && previousCallIndexerPositions.Contains(position.Value))
             {
                 syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
                     DiagnosticDescriptorsProvider.ConflictingArgumentAssignments,
-                    indexerExpressionSyntax.Syntax.GetLocation()));
+                    indexerOperation.Syntax.GetLocation()));
             }
         }
     }

@@ -13,8 +13,7 @@ internal abstract class AbstractDiagnosticAnalyzer : DiagnosticAnalyzer
 
     public sealed override void Initialize(AnalysisContext context)
     {
-        // TODO restore
-        // context.EnableConcurrentExecution();
+        context.EnableConcurrentExecution();
         InitializeAnalyzer(context);
     }
 

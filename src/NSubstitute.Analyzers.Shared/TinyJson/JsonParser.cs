@@ -31,10 +31,8 @@ internal class JsonParser : IDisposable
 
     public static object ParseValue(string jsonString)
     {
-        using (var parser = new JsonParser(jsonString))
-        {
-            return parser.ParseValue();
-        }
+        using var parser = new JsonParser(jsonString);
+        return parser.ParseValue();
     }
 
     internal JsonParser(string jsonString)

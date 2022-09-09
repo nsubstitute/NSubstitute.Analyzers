@@ -6,12 +6,6 @@ namespace NSubstitute.Analyzers.Shared.Extensions;
 
 internal static class TypeInfoExtensions
 {
-    public static bool IsCallInfoDelegate(this TypeInfo typeInfo, Compilation compilation)
-    {
-        var typeSymbol = typeInfo.Type ?? typeInfo.ConvertedType;
-        return typeSymbol.IsCallInfoDelegate(compilation);
-    }
-
     public static bool IsCallInfoDelegate(this ITypeSymbol typeSymbol, Compilation compilation)
     {
         var isCalledViaDelegate = typeSymbol != null &&
