@@ -16,7 +16,7 @@ Namespace Models
         
         ReadOnly Property ConfiguredCallReturningProperty As ConfiguredCall
         
-        ReadOnly Property IntReturningProperty As Integer
+        Property IntReturningProperty As Integer
         
         ReadOnly Property ObjectReturningProperty As IFoo
         

@@ -125,7 +125,7 @@ public abstract class NonSubstitutableMemberArgumentMatcherDiagnosticVerifier : 
 
     [CombinatoryTheory]
     [MemberData(nameof(CorrectlyUsedArgTestCasesWithoutDelegates))]
-    public abstract Task ReportsNoDiagnostics_WhenAssigningArgMatchersToSubstitutableMemberPrecededByReceivedLikeMethod(string receivedMethod, string arg);
+    public abstract Task ReportsDiagnostics_WhenAssigningInvalidArgMatchersToMemberPrecededByWithAnyArgsLikeMethod(string receivedMethod, string arg);
 
     [CombinatoryTheory]
     [MemberData(nameof(MisusedArgTestCasesWithoutDelegates))]

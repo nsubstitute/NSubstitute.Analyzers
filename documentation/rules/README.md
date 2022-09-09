@@ -29,3 +29,4 @@
 | [NS5001](NS5001.md) | Usage | Usage of received-like method in `Received.InOrder` callback. |
 | [NS5002](NS5002.md) | Usage | Usage of async callback in `Received.InOrder` method. |
 | [NS5003](NS5003.md) | Usage | Sync `Throws` used in async method. |
+| [NS5004](NS5004.md) | Usage | Argument matcher used with WithAnyArgs. This matcher may not be executed. |

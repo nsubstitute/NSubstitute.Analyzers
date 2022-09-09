@@ -47,6 +47,7 @@ ProjectSection(SolutionItems) = preProject
 	documentation\rules\NS5001.md = documentation\rules\NS5001.md
 	documentation\rules\NS5001.md = documentation\rules\NS5002.md
 	documentation\rules\NS5001.md = documentation\rules\NS5003.md
+	documentation\rules\NS5001.md = documentation\rules\NS5004.md
 EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchmarks", "benchmarks", "{1629DF5F-9BC0-49C0-975E-E45C3E58EB3A}"

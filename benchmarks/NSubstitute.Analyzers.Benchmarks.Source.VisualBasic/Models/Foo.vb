@@ -62,7 +62,7 @@ Namespace Models
             End Get
         End Property
         
-        Public ReadOnly Property IntReturningProperty As Integer Implements IFoo.IntReturningProperty
+        Public Property IntReturningProperty As Integer Implements IFoo.IntReturningProperty
         Public ReadOnly Property ObjectReturningProperty As IFoo Implements IFoo.ObjectReturningProperty
 
         Default Public ReadOnly Property Item(a As Integer) As Integer Implements IFoo.Item

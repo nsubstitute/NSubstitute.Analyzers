@@ -20,6 +20,9 @@ public class BenchmarksConventionTests
     private static readonly Assembly[] AnalyzersAssemblies;
     private static readonly BenchmarkDescriptor[] BenchmarkDescriptors;
 
+    private static readonly IReadOnlyList<string> SupportedLanguages =
+        new[] { LanguageNames.CSharp, LanguageNames.VisualBasic };
+
     static BenchmarksConventionTests()
     {
         var benchmarksAssembly = typeof(Program).Assembly;
@@ -37,15 +40,24 @@ public class BenchmarksConventionTests
     }
 
     [Fact]
-    public void BenchmarksShouldProduceAllDiagnostics()
+    public async Task BenchmarksShouldProduceAllDiagnostics()
     {
         var allDiagnosticIds = BenchmarkDescriptors
             .SelectMany(benchmark => benchmark.Benchmark.Analyzer.SupportedDiagnostics.Select(diag => diag.Id))
             .Distinct()
             .OrderBy(diag => diag)
             .ToList();
+        var expectedDiagnosticIds = SupportedLanguages
+            .Select(language => new DiagnosticIdsWithLanguage(language, allDiagnosticIds)).ToList();
 
-        var producedDiagnostics = BenchmarkDescriptors.Select(async benchmark =>
+        var producedDiagnosticIds = await GetProducedDiagnosticIds();
+
+        producedDiagnosticIds.Should().BeEquivalentTo(expectedDiagnosticIds, opts => opts.WithStrictOrdering());
+    }
+
+    private async Task<IReadOnlyList<DiagnosticIdsWithLanguage>> GetProducedDiagnosticIds()
+    {
+        var producedDiagnostics = await BenchmarkDescriptors.ToAsyncEnumerable().SelectAwait(async benchmark =>
         {
             var propertyInfo = benchmark.Property.DeclaringType.GetProperty(
                 nameof(AbstractDiagnosticAnalyzersBenchmarks.Solution),
@@ -53,18 +65,17 @@ public class BenchmarksConventionTests
 
             var solution = propertyInfo.GetValue(benchmark.DeclaringTypeInstance) as Solution;
             return await GetDiagnostics(solution, benchmark.Benchmark.Analyzer);
-        }).SelectMany(task => task.Result).ToList();
+        }).ToListAsync();
 
-        var producedDiagnosticIds = producedDiagnostics
-            .SelectMany(diag => diag.Select(x => x.Id))
-            .Distinct()
-            .OrderBy(diag => diag)
+        return producedDiagnostics.GroupBy(diagnostic => diagnostic.Language).Select(grouping =>
+                new DiagnosticIdsWithLanguage(
+                    grouping.Key,
+                    grouping.SelectMany(diagWithAnalyzer => diagWithAnalyzer.DiagnosticIds).Distinct().OrderBy(diagId => diagId).ToList()))
+            .OrderBy(diag => diag.Language)
             .ToList();
-
-        producedDiagnosticIds.Should().BeEquivalentTo(allDiagnosticIds);
     }
 
-    private async Task<IReadOnlyList<ImmutableArray<Diagnostic>>> GetDiagnostics(Solution solution, DiagnosticAnalyzer analyzer)
+    private async Task<DiagnosticsWithAnalyzer> GetDiagnostics(Solution solution, DiagnosticAnalyzer analyzer)
     {
         var diagnostics = new List<ImmutableArray<Diagnostic>>();
         foreach (var project in solution.Projects)
@@ -74,7 +85,7 @@ public class BenchmarksConventionTests
             diagnostics.Add(await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync());
         }
 
-        return diagnostics;
+        return new DiagnosticsWithAnalyzer(analyzer, diagnostics.SelectMany(diag => diag).ToList());
     }
 
     private static BenchmarkDescriptor[] GetAnalyzerBenchmarks(Assembly benchmarksAssembly)
@@ -96,19 +107,15 @@ public class BenchmarksConventionTests
         return benchmarkAnalyzers;
     }
 
-    private class BenchmarkDescriptor
+    private record BenchmarkDescriptor(FieldInfo Property, AnalyzerBenchmark Benchmark, AbstractDiagnosticAnalyzersBenchmarks DeclaringTypeInstance);
+
+    private record DiagnosticsWithAnalyzer(DiagnosticAnalyzer Analyzer, IReadOnlyList<Diagnostic> Diagnostics)
     {
-        public FieldInfo Property { get; }
+        public string Language { get; } =
+            Analyzer.GetType().GetCustomAttribute<DiagnosticAnalyzerAttribute>().Languages.Single();
 
-        public AnalyzerBenchmark Benchmark { get; }
-
-        public AbstractDiagnosticAnalyzersBenchmarks DeclaringTypeInstance { get; }
-
-        public BenchmarkDescriptor(FieldInfo property, AnalyzerBenchmark benchmark, AbstractDiagnosticAnalyzersBenchmarks declaringTypeInstance)
-        {
-            Property = property;
-            Benchmark = benchmark;
-            DeclaringTypeInstance = declaringTypeInstance;
-        }
+        public IReadOnlyList<string> DiagnosticIds => Diagnostics.Select(diag => diag.Id).ToList();
     }
+
+    private record DiagnosticIdsWithLanguage(string Language, IReadOnlyList<string> DiagnosticIds);
 }

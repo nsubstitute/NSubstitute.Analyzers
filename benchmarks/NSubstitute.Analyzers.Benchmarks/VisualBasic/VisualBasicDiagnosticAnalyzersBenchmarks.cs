@@ -33,6 +33,8 @@ public class VisualBasicDiagnosticAnalyzersBenchmarks : AbstractDiagnosticAnalyz
 
     protected override AnalyzerBenchmark SyncOverAsyncThrowsAnalyzerBenchmark { get; }
 
+    protected override AnalyzerBenchmark WithAnyArgsAnalyzerBenchmark { get; }
+
     protected override AbstractSolutionLoader SolutionLoader { get; }
 
     protected override string SourceProjectFolderName { get; }
@@ -58,5 +60,6 @@ public class VisualBasicDiagnosticAnalyzersBenchmarks : AbstractDiagnosticAnalyz
         ReceivedInReceivedInOrderAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new ReceivedInReceivedInOrderAnalyzer());
         AsyncReceivedInOrderCallbackAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new AsyncReceivedInOrderCallbackAnalyzer());
         SyncOverAsyncThrowsAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new SyncOverAsyncThrowsAnalyzer());
+        WithAnyArgsAnalyzerBenchmark = AnalyzerBenchmark.CreateBenchmark(Solution, new WithAnyArgsArgumentMatcherAnalyzer());
     }
 }

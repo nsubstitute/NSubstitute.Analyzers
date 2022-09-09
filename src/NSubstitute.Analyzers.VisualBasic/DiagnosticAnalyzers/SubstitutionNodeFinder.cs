@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -17,6 +18,7 @@ internal sealed class SubstitutionNodeFinder : AbstractSubstitutionNodeFinder
     {
     }
 
+    // TODO replace with SyntaxVisitor or OperationVisitor
     protected override IEnumerable<SyntaxNode> FindInvocations(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode argumentSyntax)
     {
         SyntaxNode body = null;
@@ -91,9 +93,11 @@ internal sealed class SubstitutionNodeFinder : AbstractSubstitutionNodeFinder
                 yield return invocationExpression;
             }
         }
-        else if (memberAccessExpressions.Any())
+
+        if (memberAccessExpressions.Any())
         {
-            foreach (var memberAccessExpression in memberAccessExpressions)
+            var descendants = new HashSet<SyntaxNode>(invocationExpressions.SelectMany(x => x.DescendantNodes()));
+            foreach (var memberAccessExpression in memberAccessExpressions.Where(x => !descendants.Contains(x)))
             {
                 yield return memberAccessExpression;
             }

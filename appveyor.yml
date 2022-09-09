@@ -21,8 +21,6 @@ for:
         - image: Visual Studio 2022
     test: off
     build_script:
-      - move global.json _global.json #workaround for missing AppVeyor images
-      - dotnet new globaljson --sdk-version 6.0.300 --roll-forward patch
       - cd Build
       - set IGNORE_NORMALISATION_GIT_HEAD_MOVE=1
       - ps: >-
