@@ -31,10 +31,7 @@ internal abstract class AbstractSyncOverAsyncThrowsAnalyzer : AbstractDiagnostic
 
     private void AnalyzeInvocation(OperationAnalysisContext operationAnalysisContext)
     {
-        if (operationAnalysisContext.Operation is not IInvocationOperation invocationOperation)
-        {
-            return;
-        }
+        var invocationOperation = (IInvocationOperation)operationAnalysisContext.Operation;
 
         if (invocationOperation.TargetMethod.IsThrowSyncLikeMethod() == false)
         {

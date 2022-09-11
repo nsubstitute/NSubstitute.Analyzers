@@ -34,10 +34,7 @@ internal abstract class AbstractNonSubstitutableMemberReceivedAnalyzer : Abstrac
 
     private void AnalyzeInvocation(OperationAnalysisContext syntaxNodeContext)
     {
-        if (syntaxNodeContext.Operation is not IInvocationOperation invocationOperation)
-        {
-           return;
-        }
+        var invocationOperation = (IInvocationOperation)syntaxNodeContext.Operation;
 
         if (invocationOperation.Parent == null)
         {

@@ -30,12 +30,9 @@ internal abstract class AbstractReEntrantSetupAnalyzer : AbstractDiagnosticAnaly
         context.RegisterOperationAction(_analyzeInvocationAction, OperationKind.Invocation);
     }
 
-    private void AnalyzeInvocation(OperationAnalysisContext context)
+    private void AnalyzeInvocation(OperationAnalysisContext operationAnalysisContext)
     {
-        if (context.Operation is not IInvocationOperation invocationOperation)
-        {
-           return;
-        }
+        var invocationOperation = (IInvocationOperation)operationAnalysisContext.Operation;
 
         if (invocationOperation.TargetMethod.IsInitialReEntryLikeMethod() == false)
         {
@@ -46,18 +43,18 @@ internal abstract class AbstractReEntrantSetupAnalyzer : AbstractDiagnosticAnaly
 
         foreach (var argumentOperation in argumentOperations)
         {
-            if (IsPassedByParamsArrayOfCallInfoFunc(context.Compilation, argumentOperation))
+            if (IsPassedByParamsArrayOfCallInfoFunc(operationAnalysisContext.Compilation, argumentOperation))
             {
                 continue;
             }
 
             if (IsPassedByParamsArray(argumentOperation))
             {
-                AnalyzeParamsArgument(context, argumentOperation, invocationOperation);
+                AnalyzeParamsArgument(operationAnalysisContext, argumentOperation, invocationOperation);
             }
             else
             {
-                AnalyzeExpression(context, argumentOperation.Value, invocationOperation);
+                AnalyzeExpression(operationAnalysisContext, argumentOperation.Value, invocationOperation);
             }
         }
     }

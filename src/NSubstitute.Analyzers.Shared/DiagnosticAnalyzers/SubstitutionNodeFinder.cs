@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ internal class SubstitutionNodeFinder : ISubstitutionNodeFinder
 
     public IEnumerable<IOperation> Find(
         Compilation compilation,
-        IInvocationOperation invocationOperation)
+        IInvocationOperation? invocationOperation)
     {
         if (invocationOperation == null)
         {
@@ -51,7 +52,7 @@ internal class SubstitutionNodeFinder : ISubstitutionNodeFinder
         return standardSubstitution != null ? new[] { standardSubstitution } : Enumerable.Empty<IOperation>();
     }
 
-    public IEnumerable<IOperation> FindForWhenExpression(Compilation compilation, IInvocationOperation invocationOperation)
+    public IEnumerable<IOperation> FindForWhenExpression(Compilation compilation, IInvocationOperation? invocationOperation)
     {
         if (invocationOperation == null)
         {
@@ -86,7 +87,7 @@ internal class SubstitutionNodeFinder : ISubstitutionNodeFinder
         return visitor.Operations;
     }
 
-    public IOperation FindForStandardExpression(IInvocationOperation invocationOperation)
+    public IOperation? FindForStandardExpression(IInvocationOperation invocationOperation)
     {
         return invocationOperation.GetSubstituteOperation();
     }
@@ -106,7 +107,7 @@ internal class SubstitutionNodeFinder : ISubstitutionNodeFinder
         }
     }
 
-    private IOperation FindForAndDoesExpression(IInvocationOperation invocationOperation)
+    private IOperation? FindForAndDoesExpression(IInvocationOperation invocationOperation)
     {
         if (invocationOperation.GetSubstituteOperation() is not IInvocationOperation parentInvocationOperation)
         {
@@ -123,7 +124,7 @@ internal class SubstitutionNodeFinder : ISubstitutionNodeFinder
         private readonly bool _includeAll;
         private readonly HashSet<IOperation> _operations = new();
 
-        private readonly Dictionary<SyntaxTree, SemanticModel> _semanticModelCache = new(1);
+        private SemanticModel? _semanticModel;
 
         public WhenVisitor(
             Compilation compilation,
@@ -150,9 +151,13 @@ internal class SubstitutionNodeFinder : ISubstitutionNodeFinder
         {
             foreach (var methodDeclaringSyntaxReference in operation.Method.DeclaringSyntaxReferences)
             {
-                // TODO async?
                 var syntaxNode = methodDeclaringSyntaxReference.GetSyntax();
                 var semanticModel = GetSemanticModel(syntaxNode.Parent);
+                if (semanticModel is null)
+                {
+                    continue;
+                }
+
                 var referencedOperation = semanticModel.GetOperation(syntaxNode) ??
                                           semanticModel.GetOperation(syntaxNode.Parent);
                 Visit(referencedOperation);
@@ -193,18 +198,18 @@ internal class SubstitutionNodeFinder : ISubstitutionNodeFinder
             }
         }
 
-        private SemanticModel GetSemanticModel(SyntaxNode syntaxNode)
+        private SemanticModel? GetSemanticModel(SyntaxNode syntaxNode)
         {
             var syntaxTree = syntaxNode.SyntaxTree;
-            if (_semanticModelCache.TryGetValue(syntaxTree, out var semanticModel))
+
+            // perf - take original semantic model whenever possible
+            // but keep in mind that we might traverse outside of the original one https://github.com/nsubstitute/NSubstitute.Analyzers/issues/56
+            if (_semanticModel == null || _semanticModel.SyntaxTree != syntaxTree)
             {
-                return semanticModel;
+                _semanticModel = _compilation.TryGetSemanticModel(syntaxTree);
             }
 
-            semanticModel = _compilation.GetSemanticModel(syntaxTree);
-            _semanticModelCache[syntaxTree] = semanticModel;
-
-            return semanticModel;
+            return _semanticModel;
         }
     }
 }

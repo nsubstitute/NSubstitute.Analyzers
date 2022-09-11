@@ -66,10 +66,7 @@ internal abstract class AbstractCallInfoAnalyzer : AbstractDiagnosticAnalyzer
 
     private void AnalyzeInvocation(OperationAnalysisContext operationAnalysisContext)
     {
-        if (operationAnalysisContext.Operation is not IInvocationOperation invocationOperation)
-        {
-            return;
-        }
+        var invocationOperation = (IInvocationOperation)operationAnalysisContext.Operation;
 
         if (SupportsCallInfo(operationAnalysisContext.Compilation, invocationOperation) == false)
         {

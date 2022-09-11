@@ -36,10 +36,7 @@ internal abstract class AbstractWithAnyArgsArgumentMatcherAnalyzer : AbstractDia
 
     private void AnalyzeInvocation(OperationAnalysisContext context)
     {
-        if (context.Operation is not IInvocationOperation invocationOperation)
-        {
-            return;
-        }
+        var invocationOperation = (IInvocationOperation)context.Operation;
 
         var methodSymbol = invocationOperation.TargetMethod;
         if (methodSymbol.IsWithAnyArgsIncompatibleArgMatcherLikeMethod())

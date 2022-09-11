@@ -46,19 +46,16 @@ internal abstract class AbstractNonSubstitutableMemberArgumentMatcherAnalyzer : 
         context.RegisterOperationAction(_analyzeInvocationAction, OperationKind.Invocation);
     }
 
-    private void AnalyzeInvocation(OperationAnalysisContext context)
+    private void AnalyzeInvocation(OperationAnalysisContext operationAnalysisContext)
     {
-        if (context.Operation is not IInvocationOperation invocationOperation)
-        {
-           return;
-        }
+        var invocationOperation = (IInvocationOperation)operationAnalysisContext.Operation;
 
         if (invocationOperation.TargetMethod.IsArgMatcherLikeMethod() == false)
         {
             return;
         }
 
-        AnalyzeArgLikeMethod(context, invocationOperation);
+        AnalyzeArgLikeMethod(operationAnalysisContext, invocationOperation);
     }
 
     private void AnalyzeArgLikeMethod(

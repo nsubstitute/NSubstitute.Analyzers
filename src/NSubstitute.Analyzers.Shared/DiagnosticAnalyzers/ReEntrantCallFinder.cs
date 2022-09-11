@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -50,7 +51,7 @@ internal class ReEntrantCallFinder : IReEntrantCallFinder
         }
     }
 
-    private IEnumerable<IOperation> GetOtherSubstitutionsForSymbol(Compilation compilation, IOperation rootOperation, ISymbol rootNodeSymbol)
+    private IEnumerable<IOperation> GetOtherSubstitutionsForSymbol(Compilation compilation, IOperation rootOperation, ISymbol? rootNodeSymbol)
     {
         if (rootNodeSymbol == null)
         {
@@ -59,7 +60,7 @@ internal class ReEntrantCallFinder : IReEntrantCallFinder
 
         var rootIdentifierNode = GetLocalReferenceOperation(rootOperation);
 
-        var rootIdentifierSymbol = rootIdentifierNode?.ExtractSymbol();
+        var rootIdentifierSymbol = rootIdentifierNode.ExtractSymbol();
 
         if (rootIdentifierSymbol == null)
         {
@@ -78,7 +79,12 @@ internal class ReEntrantCallFinder : IReEntrantCallFinder
 
             var substitutedNode = _substitutionNodeFinder.FindForStandardExpression(operation);
 
-            var substituteNodeSymbol = substitutedNode?.ExtractSymbol();
+            if (substitutedNode == null)
+            {
+               yield break;
+            }
+
+            var substituteNodeSymbol = substitutedNode.ExtractSymbol();
 
             if (substituteNodeSymbol == null)
             {
@@ -101,18 +107,22 @@ internal class ReEntrantCallFinder : IReEntrantCallFinder
 
     private static IEnumerable<IOperation> GetConstructorOperations(Compilation compilation, ISymbol fieldReferenceOperation)
     {
-        // TODO naming
-        foreach (var location in fieldReferenceOperation.ContainingType.GetMembers().OfType<IMethodSymbol>()
-                     .Where(methodSymbol => methodSymbol.MethodKind is MethodKind.Constructor or MethodKind.StaticConstructor && methodSymbol.Locations.Length > 0)
+        SemanticModel? semanticModel = null;
+        foreach (var constructorLocation in fieldReferenceOperation.ContainingType.Constructors
+                     .Where(methodSymbol => methodSymbol.Locations.Length > 0)
                      .SelectMany(x => x.Locations)
                      .Where(location => location.IsInSource))
         {
-            var root = location.SourceTree.GetRoot();
-            var relatedNode = root.FindNode(location.SourceSpan);
+            var root = constructorLocation.SourceTree.GetRoot();
+            var relatedNode = root.FindNode(constructorLocation.SourceSpan);
 
-            // TODO reuse semantic model
-            var semanticModel = compilation.GetSemanticModel(location.SourceTree);
-            var operation = semanticModel.GetOperation(relatedNode) ?? semanticModel.GetOperation(relatedNode.Parent);
+            // perf - take original semantic model whenever possible
+            // but keep in mind that we might traverse outside of the original one https://github.com/nsubstitute/NSubstitute.Analyzers/issues/56
+            semanticModel = semanticModel == null || semanticModel.SyntaxTree != constructorLocation.SourceTree
+                ? compilation.TryGetSemanticModel(constructorLocation.SourceTree)
+                : semanticModel;
+
+            var operation = semanticModel?.GetOperation(relatedNode) ?? semanticModel?.GetOperation(relatedNode.Parent);
 
             if (operation is not null)
             {
@@ -121,9 +131,9 @@ internal class ReEntrantCallFinder : IReEntrantCallFinder
         }
     }
 
-    private IOperation GetLocalReferenceOperation(IOperation node)
+    private IOperation? GetLocalReferenceOperation(IOperation? node)
     {
-        var child = node.Children.FirstOrDefault();
+        var child = node?.Children.FirstOrDefault();
         return child is ILocalReferenceOperation or IFieldReferenceOperation ? child : null;
     }
 
@@ -140,7 +150,7 @@ internal class ReEntrantCallFinder : IReEntrantCallFinder
         private readonly Compilation _compilation;
         private readonly HashSet<IOperation> _visitedOperations = new();
         private readonly List<IInvocationOperation> _invocationOperation = new();
-        private readonly Dictionary<SyntaxTree, SemanticModel> _semanticModelCache = new(1);
+        private SemanticModel? _semanticModel;
 
         public ImmutableList<IInvocationOperation> InvocationOperations => _invocationOperation.ToImmutableList();
 
@@ -175,24 +185,30 @@ internal class ReEntrantCallFinder : IReEntrantCallFinder
                 var root = location.SourceTree.GetRoot();
                 var relatedNode = root.FindNode(location.SourceSpan);
                 var semanticModel = GetSemanticModel(relatedNode);
+
+                if (semanticModel == null)
+                {
+                   continue;
+                }
+
                 var operation = semanticModel.GetOperation(relatedNode) ??
                                 semanticModel.GetOperation(relatedNode.Parent);
                 Visit(operation);
             }
         }
 
-        private SemanticModel GetSemanticModel(SyntaxNode syntaxNode)
+        private SemanticModel? GetSemanticModel(SyntaxNode syntaxNode)
         {
             var syntaxTree = syntaxNode.SyntaxTree;
-            if (_semanticModelCache.TryGetValue(syntaxTree, out var semanticModel))
+
+            // perf - take original semantic model whenever possible
+            // but keep in mind that we might traverse outside of the original one https://github.com/nsubstitute/NSubstitute.Analyzers/issues/56
+            if (_semanticModel == null || _semanticModel.SyntaxTree != syntaxTree)
             {
-                return semanticModel;
+                _semanticModel = _compilation.TryGetSemanticModel(syntaxTree);
             }
 
-            semanticModel = _compilation.GetSemanticModel(syntaxTree);
-            _semanticModelCache[syntaxTree] = semanticModel;
-
-            return semanticModel;
+            return _semanticModel;
         }
     }
 }

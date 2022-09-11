@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -22,7 +23,7 @@ internal static class IOperationExtensions
     public static IOperation GetSubstituteOperation(this IPropertyReferenceOperation propertyReferenceOperation) =>
         propertyReferenceOperation.Instance;
 
-    public static IOperation GetSubstituteOperation(this IInvocationOperation invocationOperation)
+    public static IOperation? GetSubstituteOperation(this IInvocationOperation invocationOperation)
     {
         if (invocationOperation.Instance != null)
         {
@@ -110,7 +111,7 @@ internal static class IOperationExtensions
         }
     }
 
-    public static ISymbol ExtractSymbol(this IOperation operation)
+    public static ISymbol? ExtractSymbol(this IOperation? operation)
     {
         var symbol = operation switch
         {
@@ -122,10 +123,11 @@ internal static class IOperationExtensions
             IFieldReferenceOperation fieldReferenceOperation => fieldReferenceOperation.Field,
             _ => null
         };
+
         return symbol;
     }
 
-    public static IEnumerable<IOperation> GetArrayElementValues(this IOperation operation)
+    public static IEnumerable<IOperation>? GetArrayElementValues(this IOperation operation)
     {
         return operation switch
         {

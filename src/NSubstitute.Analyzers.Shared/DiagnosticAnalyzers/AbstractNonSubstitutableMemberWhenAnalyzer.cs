@@ -38,10 +38,7 @@ internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer : AbstractNon
 
     private void AnalyzeInvocation(OperationAnalysisContext context)
     {
-        if (context.Operation is not IInvocationOperation invocationOperation)
-        {
-            return;
-        }
+        var invocationOperation = (IInvocationOperation)context.Operation;
 
         if (invocationOperation.TargetMethod.IsWhenLikeMethod() == false)
         {

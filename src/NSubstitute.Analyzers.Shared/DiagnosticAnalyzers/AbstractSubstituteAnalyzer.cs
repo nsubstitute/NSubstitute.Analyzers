@@ -51,10 +51,7 @@ internal abstract class AbstractSubstituteAnalyzer : AbstractDiagnosticAnalyzer
 
     private void AnalyzeInvocation(OperationAnalysisContext operationAnalysisContext)
     {
-        if (operationAnalysisContext.Operation is not IInvocationOperation invocationOperation)
-        {
-           return;
-        }
+        var invocationOperation = (IInvocationOperation)operationAnalysisContext.Operation;
 
         var methodSymbol = invocationOperation.TargetMethod;
 

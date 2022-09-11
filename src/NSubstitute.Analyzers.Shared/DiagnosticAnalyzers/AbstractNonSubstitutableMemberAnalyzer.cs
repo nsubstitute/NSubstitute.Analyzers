@@ -38,10 +38,7 @@ internal abstract class AbstractNonSubstitutableMemberAnalyzer : AbstractNonSubs
 
     private void AnalyzeInvocation(OperationAnalysisContext operationAnalysisContext)
     {
-        if (operationAnalysisContext.Operation is not IInvocationOperation invocationOperation)
-        {
-            return;
-        }
+        var invocationOperation = (IInvocationOperation)operationAnalysisContext.Operation;
 
         if (invocationOperation.TargetMethod.IsReturnOrThrowLikeMethod() == false)
         {
