@@ -10,7 +10,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 internal abstract class AbstractNonSubstitutableMemberReceivedInOrderAnalyzer : AbstractNonSubstitutableSetupAnalyzer
 {
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+    public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
     protected ImmutableArray<OperationKind> IgnoredAncestorPaths { get; } = ImmutableArray.Create(
         OperationKind.VariableDeclarator,
@@ -35,7 +35,7 @@ internal abstract class AbstractNonSubstitutableMemberReceivedInOrderAnalyzer : 
             DiagnosticDescriptorsProvider.NonVirtualReceivedInOrderSetupSpecification);
     }
 
-    protected override DiagnosticDescriptor NonVirtualSetupDescriptor { get; }
+    protected sealed override DiagnosticDescriptor NonVirtualSetupDescriptor { get; }
 
     protected sealed override void InitializeAnalyzer(AnalysisContext context)
     {

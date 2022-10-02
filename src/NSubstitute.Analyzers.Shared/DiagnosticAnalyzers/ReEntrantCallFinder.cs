@@ -145,7 +145,7 @@ internal class ReEntrantCallFinder : IReEntrantCallFinder
         return reentryVisitor.InvocationOperations;
     }
 
-    private class ReEntrantCallVisitor : OperationWalker
+    private sealed class ReEntrantCallVisitor : OperationWalker
     {
         private readonly Compilation _compilation;
         private readonly HashSet<IOperation> _visitedOperations = new();

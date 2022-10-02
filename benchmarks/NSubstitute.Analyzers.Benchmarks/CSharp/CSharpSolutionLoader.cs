@@ -4,7 +4,7 @@ using NSubstitute.Analyzers.Benchmarks.Shared;
 
 namespace NSubstitute.Analyzers.Benchmarks.CSharp;
 
-public class CSharpSolutionLoader : AbstractSolutionLoader
+public sealed class CSharpSolutionLoader : AbstractSolutionLoader
 {
     protected override string DocumentFileExtension { get; } = ".cs";
 

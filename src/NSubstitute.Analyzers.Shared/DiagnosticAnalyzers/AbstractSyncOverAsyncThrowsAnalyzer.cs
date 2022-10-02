@@ -22,9 +22,9 @@ internal abstract class AbstractSyncOverAsyncThrowsAnalyzer : AbstractDiagnostic
         _analyzeInvocationAction = AnalyzeInvocation;
     }
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+    public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
-    protected override void InitializeAnalyzer(AnalysisContext context)
+    protected sealed override void InitializeAnalyzer(AnalysisContext context)
     {
         context.RegisterOperationAction(_analyzeInvocationAction, OperationKind.Invocation);
     }

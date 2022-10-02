@@ -11,7 +11,7 @@ internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer : AbstractNon
 {
     private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+    public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
     private readonly Action<OperationAnalysisContext> _analyzeInvocationAction;
 
@@ -29,9 +29,9 @@ internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer : AbstractNon
         NonVirtualSetupDescriptor = diagnosticDescriptorsProvider.NonVirtualWhenSetupSpecification;
     }
 
-    protected override DiagnosticDescriptor NonVirtualSetupDescriptor { get; }
+    protected sealed override DiagnosticDescriptor NonVirtualSetupDescriptor { get; }
 
-    protected override void InitializeAnalyzer(AnalysisContext context)
+    protected sealed override void InitializeAnalyzer(AnalysisContext context)
     {
         context.RegisterOperationAction(_analyzeInvocationAction, OperationKind.Invocation);
     }

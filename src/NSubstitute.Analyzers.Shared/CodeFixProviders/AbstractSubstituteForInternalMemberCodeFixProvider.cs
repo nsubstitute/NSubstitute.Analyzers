@@ -12,14 +12,14 @@ internal abstract class AbstractSubstituteForInternalMemberCodeFixProvider<TComp
 {
     private readonly ISubstituteProxyAnalysis _substituteProxyAnalysis;
 
-    public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.SubstituteForInternalMember);
+    public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.SubstituteForInternalMember);
 
     protected AbstractSubstituteForInternalMemberCodeFixProvider(ISubstituteProxyAnalysis substituteProxyAnalysis)
     {
         _substituteProxyAnalysis = substituteProxyAnalysis;
     }
 
-    public override async Task RegisterCodeFixesAsync(CodeFixContext context)
+    public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 

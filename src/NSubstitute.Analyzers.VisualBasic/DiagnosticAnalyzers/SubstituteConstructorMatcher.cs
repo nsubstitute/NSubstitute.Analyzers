@@ -4,7 +4,7 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 
-internal class SubstituteConstructorMatcher : AbstractSubstituteConstructorMatcher
+internal sealed class SubstituteConstructorMatcher : AbstractSubstituteConstructorMatcher
 {
     public static SubstituteConstructorMatcher Instance { get; } = new();
 

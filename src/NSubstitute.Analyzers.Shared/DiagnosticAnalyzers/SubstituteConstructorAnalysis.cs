@@ -6,7 +6,7 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal class SubstituteConstructorAnalysis : ISubstituteConstructorAnalysis
+internal sealed class SubstituteConstructorAnalysis : ISubstituteConstructorAnalysis
 {
     public static SubstituteConstructorAnalysis Instance { get; } = new();
 

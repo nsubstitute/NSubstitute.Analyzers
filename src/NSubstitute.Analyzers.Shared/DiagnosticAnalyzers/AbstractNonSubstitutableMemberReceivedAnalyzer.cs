@@ -11,7 +11,7 @@ internal abstract class AbstractNonSubstitutableMemberReceivedAnalyzer : Abstrac
 {
     private readonly Action<OperationAnalysisContext> _analyzeInvocationOperation;
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+    public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
     protected AbstractNonSubstitutableMemberReceivedAnalyzer(
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
@@ -25,9 +25,9 @@ internal abstract class AbstractNonSubstitutableMemberReceivedAnalyzer : Abstrac
         NonVirtualSetupDescriptor = diagnosticDescriptorsProvider.NonVirtualReceivedSetupSpecification;
     }
 
-    protected override DiagnosticDescriptor NonVirtualSetupDescriptor { get; }
+    protected sealed override DiagnosticDescriptor NonVirtualSetupDescriptor { get; }
 
-    protected override void InitializeAnalyzer(AnalysisContext context)
+    protected sealed override void InitializeAnalyzer(AnalysisContext context)
     {
         context.RegisterOperationAction(_analyzeInvocationOperation, OperationKind.Invocation);
     }

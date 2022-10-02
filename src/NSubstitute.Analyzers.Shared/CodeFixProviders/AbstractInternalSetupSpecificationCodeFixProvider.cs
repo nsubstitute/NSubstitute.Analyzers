@@ -11,11 +11,11 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders;
 internal abstract class AbstractInternalSetupSpecificationCodeFixProvider<TCompilationUnitSyntax> : CodeFixProvider
     where TCompilationUnitSyntax : SyntaxNode
 {
-    public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.InternalSetupSpecification);
+    public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.InternalSetupSpecification);
 
     protected abstract string ReplaceModifierCodeFixTitle { get; }
 
-    public override async Task RegisterCodeFixesAsync(CodeFixContext context)
+    public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
         var invocationExpression = root.FindNode(context.Span, getInnermostNodeForTie: true);

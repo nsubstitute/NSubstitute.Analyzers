@@ -117,7 +117,7 @@ internal class SubstitutionNodeFinder : ISubstitutionNodeFinder
         return FindForStandardExpression(parentInvocationOperation);
     }
 
-    private class WhenVisitor : OperationWalker
+    private sealed class WhenVisitor : OperationWalker
     {
         private readonly Compilation _compilation;
         private readonly IInvocationOperation _whenInvocationOperation;

@@ -12,11 +12,11 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders;
 
 internal abstract class AbstractReceivedInReceivedInOrderCodeFixProvider : CodeFixProvider
 {
-    public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+    public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
-    public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.ReceivedUsedInReceivedInOrder);
+    public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.ReceivedUsedInReceivedInOrder);
 
-    public override Task RegisterCodeFixesAsync(CodeFixContext context)
+    public sealed override Task RegisterCodeFixesAsync(CodeFixContext context)
     {
         var codeAction = CodeAction.Create(
             "Remove redundant Received checks",

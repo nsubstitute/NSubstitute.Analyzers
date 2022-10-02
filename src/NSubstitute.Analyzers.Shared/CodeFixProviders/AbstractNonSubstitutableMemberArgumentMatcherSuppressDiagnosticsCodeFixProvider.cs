@@ -10,7 +10,7 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders;
 
 internal abstract class AbstractNonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixProvider : AbstractSuppressDiagnosticsCodeFixProvider
 {
-    public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage);
+    public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage);
 
     protected override IEnumerable<ISymbol> GetSuppressibleSymbol(SemanticModel model, SyntaxNode syntaxNode, ISymbol symbol)
     {

@@ -13,7 +13,7 @@ internal abstract class AbstractReEntrantSetupAnalyzer : AbstractDiagnosticAnaly
     private readonly IReEntrantCallFinder _reEntrantCallFinder;
     private readonly Action<OperationAnalysisContext> _analyzeInvocationAction;
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+    public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
     protected AbstractReEntrantSetupAnalyzer(
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
@@ -25,7 +25,7 @@ internal abstract class AbstractReEntrantSetupAnalyzer : AbstractDiagnosticAnaly
         SupportedDiagnostics = ImmutableArray.Create(DiagnosticDescriptorsProvider.ReEntrantSubstituteCall);
     }
 
-    protected override void InitializeAnalyzer(AnalysisContext context)
+    protected sealed override void InitializeAnalyzer(AnalysisContext context)
     {
         context.RegisterOperationAction(_analyzeInvocationAction, OperationKind.Invocation);
     }

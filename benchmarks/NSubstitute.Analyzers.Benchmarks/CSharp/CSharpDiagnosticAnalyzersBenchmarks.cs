@@ -5,7 +5,7 @@ using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.Benchmarks.CSharp;
 
-public class CSharpDiagnosticAnalyzersBenchmarks : AbstractDiagnosticAnalyzersBenchmarks
+public sealed class CSharpDiagnosticAnalyzersBenchmarks : AbstractDiagnosticAnalyzersBenchmarks
 {
     protected override AnalyzerBenchmark CallInfoAnalyzerBenchmark { get; }
 

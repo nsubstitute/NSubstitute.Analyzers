@@ -11,12 +11,12 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders;
 
 internal abstract class AbstractPartialSubstituteUsedForUnsupportedTypeCodeFixProvider : CodeFixProvider
 {
-    public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+    public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
-    public override ImmutableArray<string> FixableDiagnosticIds { get; } =
+    public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
         ImmutableArray.Create(DiagnosticIdentifiers.PartialSubstituteForUnsupportedType);
 
-    public override async Task RegisterCodeFixesAsync(CodeFixContext context)
+    public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
         var syntaxNode = root.FindNode(context.Span, getInnermostNodeForTie: true);

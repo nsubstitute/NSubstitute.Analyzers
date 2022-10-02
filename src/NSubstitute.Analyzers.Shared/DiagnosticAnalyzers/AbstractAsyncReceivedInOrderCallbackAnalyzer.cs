@@ -19,7 +19,7 @@ internal abstract class AbstractAsyncReceivedInOrderCallbackAnalyzer : AbstractD
         SupportedDiagnostics = ImmutableArray.Create(diagnosticDescriptorsProvider.AsyncCallbackUsedInReceivedInOrder);
     }
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+    public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
     protected abstract SyntaxToken? GetAsyncToken(SyntaxNode node);
 

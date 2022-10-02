@@ -6,7 +6,7 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal class CallInfoFinder : ICallInfoFinder
+internal sealed class CallInfoFinder : ICallInfoFinder
 {
     public static CallInfoFinder Instance { get; } = new();
 
@@ -118,7 +118,7 @@ internal class CallInfoFinder : ICallInfoFinder
         };
     }
 
-    private class CallInfoVisitor : OperationWalker
+    private sealed class CallInfoVisitor : OperationWalker
     {
         public List<IInvocationOperation> ArgAtInvocations { get; } = new();
 

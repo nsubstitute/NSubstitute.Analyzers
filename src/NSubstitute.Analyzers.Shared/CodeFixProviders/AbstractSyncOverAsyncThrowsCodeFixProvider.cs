@@ -21,12 +21,12 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider : CodeFixProv
         _substitutionNodeFinder = substitutionNodeFinder;
     }
 
-    public override ImmutableArray<string> FixableDiagnosticIds { get; } =
+    public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
         ImmutableArray.Create(DiagnosticIdentifiers.SyncOverAsyncThrows);
 
-    public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+    public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
-    public override async Task RegisterCodeFixesAsync(CodeFixContext context)
+    public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 

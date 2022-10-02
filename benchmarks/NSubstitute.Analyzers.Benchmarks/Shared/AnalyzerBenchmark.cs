@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace NSubstitute.Analyzers.Benchmarks.Shared;
 
-public class AnalyzerBenchmark
+public sealed class AnalyzerBenchmark
 {
     private readonly BenchmarkAnalyzer _benchmarkAnalyzer;
     private readonly Solution _solution;

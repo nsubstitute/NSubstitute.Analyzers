@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.Operations;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal class SubstituteProxyAnalysis : ISubstituteProxyAnalysis
+internal sealed class SubstituteProxyAnalysis : ISubstituteProxyAnalysis
 {
     public static SubstituteProxyAnalysis Instance { get; } = new();
 

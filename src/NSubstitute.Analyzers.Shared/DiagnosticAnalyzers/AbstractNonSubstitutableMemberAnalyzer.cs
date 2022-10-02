@@ -13,7 +13,7 @@ internal abstract class AbstractNonSubstitutableMemberAnalyzer : AbstractNonSubs
 
     private readonly Action<OperationAnalysisContext> _analyzeInvocationAction;
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+    public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
     protected AbstractNonSubstitutableMemberAnalyzer(
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
@@ -29,7 +29,7 @@ internal abstract class AbstractNonSubstitutableMemberAnalyzer : AbstractNonSubs
             DiagnosticDescriptorsProvider.InternalSetupSpecification);
     }
 
-    protected override DiagnosticDescriptor NonVirtualSetupDescriptor { get; }
+    protected sealed override DiagnosticDescriptor NonVirtualSetupDescriptor { get; }
 
     protected sealed override void InitializeAnalyzer(AnalysisContext context)
     {

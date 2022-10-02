@@ -13,7 +13,7 @@ internal abstract class AbstractReceivedInReceivedInOrderAnalyzer : AbstractDiag
     private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
     private readonly Action<OperationAnalysisContext> _analyzeInvocationAction;
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+    public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
     protected AbstractReceivedInReceivedInOrderAnalyzer(
         ISubstitutionNodeFinder substitutionNodeFinder,
@@ -25,7 +25,7 @@ internal abstract class AbstractReceivedInReceivedInOrderAnalyzer : AbstractDiag
         SupportedDiagnostics = ImmutableArray.Create(diagnosticDescriptorsProvider.ReceivedUsedInReceivedInOrder);
     }
 
-    protected override void InitializeAnalyzer(AnalysisContext context)
+    protected sealed override void InitializeAnalyzer(AnalysisContext context)
     {
         context.RegisterOperationAction(_analyzeInvocationAction, OperationKind.Invocation);
     }
