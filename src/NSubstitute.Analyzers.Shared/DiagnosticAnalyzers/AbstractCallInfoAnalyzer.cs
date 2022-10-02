@@ -303,7 +303,6 @@ internal abstract class AbstractCallInfoAnalyzer : AbstractDiagnosticAnalyzer
     {
         ISymbol info = indexerOperation switch
         {
-            IInvocationOperation inv => inv.TargetMethod,
             IArrayElementReferenceOperation x => x.Type,
             _ => null
         };

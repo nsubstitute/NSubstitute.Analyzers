@@ -36,11 +36,6 @@ internal abstract class AbstractNonSubstitutableMemberReceivedAnalyzer : Abstrac
     {
         var invocationOperation = (IInvocationOperation)syntaxNodeContext.Operation;
 
-        if (invocationOperation.Parent == null)
-        {
-            return;
-        }
-
         if (invocationOperation.TargetMethod.IsReceivedLikeMethod() == false)
         {
             return;
