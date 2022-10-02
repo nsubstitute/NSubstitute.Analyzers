@@ -28,17 +28,9 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider : CodeFixProv
 
     public override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
-        var diagnostic =
-            context.Diagnostics.FirstOrDefault(diag => diag.Descriptor.Id == DiagnosticIdentifiers.SyncOverAsyncThrows);
-
-        if (diagnostic == null)
-        {
-            return;
-        }
-
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
-        if (root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true) is not { } invocationExpression)
+        if (root.FindNode(context.Span, getInnermostNodeForTie: true) is not { } invocationExpression)
         {
             return;
         }
@@ -63,7 +55,7 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider : CodeFixProv
             ct => CreateChangedDocument(context, semanticModel, invocationOperation, supportsThrowsAsync, ct),
             nameof(AbstractSyncOverAsyncThrowsCodeFixProvider));
 
-        context.RegisterCodeFix(codeAction, diagnostic);
+        context.RegisterCodeFix(codeAction, context.Diagnostics);
     }
 
     protected abstract SyntaxNode UpdateMemberExpression(IInvocationOperation invocationOperation, SyntaxNode updatedNameSyntax);

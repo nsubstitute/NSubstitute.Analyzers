@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.VisualBasic;
@@ -11,14 +12,19 @@ namespace NSubstitute.Analyzers.VisualBasic.Refactorings;
 
 internal class ReplaceModifierRefactoring
 {
-    public static Task<Document> RefactorAsync(Document document, SyntaxNode node, Accessibility fromAccessibility, Accessibility toAccessibility)
+    public static Task<Document> RefactorAsync(
+        Document document,
+        SyntaxNode node,
+        Accessibility fromAccessibility,
+        Accessibility toAccessibility,
+        CancellationToken cancellationToken)
     {
         var fromSyntaxKind = InferSyntaxKind(fromAccessibility);
         var toSyntaxKind = InferSyntaxKind(toAccessibility);
 
         var newNode = ReplaceModifier(node, fromSyntaxKind, toSyntaxKind);
 
-        return document.ReplaceNodeAsync(node, newNode);
+        return document.ReplaceNodeAsync(node, newNode, cancellationToken: cancellationToken);
     }
 
     private static SyntaxKind InferSyntaxKind(Accessibility fromAccessibility)

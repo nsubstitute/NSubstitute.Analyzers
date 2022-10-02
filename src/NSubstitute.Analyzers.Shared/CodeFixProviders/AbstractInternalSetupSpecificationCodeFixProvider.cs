@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
@@ -16,16 +17,8 @@ internal abstract class AbstractInternalSetupSpecificationCodeFixProvider<TCompi
 
     public override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
-        var diagnostic =
-            context.Diagnostics.FirstOrDefault(diag => diag.Id == DiagnosticIdentifiers.InternalSetupSpecification);
-
-        if (diagnostic == null)
-        {
-            return;
-        }
-
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-        var invocationExpression = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
+        var invocationExpression = root.FindNode(context.Span, getInnermostNodeForTie: true);
         var syntaxReference = await GetDeclaringSyntaxReference(context, invocationExpression);
 
         if (syntaxReference == null)
@@ -40,8 +33,12 @@ internal abstract class AbstractInternalSetupSpecificationCodeFixProvider<TCompi
             return;
         }
 
-        context.RegisterCodeFix(CodeAction.Create("Add protected modifier", token => AddModifierRefactoring(context.Document, syntaxNode, Accessibility.Protected)), diagnostic);
-        context.RegisterCodeFix(CodeAction.Create(ReplaceModifierCodeFixTitle, token => ReplaceModifierRefactoring(context.Document, syntaxNode, Accessibility.Internal, Accessibility.Public)), diagnostic);
+        context.RegisterCodeFix(
+            CodeAction.Create("Add protected modifier", token => AddModifierRefactoring(context.Document, syntaxNode, Accessibility.Protected, token)),
+            context.Diagnostics);
+        context.RegisterCodeFix(
+            CodeAction.Create(ReplaceModifierCodeFixTitle, token => ReplaceModifierRefactoring(context.Document, syntaxNode, Accessibility.Internal, Accessibility.Public, token)),
+            context.Diagnostics);
 
         var compilationUnitSyntax = FindCompilationUnitSyntax(syntaxNode);
 
@@ -50,14 +47,23 @@ internal abstract class AbstractInternalSetupSpecificationCodeFixProvider<TCompi
             return;
         }
 
-        RegisterAddInternalsVisibleToAttributeCodeFix(context, diagnostic, compilationUnitSyntax);
+        RegisterAddInternalsVisibleToAttributeCodeFix(context, compilationUnitSyntax);
     }
 
-    protected abstract Task<Document> AddModifierRefactoring(Document document, SyntaxNode node, Accessibility accessibility);
+    protected abstract Task<Document> AddModifierRefactoring(
+        Document document,
+        SyntaxNode node,
+        Accessibility accessibility,
+        CancellationToken cancellationToken);
 
-    protected abstract Task<Document> ReplaceModifierRefactoring(Document document, SyntaxNode node, Accessibility fromAccessibility, Accessibility toAccessibility);
+    protected abstract Task<Document> ReplaceModifierRefactoring(
+        Document document,
+        SyntaxNode node,
+        Accessibility fromAccessibility,
+        Accessibility toAccessibility,
+        CancellationToken cancellationToken);
 
-    protected abstract void RegisterAddInternalsVisibleToAttributeCodeFix(CodeFixContext context, Diagnostic diagnostic, TCompilationUnitSyntax compilationUnitSyntax);
+    protected abstract void RegisterAddInternalsVisibleToAttributeCodeFix(CodeFixContext context, TCompilationUnitSyntax compilationUnitSyntax);
 
     private async Task<SyntaxReference> GetDeclaringSyntaxReference(CodeFixContext context, SyntaxNode invocationExpression)
     {

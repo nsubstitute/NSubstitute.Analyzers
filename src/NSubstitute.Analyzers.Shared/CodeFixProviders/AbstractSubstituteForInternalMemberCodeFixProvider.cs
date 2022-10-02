@@ -21,15 +21,9 @@ internal abstract class AbstractSubstituteForInternalMemberCodeFixProvider<TComp
 
     public override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
-        var diagnostic = context.Diagnostics.FirstOrDefault(diag => diag.Descriptor.Id == DiagnosticIdentifiers.SubstituteForInternalMember);
-        if (diagnostic == null)
-        {
-            return;
-        }
-
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
-        var invocationExpression = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
+        var invocationExpression = root.FindNode(context.Span, getInnermostNodeForTie: true);
         var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
 
         if (semanticModel.GetOperation(invocationExpression) is not IInvocationOperation invocationOperation)
@@ -52,10 +46,10 @@ internal abstract class AbstractSubstituteForInternalMemberCodeFixProvider<TComp
             return;
         }
 
-        RegisterCodeFix(context, diagnostic, compilationUnitSyntax);
+        RegisterCodeFix(context, compilationUnitSyntax);
     }
 
-    protected abstract void RegisterCodeFix(CodeFixContext context, Diagnostic diagnostic, TCompilationUnitSyntax compilationUnitSyntax);
+    protected abstract void RegisterCodeFix(CodeFixContext context, TCompilationUnitSyntax compilationUnitSyntax);
 
     private SyntaxReference GetDeclaringSyntaxReference(IInvocationOperation invocationOperation)
     {

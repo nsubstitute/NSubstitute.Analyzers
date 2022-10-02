@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -19,15 +18,8 @@ internal abstract class AbstractPartialSubstituteUsedForUnsupportedTypeCodeFixPr
 
     public override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
-        var diagnostic = context.Diagnostics.FirstOrDefault(diag =>
-            diag.Descriptor.Id == DiagnosticIdentifiers.PartialSubstituteForUnsupportedType);
-        if (diagnostic == null)
-        {
-            return;
-        }
-
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-        var syntaxNode = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
+        var syntaxNode = root.FindNode(context.Span, getInnermostNodeForTie: true);
         var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
 
         if (semanticModel.GetOperation(syntaxNode) is not IInvocationOperation invocationOperation)
@@ -43,7 +35,7 @@ internal abstract class AbstractPartialSubstituteUsedForUnsupportedTypeCodeFixPr
             title,
             ct => CreateChangedDocument(context, invocationOperation, ct),
             nameof(AbstractPartialSubstituteUsedForUnsupportedTypeCodeFixProvider));
-        context.RegisterCodeFix(codeAction, diagnostic);
+        context.RegisterCodeFix(codeAction, context.Diagnostics);
     }
 
     protected abstract SyntaxNode UpdateInvocationExpression(

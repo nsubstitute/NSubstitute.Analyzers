@@ -18,21 +18,21 @@ internal abstract class AbstractReceivedInReceivedInOrderCodeFixProvider : CodeF
 
     public override Task RegisterCodeFixesAsync(CodeFixContext context)
     {
-        var diagnostic = context.Diagnostics.FirstOrDefault(diag => diag.Descriptor.Id == DiagnosticIdentifiers.ReceivedUsedInReceivedInOrder);
-        if (diagnostic != null)
-        {
-            var codeAction = CodeAction.Create("Remove redundant Received checks", ct => CreateChangedDocument(ct, context, diagnostic), nameof(AbstractReceivedInReceivedInOrderCodeFixProvider));
-            context.RegisterCodeFix(codeAction, diagnostic);
-        }
+        var codeAction = CodeAction.Create(
+            "Remove redundant Received checks",
+            ct => CreateChangedDocument(ct, context),
+            nameof(AbstractReceivedInReceivedInOrderCodeFixProvider));
+
+        context.RegisterCodeFix(codeAction, context.Diagnostics);
 
         return Task.CompletedTask;
     }
 
-    private async Task<Document> CreateChangedDocument(CancellationToken cancellationToken, CodeFixContext context, Diagnostic diagnostic)
+    private async Task<Document> CreateChangedDocument(CancellationToken cancellationToken, CodeFixContext context)
     {
         var root = await context.Document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
-        var invocation = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
+        var invocation = root.FindNode(context.Span, getInnermostNodeForTie: true);
 
         var semanticModel = await context.Document.GetSemanticModelAsync(cancellationToken);
         if (semanticModel.GetOperation(invocation) is not IInvocationOperation invocationOperation)

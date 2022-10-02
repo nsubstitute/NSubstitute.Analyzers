@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -10,7 +11,7 @@ namespace NSubstitute.Analyzers.CSharp.Refactorings;
 
 internal static class AddModifierRefactoring
 {
-    public static Task<Document> RefactorAsync(Document document, SyntaxNode node, Accessibility accessibility)
+    public static Task<Document> RefactorAsync(Document document, SyntaxNode node, Accessibility accessibility, CancellationToken cancellationToken)
     {
         var syntaxKind = accessibility switch
         {
@@ -20,7 +21,7 @@ internal static class AddModifierRefactoring
 
         var newNode = Insert(node, syntaxKind);
 
-        return document.ReplaceNodeAsync(node, newNode);
+        return document.ReplaceNodeAsync(node, newNode, cancellationToken: cancellationToken);
     }
 
     private static SyntaxNode Insert(SyntaxNode node, SyntaxKind syntaxKind)

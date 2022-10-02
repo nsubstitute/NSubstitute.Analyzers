@@ -20,18 +20,11 @@ internal abstract class AbstractConstructorArgumentsForInterfaceCodeFixProvider 
 
     public override Task RegisterCodeFixesAsync(CodeFixContext context)
     {
-        var diagnostic = context.Diagnostics.FirstOrDefault(diag =>
-            diag.Descriptor.Id == DiagnosticIdentifiers.SubstituteConstructorArgumentsForInterface);
-        if (diagnostic == null)
-        {
-            return Task.CompletedTask;
-        }
-
         var codeAction = CodeAction.Create(
             "Remove constructor arguments",
-            ct => CreateChangedDocument(ct, context, diagnostic),
+            ct => CreateChangedDocument(context, ct),
             nameof(AbstractConstructorArgumentsForInterfaceCodeFixProvider));
-        context.RegisterCodeFix(codeAction, diagnostic);
+        context.RegisterCodeFix(codeAction, context.Diagnostics);
 
         return Task.CompletedTask;
     }
@@ -40,13 +33,13 @@ internal abstract class AbstractConstructorArgumentsForInterfaceCodeFixProvider 
 
     protected abstract SyntaxNode GetInvocationExpressionSyntaxWithNullConstructorArgument(IInvocationOperation invocationOperation);
 
-    private async Task<Document> CreateChangedDocument(CancellationToken cancellationToken, CodeFixContext context, Diagnostic diagnostic)
+    private async Task<Document> CreateChangedDocument(CodeFixContext context, CancellationToken cancellationToken)
     {
         var documentEditor = await DocumentEditor.CreateAsync(context.Document, cancellationToken);
 
         var root = await context.Document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
-        var invocation = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
+        var invocation = root.FindNode(context.Span, getInnermostNodeForTie: true);
         var semanticModel = await context.Document.GetSemanticModelAsync(cancellationToken);
         if (semanticModel.GetOperation(invocation) is not IInvocationOperation invocationOperation)
         {

@@ -36,8 +36,7 @@ internal abstract class AbstractSuppressDiagnosticsCodeFixProvider : CodeFixProv
 
         var root = await context.Document.GetSyntaxRootAsync();
         var model = await context.Document.GetSemanticModelAsync();
-        foreach (var diagnostic in context.Diagnostics
-                     .Where(diagnostic => FixableDiagnosticIds.Contains(diagnostic.Id)))
+        foreach (var diagnostic in context.Diagnostics)
         {
             var syntaxNode = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
             var symbolInfo = model.GetSymbolInfo(syntaxNode);
@@ -47,7 +46,7 @@ internal abstract class AbstractSuppressDiagnosticsCodeFixProvider : CodeFixProv
                 context.RegisterCodeFix(
                     CodeAction.Create(
                         CreateCodeFixTitle(diagnostic, innerSymbol),
-                        cancellationToken => GetTransformedSolutionAsync(context, diagnostic, settingsFile, innerSymbol)),
+                        cancellationToken => GetTransformedSolutionAsync(context, diagnostic, settingsFile, innerSymbol, cancellationToken)),
                     diagnostic);
             }
         }
@@ -93,7 +92,12 @@ internal abstract class AbstractSuppressDiagnosticsCodeFixProvider : CodeFixProv
         };
     }
 
-    private Task<Solution> GetTransformedSolutionAsync(CodeFixContext context, Diagnostic diagnostic, TextDocument settingsFile, ISymbol symbol)
+    private Task<Solution> GetTransformedSolutionAsync(
+        CodeFixContext context,
+        Diagnostic diagnostic,
+        TextDocument settingsFile,
+        ISymbol symbol,
+        CancellationToken cancellationToken)
     {
         var project = context.Document.Project;
         var settingsFileId = settingsFile?.Id;
@@ -106,7 +110,7 @@ internal abstract class AbstractSuppressDiagnosticsCodeFixProvider : CodeFixProv
             settingsFileId = DocumentId.CreateNewId(project.Id);
         }
 
-        var options = GetUpdatedAnalyzersOptions(context, diagnostic, symbol);
+        var options = GetUpdatedAnalyzersOptions(context, diagnostic, symbol, cancellationToken);
 
         var solution = project.Solution;
 
@@ -118,9 +122,9 @@ internal abstract class AbstractSuppressDiagnosticsCodeFixProvider : CodeFixProv
         return Task.FromResult(solution);
     }
 
-    private static AnalyzersSettings GetUpdatedAnalyzersOptions(CodeFixContext context, Diagnostic diagnostic, ISymbol symbol)
+    private static AnalyzersSettings GetUpdatedAnalyzersOptions(CodeFixContext context, Diagnostic diagnostic, ISymbol symbol, CancellationToken cancellationToken)
     {
-        var options = context.Document.Project.AnalyzerOptions.GetSettings(default(CancellationToken));
+        var options = context.Document.Project.AnalyzerOptions.GetSettings(cancellationToken);
         var target = CreateSuppressionTarget(symbol);
         options.Suppressions ??= new List<Suppression>();
 

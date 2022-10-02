@@ -20,17 +20,9 @@ internal abstract class AbstractReEntrantSetupCodeFixProvider<TArgumentSyntax> :
 
     public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
-        var diagnostic = context.Diagnostics.FirstOrDefault(diag =>
-            diag.Descriptor.Id == DiagnosticIdentifiers.ReEntrantSubstituteCall);
-
-        if (diagnostic == null)
-        {
-            return;
-        }
-
         var semanticModel = await context.Document.GetSemanticModelAsync();
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken);
-        var node = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
+        var node = root.FindNode(context.Span, getInnermostNodeForTie: true);
 
         if (semanticModel.GetOperation(node) is not { } nodeOperation)
         {
@@ -59,7 +51,7 @@ internal abstract class AbstractReEntrantSetupCodeFixProvider<TArgumentSyntax> :
             ct => CreateChangedDocument(context, semanticModel, invocationOperation, methodSymbol, ct),
             nameof(AbstractReEntrantSetupCodeFixProvider<TArgumentSyntax>));
 
-        context.RegisterCodeFix(codeAction, diagnostic);
+        context.RegisterCodeFix(codeAction, context.Diagnostics);
     }
 
     protected abstract string LambdaParameterName { get; }

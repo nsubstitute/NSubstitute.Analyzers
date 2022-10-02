@@ -15,8 +15,8 @@ internal sealed class SubstituteForInternalMemberCodeFixProvider : AbstractSubst
     {
     }
 
-    protected override void RegisterCodeFix(CodeFixContext context, Diagnostic diagnostic, CompilationUnitSyntax compilationUnitSyntax)
+    protected override void RegisterCodeFix(CodeFixContext context, CompilationUnitSyntax compilationUnitSyntax)
     {
-        AddInternalsVisibleToAttributeRefactoring.RegisterCodeFix(context, diagnostic, compilationUnitSyntax);
+        AddInternalsVisibleToAttributeRefactoring.RegisterCodeFix(context, compilationUnitSyntax);
     }
 }
