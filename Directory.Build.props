@@ -5,10 +5,10 @@
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
     <ItemGroup>
-        <AdditionalFiles Include="$(SolutionDir)/StyleCop.json" />
+        <AdditionalFiles Include="$(SolutionDir)/StyleCop.json"/>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435" PrivateAssets="all" />
+        <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435" PrivateAssets="all"/>
     </ItemGroup>
     <PropertyGroup>
         <SignAssembly>true</SignAssembly>

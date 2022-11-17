@@ -5,7 +5,7 @@ using NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.Benchmarks.VisualBasic;
 
-public class VisualBasicDiagnosticAnalyzersBenchmarks : AbstractDiagnosticAnalyzersBenchmarks
+public sealed class VisualBasicDiagnosticAnalyzersBenchmarks : AbstractDiagnosticAnalyzersBenchmarks
 {
     protected override AnalyzerBenchmark CallInfoAnalyzerBenchmark { get; }
 

@@ -382,6 +382,8 @@ namespace NSubstitute
         {{
             Foo substitute = null;
             {method}(substitute, {whenAction}, 1);
+            {method}(substituteCall: {whenAction}, substitute: substitute, x: 1);
+            {method}(substitute: substitute, substituteCall: {whenAction}, x: 1);
         }}
     }}
 }}";
@@ -925,6 +927,7 @@ namespace MyNamespace
         {{
             int i = 0;
             var substitute = NSubstitute.Substitute.For<Foo>();
+            {method}(substitute, {call}).Do(callInfo => i++);
             {method}(substitute: substitute, substituteCall: {call}).Do(callInfo => i++);
             {method}(substituteCall: {call}, substitute: substitute).Do(callInfo => i++);
         }}

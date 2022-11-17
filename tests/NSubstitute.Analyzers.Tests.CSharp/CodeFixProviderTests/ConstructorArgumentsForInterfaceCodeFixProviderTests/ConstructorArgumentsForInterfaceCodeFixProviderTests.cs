@@ -30,6 +30,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<IFoo>(1, 2, 3);
+            var otherSubstitute = NSubstitute.Substitute.For<IFoo>(new [] { 1, 2, 3 });
+            var yetAnotherSubstitute = NSubstitute.Substitute.For<IFoo>(constructorArguments: new [] { 1, 2, 3 });
         }
     }
 }";
@@ -46,6 +48,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<IFoo>();
+            var otherSubstitute = NSubstitute.Substitute.For<IFoo>();
+            var yetAnotherSubstitute = NSubstitute.Substitute.For<IFoo>();
         }
     }
 }";
@@ -69,6 +73,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For(new [] { typeof(IFoo) }, new object[] { 1 });
+            var otherSubstitute = NSubstitute.Substitute.For(typesToProxy: new [] { typeof(IFoo) }, constructorArguments: new object[] { 1 });
+            var yetAnotherSubstitute = NSubstitute.Substitute.For(constructorArguments: new object[] { 1 }, typesToProxy: new [] { typeof(IFoo) });
         }
     }
 }";
@@ -85,6 +91,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For(new [] { typeof(IFoo) }, null);
+            var otherSubstitute = NSubstitute.Substitute.For(typesToProxy: new [] { typeof(IFoo) }, constructorArguments: null);
+            var yetAnotherSubstitute = NSubstitute.Substitute.For(constructorArguments: null, typesToProxy: new [] { typeof(IFoo) });
         }
     }
 }";
@@ -108,6 +116,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = SubstitutionContext.Current.SubstituteFactory.Create(new[] {typeof(IFoo)}, new object[] { 1 });
+            var otherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy: new[] {typeof(IFoo)}, constructorArguments: new object[] { 1 });
+            var yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments: new object[] { 1 }, typesToProxy: new[] {typeof(IFoo)});
         }
     }
 }";
@@ -125,6 +135,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = SubstitutionContext.Current.SubstituteFactory.Create(new[] {typeof(IFoo)}, null);
+            var otherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy: new[] {typeof(IFoo)}, constructorArguments: null);
+            var yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments: null, typesToProxy: new[] {typeof(IFoo)});
         }
     }
 }";

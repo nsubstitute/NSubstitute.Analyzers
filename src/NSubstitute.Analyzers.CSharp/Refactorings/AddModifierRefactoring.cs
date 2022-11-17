@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -10,37 +11,31 @@ namespace NSubstitute.Analyzers.CSharp.Refactorings;
 
 internal static class AddModifierRefactoring
 {
-    public static Task<Document> RefactorAsync(Document document, SyntaxNode node, Accessibility accessibility)
+    public static Task<Document> RefactorAsync(Document document, SyntaxNode node, Accessibility accessibility, CancellationToken cancellationToken)
     {
-        SyntaxKind syntaxKind;
-
-        switch (accessibility)
+        var syntaxKind = accessibility switch
         {
-            case Accessibility.Protected:
-                syntaxKind = SyntaxKind.ProtectedKeyword;
-                break;
-            default:
-                throw new NotSupportedException($"Adding {accessibility} modifier is not supported");
-        }
+            Accessibility.Protected => SyntaxKind.ProtectedKeyword,
+            _ => throw new NotSupportedException($"Adding {accessibility} modifier is not supported")
+        };
 
         var newNode = Insert(node, syntaxKind);
 
-        return document.ReplaceNodeAsync(node, newNode);
+        return document.ReplaceNodeAsync(node, newNode, cancellationToken: cancellationToken);
     }
 
     private static SyntaxNode Insert(SyntaxNode node, SyntaxKind syntaxKind)
     {
-        switch (node)
+        return node switch
         {
-            case MethodDeclarationSyntax methodDeclarationSyntax:
-                return methodDeclarationSyntax.WithModifiers(UpdateModifiers(methodDeclarationSyntax.Modifiers, syntaxKind));
-            case PropertyDeclarationSyntax propertyDeclarationSyntax:
-                return propertyDeclarationSyntax.WithModifiers(UpdateModifiers(propertyDeclarationSyntax.Modifiers, syntaxKind));
-            case IndexerDeclarationSyntax indexerDeclarationSyntax:
-                return indexerDeclarationSyntax.WithModifiers(UpdateModifiers(indexerDeclarationSyntax.Modifiers, syntaxKind));
-            default:
-                throw new NotSupportedException($"Adding {syntaxKind} to {node.Kind()} is not supported");
-        }
+            MethodDeclarationSyntax methodDeclarationSyntax => methodDeclarationSyntax.WithModifiers(
+                UpdateModifiers(methodDeclarationSyntax.Modifiers, syntaxKind)),
+            PropertyDeclarationSyntax propertyDeclarationSyntax => propertyDeclarationSyntax.WithModifiers(
+                UpdateModifiers(propertyDeclarationSyntax.Modifiers, syntaxKind)),
+            IndexerDeclarationSyntax indexerDeclarationSyntax => indexerDeclarationSyntax.WithModifiers(
+                UpdateModifiers(indexerDeclarationSyntax.Modifiers, syntaxKind)),
+            _ => throw new NotSupportedException($"Adding {syntaxKind} to {node.Kind()} is not supported")
+        };
     }
 
     private static SyntaxTokenList UpdateModifiers(SyntaxTokenList modifiers, SyntaxKind modifier)

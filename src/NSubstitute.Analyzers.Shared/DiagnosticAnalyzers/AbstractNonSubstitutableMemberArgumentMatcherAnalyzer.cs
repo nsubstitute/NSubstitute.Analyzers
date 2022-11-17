@@ -8,23 +8,26 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractNonSubstitutableMemberArgumentMatcherAnalyzer<TSyntaxKind, TInvocationExpressionSyntax> : AbstractDiagnosticAnalyzer
-    where TInvocationExpressionSyntax : SyntaxNode
-    where TSyntaxKind : struct, Enum
+internal abstract class AbstractNonSubstitutableMemberArgumentMatcherAnalyzer : AbstractDiagnosticAnalyzer
 {
-    private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
+    internal static ImmutableHashSet<OperationKind> MaybeAllowedAncestors { get; } = ImmutableHashSet.Create(
+        OperationKind.Invocation,
+        OperationKind.BinaryOperator,
+        OperationKind.DynamicInvocation,
+        OperationKind.PropertyReference,
+        OperationKind.EventAssignment,
+        OperationKind.ObjectCreation,
+        OperationKind.SimpleAssignment);
+
+    private static readonly ImmutableHashSet<OperationKind> IgnoredAncestors =
+        ImmutableHashSet.Create(OperationKind.VariableDeclarator, OperationKind.VariableDeclaration);
+
+    private static readonly ImmutableHashSet<OperationKind> DynamicOperations =
+        ImmutableHashSet.Create(OperationKind.DynamicInvocation, OperationKind.DynamicIndexerAccess, OperationKind.DynamicMemberReference);
+
+    private readonly Action<OperationAnalysisContext> _analyzeInvocationAction;
 
     private readonly INonSubstitutableMemberAnalysis _nonSubstitutableMemberAnalysis;
-
-    private readonly int _invocationExpressionRawKind;
-
-    private readonly int[] _parentInvocationSyntaxNodeHierarchy;
-
-    protected abstract ImmutableHashSet<int> MaybeAllowedArgMatcherAncestors { get; }
-
-    protected abstract ImmutableHashSet<int> IgnoredArgMatcherAncestors { get; }
-
-    protected abstract TSyntaxKind InvocationExpressionKind { get; }
 
     protected AbstractNonSubstitutableMemberArgumentMatcherAnalyzer(
         INonSubstitutableMemberAnalysis nonSubstitutableMemberAnalysis,
@@ -34,242 +37,193 @@ internal abstract class AbstractNonSubstitutableMemberArgumentMatcherAnalyzer<TS
         _nonSubstitutableMemberAnalysis = nonSubstitutableMemberAnalysis;
         _analyzeInvocationAction = AnalyzeInvocation;
         SupportedDiagnostics = ImmutableArray.Create(DiagnosticDescriptorsProvider.NonSubstitutableMemberArgumentMatcherUsage);
-        _invocationExpressionRawKind = (int)Convert.ChangeType(InvocationExpressionKind, typeof(int));
-        _parentInvocationSyntaxNodeHierarchy = new[] { _invocationExpressionRawKind };
     }
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+    public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
-    protected override void InitializeAnalyzer(AnalysisContext context)
+    protected sealed override void InitializeAnalyzer(AnalysisContext context)
     {
-        context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
+        context.RegisterOperationAction(_analyzeInvocationAction, OperationKind.Invocation);
     }
 
-    private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
+    private void AnalyzeInvocation(OperationAnalysisContext operationAnalysisContext)
     {
-        var invocationExpression = (TInvocationExpressionSyntax)syntaxNodeContext.Node;
-        var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
+        var invocationOperation = (IInvocationOperation)operationAnalysisContext.Operation;
 
-        if (!(methodSymbolInfo.Symbol is IMethodSymbol methodSymbol))
+        if (invocationOperation.TargetMethod.IsArgMatcherLikeMethod() == false)
         {
             return;
         }
 
-        if (methodSymbol.IsArgMatcherLikeMethod() == false)
-        {
-            return;
-        }
-
-        AnalyzeArgLikeMethod(syntaxNodeContext, invocationExpression, methodSymbol);
+        AnalyzeArgLikeMethod(operationAnalysisContext, invocationOperation);
     }
 
     private void AnalyzeArgLikeMethod(
-        SyntaxNodeAnalysisContext syntaxNodeContext,
-        TInvocationExpressionSyntax argInvocationExpression,
-        IMethodSymbol invocationExpressionSymbol)
+        OperationAnalysisContext context,
+        IInvocationOperation invocationOperation)
     {
-        var enclosingExpression = FindMaybeAllowedEnclosingExpression(argInvocationExpression);
+        var enclosingOperation = FindMaybeAllowedEnclosingExpression(invocationOperation);
+
+        if (enclosingOperation != null && DynamicOperations.Contains(enclosingOperation.Kind))
+        {
+           return;
+        }
 
         // if Arg is used with not allowed expression, find if it is used in ignored ones eg. var x = Arg.Any
         // as variable might be used later on
-        if (enclosingExpression == null)
+        if (enclosingOperation == null)
         {
-            var ignoredEnclosingExpression = FindIgnoredEnclosingExpression(argInvocationExpression);
+            var ignoredEnclosingExpression = FindIgnoredEnclosingExpression(invocationOperation);
 
             if (ignoredEnclosingExpression == null)
             {
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.NonSubstitutableMemberArgumentMatcherUsage,
-                    argInvocationExpression.GetLocation());
+                    invocationOperation.Syntax.GetLocation());
 
-                syntaxNodeContext.ReportDiagnostic(diagnostic);
+                context.ReportDiagnostic(diagnostic);
                 return;
             }
         }
 
-        if (enclosingExpression == null)
+        if (enclosingOperation == null)
         {
             return;
         }
 
-        var operation = syntaxNodeContext.SemanticModel.GetOperation(enclosingExpression);
-
-        if (operation.IsEventAssignmentOperation())
+        if (enclosingOperation.IsEventAssignmentOperation())
         {
             return;
         }
 
-        var memberReferenceOperation = GetMemberReferenceOperation(operation);
+        var memberReferenceOperation = GetMemberReferenceOperation(enclosingOperation);
 
         if (AnalyzeEnclosingExpression(
-                syntaxNodeContext,
-                argInvocationExpression,
-                enclosingExpression,
+                context,
+                invocationOperation,
+                enclosingOperation,
                 memberReferenceOperation))
         {
             return;
         }
 
-        AnalyzeAssignment(
-            syntaxNodeContext,
-            argInvocationExpression,
-            invocationExpressionSymbol,
-            memberReferenceOperation);
+        if (memberReferenceOperation != null)
+        {
+            AnalyzeAssignment(
+                context,
+                invocationOperation,
+                memberReferenceOperation);
+        }
     }
 
     private bool AnalyzeEnclosingExpression(
-        SyntaxNodeAnalysisContext syntaxNodeContext,
-        TInvocationExpressionSyntax argInvocationExpression,
-        SyntaxNode enclosingExpression,
+        OperationAnalysisContext context,
+        IInvocationOperation argInvocation,
+        IOperation enclosingOperation,
         IMemberReferenceOperation memberReferenceOperation)
     {
-        var enclosingExpressionSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(enclosingExpression);
-        var enclosingExpressionSymbol = memberReferenceOperation?.Member ??
-                                        enclosingExpressionSymbolInfo.Symbol;
+        var enclosingExpressionSymbol = memberReferenceOperation?.Member ?? enclosingOperation.ExtractSymbol();
 
         if (enclosingExpressionSymbol == null)
         {
-            return AnalyzeEnclosingExpressionCandidateSymbols(
-                syntaxNodeContext,
-                argInvocationExpression,
-                enclosingExpression,
-                enclosingExpressionSymbolInfo);
+            TryReportDiagnostic(context, argInvocation, null);
+            return true;
         }
 
-        if (_nonSubstitutableMemberAnalysis.Analyze(
-                syntaxNodeContext,
-                enclosingExpression,
-                enclosingExpressionSymbol).CanBeSubstituted != false)
+        if (_nonSubstitutableMemberAnalysis.Analyze(memberReferenceOperation ?? enclosingOperation).CanBeSubstituted)
         {
             return false;
         }
 
-        syntaxNodeContext.TryReportDiagnostic(
-            Diagnostic.Create(
-                DiagnosticDescriptorsProvider.NonSubstitutableMemberArgumentMatcherUsage,
-                argInvocationExpression.GetLocation()),
-            enclosingExpressionSymbol);
+        TryReportDiagnostic(context, argInvocation, enclosingExpressionSymbol);
 
         return true;
     }
 
-    private bool AnalyzeEnclosingExpressionCandidateSymbols(
-        SyntaxNodeAnalysisContext syntaxNodeContext,
-        TInvocationExpressionSyntax argInvocationExpression,
-        SyntaxNode enclosingExpression,
-        SymbolInfo enclosingExpressionSymbolInfo)
-    {
-        if (enclosingExpressionSymbolInfo.CandidateSymbols.Length == 0)
-        {
-            var diagnostic = Diagnostic.Create(
-                DiagnosticDescriptorsProvider.NonSubstitutableMemberArgumentMatcherUsage,
-                argInvocationExpression.GetLocation());
-
-            syntaxNodeContext.TryReportDiagnostic(diagnostic, null);
-            return true;
-        }
-
-        foreach (var candidateSymbol in enclosingExpressionSymbolInfo.CandidateSymbols)
-        {
-            if (_nonSubstitutableMemberAnalysis.Analyze(
-                    syntaxNodeContext,
-                    enclosingExpression,
-                    candidateSymbol).CanBeSubstituted == false)
-            {
-                var diagnostic = Diagnostic.Create(
-                    DiagnosticDescriptorsProvider.NonSubstitutableMemberArgumentMatcherUsage,
-                    argInvocationExpression.GetLocation());
-
-                syntaxNodeContext.TryReportDiagnostic(diagnostic, candidateSymbol);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     private void AnalyzeAssignment(
-        SyntaxNodeAnalysisContext syntaxNodeContext,
-        TInvocationExpressionSyntax argInvocationExpression,
-        IMethodSymbol argInvocationExpressionSymbol,
+        OperationAnalysisContext context,
+        IInvocationOperation invocationOperation,
         IMemberReferenceOperation memberReferenceOperation)
     {
-        if (memberReferenceOperation == null)
+        if (IsWithinWhenLikeMethod(memberReferenceOperation))
         {
             return;
         }
 
-        var syntaxNode = memberReferenceOperation.Syntax;
-
-        if (IsWithinWhenLikeMethod(syntaxNodeContext, syntaxNode))
+        if (invocationOperation.TargetMethod.IsArgDoLikeMethod())
         {
             return;
         }
 
-        if (argInvocationExpressionSymbol.IsArgDoLikeMethod())
-        {
-            return;
-        }
-
-        if (IsPrecededByReceivedLikeMethod(syntaxNodeContext, syntaxNode))
+        if (IsPrecededByReceivedLikeMethod(memberReferenceOperation))
         {
             return;
         }
 
         var diagnostic = Diagnostic.Create(
             DiagnosticDescriptorsProvider.NonSubstitutableMemberArgumentMatcherUsage,
-            argInvocationExpression.GetLocation());
+            invocationOperation.Syntax.GetLocation());
 
-        syntaxNodeContext.TryReportDiagnostic(diagnostic, memberReferenceOperation.Member);
+        context.TryReportDiagnostic(diagnostic, memberReferenceOperation.Member);
     }
 
-    private bool IsPrecededByReceivedLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntaxNode)
+    private bool IsPrecededByReceivedLikeMethod(IOperation operation)
     {
-        var parentInvocationSyntaxNode = syntaxNode.GetParentNode(_parentInvocationSyntaxNodeHierarchy);
-        return parentInvocationSyntaxNode != null &&
-               syntaxNodeContext.SemanticModel.GetSymbolInfo(parentInvocationSyntaxNode).Symbol.IsReceivedLikeMethod();
+        var substituteOperation = operation switch
+        {
+            IPropertyReferenceOperation propertyReferenceOperation => propertyReferenceOperation.GetSubstituteOperation(),
+            IInvocationOperation invocationOperation => invocationOperation.GetSubstituteOperation(),
+            _=> null
+        };
+
+        return substituteOperation.ExtractSymbol()?.IsReceivedLikeMethod() ?? false;
     }
 
-    private bool IsWithinWhenLikeMethod(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode syntaxNode)
+    private bool IsWithinWhenLikeMethod(IOperation operation)
     {
-        var invocation = syntaxNode.Ancestors().FirstOrDefault(ancestor => ancestor.RawKind == _invocationExpressionRawKind);
+        var invocation = operation.Ancestors().FirstOrDefault(ancestor => ancestor.Kind == OperationKind.Invocation);
 
-        return invocation != null && syntaxNodeContext.SemanticModel.GetSymbolInfo(invocation).Symbol.IsWhenLikeMethod();
+        return invocation is IInvocationOperation invocationOperation &&
+               invocationOperation.TargetMethod.IsWhenLikeMethod();
     }
 
     private static IMemberReferenceOperation GetMemberReferenceOperation(IOperation operation)
     {
-        switch (operation)
+        return operation switch
         {
-            case IAssignmentOperation assignmentOperation
-                when assignmentOperation.Target is IMemberReferenceOperation memberReferenceOperation:
-                return memberReferenceOperation;
-            case IBinaryOperation binaryOperation
-                when binaryOperation.LeftOperand is IMemberReferenceOperation binaryMemberReferenceOperation:
-                return binaryMemberReferenceOperation;
-            case IBinaryOperation binaryOperation
-                when binaryOperation.LeftOperand is IConversionOperation conversionOperation &&
-                     conversionOperation.Operand is IMemberReferenceOperation conversionMemberReference:
-                return conversionMemberReference;
-            case IExpressionStatementOperation expressionStatementOperation
-                when
-                expressionStatementOperation.Operation is ISimpleAssignmentOperation simpleAssignmentOperation &&
-                simpleAssignmentOperation.Target is IMemberReferenceOperation memberReferenceOperation:
-                return memberReferenceOperation;
-            default:
-                return null;
-        }
+            IAssignmentOperation { Target: IMemberReferenceOperation memberReferenceOperation } =>
+                memberReferenceOperation,
+            IBinaryOperation { LeftOperand: IMemberReferenceOperation binaryMemberReferenceOperation } =>
+                binaryMemberReferenceOperation,
+            IBinaryOperation { LeftOperand: IConversionOperation { Operand: IMemberReferenceOperation conversionMemberReference } } =>
+                conversionMemberReference,
+            IExpressionStatementOperation { Operation: ISimpleAssignmentOperation { Target: IMemberReferenceOperation memberReferenceOperation } } =>
+                memberReferenceOperation,
+            _ => null
+        };
     }
 
-    private SyntaxNode FindMaybeAllowedEnclosingExpression(TInvocationExpressionSyntax invocationExpression) =>
-        FindEnclosingExpression(invocationExpression, MaybeAllowedArgMatcherAncestors);
+    private IOperation FindMaybeAllowedEnclosingExpression(IOperation operation) =>
+        FindEnclosingExpression(operation, MaybeAllowedAncestors);
 
-    private SyntaxNode FindIgnoredEnclosingExpression(TInvocationExpressionSyntax invocationExpressionSyntax) =>
-        FindEnclosingExpression(invocationExpressionSyntax, IgnoredArgMatcherAncestors);
+    private IOperation FindIgnoredEnclosingExpression(IOperation operation) =>
+        FindEnclosingExpression(operation, IgnoredAncestors);
 
-    private static SyntaxNode FindEnclosingExpression(TInvocationExpressionSyntax invocationExpression, ImmutableHashSet<int> ancestors)
+    private static IOperation FindEnclosingExpression(IOperation operation, ImmutableHashSet<OperationKind> ancestors)
     {
-        return invocationExpression.Ancestors()
-            .FirstOrDefault(ancestor => ancestors.Contains(ancestor.RawKind));
+        return operation.Ancestors()
+            .FirstOrDefault(ancestor => ancestors.Contains(ancestor.Kind));
+    }
+
+    private void TryReportDiagnostic(
+        OperationAnalysisContext context,
+        IInvocationOperation argInvocation,
+        ISymbol enclosingExpressionSymbol)
+    {
+        context.TryReportDiagnostic(
+            Diagnostic.Create(
+                DiagnosticDescriptorsProvider.NonSubstitutableMemberArgumentMatcherUsage,
+                argInvocation.Syntax.GetLocation()),
+            enclosingExpressionSymbol);
     }
 }

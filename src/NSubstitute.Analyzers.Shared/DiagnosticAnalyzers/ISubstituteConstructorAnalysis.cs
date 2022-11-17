@@ -2,7 +2,7 @@ using Microsoft.CodeAnalysis;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal interface ISubstituteConstructorAnalysis<TInvocationExpression> where TInvocationExpression : SyntaxNode
+internal interface ISubstituteConstructorAnalysis
 {
-    ConstructorContext CollectConstructorContext(SubstituteContext<TInvocationExpression> substituteContext, ITypeSymbol proxyTypeSymbol);
+    ConstructorContext CollectConstructorContext(SubstituteContext substituteContext, ITypeSymbol proxyTypeSymbol);
 }

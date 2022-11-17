@@ -4,7 +4,7 @@ using NSubstitute.Analyzers.Benchmarks.Shared;
 
 namespace NSubstitute.Analyzers.Benchmarks.VisualBasic;
 
-public class VisualBasicSolutionLoader : AbstractSolutionLoader
+public sealed class VisualBasicSolutionLoader : AbstractSolutionLoader
 {
     protected override string DocumentFileExtension { get; } = ".vb";
 

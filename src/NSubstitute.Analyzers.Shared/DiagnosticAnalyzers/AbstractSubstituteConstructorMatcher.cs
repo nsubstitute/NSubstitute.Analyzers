@@ -21,7 +21,7 @@ internal abstract class AbstractSubstituteConstructorMatcher : ISubstituteConstr
     private static IReadOnlyDictionary<SpecialType, HashSet<SpecialType>> WellKnownSupportedConversions { get; } =
         new Dictionary<SpecialType, HashSet<SpecialType>>
         {
-            [SpecialType.System_Char] = new HashSet<SpecialType>
+            [SpecialType.System_Char] = new()
             {
                 SpecialType.System_Int16,
                 SpecialType.System_Int32,
@@ -33,7 +33,7 @@ internal abstract class AbstractSubstituteConstructorMatcher : ISubstituteConstr
             }
         };
 
-    public bool MatchesInvocation(Compilation compilation, IMethodSymbol methodSymbol, IList<ITypeSymbol> invocationParameters)
+    public bool MatchesInvocation(Compilation compilation, IMethodSymbol methodSymbol, IReadOnlyList<ITypeSymbol> invocationParameters)
     {
         if (methodSymbol.Parameters.Length == 0)
         {
@@ -47,7 +47,7 @@ internal abstract class AbstractSubstituteConstructorMatcher : ISubstituteConstr
     protected abstract bool IsConvertible(Compilation compilation, ITypeSymbol source, ITypeSymbol destination);
 
     // TODO simplify once https://github.com/nsubstitute/NSubstitute.Analyzers/issues/153 is implemented
-    private bool MatchesInvocation(Compilation compilation, IParameterSymbol symbol, IList<ITypeSymbol> invocationParameters)
+    private bool MatchesInvocation(Compilation compilation, IParameterSymbol symbol, IReadOnlyList<ITypeSymbol> invocationParameters)
     {
         if (!symbol.IsParams)
         {
@@ -55,7 +55,7 @@ internal abstract class AbstractSubstituteConstructorMatcher : ISubstituteConstr
                    ClassifyConversion(compilation, invocationParameters[symbol.Ordinal], symbol.Type);
         }
 
-        if (!(symbol.Type is IArrayTypeSymbol arrayTypeSymbol))
+        if (symbol.Type is not IArrayTypeSymbol arrayTypeSymbol)
         {
             return false;
         }
@@ -66,7 +66,7 @@ internal abstract class AbstractSubstituteConstructorMatcher : ISubstituteConstr
         }
 
         return invocationParameters
-            .Where((typeSymbol, index) => index >= symbol.Ordinal).All(invocationSymbol =>
+            .Where((_, index) => index >= symbol.Ordinal).All(invocationSymbol =>
                 ClassifyConversion(compilation, invocationSymbol, arrayTypeSymbol.ElementType));
     }
 

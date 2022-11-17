@@ -6,14 +6,12 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 
 [DiagnosticAnalyzer(LanguageNames.VisualBasic)]
-internal sealed class CallInfoAnalyzer : AbstractCallInfoAnalyzer<SyntaxKind>
+internal sealed class CallInfoAnalyzer : AbstractCallInfoAnalyzer
 {
     public CallInfoAnalyzer()
-        : base(NSubstitute.Analyzers.VisualBasic.DiagnosticDescriptorsProvider.Instance, CallInfoCallFinder.Instance, SubstitutionNodeFinder.Instance)
+        : base(NSubstitute.Analyzers.VisualBasic.DiagnosticDescriptorsProvider.Instance, CallInfoFinder.Instance, SubstitutionNodeFinder.Instance)
     {
     }
-
-    protected override SyntaxKind InvocationExpressionKind { get; } = SyntaxKind.InvocationExpression;
 
     protected override bool CanCast(Compilation compilation, ITypeSymbol sourceSymbol, ITypeSymbol destinationSymbol)
     {

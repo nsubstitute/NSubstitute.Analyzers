@@ -20,12 +20,6 @@ public abstract class ReEntrantSetupCodeFixVerifier : CSharpCodeFixVerifier, IRe
     protected override CodeFixProvider CodeFixProvider { get; } = new ReEntrantSetupCodeFixProvider();
 
     [Theory]
-    [InlineData("CreateReEntrantSubstitute(), CreateDefaultValue(), 1", "_ => CreateReEntrantSubstitute(), _ => CreateDefaultValue(), _ => 1")]
-    [InlineData("CreateReEntrantSubstitute(), new [] { CreateDefaultValue(), 1 }", "_ => CreateReEntrantSubstitute(), new System.Func<NSubstitute.Core.CallInfo, int>[] { _ => CreateDefaultValue(), _ => 1 }")]
-    [InlineData("CreateReEntrantSubstitute(), new int[] { CreateDefaultValue(), 1 }", "_ => CreateReEntrantSubstitute(), new System.Func<NSubstitute.Core.CallInfo, int>[] { _ => CreateDefaultValue(), _ => 1 }")]
-    [InlineData("returnThis: CreateReEntrantSubstitute()", "returnThis: _ => CreateReEntrantSubstitute()")]
-    [InlineData("returnThis: CreateReEntrantSubstitute(), returnThese: new [] { CreateDefaultValue(), 1 }", "returnThis: _ => CreateReEntrantSubstitute(), returnThese: new System.Func<NSubstitute.Core.CallInfo, int>[] { _ => CreateDefaultValue(), _ => 1 }")]
-    [InlineData("returnThis: CreateReEntrantSubstitute(), returnThese: new int[] { CreateDefaultValue(), 1 }", "returnThis: _ => CreateReEntrantSubstitute(), returnThese: new System.Func<NSubstitute.Core.CallInfo, int>[] { _ => CreateDefaultValue(), _ => 1 }")]
     public abstract Task ReplacesArgumentExpression_WithLambda(string arguments, string rewrittenArguments);
 
     [Fact]

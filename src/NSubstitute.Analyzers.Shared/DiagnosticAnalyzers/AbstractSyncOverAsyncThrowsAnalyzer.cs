@@ -7,14 +7,10 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractSyncOverAsyncThrowsAnalyzer<TSyntaxKind, TInvocationExpressionSyntax> : AbstractDiagnosticAnalyzer
-    where TInvocationExpressionSyntax : SyntaxNode
-    where TSyntaxKind : struct
+internal abstract class AbstractSyncOverAsyncThrowsAnalyzer : AbstractDiagnosticAnalyzer
 {
     private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
-    private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
-
-    protected abstract TSyntaxKind InvocationExpressionKind { get; }
+    private readonly Action<OperationAnalysisContext> _analyzeInvocationAction;
 
     protected AbstractSyncOverAsyncThrowsAnalyzer(
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
@@ -23,66 +19,55 @@ internal abstract class AbstractSyncOverAsyncThrowsAnalyzer<TSyntaxKind, TInvoca
     {
         _substitutionNodeFinder = substitutionNodeFinder;
         SupportedDiagnostics = ImmutableArray.Create(DiagnosticDescriptorsProvider.SyncOverAsyncThrows);
-
         _analyzeInvocationAction = AnalyzeInvocation;
     }
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+    public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
-    protected override void InitializeAnalyzer(AnalysisContext context)
+    protected sealed override void InitializeAnalyzer(AnalysisContext context)
     {
-        context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
+        context.RegisterOperationAction(_analyzeInvocationAction, OperationKind.Invocation);
     }
 
-    private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
+    private void AnalyzeInvocation(OperationAnalysisContext operationAnalysisContext)
     {
-        var invocationExpression = syntaxNodeContext.Node;
-        if (!(syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression).Symbol is IMethodSymbol methodSymbol))
+        var invocationOperation = (IInvocationOperation)operationAnalysisContext.Operation;
+
+        if (invocationOperation.TargetMethod.IsThrowSyncLikeMethod() == false)
         {
             return;
         }
 
-        if (!methodSymbol.IsThrowSyncLikeMethod())
+        var substituteOperation = _substitutionNodeFinder.FindForStandardExpression(invocationOperation);
+
+        if (substituteOperation == null)
         {
             return;
         }
 
-        if (!(syntaxNodeContext.SemanticModel.GetOperation(invocationExpression) is IInvocationOperation invocationOperation))
+        var returnType = GetReturnTypeSymbol(substituteOperation);
+
+        if (IsTask(returnType, operationAnalysisContext.Compilation) == false)
         {
             return;
         }
 
-        var substitutedExpression = _substitutionNodeFinder.FindForStandardExpression(
-            invocationOperation);
+        operationAnalysisContext.ReportDiagnostic(
+            Diagnostic.Create(
+                DiagnosticDescriptorsProvider.SyncOverAsyncThrows,
+                invocationOperation.Syntax.GetLocation()));
+    }
 
-        if (substitutedExpression == null)
+    private static ITypeSymbol GetReturnTypeSymbol(IOperation substituteOperation)
+    {
+        var returnType = substituteOperation switch
         {
-            return;
-        }
-
-        var semanticModel = syntaxNodeContext.SemanticModel.GetSymbolInfo(substitutedExpression);
-
-        ITypeSymbol returnType;
-        switch (semanticModel.Symbol)
-        {
-            case IMethodSymbol method:
-                returnType = method.ReturnType;
-                break;
-            case IPropertySymbol property:
-                returnType = property.Type;
-                break;
-            default:
-                returnType = null;
-                break;
-        }
-
-        if (!IsTask(returnType, syntaxNodeContext.Compilation))
-        {
-            return;
-        }
-
-        syntaxNodeContext.ReportDiagnostic(
-            Diagnostic.Create(DiagnosticDescriptorsProvider.SyncOverAsyncThrows, invocationExpression.GetLocation()));
+            IInvocationOperation substituteInvocationOperation => substituteInvocationOperation.TargetMethod.ReturnType,
+            IPropertyReferenceOperation propertyReferenceOperation => propertyReferenceOperation.Property.Type,
+            IConversionOperation conversionOperation => GetReturnTypeSymbol(conversionOperation.Operand),
+            _ => null
+        };
+        return returnType;
     }
 
     private static bool IsTask(ITypeSymbol returnType, Compilation compilation)

@@ -33,6 +33,7 @@ Namespace MyNamespace
 
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            {method}([|substitute.Bar()|], New Exception())
             {method}(value:= [|substitute.Bar()|], ex:= New Exception())
             {method}(ex:= New Exception(), value:= [|substitute.Bar()|])
         End Sub
@@ -122,6 +123,7 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute.Bar(), New Exception())
             {method}(value:= substitute.Bar(), ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute.Bar())
         End Sub
     End Class
 End Namespace
@@ -598,6 +600,8 @@ Namespace NSubstitute
         Public Sub Test()
             Dim substitute As Foo = Nothing
             {method}(substitute.Bar(), New Exception())
+            {method}(returnValue:= substitute.Bar(), ex:= New Exception())
+            {method}(ex:= New Exception(), returnValue:= substitute.Bar())
         End Sub
     End Class
 End Namespace
@@ -855,13 +859,25 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute(1), New Exception())
+            {method}(value:= substitute(1), ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute(1))
             {method}(substitute.Bar, New Exception())
+            {method}(value:= substitute.Bar, ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute.Bar)
             {method}(substitute.FooBar(), New Exception())
+            {method}(value:= substitute.FooBar(), ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute.FooBar())
             Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar)()
 
             {method}([|substituteFooBarBar(1)|], New Exception())
+            {method}(value:= [|substituteFooBarBar(1)|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substituteFooBarBar(1)|])
             {method}([|substituteFooBarBar.Bar|], New Exception())
+            {method}(value:= [|substituteFooBarBar.Bar|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substituteFooBarBar.Bar|])
             {method}([|substituteFooBarBar.FooBar()|], New Exception())
+            {method}(value:= [|substituteFooBarBar.FooBar()|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substituteFooBarBar.FooBar()|])
         End Sub
     End Class
 End Namespace
@@ -872,7 +888,13 @@ End Namespace
         var diagnosticMessages = new[]
         {
             "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
             "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
             "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted."
         };
 
@@ -923,13 +945,25 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo(Of Integer))()
             {method}(substitute(1), New Exception())
+            {method}(value:= substitute(1), ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute(1))
             {method}(substitute.Bar, New Exception())
+            {method}(value:= substitute.Bar, ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute.Bar)
             {method}(substitute.FooBar(), New Exception())
+            {method}(value:= substitute.FooBar(), ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute.FooBar())
             Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar(Of Integer))()
 
             {method}([|substituteFooBarBar(1)|], New Exception())
+            {method}(value:= [|substituteFooBarBar(1)|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substituteFooBarBar(1)|])
             {method}([|substituteFooBarBar.Bar|], New Exception())
+            {method}(value:= [|substituteFooBarBar.Bar|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substituteFooBarBar.Bar|])
             {method}([|substituteFooBarBar.FooBar()|], New Exception())
+            {method}(value:= [|substituteFooBarBar.FooBar()|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substituteFooBarBar.FooBar()|])
         End Sub
     End Class
 End Namespace
@@ -940,7 +974,13 @@ End Namespace
         var diagnosticMessages = new[]
         {
             "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
             "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
             "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted."
         };
 
@@ -994,13 +1034,25 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute(1), New Exception())
+            {method}(value:= substitute(1), ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute(1))
             {method}(substitute.Bar, New Exception())
+            {method}(value:= substitute.Bar, ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute.Bar)
             {method}(substitute.FooBar(), New Exception())
+            {method}(value:= substitute.FooBar(), ex:= New Exception())
+            {method}(ex:= New Exception(), value:= substitute.FooBar())
             Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar)()
 
             {method}([|substituteFooBarBar(1)|], New Exception())
+            {method}(value:= [|substituteFooBarBar(1)|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substituteFooBarBar(1)|])
             {method}([|substituteFooBarBar.Bar|], New Exception())
+            {method}(value:= [|substituteFooBarBar.Bar|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substituteFooBarBar.Bar|])
             {method}([|substituteFooBarBar.FooBar()|], New Exception())
+            {method}(value:= [|substituteFooBarBar.FooBar()|], ex:= New Exception())
+            {method}(ex:= New Exception(), value:= [|substituteFooBarBar.FooBar()|])
         End Sub
     End Class
 End Namespace
@@ -1011,7 +1063,13 @@ End Namespace
         var diagnosticMessages = new[]
         {
             "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
             "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
             "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted."
         };
 

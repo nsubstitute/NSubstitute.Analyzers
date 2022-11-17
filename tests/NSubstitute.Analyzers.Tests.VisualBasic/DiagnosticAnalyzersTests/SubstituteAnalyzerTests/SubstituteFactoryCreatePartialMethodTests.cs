@@ -1,4 +1,6 @@
+using System.Linq;
 using System.Threading.Tasks;
+using NSubstitute.Analyzers.Tests.Shared.Extensions;
 using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.SubstituteAnalyzerTests;
@@ -18,11 +20,23 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(IFoo)}, Nothing)|]
+            Dim otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= New Type() {GetType(IFoo)}, constructorArguments:= Nothing)|]
+            Dim yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= Nothing, typesToProxy:= New Type() {GetType(IFoo)})|]
         End Sub
     End Class
 End Namespace
 ";
-        await VerifyDiagnostic(source, PartialSubstituteForUnsupportedTypeDescriptor, "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(New Type() {GetType(IFoo)}, Nothing) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(IFoo)}, Nothing) here.");
+        var textParserResult = TextParser.GetSpans(source);
+
+        var diagnosticMessages = new[]
+        {
+            "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(New Type() {GetType(IFoo)}, Nothing) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(IFoo)}, Nothing) here.",
+            "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy:= New Type() {GetType(IFoo)}, constructorArguments:= Nothing) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= New Type() {GetType(IFoo)}, constructorArguments:= Nothing) here.",
+            "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments:= Nothing, typesToProxy:= New Type() {GetType(IFoo)}) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= Nothing, typesToProxy:= New Type() {GetType(IFoo)}) here."
+        };
+
+        var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(PartialSubstituteForUnsupportedTypeDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
+        await VerifyDiagnostic(textParserResult.Text, diagnostics);
     }
 
     [Fact]
@@ -38,11 +52,23 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Func(Of Integer))}, Nothing)|]
+            Dim otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= New Type() {GetType(Func(Of Integer))}, constructorArguments:= Nothing)|]
+            Dim yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= Nothing, typesToProxy:= New Type() {GetType(Func(Of Integer))})|]
         End Sub
     End Class
 End Namespace
 ";
-        await VerifyDiagnostic(source, PartialSubstituteForUnsupportedTypeDescriptor, "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(New Type() {GetType(Func(Of Integer))}, Nothing) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Func(Of Integer))}, Nothing) here.");
+        var textParserResult = TextParser.GetSpans(source);
+
+        var diagnosticMessages = new[]
+        {
+            "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(New Type() {GetType(Func(Of Integer))}, Nothing) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Func(Of Integer))}, Nothing) here.",
+            "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy:= New Type() {GetType(Func(Of Integer))}, constructorArguments:= Nothing) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= New Type() {GetType(Func(Of Integer))}, constructorArguments:= Nothing) here.",
+            "Can only substitute for parts of classes, not interfaces or delegates. Use SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments:= Nothing, typesToProxy:= New Type() {GetType(Func(Of Integer))}) instead of SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= Nothing, typesToProxy:= New Type() {GetType(Func(Of Integer))}) here."
+        };
+
+        var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(PartialSubstituteForUnsupportedTypeDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
+        await VerifyDiagnostic(textParserResult.Text, diagnostics);
     }
 
     [Fact]
@@ -60,6 +86,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Foo)}, Nothing)|]
+            Dim otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= New Type() {GetType(Foo)}, constructorArguments:= Nothing)|]
+            Dim yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= Nothing, typesToProxy:= New Type() {GetType(Foo)})|]
         End Sub
     End Class
 End Namespace
@@ -81,6 +109,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Foo)}, Nothing)|]
+            Dim otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= New Type() {GetType(Foo)}, constructorArguments:= Nothing)|]
+            Dim yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= Nothing, typesToProxy:= New Type() {GetType(Foo)})|]
         End Sub
     End Class
 End Namespace
@@ -102,6 +132,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Foo)}, Nothing)|]
+            Dim otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= New Type() {GetType(Foo)}, constructorArguments:= Nothing)|]
+            Dim yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= Nothing, typesToProxy:= New Type() {GetType(Foo)})|]
         End Sub
     End Class
 End Namespace
@@ -125,6 +157,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Foo)}, Nothing)
+            Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= New Type() {GetType(Foo)}, constructorArguments:= Nothing)
+            Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= Nothing, typesToProxy:= New Type() {GetType(Foo)})
         End Sub
     End Class
 End Namespace
@@ -148,6 +182,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Foo)}, Nothing)
+            Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= New Type() {GetType(Foo)}, constructorArguments:= Nothing)
+            Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= Nothing, typesToProxy:= New Type() {GetType(Foo)})
         End Sub
     End Class
 End Namespace
@@ -170,6 +206,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Foo)}, New Object() {1, 2, 3})|]
+            Dim otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= New Type() {GetType(Foo)}, constructorArguments:= New Object() {1, 2, 3})|]
+            Dim yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= New Object() {1, 2, 3}, typesToProxy:= New Type() {GetType(Foo)})|]
         End Sub
     End Class
 End Namespace
@@ -192,6 +230,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Foo)}, New Object() {1})|]
+            Dim otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= New Type() {GetType(Foo)}, constructorArguments:= New Object() {1})|]
+            Dim yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= New Object() {1}, typesToProxy:= New Type() {GetType(Foo)})|]
         End Sub
     End Class
 End Namespace
@@ -215,6 +255,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Foo)}, New Object() {1})|]
+            Dim otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= New Type() {GetType(Foo)}, constructorArguments:= New Object() {1})|]
+            Dim yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= New Object() {1}, typesToProxy:= New Type() {GetType(Foo)})|]
         End Sub
     End Class
 End Namespace
@@ -235,6 +277,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(Foo)}, Nothing)|]
+            Dim otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= New Type() {GetType(Foo)}, constructorArguments:= Nothing)|]
+            Dim yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= Nothing, typesToProxy:= New Type() {GetType(Foo)})|]
         End Sub
     End Class
 End Namespace
@@ -256,6 +300,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {{GetType(Foo)}}, Nothing)
+            Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= New Type() {{GetType(Foo)}}, constructorArguments:= Nothing)
+            Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= Nothing, typesToProxy:= New Type() {{GetType(Foo)}})
         End Sub
     End Class
 End Namespace
@@ -277,6 +323,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {{GetType(Foo)}}, Nothing)|]
+            Dim otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= New Type() {{GetType(Foo)}}, constructorArguments:= Nothing)|]
+            Dim yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= Nothing, typesToProxy:= New Type() {{GetType(Foo)}})|]
         End Sub
     End Class
 End Namespace
@@ -360,7 +408,10 @@ Imports NSubstitute.Core
 Namespace MyNamespace
     Public Class FooTests
         Public Function Foo(Of T As Class)() As T
-            Return CType(SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(T)}, Nothing), T)
+            Dim substitute =  CType(SubstitutionContext.Current.SubstituteFactory.CreatePartial(New Type() {GetType(T)}, Nothing), T)
+            Dim otherSubstitute =  CType(SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= New Type() {GetType(T)}, constructorArguments:= Nothing), T)
+            Dim yetAnotherSubstitute =  CType(SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= Nothing, typesToProxy:= New Type() {GetType(T)}), T)
+            Return substitute
         End Function
     End Class
 End Namespace
@@ -382,6 +433,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial({GetType(Foo)}, New Object() {1})
+            Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= {GetType(Foo)}, constructorArguments:= New Object() {1})
+            Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= New Object() {1}, typesToProxy:= {GetType(Foo)})
         End Sub
     End Class
 End Namespace
@@ -403,6 +456,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial({GetType(Foo)}, New Object() {1, 2, 3})
+            Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= {GetType(Foo)}, constructorArguments:= New Object() {1, 2, 3})
+            Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= New Object() {1, 2, 3}, typesToProxy:= {GetType(Foo)})
         End Sub
     End Class
 End Namespace
@@ -424,6 +479,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial({GetType(Foo)}, New Object() {1})|]
+            Dim otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy:= {GetType(Foo)}, constructorArguments:= New Object() {1})|]
+            Dim yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments:= New Object() {1}, typesToProxy:= {GetType(Foo)})|]
         End Sub
     End Class
 End Namespace

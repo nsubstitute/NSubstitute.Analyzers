@@ -2,14 +2,14 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractUnusedReceivedAnalyzer<TSyntaxKind> : AbstractDiagnosticAnalyzer
-    where TSyntaxKind : struct
+internal abstract class AbstractUnusedReceivedAnalyzer : AbstractDiagnosticAnalyzer
 {
-    private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
+    private readonly Action<OperationAnalysisContext> _analyzeInvocationAction;
 
     protected AbstractUnusedReceivedAnalyzer(IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
         : base(diagnosticDescriptorsProvider)
@@ -18,37 +18,35 @@ internal abstract class AbstractUnusedReceivedAnalyzer<TSyntaxKind> : AbstractDi
         SupportedDiagnostics = ImmutableArray.Create(DiagnosticDescriptorsProvider.UnusedReceived);
     }
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+    public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
-    protected abstract ImmutableHashSet<int> PossibleParentsRawKinds { get; }
+    private static readonly ImmutableHashSet<OperationKind> PossibleParents =
+        ImmutableHashSet.Create(OperationKind.PropertyReference, OperationKind.Invocation);
 
-    protected abstract TSyntaxKind InvocationExpressionKind { get; }
-
-    protected override void InitializeAnalyzer(AnalysisContext context)
+    protected sealed override void InitializeAnalyzer(AnalysisContext context)
     {
-        context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
+        context.RegisterOperationAction(_analyzeInvocationAction, OperationKind.Invocation);
     }
 
-    private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
+    private void AnalyzeInvocation(OperationAnalysisContext operationAnalysisContext)
     {
-        var invocationExpression = syntaxNodeContext.Node;
-        var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
+        var invocationOperation = (IInvocationOperation)operationAnalysisContext.Operation;
 
-        if (methodSymbolInfo.Symbol?.Kind != SymbolKind.Method)
+        if (invocationOperation.TargetMethod.IsReceivedLikeMethod() == false)
         {
             return;
         }
 
-        var methodSymbol = (IMethodSymbol)methodSymbolInfo.Symbol;
-
-        if (methodSymbol.IsReceivedLikeMethod() == false)
+        if (IsConsideredAsUsed(invocationOperation))
         {
-            return;
+           return;
         }
 
-        var isConsideredAsUsed = IsConsideredAsUsed(invocationExpression);
-
-        if (isConsideredAsUsed)
+        // even though we have TargetMethod in IInvocationOperation, it wont tell us if method was called as extension
+        // or ordinary manner (and we need that information to correctly format diagnostic text)
+        if (operationAnalysisContext.Compilation
+                .GetSemanticModel(invocationOperation.Syntax.SyntaxTree)
+                .GetSymbolInfo(invocationOperation.Syntax).Symbol is not IMethodSymbol methodSymbol)
         {
             return;
         }
@@ -59,15 +57,15 @@ internal abstract class AbstractUnusedReceivedAnalyzer<TSyntaxKind> : AbstractDi
 
         var diagnostic = Diagnostic.Create(
             diagnosticDescriptor,
-            invocationExpression.GetLocation(),
+            invocationOperation.Syntax.GetLocation(),
             methodSymbol.Name,
             methodSymbol.ContainingType.Name);
 
-        syntaxNodeContext.ReportDiagnostic(diagnostic);
+        operationAnalysisContext.ReportDiagnostic(diagnostic);
     }
 
-    private bool IsConsideredAsUsed(SyntaxNode receivedSyntaxNode)
+    private bool IsConsideredAsUsed(IOperation operation)
     {
-        return PossibleParentsRawKinds.Contains(receivedSyntaxNode.Parent.RawKind);
+        return operation.Parent != null && PossibleParents.Contains(operation.Parent.Kind);
     }
 }

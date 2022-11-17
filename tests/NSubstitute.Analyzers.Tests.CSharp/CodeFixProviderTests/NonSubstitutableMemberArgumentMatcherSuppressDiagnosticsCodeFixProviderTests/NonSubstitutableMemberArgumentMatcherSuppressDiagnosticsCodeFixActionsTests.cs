@@ -19,25 +19,25 @@ public class NonSubstitutableMemberArgumentMatcherSuppressDiagnosticsCodeFixActi
     [Fact]
     public async Task CreatesCorrectCodeFixActions_ForIndexer()
     {
-        var source = $@"using System;
+        var source = @"using System;
 using NSubstitute;
 
 namespace MyNamespace
-{{
+{
     public class Foo
-    {{
+    {
         public int this[int? firstArg] => 2;
-    }}
+    }
 
     public class FooTests
-    {{
+    {
         public void Test()
-        {{
+        {
             var substitute = Substitute.For<Foo>(); 
             _ = substitute[Arg.Any<int>()];
-        }}
-    }}
-}}";
+        }
+    }
+}";
         await VerifyCodeActions(source, new[]
         {
             $"Suppress {DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage} for indexer this[] in nsubstitute.json",
@@ -49,27 +49,27 @@ namespace MyNamespace
     [Fact]
     public async Task CreatesCorrectCodeFixActions_ForMethod()
     {
-        var source = $@"using System;
+        var source = @"using System;
 using NSubstitute;
 
 namespace MyNamespace
-{{
+{
     public class Foo
-    {{
+    {
         public static int Bar(int? firstArg)
-        {{
+        {
             return 2;
-        }}
-    }}
+        }
+    }
 
     public class FooTests
-    {{
+    {
         public void Test()
-        {{
+        {
             Foo.Bar(Arg.Any<int>());
-        }}
-    }}
-}}";
+        }
+    }
+}";
         await VerifyCodeActions(source, new[]
         {
             $"Suppress {DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage} for method Bar in nsubstitute.json",
@@ -81,42 +81,42 @@ namespace MyNamespace
     [Fact]
     public async Task DoesNotCreateCodeFixActions_WhenArgMatchesIsUsedInStandaloneExpression()
     {
-        var source = $@"using System;
+        var source = @"using System;
 using NSubstitute;
 
 namespace MyNamespace
-{{
+{
     public class FooTests
-    {{
+    {
         public void Test()
-        {{
+        {
             Arg.Any<int>();
-        }}
-    }}
-}}";
+        }
+    }
+}";
         await VerifyCodeActions(source, Array.Empty<string>());
     }
 
     [Fact]
     public async Task DoesNotCreateCodeFixActions_WhenArgMatchesIsUsedInConstructor()
     {
-        var source = $@"using System;
+        var source = @"using System;
 using NSubstitute;
 
 namespace MyNamespace
-{{
+{
     public class FooTests
-    {{
+    {
         public FooTests(int firstArg)
-        {{
-        }}
+        {
+        }
 
         public void Test()
-        {{
+        {
             new FooTests(Arg.Any<int>());
-        }}
-    }}
-}}";
+        }
+    }
+}";
         await VerifyCodeActions(source, Array.Empty<string>());
     }
 }

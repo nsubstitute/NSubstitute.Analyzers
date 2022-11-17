@@ -19,29 +19,27 @@ public abstract class AbstractSolutionLoader
     public Solution CreateSolution(string projectDirectory, MetadataReference[] metadataReferences)
     {
         var projectName = Path.GetFileName(projectDirectory);
-        using (var adhocWorkspace = new AdhocWorkspace())
+        using var adhocWorkspace = new AdhocWorkspace();
+        var projectId = ProjectId.CreateNewId();
+        var solution = adhocWorkspace
+            .CurrentSolution
+            .AddProject(projectId, projectName, projectName, Language);
+
+        foreach (var fileInfo in GetFiles(projectDirectory).Where(fileInfo => fileInfo.Extension != ProjectFileExtension))
         {
-            var projectId = ProjectId.CreateNewId();
-            var solution = adhocWorkspace
-                .CurrentSolution
-                .AddProject(projectId, projectName, projectName, Language);
-
-            foreach (var fileInfo in GetFiles(projectDirectory).Where(fileInfo => fileInfo.Extension != ProjectFileExtension))
+            if (fileInfo.Name == _analyzerSettingsFileName)
             {
-                if (fileInfo.Name == _analyzerSettingsFileName)
-                {
-                    solution = solution.AddAdditionalDocument(DocumentId.CreateNewId(projectId), fileInfo.Name, File.ReadAllText(fileInfo.FullName));
-                }
-
-                if (fileInfo.Extension == DocumentFileExtension)
-                {
-                    solution = solution.AddDocument(DocumentId.CreateNewId(projectId), fileInfo.Name, File.ReadAllText(fileInfo.FullName));
-                }
+                solution = solution.AddAdditionalDocument(DocumentId.CreateNewId(projectId), fileInfo.Name, File.ReadAllText(fileInfo.FullName));
             }
 
-            return solution.AddMetadataReferences(projectId, metadataReferences)
-                .WithProjectCompilationOptions(projectId, GetCompilationOptions(projectName));
+            if (fileInfo.Extension == DocumentFileExtension)
+            {
+                solution = solution.AddDocument(DocumentId.CreateNewId(projectId), fileInfo.Name, File.ReadAllText(fileInfo.FullName));
+            }
         }
+
+        return solution.AddMetadataReferences(projectId, metadataReferences)
+            .WithProjectCompilationOptions(projectId, GetCompilationOptions(projectName));
     }
 
     protected abstract CompilationOptions GetCompilationOptions(string rootNamespace);

@@ -2,22 +2,21 @@
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.CodeFixProviders;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace NSubstitute.Analyzers.CSharp.CodeFixProviders;
 
 [ExportCodeFixProvider(LanguageNames.CSharp)]
-internal sealed class PartialSubstituteUsedForUnsupportedTypeCodeFixProvider : AbstractPartialSubstituteUsedForUnsupportedTypeCodeFixProvider<InvocationExpressionSyntax, GenericNameSyntax, IdentifierNameSyntax, SimpleNameSyntax>
+internal sealed class PartialSubstituteUsedForUnsupportedTypeCodeFixProvider : AbstractPartialSubstituteUsedForUnsupportedTypeCodeFixProvider
 {
-    protected override TInnerNameSyntax GetNameSyntax<TInnerNameSyntax>(InvocationExpressionSyntax methodInvocationNode)
+    protected override SyntaxNode UpdateInvocationExpression(IInvocationOperation invocationOperation, string identifierName)
     {
-        var memberAccess = (MemberAccessExpressionSyntax)methodInvocationNode.Expression;
-        return (TInnerNameSyntax)memberAccess.Name;
-    }
-
-    protected override TInnerNameSyntax GetUpdatedNameSyntax<TInnerNameSyntax>(TInnerNameSyntax nameSyntax, string identifierName)
-    {
-        return (TInnerNameSyntax)nameSyntax.WithIdentifier(IdentifierName(identifierName).Identifier);
+        var invocationExpression = (InvocationExpressionSyntax)invocationOperation.Syntax;
+        var memberAccessExpression = (MemberAccessExpressionSyntax)invocationExpression.Expression;
+        return invocationExpression.WithExpression(
+            memberAccessExpression.WithName(
+                memberAccessExpression.Name.WithIdentifier(Identifier(identifierName))));
     }
 }

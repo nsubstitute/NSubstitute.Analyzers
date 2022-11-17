@@ -44,6 +44,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|NSubstitute.Substitute.For<IFoo>(1)|];
+            var otherSubstitute = [|NSubstitute.Substitute.For<IFoo>(constructorArguments: 1)|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For<IFoo>(new [] { 1 })|];
         }
     }
 }";
@@ -84,6 +86,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|NSubstitute.Substitute.For<Func<int>>(1)|];
+            var otherSubstitute = [|NSubstitute.Substitute.For<Func<int>>(constructorArguments: 1)|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For<Func<int>>(new [] { 1 })|];
         }
     }
 }";
@@ -213,6 +217,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|NSubstitute.Substitute.For<IFoo, Bar>(1)|];
+            var otherSubstitute = [|NSubstitute.Substitute.For<IFoo, Bar>(constructorArguments: 1)|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For<IFoo, Bar>(new [] { 1 })|];
         }
     }
 }";
@@ -363,6 +369,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|NSubstitute.Substitute.For<Foo>(1, 2, 3)|];
+            var otherSubstitute = [|NSubstitute.Substitute.For<Foo>(new [] { 1, 2, 3 })|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For<Foo>(constructorArguments: new [] { 1, 2, 3 })|];
         }
     }
 }";
@@ -388,6 +396,9 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|NSubstitute.Substitute.For<Foo>(1)|];
+            var otherSubstitute = [|NSubstitute.Substitute.For<Foo>(constructorArguments: 1)|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For<Foo>(new [] { 1 })|];
+            var yetYetAnotherSubstitute = [|NSubstitute.Substitute.For<Foo>(constructorArguments: new [] { 1 })|];
         }
     }
 }";
@@ -413,6 +424,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|NSubstitute.Substitute.For<Foo>(1)|];
+            var otherSubstitute = [|NSubstitute.Substitute.For<Foo>(constructorArguments: 1)|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For<Foo>(new [] { 1 })|];
         }
     }
 }";
@@ -624,6 +637,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = NSubstitute.Substitute.For<Foo>(1, 2, 3);
+            var otherSubstitute = NSubstitute.Substitute.For<Foo>(new object[] { 1, 2, 3 });
+            var yetAnotherSubstitute = NSubstitute.Substitute.For<Foo>(constructorArguments: new object[] { 1, 2, 3 });
         }
     }
 }";
@@ -648,6 +663,8 @@ namespace MyNamespace
         public void Test()
         {
             var substitute = [|NSubstitute.Substitute.For<Foo>(1)|];
+            var otherSubstitute = [|NSubstitute.Substitute.For<Foo>(new [] { 1 })|];
+            var yetAnotherSubstitute = [|NSubstitute.Substitute.For<Foo>(constructorArguments: new [] { 1 })|];
         }
     }
 }";

@@ -3,24 +3,36 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.CodeFixProviders;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace NSubstitute.Analyzers.CSharp.CodeFixProviders;
 
 [ExportCodeFixProvider(LanguageNames.CSharp)]
-internal sealed class ConstructorArgumentsForInterfaceCodeFixProvider : AbstractConstructorArgumentsForInterfaceCodeFixProvider<InvocationExpressionSyntax>
+internal sealed class ConstructorArgumentsForInterfaceCodeFixProvider : AbstractConstructorArgumentsForInterfaceCodeFixProvider
 {
-    protected override InvocationExpressionSyntax GetInvocationExpressionSyntaxWithEmptyArgumentList(InvocationExpressionSyntax invocationExpressionSyntax)
+    protected override SyntaxNode GetInvocationExpressionSyntaxWithEmptyArgumentList(IInvocationOperation invocationOperation)
     {
-        return invocationExpressionSyntax.WithArgumentList(ArgumentList());
+        var invocationExpression = (InvocationExpressionSyntax)invocationOperation.Syntax;
+
+        return invocationExpression.WithArgumentList(ArgumentList());
     }
 
-    protected override InvocationExpressionSyntax GetInvocationExpressionSyntaxWithNullConstructorArgument(InvocationExpressionSyntax invocationExpressionSyntax)
+    protected override SyntaxNode GetInvocationExpressionSyntaxWithNullConstructorArgument(IInvocationOperation invocationOperation)
     {
-        var nullSyntax = Argument(LiteralExpression(SyntaxKind.NullLiteralExpression));
-        var seconArgument = invocationExpressionSyntax.ArgumentList.Arguments.Skip(1).First();
-        var argumentListSyntax = invocationExpressionSyntax.ArgumentList.ReplaceNode(seconArgument, nullSyntax);
-        return invocationExpressionSyntax.WithArgumentList(argumentListSyntax);
+        var invocationExpressionSyntax = (InvocationExpressionSyntax)invocationOperation.Syntax;
+        var arguments = invocationOperation.Arguments.Select(argumentOperation =>
+        {
+            var argumentSyntax = (ArgumentSyntax)argumentOperation.Syntax;
+            if (argumentOperation.Parameter.Ordinal > 0)
+            {
+                argumentSyntax = argumentSyntax.WithExpression(LiteralExpression(SyntaxKind.NullLiteralExpression));
+            }
+
+            return argumentSyntax;
+        });
+
+        return invocationExpressionSyntax.WithArgumentList(ArgumentList(SeparatedList(arguments)));
     }
 }

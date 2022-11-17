@@ -27,14 +27,12 @@ internal class JsonParser : IDisposable
     private StringReader _json;
 
     // temporary allocated
-    private StringBuilder _sb = new StringBuilder();
+    private StringBuilder _sb = new();
 
     public static object ParseValue(string jsonString)
     {
-        using (var parser = new JsonParser(jsonString))
-        {
-            return parser.ParseValue();
-        }
+        using var parser = new JsonParser(jsonString);
+        return parser.ParseValue();
     }
 
     internal JsonParser(string jsonString)

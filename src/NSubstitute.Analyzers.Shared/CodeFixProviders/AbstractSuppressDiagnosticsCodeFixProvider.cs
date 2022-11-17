@@ -27,7 +27,7 @@ internal abstract class AbstractSuppressDiagnosticsCodeFixProvider : CodeFixProv
 
         var settingsFile = GetSettingsFile(project);
 
-        // creating additional document from Roslyn is broken (https://github.com/dotnet/roslyn/issues/4655) the nsubstitute.json file have to be created by users manually
+        // creating additional document from Roslyn is broken (https://github.com/dotnet/roslyn/issues/4655) the nsubstitute.json file has to be created by users manually
         // if there is no settings file do not provide refactorings
         if (settingsFile == null)
         {
@@ -36,8 +36,7 @@ internal abstract class AbstractSuppressDiagnosticsCodeFixProvider : CodeFixProv
 
         var root = await context.Document.GetSyntaxRootAsync();
         var model = await context.Document.GetSemanticModelAsync();
-        foreach (var diagnostic in context.Diagnostics
-                     .Where(diagnostic => FixableDiagnosticIds.Contains(diagnostic.Id)))
+        foreach (var diagnostic in context.Diagnostics)
         {
             var syntaxNode = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
             var symbolInfo = model.GetSymbolInfo(syntaxNode);
@@ -47,7 +46,7 @@ internal abstract class AbstractSuppressDiagnosticsCodeFixProvider : CodeFixProv
                 context.RegisterCodeFix(
                     CodeAction.Create(
                         CreateCodeFixTitle(diagnostic, innerSymbol),
-                        cancellationToken => GetTransformedSolutionAsync(context, diagnostic, settingsFile, innerSymbol)),
+                        cancellationToken => GetTransformedSolutionAsync(context, diagnostic, settingsFile, innerSymbol, cancellationToken)),
                     diagnostic);
             }
         }
@@ -62,7 +61,7 @@ internal abstract class AbstractSuppressDiagnosticsCodeFixProvider : CodeFixProv
 
         yield return symbol;
 
-        if (!(symbol is ITypeSymbol))
+        if (symbol is not ITypeSymbol)
         {
             yield return symbol.ContainingType;
             yield return symbol.ContainingType.ContainingNamespace;
@@ -82,24 +81,23 @@ internal abstract class AbstractSuppressDiagnosticsCodeFixProvider : CodeFixProv
 
     private static string GetSymbolTitlePrefix(ISymbol innerSymbol)
     {
-        switch (innerSymbol)
+        return innerSymbol switch
         {
-            case IMethodSymbol _:
-                return "method";
-            case IPropertySymbol propertySymbol when propertySymbol.IsIndexer:
-                return "indexer";
-            case IPropertySymbol _:
-                return "property";
-            case ITypeSymbol _:
-                return "class";
-            case INamespaceSymbol _:
-                return "namespace";
-            default:
-                return string.Empty;
-        }
+            IMethodSymbol _ => "method",
+            IPropertySymbol { IsIndexer: true } => "indexer",
+            IPropertySymbol _ => "property",
+            ITypeSymbol _ => "class",
+            INamespaceSymbol _ => "namespace",
+            _ => string.Empty
+        };
     }
 
-    private Task<Solution> GetTransformedSolutionAsync(CodeFixContext context, Diagnostic diagnostic, TextDocument settingsFile, ISymbol symbol)
+    private Task<Solution> GetTransformedSolutionAsync(
+        CodeFixContext context,
+        Diagnostic diagnostic,
+        TextDocument settingsFile,
+        ISymbol symbol,
+        CancellationToken cancellationToken)
     {
         var project = context.Document.Project;
         var settingsFileId = settingsFile?.Id;
@@ -112,7 +110,7 @@ internal abstract class AbstractSuppressDiagnosticsCodeFixProvider : CodeFixProv
             settingsFileId = DocumentId.CreateNewId(project.Id);
         }
 
-        var options = GetUpdatedAnalyzersOptions(context, diagnostic, symbol);
+        var options = GetUpdatedAnalyzersOptions(context, diagnostic, symbol, cancellationToken);
 
         var solution = project.Solution;
 
@@ -124,17 +122,17 @@ internal abstract class AbstractSuppressDiagnosticsCodeFixProvider : CodeFixProv
         return Task.FromResult(solution);
     }
 
-    private static AnalyzersSettings GetUpdatedAnalyzersOptions(CodeFixContext context, Diagnostic diagnostic, ISymbol symbol)
+    private static AnalyzersSettings GetUpdatedAnalyzersOptions(CodeFixContext context, Diagnostic diagnostic, ISymbol symbol, CancellationToken cancellationToken)
     {
-        var options = context.Document.Project.AnalyzerOptions.GetSettings(default(CancellationToken));
+        var options = context.Document.Project.AnalyzerOptions.GetSettings(cancellationToken);
         var target = CreateSuppressionTarget(symbol);
-        options.Suppressions = options.Suppressions ?? new List<Suppression>();
+        options.Suppressions ??= new List<Suppression>();
 
         var existingSuppression = options.Suppressions.FirstOrDefault(suppression => suppression.Target == target);
 
         if (existingSuppression != null)
         {
-            existingSuppression.Rules = existingSuppression.Rules ?? new List<string>();
+            existingSuppression.Rules ??= new List<string>();
             existingSuppression.Rules.Add(diagnostic.Id);
         }
         else

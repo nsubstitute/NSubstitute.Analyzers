@@ -3,41 +3,35 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders;
 
-internal abstract class AbstractSubstituteForInternalMemberCodeFixProvider<TInvocationExpressionSyntax, TExpressionSyntax, TCompilationUnitSyntax> : AbstractSuppressDiagnosticsCodeFixProvider
-    where TInvocationExpressionSyntax : SyntaxNode
-    where TExpressionSyntax : SyntaxNode
-    where TCompilationUnitSyntax : SyntaxNode
+internal abstract class AbstractSubstituteForInternalMemberCodeFixProvider<TCompilationUnitSyntax> : AbstractSuppressDiagnosticsCodeFixProvider where TCompilationUnitSyntax : SyntaxNode
 {
-    private readonly ISubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> _substituteProxyAnalysis;
+    private readonly ISubstituteProxyAnalysis _substituteProxyAnalysis;
 
-    public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.SubstituteForInternalMember);
+    public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.SubstituteForInternalMember);
 
-    protected AbstractSubstituteForInternalMemberCodeFixProvider(ISubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> substituteProxyAnalysis)
+    protected AbstractSubstituteForInternalMemberCodeFixProvider(ISubstituteProxyAnalysis substituteProxyAnalysis)
     {
         _substituteProxyAnalysis = substituteProxyAnalysis;
     }
 
-    public override async Task RegisterCodeFixesAsync(CodeFixContext context)
+    public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
-        var diagnostic = context.Diagnostics.FirstOrDefault(diag => diag.Descriptor.Id == DiagnosticIdentifiers.SubstituteForInternalMember);
-        if (diagnostic == null)
-        {
-            return;
-        }
-
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
-        var findNode = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
-        if (!(findNode is TInvocationExpressionSyntax invocationExpression))
+        var invocationExpression = root.FindNode(context.Span, getInnermostNodeForTie: true);
+        var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
+
+        if (semanticModel.GetOperation(invocationExpression) is not IInvocationOperation invocationOperation)
         {
             return;
         }
 
-        var syntaxReference = await GetDeclaringSyntaxReference(context, invocationExpression);
+        var syntaxReference = GetDeclaringSyntaxReference(invocationOperation);
 
         if (syntaxReference == null)
         {
@@ -52,22 +46,19 @@ internal abstract class AbstractSubstituteForInternalMemberCodeFixProvider<TInvo
             return;
         }
 
-        RegisterCodeFix(context, diagnostic, compilationUnitSyntax);
+        RegisterCodeFix(context, compilationUnitSyntax);
     }
 
-    protected abstract void RegisterCodeFix(CodeFixContext context, Diagnostic diagnostic, TCompilationUnitSyntax compilationUnitSyntax);
+    protected abstract void RegisterCodeFix(CodeFixContext context, TCompilationUnitSyntax compilationUnitSyntax);
 
-    private async Task<SyntaxReference> GetDeclaringSyntaxReference(CodeFixContext context, TInvocationExpressionSyntax invocationExpression)
+    private SyntaxReference GetDeclaringSyntaxReference(IInvocationOperation invocationOperation)
     {
-        var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
-        var methodSymbol = semanticModel.GetSymbolInfo(invocationExpression).Symbol as IMethodSymbol;
-        var actualProxyTypeSymbol = _substituteProxyAnalysis.GetActualProxyTypeSymbol(semanticModel, invocationExpression, methodSymbol);
-        var syntaxReference = actualProxyTypeSymbol.DeclaringSyntaxReferences.FirstOrDefault();
-        return syntaxReference;
+        var actualProxyTypeSymbol = _substituteProxyAnalysis.GetActualProxyTypeSymbol(invocationOperation);
+        return actualProxyTypeSymbol.DeclaringSyntaxReferences.FirstOrDefault();
     }
 
     private TCompilationUnitSyntax FindCompilationUnitSyntax(SyntaxNode syntaxNode)
     {
-        return syntaxNode.Parent.Ancestors().OfType<TCompilationUnitSyntax>().LastOrDefault();
+        return syntaxNode.Ancestors().OfType<TCompilationUnitSyntax>().LastOrDefault();
     }
 }

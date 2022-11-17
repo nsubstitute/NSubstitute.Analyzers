@@ -1,10 +1,25 @@
 using System.Threading.Tasks;
 using NSubstitute.Analyzers.Tests.Shared;
+using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.ReEntrantSetupCodeFixProviderTests;
 
 public class ReturnsAsOrdinaryMethodTests : ReEntrantSetupCodeFixVerifier
 {
+    [Theory]
+    [InlineData("secondSubstitute.Id, CreateReEntrantSubstitute(), CreateDefaultValue(), 1", "secondSubstitute.Id, _ => CreateReEntrantSubstitute(), _ => CreateDefaultValue(), _ => 1")]
+    [InlineData("secondSubstitute.Id, CreateDefaultValue(), 1, CreateReEntrantSubstitute()", "secondSubstitute.Id, _ => CreateDefaultValue(), _ => 1, _ => CreateReEntrantSubstitute()")]
+    [InlineData("secondSubstitute.Id, CreateReEntrantSubstitute(), new [] { CreateDefaultValue(), 1 }", "secondSubstitute.Id, _ => CreateReEntrantSubstitute(), new System.Func<NSubstitute.Core.CallInfo, int>[] { _ => CreateDefaultValue(), _ => 1 }")]
+    [InlineData("secondSubstitute.Id, CreateReEntrantSubstitute(), new int[] { CreateDefaultValue(), 1 }", "secondSubstitute.Id, _ => CreateReEntrantSubstitute(), new System.Func<NSubstitute.Core.CallInfo, int>[] { _ => CreateDefaultValue(), _ => 1 }")]
+    [InlineData("secondSubstitute.Id, CreateDefaultValue(), new [] { 1, CreateReEntrantSubstitute() }", "secondSubstitute.Id, _ => CreateDefaultValue(), new System.Func<NSubstitute.Core.CallInfo, int>[] { _ => 1, _ => CreateReEntrantSubstitute() }")]
+    [InlineData("value: secondSubstitute.Id, returnThis: CreateReEntrantSubstitute()", "value: secondSubstitute.Id, returnThis: _ => CreateReEntrantSubstitute()")]
+    [InlineData("returnThis: CreateReEntrantSubstitute(), value: secondSubstitute.Id", "returnThis: _ => CreateReEntrantSubstitute(), value: secondSubstitute.Id")]
+    [InlineData("value: secondSubstitute.Id, returnThis: CreateReEntrantSubstitute(), returnThese: new [] { CreateDefaultValue(), 1 }", "value: secondSubstitute.Id, returnThis: _ => CreateReEntrantSubstitute(), returnThese: new System.Func<NSubstitute.Core.CallInfo, int>[] { _ => CreateDefaultValue(), _ => 1 }")]
+    [InlineData("returnThis: CreateReEntrantSubstitute(), returnThese: new [] { CreateDefaultValue(), 1 }, value: secondSubstitute.Id", "returnThis: _ => CreateReEntrantSubstitute(), returnThese: new System.Func<NSubstitute.Core.CallInfo, int>[] { _ => CreateDefaultValue(), _ => 1 }, value: secondSubstitute.Id")]
+    [InlineData("returnThese: new [] { CreateDefaultValue(), 1 }, returnThis: CreateReEntrantSubstitute(), value: secondSubstitute.Id", "returnThese: new System.Func<NSubstitute.Core.CallInfo, int>[] { _ => CreateDefaultValue(), _ => 1 }, returnThis: _ => CreateReEntrantSubstitute(), value: secondSubstitute.Id")]
+    [InlineData("value: secondSubstitute.Id, returnThis: CreateReEntrantSubstitute(), returnThese: new int[] { CreateDefaultValue(), 1 }", "value: secondSubstitute.Id, returnThis: _ => CreateReEntrantSubstitute(), returnThese: new System.Func<NSubstitute.Core.CallInfo, int>[] { _ => CreateDefaultValue(), _ => 1 }")]
+    [InlineData("returnThis: CreateReEntrantSubstitute(), returnThese: new int[] { CreateDefaultValue(), 1 }, value: secondSubstitute.Id", "returnThis: _ => CreateReEntrantSubstitute(), returnThese: new System.Func<NSubstitute.Core.CallInfo, int>[] { _ => CreateDefaultValue(), _ => 1 }, value: secondSubstitute.Id")]
+    [InlineData("returnThese: new int[] { CreateDefaultValue(), 1 }, returnThis: CreateReEntrantSubstitute(), value: secondSubstitute.Id", "returnThese: new System.Func<NSubstitute.Core.CallInfo, int>[] { _ => CreateDefaultValue(), _ => 1 }, returnThis: _ => CreateReEntrantSubstitute(), value: secondSubstitute.Id")]
     public override async Task ReplacesArgumentExpression_WithLambda(string arguments, string rewrittenArguments)
     {
         var oldSource = $@"using NSubstitute;
@@ -28,7 +43,7 @@ namespace MyNamespace
         public void Test()
         {{
             var secondSubstitute = Substitute.For<IFoo>();
-            SubstituteExtensions.Returns(secondSubstitute.Id, {arguments});
+            SubstituteExtensions.Returns({arguments});
         }}
 
         private int CreateReEntrantSubstitute()
@@ -66,7 +81,7 @@ namespace MyNamespace
         public void Test()
         {{
             var secondSubstitute = Substitute.For<IFoo>();
-            SubstituteExtensions.Returns(secondSubstitute.Id, {rewrittenArguments});
+            SubstituteExtensions.Returns({rewrittenArguments});
         }}
 
         private int CreateReEntrantSubstitute()
@@ -85,6 +100,7 @@ namespace MyNamespace
         await VerifyFix(oldSource, newSource);
     }
 
+    [Fact]
     public override async Task ReplacesArgumentExpression_WithLambdaWithReducedTypes_WhenGeneratingArrayParamsArgument()
     {
         var oldSource = @"using NSubstitute;
@@ -163,6 +179,7 @@ namespace MyNamespace
         await VerifyFix(oldSource, newSource);
     }
 
+    [Fact]
     public override async Task ReplacesArgumentExpression_WithLambdaWithNonGenericCallInfo_WhenGeneratingArrayParamsArgument()
     {
         var oldSource = @"using NSubstitute;

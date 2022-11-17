@@ -1,11 +1,9 @@
 ﻿using System.Threading.Tasks;
-using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.SubstituteForInternalMemberCodeFixProviderTests;
 
 public class ForAsGenericMethodTests : SubstituteForInternalMemberCodeFixVerifier
 {
-    [Fact]
     public override async Task AppendsInternalsVisibleTo_ToTopLevelCompilationUnit_WhenUsedWithInternalClass()
     {
         var oldSource = @"using NSubstitute;
@@ -50,7 +48,6 @@ namespace MyNamespace
         await VerifyFix(oldSource, newSource);
     }
 
-    [Fact]
     public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass()
     {
         var oldSource = @"using NSubstitute;
@@ -89,7 +86,6 @@ namespace MyNamespace
         await VerifyFix(oldSource, newSource);
     }
 
-    [Fact]
     public override async Task AppendsInternalsVisibleTo_WhenUsedWithInternalClass_AndArgumentListNotEmpty()
     {
         var oldSource = @"using System.Reflection;
@@ -131,7 +127,6 @@ namespace MyNamespace
         await VerifyFix(oldSource, newSource);
     }
 
-    [Fact]
     public override async Task AppendsInternalsVisibleTo_WhenUsedWithNestedInternalClass()
     {
         var oldSource = @"using NSubstitute;
@@ -178,7 +173,6 @@ namespace MyNamespace
         await VerifyFix(oldSource, newSource);
     }
 
-    [Fact]
     public override async Task DoesNot_AppendsInternalsVisibleTo_WhenUsedWithPublicClass()
     {
         var oldSource = @"using NSubstitute;
@@ -199,7 +193,6 @@ namespace MyNamespace
         await VerifyFix(oldSource, oldSource);
     }
 
-    [Fact]
     public override async Task DoesNot_AppendsInternalsVisibleTo_WhenInternalsVisibleToAppliedToDynamicProxyGenAssembly2()
     {
         var oldSource = @"using NSubstitute;

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
@@ -7,13 +8,12 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractReceivedInReceivedInOrderAnalyzer<TSyntaxKind> : AbstractDiagnosticAnalyzer
-        where TSyntaxKind : struct
+internal abstract class AbstractReceivedInReceivedInOrderAnalyzer : AbstractDiagnosticAnalyzer
 {
     private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
-    private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
+    private readonly Action<OperationAnalysisContext> _analyzeInvocationAction;
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+    public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
     protected AbstractReceivedInReceivedInOrderAnalyzer(
         ISubstitutionNodeFinder substitutionNodeFinder,
@@ -25,42 +25,36 @@ internal abstract class AbstractReceivedInReceivedInOrderAnalyzer<TSyntaxKind> :
         SupportedDiagnostics = ImmutableArray.Create(diagnosticDescriptorsProvider.ReceivedUsedInReceivedInOrder);
     }
 
-    protected abstract TSyntaxKind InvocationExpressionKind { get; }
-
-    protected override void InitializeAnalyzer(AnalysisContext context)
+    protected sealed override void InitializeAnalyzer(AnalysisContext context)
     {
-        context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
+        context.RegisterOperationAction(_analyzeInvocationAction, OperationKind.Invocation);
     }
 
-    private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
+    private void AnalyzeInvocation(OperationAnalysisContext operationAnalysisContext)
     {
-        if (!(syntaxNodeContext.SemanticModel.GetOperation(syntaxNodeContext.Node) is IInvocationOperation invocationOperation))
-        {
-            return;
-        }
+        var invocationOperation = (IInvocationOperation)operationAnalysisContext.Operation;
 
         if (invocationOperation.TargetMethod.IsReceivedInOrderMethod() == false)
         {
             return;
         }
 
-        foreach (var syntaxNode in _substitutionNodeFinder.FindForReceivedInOrderExpression(
-                     syntaxNodeContext,
-                     invocationOperation))
+        foreach (var operation in _substitutionNodeFinder.FindForReceivedInOrderExpression(
+                     operationAnalysisContext.Compilation,
+                     invocationOperation,
+                     includeAll: true).OfType<IInvocationOperation>())
         {
-            var symbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(syntaxNode);
-
-            if (symbolInfo.Symbol.IsReceivedLikeMethod() == false)
+            if (operation.TargetMethod.IsReceivedLikeMethod() == false)
             {
-                continue;
+               continue;
             }
 
             var diagnostic = Diagnostic.Create(
                 DiagnosticDescriptorsProvider.ReceivedUsedInReceivedInOrder,
-                syntaxNode.GetLocation(),
-                symbolInfo.Symbol.Name);
+                operation.Syntax.GetLocation(),
+                operation.TargetMethod.Name);
 
-            syntaxNodeContext.ReportDiagnostic(diagnostic);
+            operationAnalysisContext.ReportDiagnostic(diagnostic);
         }
     }
 }

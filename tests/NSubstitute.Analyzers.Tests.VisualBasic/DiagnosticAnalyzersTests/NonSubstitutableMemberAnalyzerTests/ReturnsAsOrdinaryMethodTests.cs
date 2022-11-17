@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using MoreLinq.Extensions;
 using NSubstitute.Analyzers.Shared;
 using NSubstitute.Analyzers.Shared.Settings;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
@@ -222,6 +223,7 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo2)()
             {method}([|substitute.Bar()|], 1)
             {method}(value:= [|substitute.Bar()|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|substitute.Bar()|])
         End Sub
     End Class
 End Namespace
@@ -273,6 +275,7 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             {method}(substitute.Bar(), 1)
             {method}(value:= substitute.Bar(), returnThis:= 1)
+            {method}(returnThis:= 1, value:= substitute.Bar())
         End Sub
     End Class
 End Namespace
@@ -527,6 +530,8 @@ Namespace NSubstitute
         Public Sub Test()
             Dim substitute As Foo = Nothing
             {method}(substitute.Bar(), 1)
+            {method}(returnValue:= substitute.Bar(), returnThis:= 1)
+            {method}(returnThis:= 1, returnValue:= substitute.Bar())
         End Sub
     End Class
 End Namespace
@@ -763,13 +768,25 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute(1), 1)
+            {method}(value:= substitute(1), returnThis:= 1)
+            {method}(returnThis:= 1, value:= substitute(1))
             {method}(substitute.Bar, 1)
+            {method}(value:= substitute.Bar, returnThis:= 1)
+            {method}(returnThis:= 1, value:= substitute.Bar)
             {method}(substitute.FooBar(), 1)
+            {method}(value:= substitute.FooBar(), returnThis:= 1)
+            {method}(returnThis:= 1, value:= substitute.FooBar())
 
             Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar)()
             {method}([|substituteFooBarBar(1)|], 1)
+            {method}(value:= [|substituteFooBarBar(1)|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|substituteFooBarBar(1)|])
             {method}([|substituteFooBarBar.Bar|], 1)
+            {method}(value:= [|substituteFooBarBar.Bar|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|substituteFooBarBar.Bar|])
             {method}([|substituteFooBarBar.FooBar()|], 1)
+            {method}(value:= [|substituteFooBarBar.FooBar()|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|substituteFooBarBar.FooBar()|])
         End Sub
     End Class
 End Namespace
@@ -780,7 +797,13 @@ End Namespace
         var diagnosticMessages = new[]
         {
             "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
             "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
             "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted."
         };
 
@@ -828,13 +851,25 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo(Of Integer))()
             {method}(substitute(1), 1)
+            {method}(value:= substitute(1), returnThis:= 1)
+            {method}(returnThis:= 1, value:= substitute(1))
             {method}(substitute.Bar, 1)
+            {method}(value:= substitute.Bar, returnThis:= 1)
+            {method}(returnThis:= 1, value:= substitute.Bar)
             {method}(substitute.FooBar(), 1)
+            {method}(value:= substitute.FooBar(), returnThis:= 1)
+            {method}(returnThis:= 1, value:= substitute.FooBar())
 
             Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar(Of Integer))()
             {method}([|substituteFooBarBar(1)|], 1)
+            {method}(value:= [|substituteFooBarBar(1)|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|substituteFooBarBar(1)|])
             {method}([|substituteFooBarBar.Bar|], 1)
+            {method}(value:= [|substituteFooBarBar.Bar|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|substituteFooBarBar.Bar|])
             {method}([|substituteFooBarBar.FooBar()|], 1)
+            {method}(value:= [|substituteFooBarBar.FooBar()|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|substituteFooBarBar.FooBar()|])
         End Sub
     End Class
 End Namespace
@@ -845,7 +880,13 @@ End Namespace
         var diagnosticMessages = new[]
         {
             "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
             "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
             "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted."
         };
 
@@ -896,13 +937,25 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {method}(substitute(1), 1)
+            {method}(value:= substitute(1), returnThis:= 1)
+            {method}(returnThis:= 1, value:= substitute(1))
             {method}(substitute.Bar, 1)
+            {method}(value:= substitute.Bar, returnThis:= 1)
+            {method}(returnThis:= 1, value:= substitute.Bar)
             {method}(substitute.FooBar(), 1)
+            {method}(value:= substitute.FooBar(), returnThis:= 1)
+            {method}(returnThis:= 1, value:= substitute.FooBar())
 
             Dim substituteFooBarBar = NSubstitute.Substitute.[For](Of FooBarBar)()
             {method}([|substituteFooBarBar(1)|], 1)
+            {method}(value:= [|substituteFooBarBar(1)|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|substituteFooBarBar(1)|])
             {method}([|substituteFooBarBar.Bar|], 1)
+            {method}(value:= [|substituteFooBarBar.Bar|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|substituteFooBarBar.Bar|])
             {method}([|substituteFooBarBar.FooBar()|], 1)
+            {method}(value:= [|substituteFooBarBar.FooBar()|], returnThis:= 1)
+            {method}(returnThis:= 1, value:= [|substituteFooBarBar.FooBar()|])
         End Sub
     End Class
 End Namespace
@@ -913,9 +966,15 @@ End Namespace
         var diagnosticMessages = new[]
         {
             "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
             "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
+            "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.",
             "Member FooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted."
-        };
+        }.Repeat(2).ToList();
 
         var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(NonVirtualSetupSpecificationDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
 

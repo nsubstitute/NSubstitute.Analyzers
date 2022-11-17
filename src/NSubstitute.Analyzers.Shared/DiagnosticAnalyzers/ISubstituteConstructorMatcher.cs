@@ -5,5 +5,8 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 internal interface ISubstituteConstructorMatcher
 {
-    bool MatchesInvocation(Compilation compilation, IMethodSymbol methodSymbol, IList<ITypeSymbol> invocationParameters);
+    bool MatchesInvocation(
+        Compilation compilation,
+        IMethodSymbol methodSymbol,
+        IReadOnlyList<ITypeSymbol> invocationParameters);
 }

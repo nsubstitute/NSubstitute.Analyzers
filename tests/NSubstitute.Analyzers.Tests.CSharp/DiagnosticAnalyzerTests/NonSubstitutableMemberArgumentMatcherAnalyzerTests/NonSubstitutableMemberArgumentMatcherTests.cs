@@ -34,6 +34,9 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
             substitute.Bar({arg});
             substitute.When(x => x.Bar({arg}));
+            SubstituteExtensions.When(substitute, x => x.Bar({arg}));
+            SubstituteExtensions.When(substitute: substitute, substituteCall: x => x.Bar({arg}));
+            SubstituteExtensions.When(substituteCall: x => x.Bar({arg}), substitute: substitute);
         }}
     }}
 }}";
@@ -99,6 +102,9 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
             substitute.Bar({arg});
             substitute.When(x => x.Bar({arg}));
+            SubstituteExtensions.When(substitute, x => x.Bar({arg}));
+            SubstituteExtensions.When(substitute: substitute, substituteCall: x => x.Bar({arg}));
+            SubstituteExtensions.When(substituteCall: x => x.Bar({arg}), substitute: substitute);
         }}
     }}
 }}";
@@ -139,6 +145,9 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo2>();
             substitute.Bar({arg});
             substitute.When(x => x.Bar({arg}));
+            SubstituteExtensions.When(substitute, x => x.Bar({arg}));
+            SubstituteExtensions.When(substitute: substitute, substituteCall: x => x.Bar({arg}));
+            SubstituteExtensions.When(substituteCall: x => x.Bar({arg}), substitute: substitute);
         }}
     }}
 }}";
@@ -160,6 +169,9 @@ namespace MyNamespace
             var substitute = Substitute.For<Func<{funcArgType}, int>>();
             substitute({arg});
             substitute.When(x => x({arg}));
+            SubstituteExtensions.When(substitute, x => x({arg}));
+            SubstituteExtensions.When(substitute: substitute, substituteCall: x => x({arg}));
+            SubstituteExtensions.When(substituteCall: x => x({arg}), substitute: substitute);
         }}
     }}
 }}";
@@ -200,6 +212,9 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo2>();
             substitute.Bar({arg});
             substitute.When(x => x.Bar({arg}));
+            SubstituteExtensions.When(substitute, x => x.Bar({arg}));
+            SubstituteExtensions.When(substitute: substitute, substituteCall: x => x.Bar({arg}));
+            SubstituteExtensions.When(substituteCall: x => x.Bar({arg}), substitute: substitute);
         }}
     }}
 }}";
@@ -228,6 +243,9 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
             substitute.Bar({arg});
             substitute.When(x => x.Bar({arg}));
+            SubstituteExtensions.When(substitute, x => x.Bar({arg}));
+            SubstituteExtensions.When(substitute: substitute, substituteCall: x => x.Bar({arg}));
+            SubstituteExtensions.When(substituteCall: x => x.Bar({arg}), substitute: substitute);
         }}
     }}
 }}";
@@ -256,6 +274,9 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<IFoo>();
             substitute.Bar({arg});
             substitute.When(x => x.Bar({arg}));
+            SubstituteExtensions.When(substitute, x => x.Bar({arg}));
+            SubstituteExtensions.When(substitute: substitute, substituteCall: x => x.Bar({arg}));
+            SubstituteExtensions.When(substituteCall: x => x.Bar({arg}), substitute: substitute);
         }}
     }}
 }}";
@@ -283,6 +304,9 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<IFoo<int>>();
             substitute.Bar<int>({arg});
             substitute.When(x => x.Bar<int>({arg}));
+            SubstituteExtensions.When(substitute, x => x.Bar<int>({arg}));
+            SubstituteExtensions.When(substitute: substitute, substituteCall: x => x.Bar<int>({arg}));
+            SubstituteExtensions.When(substituteCall: x => x.Bar<int>({arg}), substitute: substitute);
         }}
     }}
 }}";
@@ -310,6 +334,9 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<IFoo>();
             var _ = substitute[{arg}];
             substitute.When(x => _ = x[{arg}]);
+            SubstituteExtensions.When(substitute, x => _ = x[{arg}]);
+            SubstituteExtensions.When(substitute: substitute, substituteCall: x => _ = x[{arg}]);
+            SubstituteExtensions.When(substituteCall: x => _ = x[{arg}], substitute: substitute);
         }}
     }}
 }}";
@@ -337,6 +364,9 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
             var _ = substitute[{arg}];
             substitute.When(x => _ = x[{arg}]);
+            SubstituteExtensions.When(substitute, x => _ = x[{arg}]);
+            SubstituteExtensions.When(substitute: substitute, substituteCall: x => _ = x[{arg}]);
+            SubstituteExtensions.When(substituteCall: x => _ = x[{arg}], substitute: substitute);
         }}
     }}
 }}";
@@ -364,6 +394,9 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
             var _ = substitute[{arg}];
             substitute.When(x => _ = x[{arg}]);
+            SubstituteExtensions.When(substitute, x => _ = x[{arg}]);
+            SubstituteExtensions.When(substitute: substitute, substituteCall: x => _ = x[{arg}]);
+            SubstituteExtensions.When(substituteCall: x => _ = x[{arg}], substitute: substitute);
         }}
     }}
 }}";
@@ -465,6 +498,9 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
             substitute.Bar({arg});
             substitute.When(x => x.Bar({arg}));
+            SubstituteExtensions.When(substitute, x => x.Bar({arg}));
+            SubstituteExtensions.When(substitute: substitute, substituteCall: x => x.Bar({arg}));
+            SubstituteExtensions.When(substituteCall: x => x.Bar({arg}), substitute: substitute);
         }}
     }}
 }}";
@@ -565,6 +601,9 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
             substitute.FooBar({arg});
             substitute.When(x => x.FooBar({arg}));
+            SubstituteExtensions.When(substitute, x => x.FooBar({arg}));
+            SubstituteExtensions.When(substitute: substitute, substituteCall: x => x.FooBar({arg}));
+            SubstituteExtensions.When(substituteCall: x => x.FooBar({arg}), substitute: substitute);
         }}
     }}
 }}";
@@ -603,6 +642,9 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
             substitute.FooBar({arg});
             substitute.When(x => x.FooBar({arg}));
+            SubstituteExtensions.When(substitute, x => x.FooBar({arg}));
+            SubstituteExtensions.When(substitute: substitute, substituteCall: x => x.FooBar({arg}));
+            SubstituteExtensions.When(substituteCall: x => x.FooBar({arg}), substitute: substitute);
         }}
     }}
 }}";
@@ -639,6 +681,9 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
             substitute.FooBar({arg});
             substitute.When(x => x.FooBar({arg}));
+            SubstituteExtensions.When(substitute, x => x.FooBar({arg}));
+            SubstituteExtensions.When(substitute: substitute, substituteCall: x => x.FooBar({arg}));
+            SubstituteExtensions.When(substituteCall: x => x.FooBar({arg}), substitute: substitute);
         }}
     }}
 }}";
@@ -673,6 +718,9 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
             substitute.FooBar({arg});
             substitute.When(x => x.FooBar({arg}));
+            SubstituteExtensions.When(substitute, x => x.FooBar({arg}));
+            SubstituteExtensions.When(substitute: substitute, substituteCall: x => x.FooBar({arg}));
+            SubstituteExtensions.When(substituteCall: x => x.FooBar({arg}), substitute: substitute);
         }}
     }}
 }}";
@@ -723,6 +771,10 @@ namespace MyNamespace
             var substitute = NSubstitute.Substitute.For<Foo>();
             substitute.Bar({arg}, {arg});
             substitute.Bar([|{arg}|]);
+            substitute.When(x => x.Bar([|{arg}|]));
+            SubstituteExtensions.When(substitute, x => x.Bar([|{arg}|]));
+            SubstituteExtensions.When(substitute: substitute, substituteCall: x => x.Bar([|{arg}|]));
+            SubstituteExtensions.When(substituteCall: x => x.Bar([|{arg}|]), substitute: substitute);
         }}
     }}
 }}";
@@ -804,7 +856,13 @@ namespace MyNamespace
         {{
             var substitute = Substitute.For<Foo>();
             substitute.{whenMethod}(x => _ = x.Bar = {arg});
+            SubstituteExtensions.{whenMethod}(substitute, x => _ = x.Bar = {arg});
+            SubstituteExtensions.{whenMethod}(substitute: substitute, substituteCall: x => _ = x.Bar = {arg});
+            SubstituteExtensions.{whenMethod}(substituteCall: x => _ = x.Bar = {arg}, substitute: substitute);
             substitute.{whenMethod}(x => x[1] = {arg});
+            SubstituteExtensions.{whenMethod}(substitute, x => x[1] = {arg});
+            SubstituteExtensions.{whenMethod}(substitute: substitute, substituteCall: x => x[1] = {arg});
+            SubstituteExtensions.{whenMethod}(substituteCall: x => x[1] = {arg}, substitute: substitute);
         }}
     }}
 }}";
@@ -832,7 +890,13 @@ namespace MyNamespace
         {{
             var substitute = Substitute.For<Foo>();
             substitute.{whenMethod}(x => _ = x.Bar = {arg});
+            SubstituteExtensions.{whenMethod}(substitute, x => _ = x.Bar = {arg});
+            SubstituteExtensions.{whenMethod}(substitute: substitute, substituteCall: x => _ = x.Bar = {arg});
+            SubstituteExtensions.{whenMethod}(substituteCall: x => _ = x.Bar = {arg}, substitute: substitute);
             substitute.{whenMethod}(x => x[1] = {arg});
+            SubstituteExtensions.{whenMethod}(substitute, x => x[1] = {arg});
+            SubstituteExtensions.{whenMethod}(substitute: substitute, substituteCall: x => x[1] = {arg});
+            SubstituteExtensions.{whenMethod}(substituteCall: x => x[1] = {arg}, substitute: substitute);
         }}
     }}
 }}";
@@ -893,12 +957,26 @@ namespace MyNamespace
     }
 
     [CombinatoryData(
-        "Received(Quantity.None())",
-        "Received()",
-        "ReceivedWithAnyArgs(Quantity.None())",
-        "ReceivedWithAnyArgs()",
-        "DidNotReceive()",
-        "DidNotReceiveWithAnyArgs()")]
+        "substitute.Received(Quantity.None())",
+        "ReceivedExtensions.Received(substitute, Quantity.None())",
+        "ReceivedExtensions.Received(substitute: substitute, requiredQuantity: Quantity.None())",
+        "ReceivedExtensions.Received(requiredQuantity: Quantity.None(), substitute: substitute)",
+        "substitute.Received()",
+        "SubstituteExtensions.Received(substitute)",
+        "SubstituteExtensions.Received(substitute: substitute)",
+        "substitute.ReceivedWithAnyArgs(Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(substitute: substitute, requiredQuantity: Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(requiredQuantity: Quantity.None(), substitute: substitute)",
+        "substitute.ReceivedWithAnyArgs()",
+        "SubstituteExtensions.ReceivedWithAnyArgs(substitute)",
+        "SubstituteExtensions.ReceivedWithAnyArgs(substitute: substitute)",
+        "substitute.DidNotReceive()",
+        "SubstituteExtensions.DidNotReceive(substitute)",
+        "SubstituteExtensions.DidNotReceive(substitute: substitute)",
+        "substitute.DidNotReceiveWithAnyArgs()",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute: substitute)")]
     public override async Task ReportsDiagnostics_WhenAssigningInvalidArgMatchersToMemberPrecededByWithAnyArgsLikeMethod(string receivedMethod, string arg)
     {
         var source = $@"using System;
@@ -918,8 +996,8 @@ namespace MyNamespace
         public void Test()
         {{
             var substitute = Substitute.For<IFoo>();
-            substitute.{receivedMethod}.Foo = {arg};
-            substitute.{receivedMethod}[1] = {arg};
+            {receivedMethod}.Foo = {arg};
+            {receivedMethod}[1] = {arg};
         }}
     }}
 }}";

@@ -13,88 +13,99 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders;
 
-internal abstract class AbstractReEntrantSetupCodeFixProvider<TArgumentListSyntax, TArgumentSyntax> : CodeFixProvider
-    where TArgumentListSyntax : SyntaxNode
+internal abstract class AbstractReEntrantSetupCodeFixProvider<TArgumentSyntax> : CodeFixProvider
     where TArgumentSyntax : SyntaxNode
 {
     public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.ReEntrantSubstituteCall);
 
-    protected abstract TArgumentSyntax CreateUpdatedArgumentSyntaxNode(TArgumentSyntax argumentSyntaxNode);
-
-    protected abstract TArgumentSyntax CreateUpdatedParamsArgumentSyntaxNode(SyntaxGenerator syntaxGenerator, ITypeSymbol returnedTypeSymbol, TArgumentSyntax argumentSyntaxNode);
-
-    protected abstract SyntaxNode GetArgumentExpressionSyntax(TArgumentSyntax argumentSyntax);
-
-    protected abstract IEnumerable<SyntaxNode> GetParameterExpressionsFromArrayArgument(TArgumentSyntax argumentSyntaxNode);
-
-    protected abstract int AwaitExpressionRawKind { get; }
-
     public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
-        var diagnostic = context.Diagnostics.FirstOrDefault(diag =>
-            diag.Descriptor.Id == DiagnosticIdentifiers.ReEntrantSubstituteCall);
+        var semanticModel = await context.Document.GetSemanticModelAsync();
+        var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken);
+        var node = root.FindNode(context.Span, getInnermostNodeForTie: true);
 
-        if (diagnostic == null)
+        if (semanticModel.GetOperation(node) is not { } nodeOperation)
         {
-            return;
+           return;
         }
 
-        var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken);
-        var node = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
-        var semanticModel = await context.Document.GetSemanticModelAsync();
+        var invocationOperation = nodeOperation.Ancestors().OfType<IInvocationOperation>().FirstOrDefault();
 
-        var argumentList = GetArgumentListSyntax(node);
-        var allArguments = GetArguments(argumentList).ToList();
+        if (invocationOperation == null)
+        {
+           return;
+        }
 
-        if (IsFixSupported(semanticModel, allArguments) == false)
+        if (semanticModel.GetSymbolInfo(invocationOperation.Syntax).Symbol is not IMethodSymbol methodSymbol)
+        {
+           return;
+        }
+
+        if (IsFixSupported(invocationOperation) == false)
         {
             return;
         }
 
         var codeAction = CodeAction.Create(
             "Replace with lambda",
-            ct => CreateChangedDocument(context, argumentList, allArguments, ct),
-            nameof(AbstractReEntrantSetupCodeFixProvider<TArgumentListSyntax, TArgumentSyntax>));
+            ct => CreateChangedDocument(context, semanticModel, invocationOperation, methodSymbol, ct),
+            nameof(AbstractReEntrantSetupCodeFixProvider<TArgumentSyntax>));
 
-        context.RegisterCodeFix(codeAction, diagnostic);
+        context.RegisterCodeFix(codeAction, context.Diagnostics);
     }
 
-    protected abstract IEnumerable<TArgumentSyntax> GetArguments(TArgumentListSyntax argumentSyntax);
+    protected abstract string LambdaParameterName { get; }
+
+    protected abstract IReadOnlyList<TArgumentSyntax> GetArguments(IInvocationOperation invocationOperation);
+
+    protected abstract TArgumentSyntax UpdateArgumentExpression(TArgumentSyntax argument, SyntaxNode expression);
+
+    protected abstract SyntaxNode GetArgumentExpression(TArgumentSyntax argument);
+
+    // syntaxGenerator.ArrayCreationExpression() generates invalid syntax in current version of Roslyn, so we have to
+    // generate array expression per language on our own
+    protected abstract SyntaxNode CreateArrayCreationExpression(SyntaxNode typeSyntax, IEnumerable<SyntaxNode> elements);
 
     private async Task<Document> CreateChangedDocument(
         CodeFixContext context,
-        TArgumentListSyntax argumentListSyntax,
-        IReadOnlyList<TArgumentSyntax> argumentSyntaxes,
+        SemanticModel semanticModel,
+        IInvocationOperation invocationOperation,
+        IMethodSymbol methodSymbol,
         CancellationToken ct)
     {
         var documentEditor = await DocumentEditor.CreateAsync(context.Document, ct);
-        var semanticModel = await context.Document.GetSemanticModelAsync(ct);
-        var invocationSyntaxNode = argumentListSyntax.Parent;
-        if (!(semanticModel.GetSymbolInfo(invocationSyntaxNode).Symbol is IMethodSymbol methodSymbol))
-        {
-            return context.Document;
-        }
+        var syntaxGenerator = SyntaxGenerator.GetGenerator(context.Document);
 
-        var skip = methodSymbol.MethodKind == MethodKind.Ordinary
-            ? 1
-            : 0;
-
-        ITypeSymbol lambdaType = null;
-        foreach (var argumentSyntax in argumentSyntaxes.Skip(skip))
+        // we cant use syntax directly from invocationOperation.Arguments because for params expression
+        // passed as separated values, operation syntax is not ArgumentSyntax
+        var arguments = GetArguments(invocationOperation);
+        foreach (var (argumentSyntax, argumentOperation) in arguments.GroupJoin(
+                     invocationOperation.Arguments,
+                     argument => argument,
+                     operation => operation.Syntax,
+                     (argument, argumentOperation) => (argument, argumentOperation.SingleOrDefault())))
         {
-            if (IsArrayParamsArgument(semanticModel, argumentSyntax))
+            if (methodSymbol.MethodKind == MethodKind.Ordinary &&
+                argumentOperation is not null &&
+                argumentOperation.Parameter.Ordinal == 0)
             {
-                lambdaType = lambdaType ?? ConstructCallInfoLambdaType(methodSymbol, semanticModel);
-                var updatedParamsArgumentSyntaxNode = CreateUpdatedParamsArgumentSyntaxNode(
-                    SyntaxGenerator.GetGenerator(context.Document),
-                    lambdaType,
+                continue;
+            }
+
+            if (IsArrayParamsArgument(argumentOperation))
+            {
+                var updatedParamsArgumentSyntaxNode = CreateUpdatedParamsArgument(
+                    semanticModel,
+                    methodSymbol,
+                    argumentOperation,
+                    syntaxGenerator,
                     argumentSyntax);
 
                 documentEditor.ReplaceNode(argumentSyntax, updatedParamsArgumentSyntaxNode);
             }
             else
             {
-                var updatedArgumentSyntax = CreateUpdatedArgumentSyntaxNode(argumentSyntax);
+                var updatedArgumentSyntax = CreateUpdatedArgument(syntaxGenerator, argumentSyntax);
 
                 documentEditor.ReplaceNode(argumentSyntax, updatedArgumentSyntax);
             }
@@ -103,42 +114,62 @@ internal abstract class AbstractReEntrantSetupCodeFixProvider<TArgumentListSynta
         return await Simplifier.ReduceAsync(documentEditor.GetChangedDocument(), cancellationToken: ct);
     }
 
-    private static ITypeSymbol ConstructCallInfoLambdaType(IMethodSymbol methodSymbol, SemanticModel semanticModel)
+    private TArgumentSyntax CreateUpdatedParamsArgument(
+        SemanticModel semanticModel,
+        IMethodSymbol methodSymbol,
+        IArgumentOperation argumentOperation,
+        SyntaxGenerator syntaxGenerator,
+        TArgumentSyntax argumentSyntax)
+    {
+        var lambdaType = ConstructCallInfoLambdaType(methodSymbol, semanticModel.Compilation);
+        var lambdaTypeSyntax = syntaxGenerator.TypeExpression(lambdaType);
+        var arrayElements = argumentOperation.Value.GetArrayElementValues()
+            .Select(operation => CreateLambdaExpression(syntaxGenerator, operation.Syntax));
+        var arrayCreationExpression =
+            CreateArrayCreationExpression(lambdaTypeSyntax, arrayElements);
+
+        return UpdateArgumentExpression(argumentSyntax, arrayCreationExpression);
+    }
+
+    private TArgumentSyntax CreateUpdatedArgument(SyntaxGenerator syntaxGenerator, TArgumentSyntax argument)
+    {
+        var expression = GetArgumentExpression(argument);
+        var lambdaExpression = CreateLambdaExpression(syntaxGenerator, expression);
+
+        return UpdateArgumentExpression(argument, lambdaExpression);
+    }
+
+    private static ITypeSymbol ConstructCallInfoLambdaType(IMethodSymbol methodSymbol, Compilation compilation)
     {
         var callInfoOverloadMethodSymbol = methodSymbol.ContainingType.GetMembers(methodSymbol.Name)
             .Where(symbol => !symbol.Equals(methodSymbol.ConstructedFrom))
             .OfType<IMethodSymbol>()
-            .First(method => method.Parameters.Any(param => param.Type.IsCallInfoDelegate(semanticModel)));
+            .First(method => method.Parameters.Any(param => param.Type.IsCallInfoDelegate(compilation)));
 
         var typeArgument = methodSymbol.TypeArguments.FirstOrDefault() ?? methodSymbol.ReceiverType;
         var constructedOverloadSymbol = callInfoOverloadMethodSymbol.Construct(typeArgument);
-        var lambdaType = constructedOverloadSymbol.Parameters
-            .First(param => param.Type.IsCallInfoDelegate(semanticModel)).Type;
 
-        return lambdaType;
+        return constructedOverloadSymbol.Parameters
+            .First(param => param.Type.IsCallInfoDelegate(compilation)).Type;
     }
 
-    private bool IsFixSupported(SemanticModel semanticModel, IEnumerable<TArgumentSyntax> arguments)
+    private bool IsFixSupported(IInvocationOperation invocationOperation)
     {
-        return arguments.All(arg =>
+        return invocationOperation.Arguments.All(argumentOperation =>
         {
-            var expressionSyntax = GetArgumentExpressionSyntax(arg);
-            var arrayExpressions = GetParameterExpressionsFromArrayArgument(arg);
+            if (argumentOperation.Value is IAwaitOperation)
+            {
+                return false;
+            }
 
-            return expressionSyntax.RawKind != AwaitExpressionRawKind &&
-                   (IsArrayParamsArgument(semanticModel, arg) == false || (arrayExpressions != null && arrayExpressions.All(exp => exp.RawKind != AwaitExpressionRawKind)));
+            var arrayValues = argumentOperation.Value.GetArrayElementValues();
+            return IsArrayParamsArgument(argumentOperation) == false || (arrayValues != null && arrayValues.All(exp => exp is not IAwaitOperation));
         });
     }
 
-    private bool IsArrayParamsArgument(SemanticModel semanticModel, TArgumentSyntax argumentSyntax)
-    {
-        var operation = semanticModel.GetOperation(argumentSyntax);
-        return operation is IArgumentOperation argumentOperation && argumentOperation.Parameter.IsParams;
-    }
+    private bool IsArrayParamsArgument(IArgumentOperation operation) =>
+        operation != null && operation.Parameter.IsParams;
 
-    private static TArgumentListSyntax GetArgumentListSyntax(SyntaxNode diagnosticNode)
-    {
-        var argumentListSyntax = diagnosticNode.Ancestors().OfType<TArgumentListSyntax>().FirstOrDefault();
-        return argumentListSyntax;
-    }
+    private SyntaxNode CreateLambdaExpression(SyntaxGenerator syntaxGenerator, SyntaxNode statement) =>
+        syntaxGenerator.ValueReturningLambdaExpression(LambdaParameterName, statement);
 }

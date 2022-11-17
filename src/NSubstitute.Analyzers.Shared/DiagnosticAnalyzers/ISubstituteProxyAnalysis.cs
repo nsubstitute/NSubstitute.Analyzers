@@ -1,15 +1,12 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal interface ISubstituteProxyAnalysis<TInvocationExpressionSyntax, TExpressionSyntax> where TInvocationExpressionSyntax : SyntaxNode where TExpressionSyntax : SyntaxNode
+internal interface ISubstituteProxyAnalysis
 {
-    ITypeSymbol GetActualProxyTypeSymbol(SubstituteContext<TInvocationExpressionSyntax> substituteContext);
+    ITypeSymbol GetActualProxyTypeSymbol(IInvocationOperation invocationOperation);
 
-    ImmutableArray<ITypeSymbol> GetProxySymbols(SubstituteContext<TInvocationExpressionSyntax> substituteContext);
-
-    ITypeSymbol GetActualProxyTypeSymbol(SemanticModel semanticModel, TInvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol methodSymbol);
-
-    ImmutableArray<ITypeSymbol> GetProxySymbols(SemanticModel semanticModel, TInvocationExpressionSyntax invocationExpressionSyntax, IMethodSymbol methodSymbol);
+    ImmutableArray<ITypeSymbol> GetProxySymbols(IInvocationOperation invocationOperation);
 }

@@ -49,32 +49,30 @@ public abstract class SuppressDiagnosticSettingsVerifier : CodeFixVerifier
 
     private async Task<Document> ApplySettingsSuppressionFix(string source, int? codeFixIndex = null)
     {
-        using (var workspace = new AdhocWorkspace())
-        {
-            var project = AddProject(workspace.CurrentSolution, source);
+        using var workspace = new AdhocWorkspace();
+        var project = AddProject(workspace.CurrentSolution, source);
 
-            var document = project.Documents.Single();
-            var compilation = await document.Project.GetCompilationAsync();
-            var compilerDiagnostics = compilation.GetDiagnostics();
+        var document = project.Documents.Single();
+        var compilation = await document.Project.GetCompilationAsync();
+        var compilerDiagnostics = compilation.GetDiagnostics();
 
-            VerifyNoCompilerDiagnosticErrors(compilerDiagnostics);
+        VerifyNoCompilerDiagnosticErrors(compilerDiagnostics);
 
-            var analyzerDiagnostics = await compilation.GetSortedAnalyzerDiagnostics(
-                DiagnosticAnalyzer,
-                project.AnalyzerOptions);
+        var analyzerDiagnostics = await compilation.GetSortedAnalyzerDiagnostics(
+            DiagnosticAnalyzer,
+            project.AnalyzerOptions);
 
-            var actions = new List<CodeAction>();
-            var context = new CodeFixContext(
-                document,
-                analyzerDiagnostics.Single(),
-                (a, d) => actions.Add(a),
-                CancellationToken.None);
+        var actions = new List<CodeAction>();
+        var context = new CodeFixContext(
+            document,
+            analyzerDiagnostics.Single(),
+            (a, d) => actions.Add(a),
+            CancellationToken.None);
 
-            await CodeFixProvider.RegisterCodeFixesAsync(context);
-            var action = actions[codeFixIndex ?? 0];
+        await CodeFixProvider.RegisterCodeFixesAsync(context);
+        var action = actions[codeFixIndex ?? 0];
 
-            return await document.ApplyCodeAction(action);
-        }
+        return await document.ApplyCodeAction(action);
     }
 
     private static AnalyzersSettings GetExpectedSettings(AnalyzersSettings originalSettings, string target, string diagnosticRuleId)
@@ -83,7 +81,7 @@ public abstract class SuppressDiagnosticSettingsVerifier : CodeFixVerifier
         var targetSuppression = originalSupressions.SingleOrDefault(suppression => suppression.Target == target);
         if (targetSuppression != null)
         {
-            targetSuppression.Rules = targetSuppression.Rules ?? new List<string>();
+            targetSuppression.Rules ??= new List<string>();
             targetSuppression.Rules.Add(diagnosticRuleId);
         }
         else

@@ -1,5 +1,5 @@
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.Extensions;
 
@@ -7,61 +7,63 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 internal class NonSubstitutableMemberAnalysis : INonSubstitutableMemberAnalysis
 {
-    public static INonSubstitutableMemberAnalysis Instance { get; } = new NonSubstitutableMemberAnalysis();
+    public static readonly INonSubstitutableMemberAnalysis Instance = new NonSubstitutableMemberAnalysis();
 
-    public NonSubstitutableMemberAnalysisResult Analyze(
-        in SyntaxNodeAnalysisContext syntaxNodeContext,
-        SyntaxNode accessedMember,
-        ISymbol symbol = null)
+    private static readonly ImmutableHashSet<OperationKind> KnownNonVirtualOperationKinds =
+        ImmutableHashSet.Create(OperationKind.Literal);
+
+    public NonSubstitutableMemberAnalysisResult Analyze(IOperation operation)
     {
-        var accessedSymbol = symbol ?? syntaxNodeContext.SemanticModel.GetSymbolInfo(accessedMember).Symbol;
+        var symbol = operation.ExtractSymbol();
 
-        if (accessedSymbol == null)
+        return Analyze(operation, symbol);
+    }
+
+    private bool CanBeSubstituted(
+        IOperation operation,
+        ISymbol symbol) =>
+        !KnownNonVirtualOperationKinds.Contains(operation.Kind) && CanBeSubstituted(symbol);
+
+    private NonSubstitutableMemberAnalysisResult Analyze(IOperation operation, ISymbol symbol)
+    {
+        if (symbol == null)
         {
             return new NonSubstitutableMemberAnalysisResult(
-                nonVirtualMemberSubstitution: syntaxNodeContext.SemanticModel.GetOperation(accessedMember) is ILiteralOperation,
+                nonVirtualMemberSubstitution: KnownNonVirtualOperationKinds.Contains(ExtractActualOperation(operation).Kind),
                 internalMemberSubstitution: false,
                 symbol: null,
-                member: accessedMember,
-                memberName: accessedMember.ToString());
+                member: operation.Syntax,
+                memberName: operation.Syntax.ToString());
         }
 
-        var canBeSubstituted = CanBeSubstituted(syntaxNodeContext, accessedMember, accessedSymbol);
+        var canBeSubstituted = CanBeSubstituted(operation, symbol);
 
         if (canBeSubstituted == false)
         {
             return new NonSubstitutableMemberAnalysisResult(
                 nonVirtualMemberSubstitution: true,
                 internalMemberSubstitution: false,
-                symbol: accessedSymbol,
-                member: accessedMember,
-                memberName: accessedSymbol.Name);
+                symbol: symbol,
+                member: operation.Syntax,
+                memberName: symbol.Name);
         }
 
-        if (accessedSymbol.MemberVisibleToProxyGenerator() == false)
+        if (symbol.MemberVisibleToProxyGenerator() == false)
         {
             return new NonSubstitutableMemberAnalysisResult(
                 nonVirtualMemberSubstitution: false,
                 internalMemberSubstitution: true,
-                symbol: accessedSymbol,
-                member: accessedMember,
-                memberName: accessedSymbol.Name);
+                symbol: symbol,
+                member: operation.Syntax,
+                memberName: symbol.Name);
         }
 
         return new NonSubstitutableMemberAnalysisResult(
             nonVirtualMemberSubstitution: false,
             internalMemberSubstitution: false,
-            symbol: accessedSymbol,
-            member: accessedMember,
-            memberName: accessedSymbol.Name);
-    }
-
-    protected virtual bool CanBeSubstituted(
-        SyntaxNodeAnalysisContext syntaxNodeContext,
-        SyntaxNode accessedMember,
-        ISymbol symbol)
-    {
-        return CanBeSubstituted(symbol);
+            symbol: symbol,
+            member: operation.Syntax,
+            memberName: symbol.Name);
     }
 
     private static bool CanBeSubstituted(ISymbol symbol)
@@ -81,5 +83,14 @@ internal class NonSubstitutableMemberAnalysis : INonSubstitutableMemberAnalysis
                         || symbol.IsAbstract;
 
         return isVirtual;
+    }
+
+    private static IOperation ExtractActualOperation(IOperation operation)
+    {
+        return operation switch
+        {
+            IConversionOperation conversionOperation => conversionOperation.Operand,
+            _ => operation
+        };
     }
 }

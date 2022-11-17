@@ -8,7 +8,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic;
 
 public class VisualBasicProjectOptions : ProjectOptions
 {
-    public static VisualBasicProjectOptions Default { get; } = new VisualBasicProjectOptions(
+    public static VisualBasicProjectOptions Default { get; } = new(
         RuntimeMetadataReference.Default.Add(MetadataReference.CreateFromFile(typeof(StandardModuleAttribute).Assembly.Location)),
         new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 

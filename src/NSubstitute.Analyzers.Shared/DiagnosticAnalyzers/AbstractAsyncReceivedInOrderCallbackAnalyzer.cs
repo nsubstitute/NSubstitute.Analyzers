@@ -1,18 +1,15 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractAsyncReceivedInOrderCallbackAnalyzer<TSyntaxKind, TInvocationExpressionSyntax> : AbstractDiagnosticAnalyzer
-    where TSyntaxKind : struct
-    where TInvocationExpressionSyntax : SyntaxNode
+internal abstract class AbstractAsyncReceivedInOrderCallbackAnalyzer : AbstractDiagnosticAnalyzer
 {
-    private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
+    private readonly Action<OperationAnalysisContext> _analyzeInvocationAction;
 
     protected AbstractAsyncReceivedInOrderCallbackAnalyzer(
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
@@ -22,40 +19,27 @@ internal abstract class AbstractAsyncReceivedInOrderCallbackAnalyzer<TSyntaxKind
         SupportedDiagnostics = ImmutableArray.Create(diagnosticDescriptorsProvider.AsyncCallbackUsedInReceivedInOrder);
     }
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+    public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
-    protected abstract int AsyncExpressionRawKind { get; }
-
-    protected abstract TSyntaxKind InvocationExpressionKind { get; }
-
-    protected abstract IEnumerable<SyntaxNode> GetArgumentExpressions(TInvocationExpressionSyntax invocationExpressionSyntax);
-
-    protected abstract IEnumerable<SyntaxToken?> GetCallbackArgumentSyntaxTokens(SyntaxNode node);
+    protected abstract SyntaxToken? GetAsyncToken(SyntaxNode node);
 
     protected sealed override void InitializeAnalyzer(AnalysisContext context)
     {
-        context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
+        context.RegisterOperationAction(_analyzeInvocationAction, OperationKind.Invocation);
     }
 
-    private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
+    private void AnalyzeInvocation(OperationAnalysisContext operationAnalysisContext)
     {
-        var invocationExpression = (TInvocationExpressionSyntax)syntaxNodeContext.Node;
-        var methodSymbolInfo = syntaxNodeContext.SemanticModel.GetSymbolInfo(invocationExpression);
+        var invocationOperation = (IInvocationOperation)operationAnalysisContext.Operation;
 
-        if (methodSymbolInfo.Symbol?.Kind != SymbolKind.Method)
+        if (invocationOperation.TargetMethod.IsReceivedInOrderMethod() == false)
         {
             return;
         }
 
-        if (methodSymbolInfo.Symbol.IsReceivedInOrderMethod() == false)
+        foreach (var invocationOperationArgument in invocationOperation.Arguments)
         {
-            return;
-        }
-
-        foreach (var expression in GetArgumentExpressions(invocationExpression))
-        {
-            var asyncToken = GetCallbackArgumentSyntaxTokens(expression)
-                .FirstOrDefault(token => token.HasValue && token.Value.RawKind == AsyncExpressionRawKind);
+            var asyncToken = GetAsyncToken(invocationOperationArgument.Value.Syntax);
 
             if (asyncToken.HasValue == false)
             {
@@ -66,7 +50,7 @@ internal abstract class AbstractAsyncReceivedInOrderCallbackAnalyzer<TSyntaxKind
                 DiagnosticDescriptorsProvider.AsyncCallbackUsedInReceivedInOrder,
                 asyncToken.Value.GetLocation());
 
-            syntaxNodeContext.ReportDiagnostic(diagnostic);
+            operationAnalysisContext.ReportDiagnostic(diagnostic);
         }
     }
 }

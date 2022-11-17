@@ -1,72 +1,61 @@
 ﻿using System.Collections.Immutable;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.Editing;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders;
 
-internal abstract class AbstractPartialSubstituteUsedForUnsupportedTypeCodeFixProvider<TInvocationExpression, TGenericNameSyntax, TIdentifierNameSyntax, TNameSyntax>
-    : CodeFixProvider
-    where TInvocationExpression : SyntaxNode
-    where TGenericNameSyntax : TNameSyntax
-    where TIdentifierNameSyntax : TNameSyntax
-    where TNameSyntax : SyntaxNode
+internal abstract class AbstractPartialSubstituteUsedForUnsupportedTypeCodeFixProvider : CodeFixProvider
 {
-    public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+    public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
-    public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.PartialSubstituteForUnsupportedType);
+    public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
+        ImmutableArray.Create(DiagnosticIdentifiers.PartialSubstituteForUnsupportedType);
 
-    public override async Task RegisterCodeFixesAsync(CodeFixContext context)
+    public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
-        var diagnostic = context.Diagnostics.FirstOrDefault(diag => diag.Descriptor.Id == DiagnosticIdentifiers.PartialSubstituteForUnsupportedType);
-        if (diagnostic != null)
+        var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+        var syntaxNode = root.FindNode(context.Span, getInnermostNodeForTie: true);
+        var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
+
+        if (semanticModel.GetOperation(syntaxNode) is not IInvocationOperation invocationOperation)
         {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-            var invocationExpression = (TInvocationExpression)root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
-            var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
-
-            if (!(semanticModel.GetSymbolInfo(invocationExpression).Symbol is IMethodSymbol methodSymbol))
-            {
-                return;
-            }
-
-            var title = methodSymbol.Name == MetadataNames.SubstituteFactoryCreatePartial ? "Use SubstituteFactory.Create" : "Use Substitute.For";
-            var codeAction = CodeAction.Create(
-                title,
-                ct => CreateChangedDocument(context, root, methodSymbol, invocationExpression),
-                nameof(AbstractPartialSubstituteUsedForUnsupportedTypeCodeFixProvider<TInvocationExpression, TGenericNameSyntax, TIdentifierNameSyntax, TNameSyntax>));
-            context.RegisterCodeFix(codeAction, diagnostic);
+            return;
         }
+
+        var title = invocationOperation.TargetMethod.Name == MetadataNames.SubstituteFactoryCreatePartial
+            ? "Use SubstituteFactory.Create"
+            : "Use Substitute.For";
+
+        var codeAction = CodeAction.Create(
+            title,
+            ct => CreateChangedDocument(context, invocationOperation, ct),
+            nameof(AbstractPartialSubstituteUsedForUnsupportedTypeCodeFixProvider));
+        context.RegisterCodeFix(codeAction, context.Diagnostics);
     }
 
-    protected abstract TInnerNameSyntax GetNameSyntax<TInnerNameSyntax>(TInvocationExpression methodInvocationNode) where TInnerNameSyntax : TNameSyntax;
+    protected abstract SyntaxNode UpdateInvocationExpression(
+        IInvocationOperation invocationOperation,
+        string identifierName);
 
-    protected abstract TInnerNameSyntax GetUpdatedNameSyntax<TInnerNameSyntax>(TInnerNameSyntax nameSyntax, string identifierName) where TInnerNameSyntax : TNameSyntax;
-
-    private Task<Document> CreateChangedDocument(CodeFixContext context, SyntaxNode root, IMethodSymbol methodSymbol, TInvocationExpression invocationExpression)
+    private async Task<Document> CreateChangedDocument(
+        CodeFixContext context,
+        IInvocationOperation invocationOperation,
+        CancellationToken cancellationToken)
     {
-        SyntaxNode nameNode;
-        SyntaxNode updateNameNode;
+        var documentEditor = await DocumentEditor.CreateAsync(context.Document, cancellationToken);
+        var newIdentifierName = invocationOperation.TargetMethod.IsGenericMethod
+            ? MetadataNames.NSubstituteForMethod
+            : MetadataNames.SubstituteFactoryCreate;
 
-        if (methodSymbol.IsGenericMethod)
-        {
-            var genericNameSyntax = GetNameSyntax<TGenericNameSyntax>(invocationExpression);
-            nameNode = genericNameSyntax;
-            updateNameNode = GetUpdatedNameSyntax(genericNameSyntax, MetadataNames.NSubstituteForMethod);
-        }
-        else
-        {
-            var identifierNameSyntax = GetNameSyntax<TIdentifierNameSyntax>(invocationExpression);
-            nameNode = identifierNameSyntax;
-            updateNameNode = GetUpdatedNameSyntax(identifierNameSyntax, MetadataNames.SubstituteFactoryCreate);
-        }
+        var updatedInvocationExpression = UpdateInvocationExpression(invocationOperation, newIdentifierName);
 
-        var forNode = invocationExpression.ReplaceNode(nameNode, updateNameNode);
+        documentEditor.ReplaceNode(invocationOperation.Syntax, updatedInvocationExpression);
 
-        var replaceNode = root.ReplaceNode(invocationExpression, forNode);
-
-        return Task.FromResult(context.Document.WithSyntaxRoot(replaceNode));
+        return documentEditor.GetChangedDocument();
     }
 }

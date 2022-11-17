@@ -122,6 +122,24 @@ Namespace MyNamespace
             Function(callInfo)
                 callInfo(0) = 1
             End Function)
+            {method}(value:= substitute.Bar(Arg.Any(Of Integer)()), createException:= Function(callInfo)
+                callInfo(0) = 1
+                Return New Exception()
+            End Function).AndDoes(Function(callInfo)
+                callInfo(0) = 1
+            End Function,
+            Function(callInfo)
+                callInfo(0) = 1
+            End Function)
+            {method}(createException:= Function(callInfo)
+                callInfo(0) = 1
+                Return New Exception()
+            End Function, value:= substitute.Bar(Arg.Any(Of Integer)())).AndDoes(Function(callInfo)
+                callInfo(0) = 1
+            End Function,
+            Function(callInfo)
+                callInfo(0) = 1
+            End Function)
         End Sub
     End Class
 

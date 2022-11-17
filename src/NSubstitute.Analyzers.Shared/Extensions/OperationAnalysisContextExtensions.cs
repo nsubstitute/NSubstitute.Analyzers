@@ -8,19 +8,18 @@ using NSubstitute.Analyzers.Shared.Settings;
 
 namespace NSubstitute.Analyzers.Shared.Extensions;
 
-internal static class SyntaxNodeAnalysisContextExtensions
+internal static class OperationAnalysisContextExtensions
 {
-    internal static AnalyzersSettings GetSettings(this SyntaxNodeAnalysisContext context, CancellationToken cancellationToken)
-    {
-        return context.Options.GetSettings(cancellationToken);
-    }
-
     internal static void TryReportDiagnostic(
-        this SyntaxNodeAnalysisContext syntaxNodeContext,
+        this OperationAnalysisContext syntaxNodeContext,
         Diagnostic diagnostic,
         ISymbol symbol)
     {
-        if (IsSuppressed(syntaxNodeContext, diagnostic, symbol))
+        if (IsSuppressed(
+                syntaxNodeContext.Options.GetSettings(CancellationToken.None),
+                syntaxNodeContext.Compilation,
+                symbol,
+                diagnostic.Id))
         {
             return;
         }
@@ -29,20 +28,11 @@ internal static class SyntaxNodeAnalysisContextExtensions
     }
 
     private static bool IsSuppressed(
-        SyntaxNodeAnalysisContext syntaxNodeContext,
-        Diagnostic diagnostic,
-        ISymbol symbol)
-    {
-        return symbol != null && IsSuppressed(syntaxNodeContext, symbol, diagnostic.Id);
-    }
-
-    private static bool IsSuppressed(
-        SyntaxNodeAnalysisContext syntaxNodeContext,
+        AnalyzersSettings analyzersSettings,
+        Compilation compilation,
         ISymbol symbol,
         string diagnosticId)
     {
-        var analyzersSettings = syntaxNodeContext.GetSettings(CancellationToken.None);
-
         if (analyzersSettings.Suppressions.Count == 0)
         {
             return false;
@@ -52,7 +42,7 @@ internal static class SyntaxNodeAnalysisContextExtensions
 
         return analyzersSettings.Suppressions.Where(suppression => suppression.Rules.Contains(diagnosticId))
             .SelectMany(suppression =>
-                DocumentationCommentId.GetSymbolsForDeclarationId(suppression.Target, syntaxNodeContext.Compilation))
+                DocumentationCommentId.GetSymbolsForDeclarationId(suppression.Target, compilation))
             .Any(possibleSymbols.Contains);
     }
 
@@ -71,9 +61,9 @@ internal static class SyntaxNodeAnalysisContextExtensions
             }
         }
 
-        if (symbol.ContainingType is INamedTypeSymbol namedTypeSymbol)
+        if (symbol.ContainingType != null)
         {
-            yield return namedTypeSymbol.ConstructedFrom;
+            yield return symbol.ContainingType.ConstructedFrom;
         }
 
         if (symbol is IPropertySymbol propertySymbol)

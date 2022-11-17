@@ -9,11 +9,10 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal abstract class AbstractConflictingArgumentAssignmentsAnalyzer<TSyntaxKind> : AbstractDiagnosticAnalyzer
-    where TSyntaxKind : struct
+internal abstract class AbstractConflictingArgumentAssignmentsAnalyzer : AbstractDiagnosticAnalyzer
 {
     private readonly ICallInfoFinder _callInfoFinder;
-    private readonly Action<SyntaxNodeAnalysisContext> _analyzeInvocationAction;
+    private readonly Action<OperationAnalysisContext> _analyzeInvocationAction;
 
     protected AbstractConflictingArgumentAssignmentsAnalyzer(
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
@@ -25,80 +24,63 @@ internal abstract class AbstractConflictingArgumentAssignmentsAnalyzer<TSyntaxKi
         SupportedDiagnostics = ImmutableArray.Create(DiagnosticDescriptorsProvider.ConflictingArgumentAssignments);
     }
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+    public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
-    protected abstract TSyntaxKind InvocationExpressionKind { get; }
-
-    protected override void InitializeAnalyzer(AnalysisContext context)
+    protected sealed override void InitializeAnalyzer(AnalysisContext context)
     {
-        context.RegisterSyntaxNodeAction(_analyzeInvocationAction, InvocationExpressionKind);
+        context.RegisterOperationAction(_analyzeInvocationAction, OperationKind.Invocation);
     }
 
-    private void AnalyzeInvocation(SyntaxNodeAnalysisContext syntaxNodeContext)
+    private void AnalyzeInvocation(OperationAnalysisContext syntaxNodeContext)
     {
-        if (!(syntaxNodeContext.SemanticModel.GetOperation(syntaxNodeContext.Node) is IInvocationOperation
-                invocationOperation))
-        {
-            return;
-        }
+        var invocationOperation = (IInvocationOperation)syntaxNodeContext.Operation;
 
         if (invocationOperation.TargetMethod.IsAndDoesLikeMethod() == false)
         {
             return;
         }
 
-        if (!(invocationOperation.GetSubstituteOperation() is IInvocationOperation substituteOperation))
+        if (invocationOperation.GetSubstituteOperation() is not IInvocationOperation substituteOperation)
         {
             return;
         }
 
-        var andDoesIndexers = FindCallInfoIndexers(syntaxNodeContext, invocationOperation).ToList();
+        var andDoesIndexers = FindCallInfoIndexers(invocationOperation).ToList();
 
         if (andDoesIndexers.Count == 0)
         {
             return;
         }
 
-        var previousCallIndexers = FindCallInfoIndexers(syntaxNodeContext, substituteOperation);
+        var previousCallIndexers = FindCallInfoIndexers(substituteOperation);
 
-        var immutableHashSet = previousCallIndexers
-            .Select(indexerExpression => GetIndexerPosition(syntaxNodeContext, indexerExpression)).ToImmutableHashSet();
+        var previousCallIndexerPositions = previousCallIndexers
+            .Select(indexerPropertyReferenceOperation => indexerPropertyReferenceOperation.GetIndexerPosition())
+            .ToImmutableHashSet();
 
-        foreach (var indexerExpressionSyntax in andDoesIndexers)
+        foreach (var indexerOperation in andDoesIndexers)
         {
-            var position = GetIndexerPosition(syntaxNodeContext, indexerExpressionSyntax);
-            if (position.HasValue && immutableHashSet.Contains(position.Value))
+            var position = indexerOperation.GetIndexerPosition();
+            if (position.HasValue && previousCallIndexerPositions.Contains(position.Value))
             {
                 syntaxNodeContext.ReportDiagnostic(Diagnostic.Create(
                     DiagnosticDescriptorsProvider.ConflictingArgumentAssignments,
-                    indexerExpressionSyntax.GetLocation()));
+                    indexerOperation.Syntax.GetLocation()));
             }
         }
     }
 
-    private int? GetIndexerPosition(SyntaxNodeAnalysisContext syntaxNodeContext, SyntaxNode indexerExpression)
-    {
-        return syntaxNodeContext.SemanticModel.GetOperation(indexerExpression).GetIndexerPosition();
-    }
-
-    private bool IsAssigned(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, SyntaxNode indexerExpressionSyntax)
-    {
-        return syntaxNodeAnalysisContext.SemanticModel.GetOperation(indexerExpressionSyntax) is
-                   IPropertyReferenceOperation propertyReferenceOperation &&
-               propertyReferenceOperation.Parent is ISimpleAssignmentOperation;
-    }
-
-    private IEnumerable<SyntaxNode> FindCallInfoIndexers(SyntaxNodeAnalysisContext syntaxNodeContext, IInvocationOperation invocationOperation)
+    private IEnumerable<IOperation> FindCallInfoIndexers(IInvocationOperation invocationOperation)
     {
         // perf - dont use linq in hotpaths
         foreach (var argumentOperation in invocationOperation.GetOrderedArgumentOperationsWithoutInstanceArgument())
         {
-            foreach (var indexerExpressionSyntax in _callInfoFinder
-                         .GetCallInfoContext(syntaxNodeContext.SemanticModel, argumentOperation).IndexerAccesses)
+            foreach (var propertyReference in _callInfoFinder
+                         .GetCallInfoContext(argumentOperation).IndexerAccessesOperations)
             {
-                if (IsAssigned(syntaxNodeContext, indexerExpressionSyntax))
+                if (propertyReference is IPropertyReferenceOperation && propertyReference.Parent is ISimpleAssignmentOperation)
                 {
-                    yield return indexerExpressionSyntax;
+                    yield return propertyReference;
                 }
             }
         }

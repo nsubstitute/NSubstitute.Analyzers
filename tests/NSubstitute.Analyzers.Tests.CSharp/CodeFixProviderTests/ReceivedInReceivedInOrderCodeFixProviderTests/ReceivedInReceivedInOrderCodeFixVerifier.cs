@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NSubstitute.Analyzers.CSharp.CodeFixProviders;
 using NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
-using NSubstitute.Analyzers.Shared.CodeFixProviders;
 using NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.ReceivedInReceivedInOrderCodeFixProviderTests;

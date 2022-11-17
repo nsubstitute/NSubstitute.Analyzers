@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
+using MoreLinq;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using NSubstitute.Analyzers.Tests.Shared.Extensions;
 
@@ -172,6 +173,28 @@ Namespace MyNamespace
                 End Function)
                 Return 1
             End Function)
+            {method}(value:= substitute.FooBaz(Arg.Any(Of Integer)(), Arg.Any(Of Integer)()), returnThis:= Function(outerCallInfo)
+                Dim otherSubstitute = NSubstitute.Substitute.[For](Of IFoo)()
+                {method}(otherSubstitute.Bar(Arg.Any (Of Integer)()), Function(innerCallInfo)
+                    Dim x = outerCallInfo.ArgAt(Of Integer)(1)
+                    Dim y = outerCallInfo(1)
+                    Dim xx = innerCallInfo.ArgAt(Of Integer)(0)
+                    Dim yy = innerCallInfo(0)
+                    Return 1
+                End Function)
+                Return 1
+            End Function)
+            {method}(returnThis:= Function(outerCallInfo)
+                Dim otherSubstitute = NSubstitute.Substitute.[For](Of IFoo)()
+                {method}(otherSubstitute.Bar(Arg.Any (Of Integer)()), Function(innerCallInfo)
+                    Dim x = outerCallInfo.ArgAt(Of Integer)(1)
+                    Dim y = outerCallInfo(1)
+                    Dim xx = innerCallInfo.ArgAt(Of Integer)(0)
+                    Dim yy = innerCallInfo(0)
+                    Return 1
+                End Function)
+                Return 1
+            End Function, value:= substitute.FooBaz(Arg.Any(Of Integer)(), Arg.Any(Of Integer)()))
         End Sub
     End Class
 End Namespace";
@@ -209,6 +232,32 @@ Namespace MyNamespace
                 End Function)
                 Return 1
             End Function)
+            {method}(value:= substitute.FooBaz(Arg.Any (Of Integer)(), Arg.Any (Of Integer)()), returnThis:= Function(outerCallInfo)
+                Dim otherSubstitute = NSubstitute.Substitute.[For] (Of IFoo)()
+                {method}(otherSubstitute.Bar(Arg.Any (Of Integer)()), Function(innerCallInfo)
+                    Dim x = [|outerCallInfo.ArgAt (Of Integer)(2)|]
+                    Dim y = [|outerCallInfo(2)|]
+                    Dim z = outerCallInfo(1)
+                    Dim xx = [|innerCallInfo.ArgAt (Of Integer)(1)|]
+                    Dim yy = [|innerCallInfo(1)|]
+                    Dim zz = innerCallInfo(0)
+                    Return 1
+                End Function)
+                Return 1
+            End Function)
+            {method}(returnThis:= Function(outerCallInfo)
+                Dim otherSubstitute = NSubstitute.Substitute.[For] (Of IFoo)()
+                {method}(otherSubstitute.Bar(Arg.Any (Of Integer)()), Function(innerCallInfo)
+                    Dim x = [|outerCallInfo.ArgAt (Of Integer)(2)|]
+                    Dim y = [|outerCallInfo(2)|]
+                    Dim z = outerCallInfo(1)
+                    Dim xx = [|innerCallInfo.ArgAt (Of Integer)(1)|]
+                    Dim yy = [|innerCallInfo(1)|]
+                    Dim zz = innerCallInfo(0)
+                    Return 1
+                End Function)
+                Return 1
+            End Function, value:= substitute.FooBaz(Arg.Any (Of Integer)(), Arg.Any (Of Integer)()))
         End Sub
     End Class
 End Namespace";
@@ -220,7 +269,7 @@ End Namespace";
             "There is no argument at position 2",
             "There is no argument at position 1",
             "There is no argument at position 1"
-        };
+        }.Repeat(3).ToArray();
 
         var diagnostics = textParserResult.Spans.Select((span, idx) => CreateDiagnostic(CallInfoArgumentOutOfRangeDescriptor.OverrideMessage(diagnosticMessages[idx]), span)).ToArray();
         await VerifyDiagnostic(textParserResult.Text, diagnostics);
@@ -568,6 +617,22 @@ Namespace MyNamespace
                 End Function)
                 Return 1
             End Function)
+            {method}(value:= substitute.FooBaz(Arg.Any (Of String)()), returnThis:= Function(outerCallInfo)
+                Dim otherSubstitute = NSubstitute.Substitute.[For](Of IFoo)()
+                {method}(otherSubstitute.Bar(Arg.Any(Of Integer)()), Function(innerCallInfo)
+                    Dim x = outerCallInfo.Arg(Of String)()
+                    Return innerCallInfo.Arg(Of Integer)()
+                End Function)
+                Return 1
+            End Function)
+            {method}(returnThis:= Function(outerCallInfo)
+                Dim otherSubstitute = NSubstitute.Substitute.[For](Of IFoo)()
+                {method}(otherSubstitute.Bar(Arg.Any(Of Integer)()), Function(innerCallInfo)
+                    Dim x = outerCallInfo.Arg(Of String)()
+                    Return innerCallInfo.Arg(Of Integer)()
+                End Function)
+                Return 1
+            End Function, value:= substitute.FooBaz(Arg.Any (Of String)()))
         End Sub
     End Class
 End Namespace";
@@ -876,6 +941,24 @@ Namespace MyNamespace
                 End Function)
                 Return 1
             End Function)
+            {method}(value:= substitute.FooBaz(Arg.Any(Of Integer)()), returnThis:= Function(outerCallInfo)
+                Dim otherSubstitute = NSubstitute.Substitute.[For](Of IFoo)()
+                {method}(otherSubstitute.Bar(Arg.Any(Of Integer)()), Function(innerCallInfo)
+                    Dim x = [|outerCallInfo.Arg(Of String)()|]
+                    Dim y = [|innerCallInfo.Arg(Of String)()|]
+                    Return 1
+                End Function)
+                Return 1
+            End Function)
+            {method}(returnThis:= Function(outerCallInfo)
+                Dim otherSubstitute = NSubstitute.Substitute.[For](Of IFoo)()
+                {method}(otherSubstitute.Bar(Arg.Any(Of Integer)()), Function(innerCallInfo)
+                    Dim x = [|outerCallInfo.Arg(Of String)()|]
+                    Dim y = [|innerCallInfo.Arg(Of String)()|]
+                    Return 1
+                End Function)
+                Return 1
+            End Function, value:= substitute.FooBaz(Arg.Any(Of Integer)()))
         End Sub
     End Class
 End Namespace";

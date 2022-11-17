@@ -1,10 +1,18 @@
 using System.Threading.Tasks;
 using NSubstitute.Analyzers.Tests.Shared;
+using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.CodeFixProvidersTests.ReEntrantSetupCodeFixProviderTests;
 
 public class ReturnsAsExtensionMethodTests : ReEntrantSetupCodeFixVerifier
 {
+    [Theory]
+    [InlineData("CreateReEntrantSubstitute(), CreateDefaultValue(), 1", "Function(x) CreateReEntrantSubstitute(), Function(x) CreateDefaultValue(), Function(x) 1")]
+    [InlineData("CreateDefaultValue(), 1, CreateReEntrantSubstitute()", "Function(x) CreateDefaultValue(), Function(x) 1, Function(x) CreateReEntrantSubstitute()")]
+    [InlineData("CreateReEntrantSubstitute(), { CreateDefaultValue(), 1 }", "Function(x) CreateReEntrantSubstitute(), New System.Func(Of Core.CallInfo, Integer)() {Function(x) CreateDefaultValue(), Function(x) 1}")]
+    [InlineData("CreateDefaultValue(), { 1, CreateReEntrantSubstitute() }", "Function(x) CreateDefaultValue(), New System.Func(Of Core.CallInfo, Integer)() {Function(x) 1, Function(x) CreateReEntrantSubstitute()}")]
+    [InlineData("CreateReEntrantSubstitute(), New Integer() {CreateDefaultValue(), 1}", "Function(x) CreateReEntrantSubstitute(), New System.Func(Of Core.CallInfo, Integer)() {Function(x) CreateDefaultValue(), Function(x) 1}")]
+    [InlineData("returnThis:= CreateReEntrantSubstitute()", "returnThis:=Function(x) CreateReEntrantSubstitute()")]
     public override async Task ReplacesArgumentExpression_WithLambda(string arguments, string rewrittenArguments)
     {
         var oldSource = $@"Imports NSubstitute
@@ -73,6 +81,7 @@ End Namespace
         await VerifyFix(oldSource, newSource);
     }
 
+    [Fact]
     public override async Task ReplacesArgumentExpression_WithLambdaWithReducedTypes_WhenGeneratingArrayParamsArgument()
     {
         var oldSource = @"Imports NSubstitute
@@ -139,6 +148,7 @@ End Namespace
         await VerifyFix(oldSource, newSource);
     }
 
+    [Fact]
     public override async Task ReplacesArgumentExpression_WithLambdaWithNonGenericCallInfo_WhenGeneratingArrayParamsArgument()
     {
         var oldSource = @"Imports NSubstitute

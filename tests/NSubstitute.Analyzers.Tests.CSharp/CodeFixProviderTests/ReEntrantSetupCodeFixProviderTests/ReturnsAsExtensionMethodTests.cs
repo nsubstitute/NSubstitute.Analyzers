@@ -1,10 +1,20 @@
 using System.Threading.Tasks;
 using NSubstitute.Analyzers.Tests.Shared;
+using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.CodeFixProviderTests.ReEntrantSetupCodeFixProviderTests;
 
 public class ReturnsAsExtensionMethodTests : ReEntrantSetupCodeFixVerifier
 {
+    [Theory]
+    [InlineData("CreateReEntrantSubstitute(), CreateDefaultValue(), 1", "_ => CreateReEntrantSubstitute(), _ => CreateDefaultValue(), _ => 1")]
+    [InlineData("CreateDefaultValue(), 1, CreateReEntrantSubstitute()", "_ => CreateDefaultValue(), _ => 1, _ => CreateReEntrantSubstitute()")]
+    [InlineData("CreateReEntrantSubstitute(), new [] { CreateDefaultValue(), 1 }", "_ => CreateReEntrantSubstitute(), new System.Func<NSubstitute.Core.CallInfo, int>[] { _ => CreateDefaultValue(), _ => 1 }")]
+    [InlineData("CreateReEntrantSubstitute(), new int[] { CreateDefaultValue(), 1 }", "_ => CreateReEntrantSubstitute(), new System.Func<NSubstitute.Core.CallInfo, int>[] { _ => CreateDefaultValue(), _ => 1 }")]
+    [InlineData("CreateDefaultValue(), new int[] { 1, CreateReEntrantSubstitute() }", "_ => CreateDefaultValue(), new System.Func<NSubstitute.Core.CallInfo, int>[] { _ => 1, _ => CreateReEntrantSubstitute() }")]
+    [InlineData("returnThis: CreateReEntrantSubstitute()", "returnThis: _ => CreateReEntrantSubstitute()")]
+    [InlineData("returnThis: CreateReEntrantSubstitute(), returnThese: new [] { CreateDefaultValue(), 1 }", "returnThis: _ => CreateReEntrantSubstitute(), returnThese: new System.Func<NSubstitute.Core.CallInfo, int>[] { _ => CreateDefaultValue(), _ => 1 }")]
+    [InlineData("returnThis: CreateReEntrantSubstitute(), returnThese: new int[] { CreateDefaultValue(), 1 }", "returnThis: _ => CreateReEntrantSubstitute(), returnThese: new System.Func<NSubstitute.Core.CallInfo, int>[] { _ => CreateDefaultValue(), _ => 1 }")]
     public override async Task ReplacesArgumentExpression_WithLambda(string arguments, string rewrittenArguments)
     {
         var oldSource = $@"using NSubstitute;
@@ -85,6 +95,7 @@ namespace MyNamespace
         await VerifyFix(oldSource, newSource);
     }
 
+    [Fact]
     public override async Task ReplacesArgumentExpression_WithLambdaWithReducedTypes_WhenGeneratingArrayParamsArgument()
     {
         var oldSource = @"using NSubstitute;
@@ -163,6 +174,7 @@ namespace MyNamespace
         await VerifyFix(oldSource, newSource);
     }
 
+    [Fact]
     public override async Task ReplacesArgumentExpression_WithLambdaWithNonGenericCallInfo_WhenGeneratingArrayParamsArgument()
     {
         var oldSource = @"using NSubstitute;

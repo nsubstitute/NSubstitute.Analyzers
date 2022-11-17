@@ -4,9 +4,9 @@ using NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 
-internal class SubstituteConstructorMatcher : AbstractSubstituteConstructorMatcher
+internal sealed class SubstituteConstructorMatcher : AbstractSubstituteConstructorMatcher
 {
-    public static SubstituteConstructorMatcher Instance { get; } = new SubstituteConstructorMatcher();
+    public static SubstituteConstructorMatcher Instance { get; } = new();
 
     private SubstituteConstructorMatcher()
     {

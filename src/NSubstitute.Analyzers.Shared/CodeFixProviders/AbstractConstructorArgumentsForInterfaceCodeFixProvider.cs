@@ -5,46 +5,53 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.Editing;
+using Microsoft.CodeAnalysis.Operations;
 using Document = Microsoft.CodeAnalysis.Document;
 
 namespace NSubstitute.Analyzers.Shared.CodeFixProviders;
 
-internal abstract class AbstractConstructorArgumentsForInterfaceCodeFixProvider<TInvocationExpressionSyntax>
-    : CodeFixProvider
-    where TInvocationExpressionSyntax : SyntaxNode
+internal abstract class AbstractConstructorArgumentsForInterfaceCodeFixProvider : CodeFixProvider
 {
-    public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
+    public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
-    public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.SubstituteConstructorArgumentsForInterface);
+    public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
+        ImmutableArray.Create(DiagnosticIdentifiers.SubstituteConstructorArgumentsForInterface);
 
-    public override Task RegisterCodeFixesAsync(CodeFixContext context)
+    public sealed override Task RegisterCodeFixesAsync(CodeFixContext context)
     {
-        var diagnostic = context.Diagnostics.FirstOrDefault(diag => diag.Descriptor.Id == DiagnosticIdentifiers.SubstituteConstructorArgumentsForInterface);
-        if (diagnostic != null)
-        {
-            var codeAction = CodeAction.Create("Remove constructor arguments", ct => CreateChangedDocument(ct, context, diagnostic), nameof(AbstractConstructorArgumentsForInterfaceCodeFixProvider<TInvocationExpressionSyntax>));
-            context.RegisterCodeFix(codeAction, diagnostic);
-        }
+        var codeAction = CodeAction.Create(
+            "Remove constructor arguments",
+            ct => CreateChangedDocument(context, ct),
+            nameof(AbstractConstructorArgumentsForInterfaceCodeFixProvider));
+        context.RegisterCodeFix(codeAction, context.Diagnostics);
 
         return Task.CompletedTask;
     }
 
-    protected abstract TInvocationExpressionSyntax GetInvocationExpressionSyntaxWithEmptyArgumentList(TInvocationExpressionSyntax invocationExpressionSyntax);
+    protected abstract SyntaxNode GetInvocationExpressionSyntaxWithEmptyArgumentList(IInvocationOperation invocationOperation);
 
-    protected abstract TInvocationExpressionSyntax GetInvocationExpressionSyntaxWithNullConstructorArgument(TInvocationExpressionSyntax invocationExpressionSyntax);
+    protected abstract SyntaxNode GetInvocationExpressionSyntaxWithNullConstructorArgument(IInvocationOperation invocationOperation);
 
-    private async Task<Document> CreateChangedDocument(CancellationToken cancellationToken, CodeFixContext context, Diagnostic diagnostic)
+    private async Task<Document> CreateChangedDocument(CodeFixContext context, CancellationToken cancellationToken)
     {
+        var documentEditor = await DocumentEditor.CreateAsync(context.Document, cancellationToken);
+
         var root = await context.Document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
-        var invocation = (TInvocationExpressionSyntax)root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
+        var invocation = root.FindNode(context.Span, getInnermostNodeForTie: true);
         var semanticModel = await context.Document.GetSemanticModelAsync(cancellationToken);
-        var updatedInvocation = semanticModel.GetSymbolInfo(invocation).Symbol is IMethodSymbol methodSymbol &&
-                                methodSymbol.IsGenericMethod
-            ? GetInvocationExpressionSyntaxWithEmptyArgumentList(invocation)
-            : GetInvocationExpressionSyntaxWithNullConstructorArgument(invocation);
+        if (semanticModel.GetOperation(invocation) is not IInvocationOperation invocationOperation)
+        {
+            return context.Document;
+        }
 
-        var replacedRoot = root.ReplaceNode(invocation, updatedInvocation);
-        return context.Document.WithSyntaxRoot(replacedRoot);
+        var updatedInvocation = invocationOperation.TargetMethod.IsGenericMethod
+            ? GetInvocationExpressionSyntaxWithEmptyArgumentList(invocationOperation)
+            : GetInvocationExpressionSyntaxWithNullConstructorArgument(invocationOperation);
+
+        documentEditor.ReplaceNode(invocation, updatedInvocation);
+
+        return documentEditor.GetChangedDocument();
     }
 }

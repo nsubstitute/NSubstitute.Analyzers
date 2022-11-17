@@ -70,7 +70,11 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             NSubstitute.Received.InOrder(Function()
                                  SubstituteExtensions.Received(substitute, 1).Bar()
+                                 SubstituteExtensions.Received(substitute:= substitute, requiredNumberOfCalls:= 1).Bar()
+                                 SubstituteExtensions.Received(requiredNumberOfCalls:= 1, substitute:= substitute).Bar()
                                  SubstituteExtensions.Received(substitute, 1).Bar(Arg.Any(Of Integer)())
+                                 SubstituteExtensions.Received(substitute:= substitute, requiredNumberOfCalls:= 1).Bar(Arg.Any(Of Integer)())
+                                 SubstituteExtensions.Received(requiredNumberOfCalls:= 1, substitute:= substitute).Bar(Arg.Any(Of Integer)())
                              End Function)
         End Sub
     End Class
@@ -90,6 +94,10 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             NSubstitute.Received.InOrder(Function()
                                  substitute.Bar()
+                                 substitute.Bar()
+                                 substitute.Bar()
+                                 substitute.Bar(Arg.Any(Of Integer)())
+                                 substitute.Bar(Arg.Any(Of Integer)())
                                  substitute.Bar(Arg.Any(Of Integer)())
                              End Function)
         End Sub

@@ -106,18 +106,16 @@ End Namespace
         var compilationOptions = new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
         var compilation = VisualBasicCompilation.Create("Internal", new[] { syntaxTree }, references, compilationOptions);
 
-        using (var ms = new MemoryStream())
+        using var ms = new MemoryStream();
+        var result = compilation.Emit(ms);
+
+        if (result.Success == false)
         {
-            var result = compilation.Emit(ms);
-
-            if (result.Success == false)
-            {
-                var errors = result.Diagnostics.Where(diag => diag.IsWarningAsError || diag.Severity == DiagnosticSeverity.Error);
-                throw new InvalidOperationException($"Internal library compilation failed: {string.Join(",", errors)}");
-            }
-
-            ms.Seek(0, SeekOrigin.Begin);
-            return MetadataReference.CreateFromStream(ms);
+            var errors = result.Diagnostics.Where(diag => diag.IsWarningAsError || diag.Severity == DiagnosticSeverity.Error);
+            throw new InvalidOperationException($"Internal library compilation failed: {string.Join(",", errors)}");
         }
+
+        ms.Seek(0, SeekOrigin.Begin);
+        return MetadataReference.CreateFromStream(ms);
     }
 }

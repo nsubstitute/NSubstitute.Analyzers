@@ -34,6 +34,9 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.Bar({arg})
             substitute.When(sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substitute, sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substitute:= substitute, substituteCall:= sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substituteCall:= sub(x) x.Bar({arg}), substitute:= substitute)
         End Sub
     End Class
 End Namespace";
@@ -96,6 +99,9 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.Bar({arg})
             substitute.When(sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substitute, sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substitute:= substitute, substituteCall:= sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substituteCall:= sub(x) x.Bar({arg}), substitute:= substitute)
         End Sub
     End Class
 End Namespace";
@@ -137,6 +143,9 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo2)()
             substitute.Bar({arg})
             substitute.When(sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substitute, sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substitute:= substitute, substituteCall:= sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substituteCall:= sub(x) x.Bar({arg}), substitute:= substitute)
         End Sub
     End Class
 End Namespace
@@ -157,6 +166,9 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Func(Of {delegateArgType}, Integer))()
             Dim ___ = substitute({arg})
             substitute.When(sub(x) x({arg}))
+            SubstituteExtensions.When(substitute, sub(x) x({arg}))
+            SubstituteExtensions.When(substitute:= substitute, substituteCall:= sub(x) x({arg}))
+            SubstituteExtensions.When(substituteCall:= sub(x) x({arg}), substitute:= substitute)
         End Sub
     End Class
 End Namespace
@@ -204,7 +216,10 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo2)()
-            substitute.Bar({arg})
+            substitute.When(sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substitute, sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substitute:= substitute, substituteCall:= sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substituteCall:= sub(x) x.Bar({arg}), substitute:= substitute)
         End Sub
     End Class
 End Namespace
@@ -232,6 +247,9 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.Bar({arg})
             substitute.When(sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substitute, sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substitute:= substitute, substituteCall:= sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substituteCall:= sub(x) x.Bar({arg}), substitute:= substitute)
         End Sub
     End Class
 End Namespace";
@@ -258,6 +276,9 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
             substitute.Bar({arg})
             substitute.When(sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substitute, sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substitute:= substitute, substituteCall:= sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substituteCall:= sub(x) x.Bar({arg}), substitute:= substitute)
         End Sub
     End Class
 End Namespace
@@ -285,7 +306,9 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo(Of Integer))()
             substitute.Bar(Of Integer)({arg})
-            substitute.When(sub(x) x.Bar(Of Integer)({arg}))
+            SubstituteExtensions.When(substitute, sub(x) x.Bar(Of Integer)({arg}))
+            SubstituteExtensions.When(substitute:= substitute, substituteCall:= sub(x) x.Bar(Of Integer)({arg}))
+            SubstituteExtensions.When(substituteCall:= sub(x) x.Bar(Of Integer)({arg}), substitute:= substitute)
         End Sub
     End Class
 End Namespace";
@@ -310,9 +333,11 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            substitute.When(Function(x)
-                Dim y =  x({arg})
-            End Function)
+            Dim ___ = substitute({arg})
+            substitute.When(function(x) x({arg}))
+            SubstituteExtensions.When(substitute, function(x) x({arg}))
+            SubstituteExtensions.When(substitute:= substitute, substituteCall:= function(x) x({arg}))
+            SubstituteExtensions.When(substituteCall:= function(x) x({arg}), substitute:= substitute)
         End Sub
     End Class
 End Namespace
@@ -344,9 +369,10 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             Dim ___ = substitute({arg})
-            substitute.When(Function(x)
-                Dim y =  x({arg})
-            End Function)
+            substitute.When(function(x) x({arg}))
+            SubstituteExtensions.When(substitute, function(x) x({arg}))
+            SubstituteExtensions.When(substitute:= substitute, substituteCall:= function(x) x({arg}))
+            SubstituteExtensions.When(substituteCall:= function(x) x({arg}), substitute:= substitute)
         End Sub
     End Class
 End Namespace
@@ -385,9 +411,10 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             Dim ___ = substitute({arg})
-            substitute.When(Function(x)
-                Dim y =  x({arg})
-            End Function)
+            substitute.When(function(x) x({arg}))
+            SubstituteExtensions.When(substitute, function(x) x({arg}))
+            SubstituteExtensions.When(substitute:= substitute, substituteCall:= function(x) x({arg}))
+            SubstituteExtensions.When(substituteCall:= function(x) x({arg}), substitute:= substitute)
         End Sub
     End Class
 End Namespace
@@ -471,6 +498,9 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.Bar({arg})
             substitute.When(sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substitute, sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substitute:= substitute, substituteCall:= sub(x) x.Bar({arg}))
+            SubstituteExtensions.When(substituteCall:= sub(x) x.Bar({arg}), substitute:= substitute)
         End Sub
     End Class
 End Namespace
@@ -562,6 +592,9 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.FooBar({arg})
             substitute.When(sub(x) x.FooBar({arg}))
+            SubstituteExtensions.When(substitute, sub(x) x.FooBar({arg}))
+            SubstituteExtensions.When(substitute:= substitute, substituteCall:= sub(x) x.FooBar({arg}))
+            SubstituteExtensions.When(substituteCall:= sub(x) x.FooBar({arg}), substitute:= substitute)
         End Sub
     End Class
 End Namespace
@@ -595,6 +628,9 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.FooBar({arg})
             substitute.When(sub(x) x.FooBar({arg}))
+            SubstituteExtensions.When(substitute, sub(x) x.FooBar({arg}))
+            SubstituteExtensions.When(substitute:= substitute, substituteCall:= sub(x) x.FooBar({arg}))
+            SubstituteExtensions.When(substituteCall:= sub(x) x.FooBar({arg}), substitute:= substitute)
         End Sub
     End Class
 End Namespace
@@ -631,6 +667,9 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.FooBar({arg})
             substitute.When(sub(x) x.FooBar({arg}))
+            SubstituteExtensions.When(substitute, sub(x) x.FooBar({arg}))
+            SubstituteExtensions.When(substitute:= substitute, substituteCall:= sub(x) x.FooBar({arg}))
+            SubstituteExtensions.When(substituteCall:= sub(x) x.FooBar({arg}), substitute:= substitute)
         End Sub
     End Class
 End Namespace
@@ -660,6 +699,9 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.FooBar({arg})
             substitute.When(sub(x) x.FooBar({arg}))
+            SubstituteExtensions.When(substitute, sub(x) x.FooBar({arg}))
+            SubstituteExtensions.When(substitute:= substitute, substituteCall:= sub(x) x.FooBar({arg}))
+            SubstituteExtensions.When(substituteCall:= sub(x) x.FooBar({arg}), substitute:= substitute)
         End Sub
     End Class
 End Namespace
@@ -704,6 +746,10 @@ Namespace MyNamespace
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             substitute.Bar({arg}, {arg})
             substitute.Bar([|{arg}|])
+            substitute.When(sub(x) x.Bar([|{arg}|]))
+            SubstituteExtensions.When(substitute, sub(x) x.Bar([|{arg}|]))
+            SubstituteExtensions.When(substitute:= substitute, substituteCall:= sub(x) x.Bar([|{arg}|]))
+            SubstituteExtensions.When(substituteCall:= sub(x) x.Bar([|{arg}|]), substitute:= substitute)
         End Sub
     End Class
 End Namespace
@@ -819,12 +865,26 @@ End Namespace
     }
 
     [CombinatoryData(
-        "Received(Quantity.None())",
-        "Received()",
-        "ReceivedWithAnyArgs(Quantity.None())",
-        "ReceivedWithAnyArgs()",
-        "DidNotReceive()",
-        "DidNotReceiveWithAnyArgs()")]
+        "substitute.Received(Quantity.None())",
+        "ReceivedExtensions.Received(substitute, Quantity.None())",
+        "ReceivedExtensions.Received(substitute:= substitute, requiredQuantity:= Quantity.None())",
+        "ReceivedExtensions.Received(requiredQuantity:= Quantity.None(), substitute:= substitute)",
+        "substitute.Received()",
+        "SubstituteExtensions.Received(substitute)",
+        "SubstituteExtensions.Received(substitute:= substitute)",
+        "substitute.ReceivedWithAnyArgs(Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(substitute, Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(substitute:= substitute, requiredQuantity:= Quantity.None())",
+        "ReceivedExtensions.ReceivedWithAnyArgs(requiredQuantity:= Quantity.None(), substitute:= substitute)",
+        "substitute.ReceivedWithAnyArgs()",
+        "SubstituteExtensions.ReceivedWithAnyArgs(substitute)",
+        "SubstituteExtensions.ReceivedWithAnyArgs(substitute:= substitute)",
+        "substitute.DidNotReceive()",
+        "SubstituteExtensions.DidNotReceive(substitute)",
+        "SubstituteExtensions.DidNotReceive(substitute:= substitute)",
+        "substitute.DidNotReceiveWithAnyArgs()",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute)",
+        "SubstituteExtensions.DidNotReceiveWithAnyArgs(substitute:= substitute)")]
     public override async Task ReportsDiagnostics_WhenAssigningInvalidArgMatchersToMemberPrecededByWithAnyArgsLikeMethod(string receivedMethod, string arg)
     {
         var source = $@"Imports System
@@ -840,8 +900,8 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
-            substitute.{receivedMethod}.Foo = {arg}
-            substitute.{receivedMethod}(1) = {arg}
+            {receivedMethod}.Foo = {arg}
+            {receivedMethod}(1) = {arg}
         End Sub
     End Class
 End Namespace
@@ -875,7 +935,19 @@ End Class
             substitute.{whenMethod}(Function(x)
                 Dim y = x.Bar = {arg}
             End Function)
+            SubstituteExtensions.{whenMethod}(substitute, Function(x)
+                Dim y = x.Bar = {arg}
+            End Function)
+            SubstituteExtensions.{whenMethod}(substitute:= substitute, substituteCall:= Function(x)
+                Dim y = x.Bar = {arg}
+            End Function)
+            SubstituteExtensions.{whenMethod}(substituteCall:= Function(x)
+                Dim y = x.Bar = {arg}
+            End Function, substitute:= substitute)
             substitute.{whenMethod}(sub(x) x(1) = {arg})
+            SubstituteExtensions.{whenMethod}(substitute, sub(x) x(1) = {arg})
+            SubstituteExtensions.{whenMethod}(substitute:= substitute, substituteCall:= sub(x) x(1) = {arg})
+            SubstituteExtensions.{whenMethod}(substituteCall:= sub(x) x(1) = {arg}, substitute:= substitute)
         End Sub
     End Class
 End Namespace";
@@ -898,10 +970,19 @@ Namespace MyNamespace
     Public Class FooTests
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.For(Of Foo)
-            substitute.{whenMethod}(Function(x)
+            SubstituteExtensions.{whenMethod}(substitute, Function(x)
                 Dim y = x.Bar = {arg}
             End Function)
+            SubstituteExtensions.{whenMethod}(substitute:= substitute, substituteCall:= Function(x)
+                Dim y = x.Bar = {arg}
+            End Function)
+            SubstituteExtensions.{whenMethod}(substituteCall:= Function(x)
+                Dim y = x.Bar = {arg}
+            End Function, substitute:= substitute)
             substitute.{whenMethod}(sub(x) x(1) = {arg})
+            SubstituteExtensions.{whenMethod}(substitute, sub(x) x(1) = {arg})
+            SubstituteExtensions.{whenMethod}(substitute:= substitute, substituteCall:= sub(x) x(1) = {arg})
+            SubstituteExtensions.{whenMethod}(substituteCall:= sub(x) x(1) = {arg}, substitute:= substitute)
         End Sub
     End Class
 End Namespace";
@@ -911,7 +992,7 @@ End Namespace";
 
     public override async Task ReportsNoDiagnostic_WhenOverloadCannotBeInferred()
     {
-        var source = $@"Imports System
+        var source = @"Imports System
 Imports NSubstitute
 
 Namespace MyNamespace
