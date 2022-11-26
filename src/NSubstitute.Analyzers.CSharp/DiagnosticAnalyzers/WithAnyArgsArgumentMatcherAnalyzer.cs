@@ -8,7 +8,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 internal sealed class WithAnyArgsArgumentMatcherAnalyzer : AbstractWithAnyArgsArgumentMatcherAnalyzer
 {
     public WithAnyArgsArgumentMatcherAnalyzer()
-        : base(CSharp.DiagnosticDescriptorsProvider.Instance, SubstitutionNodeFinder.Instance)
+        : base(CSharp.DiagnosticDescriptorsProvider.Instance, SubstitutionOperationFinder.Instance)
     {
     }
 }

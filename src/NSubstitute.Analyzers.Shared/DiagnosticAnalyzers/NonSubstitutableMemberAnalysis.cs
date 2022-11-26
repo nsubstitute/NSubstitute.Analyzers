@@ -21,10 +21,10 @@ internal class NonSubstitutableMemberAnalysis : INonSubstitutableMemberAnalysis
 
     private bool CanBeSubstituted(
         IOperation operation,
-        ISymbol symbol) =>
+        ISymbol? symbol) =>
         !KnownNonVirtualOperationKinds.Contains(operation.Kind) && CanBeSubstituted(symbol);
 
-    private NonSubstitutableMemberAnalysisResult Analyze(IOperation operation, ISymbol symbol)
+    private NonSubstitutableMemberAnalysisResult Analyze(IOperation operation, ISymbol? symbol)
     {
         if (symbol == null)
         {
@@ -66,23 +66,26 @@ internal class NonSubstitutableMemberAnalysis : INonSubstitutableMemberAnalysis
             memberName: symbol.Name);
     }
 
-    private static bool CanBeSubstituted(ISymbol symbol)
+    private static bool CanBeSubstituted(ISymbol? symbol)
     {
         return IsInterfaceMember(symbol) || IsVirtual(symbol);
     }
 
-    private static bool IsInterfaceMember(ISymbol symbol)
+    private static bool IsInterfaceMember(ISymbol? symbol)
     {
-        return symbol.ContainingType?.TypeKind == TypeKind.Interface;
+        return symbol is { ContainingType.TypeKind: TypeKind.Interface };
     }
 
-    private static bool IsVirtual(ISymbol symbol)
+    private static bool IsVirtual(ISymbol? symbol)
     {
-        var isVirtual = symbol.IsVirtual
-                        || (symbol.IsOverride && !symbol.IsSealed)
-                        || symbol.IsAbstract;
+        if (symbol == null)
+        {
+            return false;
+        }
 
-        return isVirtual;
+        return symbol.IsVirtual
+               || symbol is { IsOverride: true, IsSealed: false }
+               || symbol.IsAbstract;
     }
 
     private static IOperation ExtractActualOperation(IOperation operation)

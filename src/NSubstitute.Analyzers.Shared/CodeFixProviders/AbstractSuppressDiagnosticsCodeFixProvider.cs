@@ -52,7 +52,7 @@ internal abstract class AbstractSuppressDiagnosticsCodeFixProvider : CodeFixProv
         }
     }
 
-    protected virtual IEnumerable<ISymbol> GetSuppressibleSymbol(SemanticModel model, SyntaxNode syntaxNode, ISymbol symbol)
+    protected virtual IEnumerable<ISymbol> GetSuppressibleSymbol(SemanticModel model, SyntaxNode syntaxNode, ISymbol? symbol)
     {
         if (symbol == null)
         {
@@ -126,13 +126,11 @@ internal abstract class AbstractSuppressDiagnosticsCodeFixProvider : CodeFixProv
     {
         var options = context.Document.Project.AnalyzerOptions.GetSettings(cancellationToken);
         var target = CreateSuppressionTarget(symbol);
-        options.Suppressions ??= new List<Suppression>();
 
         var existingSuppression = options.Suppressions.FirstOrDefault(suppression => suppression.Target == target);
 
         if (existingSuppression != null)
         {
-            existingSuppression.Rules ??= new List<string>();
             existingSuppression.Rules.Add(diagnostic.Id);
         }
         else
@@ -161,7 +159,7 @@ internal abstract class AbstractSuppressDiagnosticsCodeFixProvider : CodeFixProv
         return DocumentationCommentId.CreateDeclarationId(actualSymbol);
     }
 
-    private static TextDocument GetSettingsFile(Project project)
+    private static TextDocument? GetSettingsFile(Project project)
     {
         return project.AdditionalDocuments.SingleOrDefault(document =>
             document.Name.Equals(AnalyzersSettings.AnalyzerFileName, StringComparison.CurrentCultureIgnoreCase));

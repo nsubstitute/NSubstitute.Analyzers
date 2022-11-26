@@ -1,5 +1,5 @@
+#nullable disable
 using System;
-using System.Collections;
 using System.Reflection;
 using System.Text;
 
@@ -173,64 +173,6 @@ internal class JsonBuilder
             }
 
             _builder.Append('\"');
-        }
-        else
-        {
-            AppendNull();
-        }
-    }
-
-    public void AppendArray(IEnumerable enumerable)
-    {
-        if (enumerable != null)
-        {
-            AppendBeginArray();
-            var first = true;
-            foreach (var item in enumerable)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    AppendSeperator();
-                }
-
-                AppendValue(item);
-            }
-
-            AppendEndArray();
-        }
-        else
-        {
-            AppendNull();
-        }
-    }
-
-    public void AppendDictionary(IDictionary dict)
-    {
-        if (dict != null)
-        {
-            AppendBeginObject();
-            var first = true;
-            foreach (DictionaryEntry entry in dict)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    AppendSeperator();
-                }
-
-                AppendString(entry.Key.ToString());
-                _builder.Append(_pretty ? " : " : ":");
-                AppendValue(entry.Value);
-            }
-
-            AppendEndObject();
         }
         else
         {

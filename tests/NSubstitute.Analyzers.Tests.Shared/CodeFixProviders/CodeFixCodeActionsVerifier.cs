@@ -24,7 +24,7 @@ public abstract class CodeFixCodeActionsVerifier : CodeVerifier
 
     protected abstract DiagnosticAnalyzer DiagnosticAnalyzer { get; }
 
-    protected override string AnalyzerSettings { get; } = Json.Encode(new object());
+    protected override string? AnalyzerSettings { get; } = Json.Encode(new object());
 
     protected async Task VerifyCodeActions(string source, NSubstituteVersion version, params string[] expectedCodeActionTitles)
     {

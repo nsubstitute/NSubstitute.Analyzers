@@ -64,7 +64,7 @@ internal sealed class CallInfoFinder : ICallInfoFinder
                parameterReferenceOperation.Parameter.Equals(callInfoParameterSymbol);
     }
 
-    private static IParameterReferenceOperation FindMatchingParameterReference(IOperation operation)
+    private static IParameterReferenceOperation? FindMatchingParameterReference(IOperation operation)
     {
         var parameterReferenceOperation = operation switch
         {
@@ -79,7 +79,7 @@ internal sealed class CallInfoFinder : ICallInfoFinder
             return parameterReferenceOperation;
         }
 
-        foreach (var innerOperation in operation?.Children ?? Enumerable.Empty<IOperation>())
+        foreach (var innerOperation in operation.Children ?? Enumerable.Empty<IOperation>())
         {
             parameterReferenceOperation = FindMatchingParameterReference(innerOperation);
             if (parameterReferenceOperation != null)
@@ -107,7 +107,7 @@ internal sealed class CallInfoFinder : ICallInfoFinder
         }
     }
 
-    private static IParameterSymbol GetCallInfoParameterSymbol(IOperation operation)
+    private static IParameterSymbol? GetCallInfoParameterSymbol(IOperation operation)
     {
         return operation switch
         {
@@ -156,7 +156,7 @@ internal sealed class CallInfoFinder : ICallInfoFinder
 
         public override void VisitArrayElementReference(IArrayElementReferenceOperation operation)
         {
-            ISymbol arrayReferenceSymbol = operation.ArrayReference switch
+            ISymbol? arrayReferenceSymbol = operation.ArrayReference switch
             {
                 IInvocationOperation invocationOperation => invocationOperation.TargetMethod,
                 IPropertyReferenceOperation propertyReferenceOperation => propertyReferenceOperation.Property,

@@ -12,17 +12,17 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 internal abstract class AbstractCallInfoAnalyzer : AbstractDiagnosticAnalyzer
 {
     private readonly ICallInfoFinder _callInfoFinder;
-    private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
+    private readonly ISubstitutionOperationFinder _substitutionOperationFinder;
     private readonly Action<OperationAnalysisContext> _analyzeInvocationAction;
 
     protected AbstractCallInfoAnalyzer(
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
         ICallInfoFinder callInfoFinder,
-        ISubstitutionNodeFinder substitutionNodeFinder)
+        ISubstitutionOperationFinder substitutionOperationFinder)
         : base(diagnosticDescriptorsProvider)
     {
         _callInfoFinder = callInfoFinder;
-        _substitutionNodeFinder = substitutionNodeFinder;
+        _substitutionOperationFinder = substitutionOperationFinder;
         _analyzeInvocationAction = AnalyzeInvocation;
 
         SupportedDiagnostics = ImmutableArray.Create(
@@ -273,9 +273,9 @@ internal abstract class AbstractCallInfoAnalyzer : AbstractDiagnosticAnalyzer
         return false;
     }
 
-    private IReadOnlyList<IArgumentOperation> GetSubstituteCallArgumentOperations(OperationAnalysisContext operationAnalysisContext, IInvocationOperation invocationOperation)
+    private IReadOnlyList<IArgumentOperation>? GetSubstituteCallArgumentOperations(OperationAnalysisContext operationAnalysisContext, IInvocationOperation invocationOperation)
     {
-        var substituteOperation = _substitutionNodeFinder
+        var substituteOperation = _substitutionOperationFinder
             .Find(operationAnalysisContext.Compilation, invocationOperation).FirstOrDefault();
 
         if (substituteOperation == null)
@@ -288,7 +288,7 @@ internal abstract class AbstractCallInfoAnalyzer : AbstractDiagnosticAnalyzer
         return argumentOperations?.OrderBy(argOperation => argOperation.Parameter.Ordinal).ToList();
     }
 
-    private static IEnumerable<IArgumentOperation> GetArgumentOperations(IOperation substituteOperation)
+    private static IEnumerable<IArgumentOperation>? GetArgumentOperations(IOperation substituteOperation)
     {
         return substituteOperation switch
         {
@@ -301,7 +301,7 @@ internal abstract class AbstractCallInfoAnalyzer : AbstractDiagnosticAnalyzer
 
     private IndexerInfo GetIndexerInfo(IOperation indexerOperation)
     {
-        ISymbol info = indexerOperation switch
+        ISymbol? info = indexerOperation switch
         {
             IArrayElementReferenceOperation x => x.Type,
             _ => null

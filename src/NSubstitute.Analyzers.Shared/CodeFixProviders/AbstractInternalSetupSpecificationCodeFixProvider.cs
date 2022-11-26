@@ -65,7 +65,7 @@ internal abstract class AbstractInternalSetupSpecificationCodeFixProvider<TCompi
 
     protected abstract void RegisterAddInternalsVisibleToAttributeCodeFix(CodeFixContext context, TCompilationUnitSyntax compilationUnitSyntax);
 
-    private async Task<SyntaxReference> GetDeclaringSyntaxReference(CodeFixContext context, SyntaxNode invocationExpression)
+    private async Task<SyntaxReference?> GetDeclaringSyntaxReference(CodeFixContext context, SyntaxNode invocationExpression)
     {
         var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
         var symbol = semanticModel.GetSymbolInfo(invocationExpression).Symbol;
@@ -75,7 +75,7 @@ internal abstract class AbstractInternalSetupSpecificationCodeFixProvider<TCompi
         return firstOrDefault;
     }
 
-    private TCompilationUnitSyntax FindCompilationUnitSyntax(SyntaxNode syntaxNode)
+    private TCompilationUnitSyntax? FindCompilationUnitSyntax(SyntaxNode syntaxNode)
     {
         return syntaxNode.Parent.Ancestors().OfType<TCompilationUnitSyntax>().LastOrDefault();
     }

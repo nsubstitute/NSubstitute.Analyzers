@@ -29,20 +29,15 @@ public abstract class WorkspaceFactory
             .WithCompilationOptions(projectOptions.CompilationOptions);
     }
 
-    public Project AddProject(Solution solution, string source)
-    {
-        return AddProject(solution, source, analyzerSettings: null);
-    }
-
-    public Project AddProject(Solution solution, string source, string analyzerSettings)
+    public Project AddProject(Solution solution, string source, string? analyzerSettings)
     {
         return AddProject(solution, new[] { source }, analyzerSettings);
     }
 
-    public Project AddProject(Solution solution, string[] sources, string analyzerSettings)
+    public Project AddProject(Solution solution, string[] sources, string? analyzerSettings)
     {
         var project = AddProject(solution);
-        project = AddDocuments(project, sources).Project;
+        project = AddDocuments(project, sources)?.Project ?? project;
         if (analyzerSettings != null)
         {
             project = AddAnalyzerSettings(project, analyzerSettings).Project;
@@ -60,9 +55,9 @@ public abstract class WorkspaceFactory
         return document;
     }
 
-    public Document AddDocuments(Project project, string[] sources)
+    public Document? AddDocuments(Project project, string[] sources)
     {
-        Document document = null;
+        Document? document = null;
 
         foreach (var source in sources)
         {
@@ -73,7 +68,7 @@ public abstract class WorkspaceFactory
         return document;
     }
 
-    public TextDocument AddAnalyzerSettings(Project project, string settings)
+    public TextDocument AddAnalyzerSettings(Project project, string? settings)
     {
         return project.AddAdditionalDocument(AnalyzersSettings.AnalyzerFileName, SourceText.From(settings));
     }

@@ -34,8 +34,8 @@ public abstract class WithAnyArgsArgumentMatcherDiagnosticVerifier : ForAnyArgsA
     public abstract Task ReportsDiagnostics_WhenAssigningInvalidArgMatchersToMemberPrecededByWithAnyArgsLikeMethodForDelegate(string method, string arg);
 
     public static IEnumerable<object[]> MisusedArgTestCasesDelegates =>
-        MisusedArgTestCases.Where(arguments => arguments.All(argument => argument.ToString().Contains("Invoke")));
+        MisusedArgTestCases.Where(arguments => arguments.All(argument => argument.ToString()?.Contains("Invoke") ?? false));
 
     public static IEnumerable<object[]> CorrectlyUsedArgTestCasesDelegates =>
-        CorrectlyUsedArgTestCases.Where(arguments => arguments.All(argument => argument.ToString().Contains("Invoke")));
+        CorrectlyUsedArgTestCases.Where(arguments => arguments.All(argument => argument.ToString()?.Contains("Invoke") ?? false));
 }

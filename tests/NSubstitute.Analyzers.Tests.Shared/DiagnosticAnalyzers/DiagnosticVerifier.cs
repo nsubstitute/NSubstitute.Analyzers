@@ -24,7 +24,7 @@ public abstract class DiagnosticVerifier : CodeVerifier
     protected async Task VerifyDiagnostic(
         string source,
         DiagnosticDescriptor diagnosticDescriptor,
-        string overridenDiagnosticMessage = null)
+        string? overridenDiagnosticMessage = null)
     {
         await VerifyDiagnostics(
             sources: new[] { source },
@@ -35,7 +35,7 @@ public abstract class DiagnosticVerifier : CodeVerifier
     protected async Task VerifyDiagnostics(
         string[] sources,
         DiagnosticDescriptor diagnosticDescriptor,
-        string overridenDiagnosticMessage = null)
+        string? overridenDiagnosticMessage = null)
     {
         diagnosticDescriptor = overridenDiagnosticMessage == null
             ? diagnosticDescriptor

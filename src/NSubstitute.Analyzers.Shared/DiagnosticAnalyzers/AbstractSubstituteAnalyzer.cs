@@ -191,7 +191,7 @@ internal abstract class AbstractSubstituteAnalyzer : AbstractDiagnosticAnalyzer
                 return false;
         }
 
-        if (constructorContext.PossibleConstructors != null && constructorContext.PossibleConstructors.Any() == false)
+        if (constructorContext.PossibleConstructors is { Length: 0 })
         {
             var symbol = substituteContext.InvocationOperation.TargetMethod;
             var diagnostic = Diagnostic.Create(
@@ -268,7 +268,7 @@ internal abstract class AbstractSubstituteAnalyzer : AbstractDiagnosticAnalyzer
 
     private bool AnalyzeConstructorAccessibility(SubstituteContext substituteContext, ConstructorContext constructorContext)
     {
-        if (constructorContext.ConstructorType.TypeKind == TypeKind.Class && constructorContext.AccessibleConstructors != null && constructorContext.AccessibleConstructors.Any() == false)
+        if (constructorContext.ConstructorType.TypeKind == TypeKind.Class && constructorContext.AccessibleConstructors is { Length: 0 })
         {
             var diagnostic = Diagnostic.Create(
                 DiagnosticDescriptorsProvider.SubstituteForWithoutAccessibleConstructor,

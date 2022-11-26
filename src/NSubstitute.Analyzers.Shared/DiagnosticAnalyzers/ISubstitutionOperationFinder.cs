@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.Operations;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal interface ISubstitutionNodeFinder
+internal interface ISubstitutionOperationFinder
 {
     IEnumerable<IOperation> Find(Compilation compilation, IInvocationOperation invocationOperation);
 
@@ -12,5 +12,5 @@ internal interface ISubstitutionNodeFinder
 
     IEnumerable<IOperation> FindForReceivedInOrderExpression(Compilation compilation, IInvocationOperation invocationOperation, bool includeAll = false);
 
-    IOperation FindForStandardExpression(IInvocationOperation invocationOperation);
+    IOperation? FindForStandardExpression(IInvocationOperation invocationOperation);
 }

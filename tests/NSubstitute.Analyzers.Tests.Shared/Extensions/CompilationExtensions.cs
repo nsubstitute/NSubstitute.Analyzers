@@ -26,7 +26,7 @@ public static class CompilationExtensions
         this Compilation compilation,
         DiagnosticAnalyzer analyzer,
         AnalyzerOptions analyzerOptions,
-        IComparer<Diagnostic> comparer = null,
+        IComparer<Diagnostic>? comparer = null,
         CancellationToken cancellationToken = default)
     {
         var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create(analyzer), analyzerOptions, cancellationToken);

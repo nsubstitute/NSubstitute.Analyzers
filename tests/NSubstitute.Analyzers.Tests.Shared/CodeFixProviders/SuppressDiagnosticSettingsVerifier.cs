@@ -20,7 +20,7 @@ public abstract class SuppressDiagnosticSettingsVerifier : CodeFixVerifier
     {
     }
 
-    protected override string AnalyzerSettings { get; } = Json.Encode(new object());
+    protected override string? AnalyzerSettings { get; } = Json.Encode(new object());
 
     protected async Task VerifySuppressionSettings(string source, string target, string diagnosticRuleId, int codeFixIndex = 0)
     {

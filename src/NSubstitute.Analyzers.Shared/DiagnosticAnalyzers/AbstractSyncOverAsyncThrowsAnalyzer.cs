@@ -9,15 +9,15 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 internal abstract class AbstractSyncOverAsyncThrowsAnalyzer : AbstractDiagnosticAnalyzer
 {
-    private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
+    private readonly ISubstitutionOperationFinder _substitutionOperationFinder;
     private readonly Action<OperationAnalysisContext> _analyzeInvocationAction;
 
     protected AbstractSyncOverAsyncThrowsAnalyzer(
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
-        ISubstitutionNodeFinder substitutionNodeFinder)
+        ISubstitutionOperationFinder substitutionOperationFinder)
         : base(diagnosticDescriptorsProvider)
     {
-        _substitutionNodeFinder = substitutionNodeFinder;
+        _substitutionOperationFinder = substitutionOperationFinder;
         SupportedDiagnostics = ImmutableArray.Create(DiagnosticDescriptorsProvider.SyncOverAsyncThrows);
         _analyzeInvocationAction = AnalyzeInvocation;
     }
@@ -38,7 +38,7 @@ internal abstract class AbstractSyncOverAsyncThrowsAnalyzer : AbstractDiagnostic
             return;
         }
 
-        var substituteOperation = _substitutionNodeFinder.FindForStandardExpression(invocationOperation);
+        var substituteOperation = _substitutionOperationFinder.FindForStandardExpression(invocationOperation);
 
         if (substituteOperation == null)
         {
@@ -58,7 +58,7 @@ internal abstract class AbstractSyncOverAsyncThrowsAnalyzer : AbstractDiagnostic
                 invocationOperation.Syntax.GetLocation()));
     }
 
-    private static ITypeSymbol GetReturnTypeSymbol(IOperation substituteOperation)
+    private static ITypeSymbol? GetReturnTypeSymbol(IOperation substituteOperation)
     {
         var returnType = substituteOperation switch
         {
@@ -70,7 +70,7 @@ internal abstract class AbstractSyncOverAsyncThrowsAnalyzer : AbstractDiagnostic
         return returnType;
     }
 
-    private static bool IsTask(ITypeSymbol returnType, Compilation compilation)
+    private static bool IsTask(ITypeSymbol? returnType, Compilation compilation)
     {
         if (returnType == null)
         {

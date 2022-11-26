@@ -17,9 +17,6 @@ public abstract class TextParser
 
     private class DefaultTextParser : TextParser
     {
-        private const string OpenToken = "[|";
-        private const string CloseToken = "|]";
-        private const string OpenCloseTokens = OpenToken + CloseToken;
         private const int TokensLength = 4;
 
         public override TextParserResult GetSpans(string s, bool reverse = false)
@@ -28,8 +25,8 @@ public abstract class TextParser
 
             var startPending = false;
             LinePositionInfo start = default;
-            Stack<LinePositionInfo> stack = null;
-            List<LinePositionSpanInfo> spans = null;
+            Stack<LinePositionInfo>? stack = null;
+            List<LinePositionSpanInfo>? spans = null;
 
             var lastPos = 0;
 

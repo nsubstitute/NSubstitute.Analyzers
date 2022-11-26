@@ -10,7 +10,7 @@ internal readonly struct NonSubstitutableMemberAnalysisResult
 
     public bool InternalMemberSubstitution { get; }
 
-    public ISymbol Symbol { get; }
+    public ISymbol? Symbol { get; }
 
     public string MemberName { get; }
 
@@ -19,7 +19,7 @@ internal readonly struct NonSubstitutableMemberAnalysisResult
     public NonSubstitutableMemberAnalysisResult(
         bool nonVirtualMemberSubstitution,
         bool internalMemberSubstitution,
-        ISymbol symbol,
+        ISymbol? symbol,
         SyntaxNode member,
         string memberName)
     {

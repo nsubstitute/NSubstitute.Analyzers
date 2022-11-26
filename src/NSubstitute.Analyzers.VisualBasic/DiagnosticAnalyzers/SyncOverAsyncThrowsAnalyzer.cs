@@ -8,7 +8,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 internal sealed class SyncOverAsyncThrowsAnalyzer : AbstractSyncOverAsyncThrowsAnalyzer
 {
     public SyncOverAsyncThrowsAnalyzer()
-        : base(VisualBasic.DiagnosticDescriptorsProvider.Instance, SubstitutionNodeFinder.Instance)
+        : base(VisualBasic.DiagnosticDescriptorsProvider.Instance, SubstitutionOperationFinder.Instance)
     {
     }
 }

@@ -17,6 +17,6 @@ internal sealed class AsyncReceivedInOrderCallbackAnalyzer : AbstractAsyncReceiv
     protected override SyntaxToken? GetAsyncToken(SyntaxNode node)
     {
         return node.ChildTokens().Select<SyntaxToken, SyntaxToken?>(token => token).FirstOrDefault(token =>
-            token.Value.IsKind(SyntaxKind.AsyncKeyword));
+            token.HasValue && token.Value.IsKind(SyntaxKind.AsyncKeyword));
     }
 }

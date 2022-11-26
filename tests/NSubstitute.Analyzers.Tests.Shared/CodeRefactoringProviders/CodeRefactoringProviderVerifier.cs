@@ -25,7 +25,7 @@ public abstract class CodeRefactoringProviderVerifier : CodeVerifier
     {
         var parserResult = TextParser.GetSpans(oldSource);
         var spans = parserResult.Spans;
-        if (spans.Any() == false)
+        if (spans.Length == 0)
         {
             throw new ArgumentException("Refactoring spans should not be empty", nameof(oldSource));
         }

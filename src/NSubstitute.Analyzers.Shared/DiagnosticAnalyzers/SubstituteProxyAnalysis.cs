@@ -9,7 +9,7 @@ internal sealed class SubstituteProxyAnalysis : ISubstituteProxyAnalysis
 {
     public static SubstituteProxyAnalysis Instance { get; } = new();
 
-    public ITypeSymbol GetActualProxyTypeSymbol(IInvocationOperation invocationOperation)
+    public ITypeSymbol? GetActualProxyTypeSymbol(IInvocationOperation invocationOperation)
     {
         var proxies = GetProxySymbols(invocationOperation).ToList();
 
@@ -42,7 +42,7 @@ internal sealed class SubstituteProxyAnalysis : ISubstituteProxyAnalysis
             : ImmutableArray<ITypeSymbol>.Empty;
     }
 
-    private IArrayInitializerOperation GetArrayInitializerArguments(IInvocationOperation invocationOperation)
+    private IArrayInitializerOperation? GetArrayInitializerArguments(IInvocationOperation invocationOperation)
     {
         return invocationOperation.Arguments.FirstOrDefault(arg => arg.Parameter.Ordinal == 0)?.Value switch
         {

@@ -31,7 +31,7 @@ internal sealed class IntroduceSubstituteCodeRefactoringProvider : AbstractIntro
         return base.IsMissing(argumentSyntax) || argumentSyntax.IsOmitted;
     }
 
-    protected override SyntaxNode FindSiblingNodeForLocalSubstitute(ObjectCreationExpressionSyntax creationExpression)
+    protected override SyntaxNode? FindSiblingNodeForLocalSubstitute(ObjectCreationExpressionSyntax creationExpression)
     {
         var container = creationExpression.Ancestors()
             .FirstOrDefault(ancestor => ancestor.Kind() == SyntaxKind.SubBlock);
@@ -44,7 +44,7 @@ internal sealed class IntroduceSubstituteCodeRefactoringProvider : AbstractIntro
         return null;
     }
 
-    protected override SyntaxNode FindSiblingNodeForReadonlySubstitute(SyntaxNode creationExpression)
+    protected override SyntaxNode? FindSiblingNodeForReadonlySubstitute(SyntaxNode creationExpression)
     {
         var typeBlockSyntax = creationExpression.Ancestors()
             .OfType<TypeBlockSyntax>()

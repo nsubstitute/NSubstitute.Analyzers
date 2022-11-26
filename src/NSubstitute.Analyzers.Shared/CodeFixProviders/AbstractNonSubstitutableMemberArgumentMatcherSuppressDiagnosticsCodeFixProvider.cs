@@ -12,7 +12,7 @@ internal abstract class AbstractNonSubstitutableMemberArgumentMatcherSuppressDia
 {
     public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticIdentifiers.NonSubstitutableMemberArgumentMatcherUsage);
 
-    protected override IEnumerable<ISymbol> GetSuppressibleSymbol(SemanticModel model, SyntaxNode syntaxNode, ISymbol symbol)
+    protected override IEnumerable<ISymbol> GetSuppressibleSymbol(SemanticModel model, SyntaxNode syntaxNode, ISymbol? symbol)
     {
         var operation = model.GetOperation(syntaxNode);
         if (operation == null)

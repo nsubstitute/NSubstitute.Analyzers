@@ -8,7 +8,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 internal sealed class ReceivedInReceivedInOrderAnalyzer : AbstractReceivedInReceivedInOrderAnalyzer
 {
     public ReceivedInReceivedInOrderAnalyzer()
-        : base(SubstitutionNodeFinder.Instance, CSharp.DiagnosticDescriptorsProvider.Instance)
+        : base(SubstitutionOperationFinder.Instance, CSharp.DiagnosticDescriptorsProvider.Instance)
     {
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -92,7 +93,7 @@ internal abstract class AbstractReEntrantSetupCodeFixProvider<TArgumentSyntax> :
                 continue;
             }
 
-            if (IsArrayParamsArgument(argumentOperation))
+            if (argumentOperation != null && IsArrayParamsArgument(argumentOperation))
             {
                 var updatedParamsArgumentSyntaxNode = CreateUpdatedParamsArgument(
                     semanticModel,
@@ -123,7 +124,7 @@ internal abstract class AbstractReEntrantSetupCodeFixProvider<TArgumentSyntax> :
     {
         var lambdaType = ConstructCallInfoLambdaType(methodSymbol, semanticModel.Compilation);
         var lambdaTypeSyntax = syntaxGenerator.TypeExpression(lambdaType);
-        var arrayElements = argumentOperation.Value.GetArrayElementValues()
+        var arrayElements = (argumentOperation.Value.GetArrayElementValues() ?? Array.Empty<IOperation>())
             .Select(operation => CreateLambdaExpression(syntaxGenerator, operation.Syntax));
         var arrayCreationExpression =
             CreateArrayCreationExpression(lambdaTypeSyntax, arrayElements);
@@ -167,7 +168,7 @@ internal abstract class AbstractReEntrantSetupCodeFixProvider<TArgumentSyntax> :
         });
     }
 
-    private bool IsArrayParamsArgument(IArgumentOperation operation) =>
+    private bool IsArrayParamsArgument(IArgumentOperation? operation) =>
         operation != null && operation.Parameter.IsParams;
 
     private SyntaxNode CreateLambdaExpression(SyntaxGenerator syntaxGenerator, SyntaxNode statement) =>

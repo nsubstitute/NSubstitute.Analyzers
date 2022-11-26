@@ -15,7 +15,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitu
 
 public class NonSubstitutableMemberReceivedInOrderDiagnosticVerifier : CSharpDiagnosticVerifier, INonSubstitutableMemberReceivedInOrderDiagnosticVerifier
 {
-    internal AnalyzersSettings Settings { get; set; }
+    internal AnalyzersSettings? Settings { get; set; }
 
     protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberReceivedInOrderAnalyzer();
 
@@ -23,7 +23,7 @@ public class NonSubstitutableMemberReceivedInOrderDiagnosticVerifier : CSharpDia
 
     private readonly DiagnosticDescriptor _nonVirtualReceivedInOrderSetupSpecificationDescriptor = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.NonVirtualReceivedInOrderSetupSpecification;
 
-    protected override string AnalyzerSettings => Settings != null ? Json.Encode(Settings) : null;
+    protected override string? AnalyzerSettings => Settings != null ? Json.Encode(Settings) : null;
 
     [Fact]
     public async Task ReportsDiagnostics_WhenInvokingNonVirtualMethodWithoutAssignment()

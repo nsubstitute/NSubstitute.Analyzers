@@ -15,7 +15,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
 
 public class NonSubstitutableMemberReceivedInOrderDiagnosticVerifier : VisualBasicDiagnosticVerifier, INonSubstitutableMemberReceivedInOrderDiagnosticVerifier
 {
-    internal AnalyzersSettings Settings { get; set; }
+    internal AnalyzersSettings? Settings { get; set; }
 
     protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberReceivedInOrderAnalyzer();
 
@@ -23,7 +23,7 @@ public class NonSubstitutableMemberReceivedInOrderDiagnosticVerifier : VisualBas
 
     private readonly DiagnosticDescriptor _nonVirtualReceivedInOrderSetupSpecificationDescriptor = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.NonVirtualReceivedInOrderSetupSpecification;
 
-    protected override string AnalyzerSettings => Settings != null ? Json.Encode(Settings) : null;
+    protected override string? AnalyzerSettings => Settings != null ? Json.Encode(Settings) : null;
 
     [Fact]
     public async Task ReportsDiagnostics_WhenInvokingNonVirtualMethodWithoutAssignment()

@@ -51,13 +51,13 @@ internal abstract class AbstractSubstituteForInternalMemberCodeFixProvider<TComp
 
     protected abstract void RegisterCodeFix(CodeFixContext context, TCompilationUnitSyntax compilationUnitSyntax);
 
-    private SyntaxReference GetDeclaringSyntaxReference(IInvocationOperation invocationOperation)
+    private SyntaxReference? GetDeclaringSyntaxReference(IInvocationOperation invocationOperation)
     {
         var actualProxyTypeSymbol = _substituteProxyAnalysis.GetActualProxyTypeSymbol(invocationOperation);
-        return actualProxyTypeSymbol.DeclaringSyntaxReferences.FirstOrDefault();
+        return actualProxyTypeSymbol?.DeclaringSyntaxReferences.FirstOrDefault();
     }
 
-    private TCompilationUnitSyntax FindCompilationUnitSyntax(SyntaxNode syntaxNode)
+    private TCompilationUnitSyntax? FindCompilationUnitSyntax(SyntaxNode syntaxNode)
     {
         return syntaxNode.Ancestors().OfType<TCompilationUnitSyntax>().LastOrDefault();
     }

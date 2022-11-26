@@ -21,7 +21,7 @@ internal sealed class AsyncReceivedInOrderCallbackAnalyzer : AbstractAsyncReceiv
         {
             LambdaExpressionSyntax lambdaExpressionSyntax => lambdaExpressionSyntax.SubOrFunctionHeader.ChildTokens()
                 .Select<SyntaxToken, SyntaxToken?>(token => token)
-                .FirstOrDefault(token => token.Value.IsKind(SyntaxKind.AsyncKeyword)),
+                .FirstOrDefault(token => token.HasValue && token.Value.IsKind(SyntaxKind.AsyncKeyword)),
             _ => null
         };
     }

@@ -71,29 +71,41 @@ public sealed class AnalyzerBenchmark
 
     public DiagnosticAnalyzer Analyzer { get; }
 
-    public IReadOnlyList<ContextAndAction<SyntaxNodeAnalysisContext>> SyntaxNodeActions { get; private set; }
+    public IReadOnlyList<ContextAndAction<SyntaxNodeAnalysisContext>> SyntaxNodeActions { get; private set; } =
+        Array.Empty<ContextAndAction<SyntaxNodeAnalysisContext>>();
 
-    public IReadOnlyList<ContextAndAction<CompilationStartAnalysisContext>> CompilationStartActions { get; private set; }
+    public IReadOnlyList<ContextAndAction<CompilationStartAnalysisContext>> CompilationStartActions { get; private set; } =
+        Array.Empty<ContextAndAction<CompilationStartAnalysisContext>>();
 
-    public IReadOnlyList<ContextAndAction<CompilationAnalysisContext>> CompilationEndActions { get; private set; }
+    public IReadOnlyList<ContextAndAction<CompilationAnalysisContext>> CompilationEndActions { get; private set; } =
+        Array.Empty<ContextAndAction<CompilationAnalysisContext>>();
 
-    public IReadOnlyList<ContextAndAction<CompilationAnalysisContext>> CompilationActions { get; private set; }
+    public IReadOnlyList<ContextAndAction<CompilationAnalysisContext>> CompilationActions { get; private set; } =
+        Array.Empty<ContextAndAction<CompilationAnalysisContext>>();
 
-    public IReadOnlyList<ContextAndAction<SemanticModelAnalysisContext>> SemanticModelActions { get; private set; }
+    public IReadOnlyList<ContextAndAction<SemanticModelAnalysisContext>> SemanticModelActions { get; private set; } =
+        Array.Empty<ContextAndAction<SemanticModelAnalysisContext>>();
 
-    public IReadOnlyList<ContextAndAction<SymbolAnalysisContext>> SymbolActions { get; private set; }
+    public IReadOnlyList<ContextAndAction<SymbolAnalysisContext>> SymbolActions { get; private set; } =
+        Array.Empty<ContextAndAction<SymbolAnalysisContext>>();
 
-    public IReadOnlyList<IContextAndAction> CodeBlockStartActions { get; private set; }
+    public IReadOnlyList<IContextAndAction> CodeBlockStartActions { get; private set; } =
+        Array.Empty<ContextAndAction<SymbolAnalysisContext>>();
 
-    public IReadOnlyList<ContextAndAction<CodeBlockAnalysisContext>> CodeBlockActions { get; private set; }
+    public IReadOnlyList<ContextAndAction<CodeBlockAnalysisContext>> CodeBlockActions { get; private set; } =
+        Array.Empty<ContextAndAction<CodeBlockAnalysisContext>>();
 
-    public IReadOnlyList<ContextAndAction<SyntaxTreeAnalysisContext>> SyntaxTreeActions { get; private set; }
+    public IReadOnlyList<ContextAndAction<SyntaxTreeAnalysisContext>> SyntaxTreeActions { get; private set; } =
+        Array.Empty<ContextAndAction<SyntaxTreeAnalysisContext>>();
 
-    public IReadOnlyList<ContextAndAction<OperationAnalysisContext>> OperationActions { get; private set; }
+    public IReadOnlyList<ContextAndAction<OperationAnalysisContext>> OperationActions { get; private set; } =
+        Array.Empty<ContextAndAction<OperationAnalysisContext>>();
 
-    public IReadOnlyList<ContextAndAction<OperationBlockAnalysisContext>> OperationBlockActions { get; private set; }
+    public IReadOnlyList<ContextAndAction<OperationBlockAnalysisContext>> OperationBlockActions { get; private set; } =
+        Array.Empty<ContextAndAction<OperationBlockAnalysisContext>>();
 
-    public IReadOnlyList<ContextAndAction<OperationBlockStartAnalysisContext>> OperationBlockStartActions { get; private set; }
+    public IReadOnlyList<ContextAndAction<OperationBlockStartAnalysisContext>> OperationBlockStartActions { get; private set; } =
+        Array.Empty<ContextAndAction<OperationBlockStartAnalysisContext>>();
 
     public static AnalyzerBenchmark CreateBenchmark(Solution solution, DiagnosticAnalyzer analyzer)
     {

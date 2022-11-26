@@ -23,7 +23,7 @@ public class DiagnosticIdentifierTests
         .GetProperties(BindingFlags.Public | BindingFlags.Static)
         .ToArray();
 
-    public static List<DiagnosticDescriptor> DiagnosticDescriptors { get; } = DiagnosticDescriptorsProperties.Select(desc => (DiagnosticDescriptor)desc.GetValue(null)).ToList();
+    public static List<DiagnosticDescriptor> DiagnosticDescriptors { get; } = DiagnosticDescriptorsProperties.Select(desc => (DiagnosticDescriptor)desc.GetValue(null)!).ToList();
 
     [Fact]
     public void DiagnosticIdentifiers_ShouldHaveConstantValue()
@@ -34,7 +34,7 @@ public class DiagnosticIdentifierTests
     [Fact]
     public void DiagnosticIdentifiers_StartsWithProperPrefix()
     {
-        var invalidDiagnosticNames = DiagnosticIdentifierFields.Where(info => ((string)info.GetRawConstantValue()).StartsWith(IdentifierPrefix) == false);
+        var invalidDiagnosticNames = DiagnosticIdentifierFields.Where(info => ((string)info.GetRawConstantValue()!).StartsWith(IdentifierPrefix) == false);
 
         invalidDiagnosticNames.Should().BeEmpty($"because all diagnostics should start with {IdentifierPrefix} prefix");
     }
@@ -95,7 +95,7 @@ public class DiagnosticIdentifierTests
 
     private int GetCategoryId(FieldInfo fieldInfo)
     {
-        return GetCategoryId((string)fieldInfo.GetRawConstantValue());
+        return GetCategoryId((string)fieldInfo.GetRawConstantValue()!);
     }
 
     private int GetCategoryId(string diagnosticId)
@@ -106,7 +106,7 @@ public class DiagnosticIdentifierTests
 
     private int GetDiagnosticId(FieldInfo fieldInfo)
     {
-        return GetDiagnosticId((string)fieldInfo.GetRawConstantValue());
+        return GetDiagnosticId((string)fieldInfo.GetRawConstantValue()!);
     }
 
     private int GetDiagnosticId(string diagnosticId)

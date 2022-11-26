@@ -15,7 +15,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.WithA
 
 public abstract class ForAnyArgsArgumentMatcherDiagnosticVerifier : VisualBasicDiagnosticVerifier, IForAnyArgsArgumentMatcherDiagnosticVerifier
 {
-    internal AnalyzersSettings Settings { get; set; }
+    internal AnalyzersSettings? Settings { get; set; }
 
     protected DiagnosticDescriptor WithAnyArgsArgumentMatcherUsage { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.WithAnyArgsArgumentMatcherUsage;
 
@@ -51,13 +51,13 @@ public abstract class ForAnyArgsArgumentMatcherDiagnosticVerifier : VisualBasicD
     }
 
     public static IEnumerable<object[]> MisusedArgTestCasesWithoutDelegates =>
-           MisusedArgTestCases.Where(arguments => arguments.All(argument => !argument.ToString().Contains("Invoke")));
+           MisusedArgTestCases.Where(arguments => arguments.All(argument => !argument.ToString()?.Contains("Invoke") ?? false));
 
     public static IEnumerable<object[]> ArgAnyTestCases =>
-        CorrectlyUsedArgTestCases.Where(arguments => arguments.All(argument => argument.ToString().Contains("Any")));
+        CorrectlyUsedArgTestCases.Where(arguments => arguments.All(argument => argument.ToString()?.Contains("Any") ?? false));
 
     public static IEnumerable<object[]> MisusedArgTestCasesDelegates =>
-        MisusedArgTestCases.Where(arguments => arguments.All(argument => argument.ToString().Contains("Invoke")));
+        MisusedArgTestCases.Where(arguments => arguments.All(argument => argument.ToString()?.Contains("Invoke") ?? false));
 
     public static IEnumerable<object[]> CorrectlyUsedArgTestCases
     {
@@ -101,10 +101,10 @@ End Function)"
     }
 
     public static IEnumerable<object[]> CorrectlyUsedArgTestCasesWithoutDelegates => CorrectlyUsedArgTestCases.Where(arguments =>
-            arguments.All(argument => !argument.ToString().Contains("Invoke")));
+            arguments.All(argument => !argument.ToString()?.Contains("Invoke") ?? false));
 
     public static IEnumerable<object[]> CorrectlyUsedArgTestCasesDelegates =>
-        CorrectlyUsedArgTestCases.Where(arguments => arguments.All(argument => argument.ToString().Contains("Invoke")));
+        CorrectlyUsedArgTestCases.Where(arguments => arguments.All(argument => argument.ToString()?.Contains("Invoke") ?? false));
 
     public static IEnumerable<string[]> MisusedArgs
     {

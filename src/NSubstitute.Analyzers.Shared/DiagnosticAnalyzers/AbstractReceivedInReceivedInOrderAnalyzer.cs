@@ -10,17 +10,17 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 internal abstract class AbstractReceivedInReceivedInOrderAnalyzer : AbstractDiagnosticAnalyzer
 {
-    private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
+    private readonly ISubstitutionOperationFinder _substitutionOperationFinder;
     private readonly Action<OperationAnalysisContext> _analyzeInvocationAction;
 
     public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
     protected AbstractReceivedInReceivedInOrderAnalyzer(
-        ISubstitutionNodeFinder substitutionNodeFinder,
+        ISubstitutionOperationFinder substitutionOperationFinder,
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
         : base(diagnosticDescriptorsProvider)
     {
-        _substitutionNodeFinder = substitutionNodeFinder;
+        _substitutionOperationFinder = substitutionOperationFinder;
         _analyzeInvocationAction = AnalyzeInvocation;
         SupportedDiagnostics = ImmutableArray.Create(diagnosticDescriptorsProvider.ReceivedUsedInReceivedInOrder);
     }
@@ -39,7 +39,7 @@ internal abstract class AbstractReceivedInReceivedInOrderAnalyzer : AbstractDiag
             return;
         }
 
-        foreach (var operation in _substitutionNodeFinder.FindForReceivedInOrderExpression(
+        foreach (var operation in _substitutionOperationFinder.FindForReceivedInOrderExpression(
                      operationAnalysisContext.Compilation,
                      invocationOperation,
                      includeAll: true).OfType<IInvocationOperation>())

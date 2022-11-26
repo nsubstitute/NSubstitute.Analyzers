@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -11,13 +10,13 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 internal class ReEntrantCallFinder : IReEntrantCallFinder
 {
-    private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
+    private readonly ISubstitutionOperationFinder _substitutionOperationFinder;
 
-    public static ReEntrantCallFinder Instance { get; } = new(SubstitutionNodeFinder.Instance);
+    public static ReEntrantCallFinder Instance { get; } = new(SubstitutionOperationFinder.Instance);
 
-    protected ReEntrantCallFinder(ISubstitutionNodeFinder substitutionNodeFinder)
+    protected ReEntrantCallFinder(ISubstitutionOperationFinder substitutionOperationFinder)
     {
-        _substitutionNodeFinder = substitutionNodeFinder;
+        _substitutionOperationFinder = substitutionOperationFinder;
     }
 
     public IReadOnlyList<IOperation> GetReEntrantCalls(
@@ -77,7 +76,7 @@ internal class ReEntrantCallFinder : IReEntrantCallFinder
                 continue;
             }
 
-            var substitutedNode = _substitutionNodeFinder.FindForStandardExpression(operation);
+            var substitutedNode = _substitutionOperationFinder.FindForStandardExpression(operation);
 
             if (substitutedNode == null)
             {

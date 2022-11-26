@@ -6,7 +6,7 @@ namespace NSubstitute.Analyzers.Shared.Extensions;
 
 internal static class TypeInfoExtensions
 {
-    public static bool IsCallInfoDelegate(this ITypeSymbol typeSymbol, Compilation compilation)
+    public static bool IsCallInfoDelegate(this ITypeSymbol? typeSymbol, Compilation compilation)
     {
         var isCalledViaDelegate = typeSymbol != null &&
                                   typeSymbol.TypeKind == TypeKind.Delegate &&
@@ -23,7 +23,7 @@ internal static class TypeInfoExtensions
         return IsCallInfoSymbolInternal(symbol) || IsCallInfoSymbolInternal(symbol.BaseType);
     }
 
-    private static bool IsCallInfoSymbolInternal(ISymbol symbol)
+    private static bool IsCallInfoSymbolInternal(ISymbol? symbol)
     {
         return symbol != null &&
                symbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true &&

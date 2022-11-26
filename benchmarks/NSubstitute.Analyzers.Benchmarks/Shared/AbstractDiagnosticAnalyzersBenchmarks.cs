@@ -155,7 +155,7 @@ public abstract class AbstractDiagnosticAnalyzersBenchmarks
         const string rootDirFileName = "NSubstitute.Analyzers.sln";
         var location = Assembly.GetExecutingAssembly().Location;
 
-        var directoryInfo = new DirectoryInfo(Path.GetDirectoryName(location));
+        var directoryInfo = new DirectoryInfo(Path.GetDirectoryName(location)!);
         do
         {
             var solutionFileInfo =
@@ -163,7 +163,7 @@ public abstract class AbstractDiagnosticAnalyzersBenchmarks
 
             if (solutionFileInfo != null)
             {
-                return solutionFileInfo.DirectoryName;
+                return solutionFileInfo.DirectoryName!;
             }
 
             directoryInfo = directoryInfo.Parent;
@@ -183,15 +183,21 @@ public abstract class AbstractDiagnosticAnalyzersBenchmarks
     }
 
     private static HashSet<Assembly> RecursiveReferencedAssemblies(
-        Assembly assembly,
-        HashSet<Assembly> recursiveAssemblies = null)
+        Assembly? assembly,
+        HashSet<Assembly>? recursiveAssemblies = null)
     {
         recursiveAssemblies ??= new HashSet<Assembly>();
+
+        if (assembly == null)
+        {
+            return recursiveAssemblies;
+        }
+
         if (recursiveAssemblies.Add(assembly))
         {
             foreach (var referencedAssembly in assembly.GetReferencedAssemblies())
             {
-                Assembly result;
+                Assembly? result;
                 if (TryGetOrLoad(referencedAssembly, out result))
                     RecursiveReferencedAssemblies(result, recursiveAssemblies);
             }
@@ -225,7 +231,7 @@ public abstract class AbstractDiagnosticAnalyzersBenchmarks
         return solution;
     }
 
-    private static bool TryGetOrLoad(AssemblyName name, out Assembly result)
+    private static bool TryGetOrLoad(AssemblyName name, out Assembly? result)
     {
         try
         {

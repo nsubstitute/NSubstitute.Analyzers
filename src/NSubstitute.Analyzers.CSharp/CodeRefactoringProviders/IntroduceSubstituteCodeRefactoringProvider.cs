@@ -22,7 +22,7 @@ internal sealed class IntroduceSubstituteCodeRefactoringProvider : AbstractIntro
         ObjectCreationExpressionSyntax objectCreationExpressionSyntax,
         IReadOnlyList<ArgumentSyntax> updatedArguments)
     {
-        var originalArgumentList = objectCreationExpressionSyntax.ArgumentList;
+        var originalArgumentList = objectCreationExpressionSyntax.ArgumentList ?? ArgumentList();
         var updatedArgumentList = originalArgumentList.Update(
             originalArgumentList.OpenParenToken.WithTrailingTrivia(),
             SeparatedList(updatedArguments),
@@ -33,7 +33,7 @@ internal sealed class IntroduceSubstituteCodeRefactoringProvider : AbstractIntro
         return objectCreationExpressionSyntax.WithArgumentList(updatedArgumentList);
     }
 
-    protected override SyntaxNode FindSiblingNodeForLocalSubstitute(ObjectCreationExpressionSyntax creationExpression)
+    protected override SyntaxNode? FindSiblingNodeForLocalSubstitute(ObjectCreationExpressionSyntax creationExpression)
     {
         var container = creationExpression.Ancestors()
             .FirstOrDefault(ancestor => ancestor.Kind() == SyntaxKind.Block);
@@ -41,7 +41,7 @@ internal sealed class IntroduceSubstituteCodeRefactoringProvider : AbstractIntro
         return container?.ChildNodes().FirstOrDefault();
     }
 
-    protected override SyntaxNode FindSiblingNodeForReadonlySubstitute(SyntaxNode creationExpression)
+    protected override SyntaxNode? FindSiblingNodeForReadonlySubstitute(SyntaxNode creationExpression)
     {
         var typeDeclarationSyntax = creationExpression.Ancestors()
             .OfType<TypeDeclarationSyntax>()

@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +7,9 @@ using NSubstitute.Analyzers.Shared.Extensions;
 
 namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
-internal class SubstitutionNodeFinder : ISubstitutionNodeFinder
+internal sealed class SubstitutionOperationFinder : ISubstitutionOperationFinder
 {
-    public static SubstitutionNodeFinder Instance { get; } = new();
+    public static SubstitutionOperationFinder Instance { get; } = new();
 
     public IEnumerable<IOperation> Find(
         Compilation compilation,
@@ -23,8 +22,7 @@ internal class SubstitutionNodeFinder : ISubstitutionNodeFinder
 
         var invocationExpressionSymbol = invocationOperation.TargetMethod;
 
-        if (invocationExpressionSymbol == null ||
-            invocationExpressionSymbol.ContainingAssembly.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.Ordinal) == false)
+        if (invocationExpressionSymbol.ContainingAssembly.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.Ordinal) == false)
         {
             return Enumerable.Empty<IOperation>();
         }
