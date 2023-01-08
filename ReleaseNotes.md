@@ -1,3 +1,11 @@
+### 1.0.16 (22 January 2023)
+
+- [#186](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/186) - Support for NSubstitute 4.4 API
+- [#181](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/181) - Introducing code fix provider for NS5001
+- [#174](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/174) - NS5004, detecting usage of arg matchers in `WithAnyArgs` like methods
+- [#164](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/164) - NS5003, detecting synchronous exceptions thrown from async methods
+- [#153](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/153) - Handling out of order parameters
+
 ### 1.0.15 (13 November 2021)
 
 - [#172](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/172) - NS1004 false positive when using arg matchers with properties
