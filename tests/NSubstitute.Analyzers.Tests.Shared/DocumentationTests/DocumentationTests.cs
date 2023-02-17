@@ -59,7 +59,7 @@ public class DocumentationTests
         AssertRulesSummaryRow(descriptor, parsedDocumentation);
     }
 
-    private void AssertRulesSummaryRow(DiagnosticDescriptor descriptor, List<HeadingContainer> parsedDocumentation)
+    private void AssertRulesSummaryRow(DiagnosticDescriptor descriptor, IReadOnlyList<HeadingContainer> parsedDocumentation)
     {
         var ruleRowLocation = DiagnosticDescriptors.IndexOf(descriptor);
         var rulesTable = parsedDocumentation.Single(container => GetBlockText(container.Heading) == "Rules")
@@ -73,7 +73,7 @@ public class DocumentationTests
         AssertRuleSummaryCauseCell(cells.ElementAt(2), descriptor);
     }
 
-    private static List<Block> GetParsedDocumentation(DiagnosticDescriptor descriptor)
+    private static IReadOnlyList<Block> GetParsedDocumentation(DiagnosticDescriptor descriptor)
     {
         var directoryName = GetRulesDocumentationDirectoryPath();
         var fileInfo = new FileInfo(Path.Combine(directoryName, $"{descriptor.Id}.md"));
@@ -81,7 +81,7 @@ public class DocumentationTests
         return GetParsedDocumentation(fileInfo);
     }
 
-    private static List<Block> GetParsedDocumentation(FileInfo fileInfo)
+    private static IReadOnlyList<Block> GetParsedDocumentation(FileInfo fileInfo)
     {
         var markdownPipeline = new MarkdownPipelineBuilder()
             .UseAdvancedExtensions()
@@ -97,15 +97,15 @@ public class DocumentationTests
     {
         var locations = new[] { "..", "..", "..", "..", "..", "documentation", "rules" };
         var rulesPath = string.Join(Path.DirectorySeparatorChar, locations);
-        return Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), rulesPath));
+        return Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, rulesPath));
     }
 
-    private List<HeadingContainer> GetLayoutByHeadings(List<Block> blocks)
+    private IReadOnlyList<HeadingContainer> GetLayoutByHeadings(IReadOnlyList<Block> blocks)
     {
         var blockedLayout = new List<HeadingContainer>();
 
-        HeadingBlock currentHeadingBlock = null;
-        HeadingContainer currentContainer = null;
+        HeadingBlock? currentHeadingBlock = null;
+        HeadingContainer? currentContainer = null;
 
         foreach (var currentBlock in blocks)
         {
@@ -118,14 +118,14 @@ public class DocumentationTests
 
             if (currentHeadingBlock != null && currentBlock is not HeadingBlock)
             {
-                currentContainer.Children.Add(currentBlock);
+                currentContainer!.Children.Add(currentBlock);
             }
         }
 
         return blockedLayout;
     }
 
-    private void AssertHeadingsLayout(List<HeadingContainer> layout, string ruleId)
+    private void AssertHeadingsLayout(IReadOnlyList<HeadingContainer> layout, string ruleId)
     {
         layout.Should().HaveCountGreaterOrEqualTo(5);
         AssertHeading(layout[0].Heading, 1, ruleId);
@@ -143,18 +143,18 @@ public class DocumentationTests
         headingText.Should().Be(expectedText);
     }
 
-    private void AssertContent(List<HeadingContainer> layout, string ruleId, string ruleCategory)
+    private void AssertContent(IReadOnlyList<HeadingContainer> layout, string ruleId, string ruleCategory)
     {
         AssertTableContent(layout, ruleId, ruleCategory);
         AssertHeaderContentNonEmpty(layout);
     }
 
-    private void AssertHeaderContentNonEmpty(List<HeadingContainer> layout)
+    private void AssertHeaderContentNonEmpty(IReadOnlyList<HeadingContainer> layout)
     {
-        layout.Should().OnlyContain(container => container.Children != null && container.Children.Any());
+        layout.Should().OnlyContain(container => container.Children != null && container.Children.Count > 0);
     }
 
-    private void AssertTableContent(List<HeadingContainer> layout, string ruleId, string ruleCategory)
+    private void AssertTableContent(IReadOnlyList<HeadingContainer> layout, string ruleId, string ruleCategory)
     {
         var children = layout[0].Children;
         children.Should().HaveCount(1);

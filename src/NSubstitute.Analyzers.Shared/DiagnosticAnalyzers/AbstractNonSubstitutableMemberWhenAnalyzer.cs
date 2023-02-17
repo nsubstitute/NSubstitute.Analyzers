@@ -9,7 +9,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer : AbstractNonSubstitutableSetupAnalyzer
 {
-    private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
+    private readonly ISubstitutionOperationFinder _substitutionOperationFinder;
 
     public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
@@ -17,11 +17,11 @@ internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer : AbstractNon
 
     protected AbstractNonSubstitutableMemberWhenAnalyzer(
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
-        ISubstitutionNodeFinder substitutionNodeFinder,
+        ISubstitutionOperationFinder substitutionOperationFinder,
         INonSubstitutableMemberAnalysis nonSubstitutableMemberAnalysis)
         : base(diagnosticDescriptorsProvider, nonSubstitutableMemberAnalysis)
     {
-        _substitutionNodeFinder = substitutionNodeFinder;
+        _substitutionOperationFinder = substitutionOperationFinder;
         _analyzeInvocationAction = AnalyzeInvocation;
         SupportedDiagnostics = ImmutableArray.Create(
             DiagnosticDescriptorsProvider.NonVirtualWhenSetupSpecification,
@@ -45,7 +45,7 @@ internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer : AbstractNon
             return;
         }
 
-        var operations = _substitutionNodeFinder.FindForWhenExpression(context.Compilation, invocationOperation);
+        var operations = _substitutionOperationFinder.FindForWhenExpression(context.Compilation, invocationOperation);
         foreach (var operation in operations)
         {
             Analyze(context, operation);

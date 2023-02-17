@@ -8,7 +8,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 internal sealed class NonSubstitutableMemberAnalyzer : AbstractNonSubstitutableMemberAnalyzer
 {
     public NonSubstitutableMemberAnalyzer()
-        : base(NSubstitute.Analyzers.CSharp.DiagnosticDescriptorsProvider.Instance, SubstitutionNodeFinder.Instance, NonSubstitutableMemberAnalysis.Instance)
+        : base(NSubstitute.Analyzers.CSharp.DiagnosticDescriptorsProvider.Instance, SubstitutionOperationFinder.Instance, NonSubstitutableMemberAnalysis.Instance)
     {
     }
 }

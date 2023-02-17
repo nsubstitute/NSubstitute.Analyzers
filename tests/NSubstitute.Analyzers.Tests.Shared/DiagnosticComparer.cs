@@ -9,7 +9,7 @@ public static class DiagnosticComparer
 
     private class DiagnosticSpanStartComparer : IComparer<Diagnostic>
     {
-        public int Compare(Diagnostic x, Diagnostic y)
+        public int Compare(Diagnostic? x, Diagnostic? y)
         {
             if (ReferenceEquals(x, y))
             {

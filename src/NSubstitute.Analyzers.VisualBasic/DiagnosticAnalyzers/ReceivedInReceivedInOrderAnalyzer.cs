@@ -8,7 +8,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 internal sealed class ReceivedInReceivedInOrderAnalyzer : AbstractReceivedInReceivedInOrderAnalyzer
 {
     public ReceivedInReceivedInOrderAnalyzer()
-        : base(SubstitutionNodeFinder.Instance, VisualBasic.DiagnosticDescriptorsProvider.Instance)
+        : base(SubstitutionOperationFinder.Instance, VisualBasic.DiagnosticDescriptorsProvider.Instance)
     {
     }
 }

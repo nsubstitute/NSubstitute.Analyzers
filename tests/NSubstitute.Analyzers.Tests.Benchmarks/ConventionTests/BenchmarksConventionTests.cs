@@ -59,12 +59,12 @@ public class BenchmarksConventionTests
     {
         var producedDiagnostics = await BenchmarkDescriptors.ToAsyncEnumerable().SelectAwait(async benchmark =>
         {
-            var propertyInfo = benchmark.Property.DeclaringType.GetProperty(
+            var propertyInfo = benchmark.Property.DeclaringType!.GetProperty(
                 nameof(AbstractDiagnosticAnalyzersBenchmarks.Solution),
                 BindingFlags.Instance | BindingFlags.NonPublic);
 
-            var solution = propertyInfo.GetValue(benchmark.DeclaringTypeInstance) as Solution;
-            return await GetDiagnostics(solution, benchmark.Benchmark.Analyzer);
+            var solution = (Solution)propertyInfo!.GetValue(benchmark.DeclaringTypeInstance)!;
+            return await GetDiagnostics(solution!, benchmark.Benchmark.Analyzer);
         }).ToListAsync();
 
         return producedDiagnostics.GroupBy(diagnostic => diagnostic.Language).Select(grouping =>
@@ -98,10 +98,10 @@ public class BenchmarksConventionTests
             .ToList();
 
         var declaringInstances = benchmarkFields.GroupBy(fieldInfo => fieldInfo.DeclaringType)
-            .ToDictionary(grouping => grouping.Key, grouping => (AbstractDiagnosticAnalyzersBenchmarks)Activator.CreateInstance(grouping.Key));
+            .ToDictionary(grouping => grouping.Key!, grouping => (AbstractDiagnosticAnalyzersBenchmarks)Activator.CreateInstance(grouping.Key!)!);
 
         var benchmarkAnalyzers = benchmarkFields
-            .Select(benchmark => new BenchmarkDescriptor(benchmark, (AnalyzerBenchmark)benchmark.GetValue(declaringInstances[benchmark.DeclaringType]), declaringInstances[benchmark.DeclaringType]))
+            .Select(benchmark => new BenchmarkDescriptor(benchmark, (AnalyzerBenchmark)benchmark.GetValue(declaringInstances[benchmark.DeclaringType!])!, declaringInstances[benchmark.DeclaringType!]))
             .ToArray();
 
         return benchmarkAnalyzers;
@@ -112,7 +112,7 @@ public class BenchmarksConventionTests
     private record DiagnosticsWithAnalyzer(DiagnosticAnalyzer Analyzer, IReadOnlyList<Diagnostic> Diagnostics)
     {
         public string Language { get; } =
-            Analyzer.GetType().GetCustomAttribute<DiagnosticAnalyzerAttribute>().Languages.Single();
+            Analyzer.GetType().GetCustomAttribute<DiagnosticAnalyzerAttribute>()!.Languages.Single();
 
         public IReadOnlyList<string> DiagnosticIds => Diagnostics.Select(diag => diag.Id).ToList();
     }

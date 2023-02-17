@@ -9,7 +9,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 internal sealed class CallInfoAnalyzer : AbstractCallInfoAnalyzer
 {
     public CallInfoAnalyzer()
-        : base(NSubstitute.Analyzers.CSharp.DiagnosticDescriptorsProvider.Instance, CallInfoFinder.Instance, SubstitutionNodeFinder.Instance)
+        : base(NSubstitute.Analyzers.CSharp.DiagnosticDescriptorsProvider.Instance, CallInfoFinder.Instance, SubstitutionOperationFinder.Instance)
     {
     }
 

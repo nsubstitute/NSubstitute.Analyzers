@@ -1,4 +1,3 @@
-#nullable enable
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -92,7 +91,7 @@ internal static class IOperationExtensions
         return conversionTypeSymbol ?? argumentOperation.GetArgumentOperationDeclaredTypeSymbol();
     }
 
-    public static ITypeSymbol GetTypeSymbol(this IAssignmentOperation assignmentOperation)
+    public static ITypeSymbol? GetTypeSymbol(this IAssignmentOperation assignmentOperation)
     {
         return assignmentOperation.Value switch
         {

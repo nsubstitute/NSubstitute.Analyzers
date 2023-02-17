@@ -14,7 +14,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
 
 public abstract class NonSubstitutableMemberDiagnosticVerifier : VisualBasicDiagnosticVerifier, INonSubstitutableMemberDiagnosticVerifier
 {
-    internal AnalyzersSettings Settings { get; set; }
+    internal AnalyzersSettings? Settings { get; set; }
 
     protected DiagnosticDescriptor NonVirtualSetupSpecificationDescriptor { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.NonVirtualSetupSpecification;
 
@@ -22,7 +22,7 @@ public abstract class NonSubstitutableMemberDiagnosticVerifier : VisualBasicDiag
 
     protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberAnalyzer();
 
-    protected override string AnalyzerSettings => Settings != null ? Json.Encode(Settings) : null;
+    protected override string? AnalyzerSettings => Settings != null ? Json.Encode(Settings) : null;
 
     [CombinatoryTheory]
     [InlineData]

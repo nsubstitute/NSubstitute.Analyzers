@@ -16,13 +16,13 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitu
 
 public abstract class NonSubstitutableMemberArgumentMatcherDiagnosticVerifier : CSharpDiagnosticVerifier, INonSubstitutableMemberArgumentMatcherDiagnosticVerifier
 {
-    internal AnalyzersSettings Settings { get; set; }
+    internal AnalyzersSettings? Settings { get; set; }
 
     protected DiagnosticDescriptor ArgumentMatcherUsedWithoutSpecifyingCall { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.NonSubstitutableMemberArgumentMatcherUsage;
 
     protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberArgumentMatcherAnalyzer();
 
-    protected override string AnalyzerSettings => Settings != null ? Json.Encode(Settings) : null;
+    protected override string? AnalyzerSettings => Settings != null ? Json.Encode(Settings) : null;
 
     [Theory]
     [MemberData(nameof(MisusedArgTestCases))]
@@ -161,7 +161,7 @@ public abstract class NonSubstitutableMemberArgumentMatcherDiagnosticVerifier : 
     }
 
     public static IEnumerable<object[]> MisusedArgTestCasesWithoutDelegates =>
-        MisusedArgTestCases.Where(arguments => arguments.All(argument => !argument.ToString().Contains("Invoke")));
+        MisusedArgTestCases.Where(arguments => arguments.All(argument => !argument.ToString()?.Contains("Invoke") ?? false));
 
     public static IEnumerable<object[]> CorrectlyUsedArgTestCases
     {
@@ -197,7 +197,7 @@ public abstract class NonSubstitutableMemberArgumentMatcherDiagnosticVerifier : 
     }
 
     public static IEnumerable<object[]> CorrectlyUsedArgTestCasesWithoutDelegates =>
-        CorrectlyUsedArgTestCases.Where(arguments => arguments.All(argument => !argument.ToString().Contains("Invoke")));
+        CorrectlyUsedArgTestCases.Where(arguments => arguments.All(argument => !argument.ToString()?.Contains("Invoke") ?? false));
 
     public static IEnumerable<object[]> CorrectlyUsedArgTestCasesWithoutCasts
     {

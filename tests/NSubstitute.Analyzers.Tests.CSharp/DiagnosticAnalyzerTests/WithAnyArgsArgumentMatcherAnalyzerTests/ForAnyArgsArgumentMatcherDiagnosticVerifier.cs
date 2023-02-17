@@ -15,7 +15,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.WithAnyArgs
 
 public abstract class ForAnyArgsArgumentMatcherDiagnosticVerifier : CSharpDiagnosticVerifier, IForAnyArgsArgumentMatcherDiagnosticVerifier
 {
-    internal AnalyzersSettings Settings { get; set; }
+    internal AnalyzersSettings? Settings { get; set; }
 
     protected DiagnosticDescriptor WithAnyArgsArgumentMatcherUsage { get; } = DiagnosticDescriptors<DiagnosticDescriptorsProvider>.WithAnyArgsArgumentMatcherUsage;
 
@@ -65,10 +65,10 @@ public abstract class ForAnyArgsArgumentMatcherDiagnosticVerifier : CSharpDiagno
     }
 
     public static IEnumerable<object[]> MisusedArgTestCasesWithoutDelegates =>
-        MisusedArgTestCases.Where(arguments => arguments.All(argument => !argument.ToString().Contains("Invoke")));
+        MisusedArgTestCases.Where(arguments => arguments.All(argument => !argument.ToString()?.Contains("Invoke") ?? false));
 
     public static IEnumerable<object[]> ArgAnyTestCases =>
-        CorrectlyUsedArgTestCases.Where(arguments => arguments.All(argument => argument.ToString().Contains("Any")));
+        CorrectlyUsedArgTestCases.Where(arguments => arguments.All(argument => argument.ToString()?.Contains("Any") ?? false));
 
     public static IEnumerable<object[]> CorrectlyUsedArgTestCases
     {
@@ -100,5 +100,5 @@ public abstract class ForAnyArgsArgumentMatcherDiagnosticVerifier : CSharpDiagno
     }
 
     public static IEnumerable<object[]> CorrectlyUsedArgTestCasesWithoutDelegates =>
-        CorrectlyUsedArgTestCases.Where(arguments => arguments.All(argument => !argument.ToString().Contains("Invoke")));
+        CorrectlyUsedArgTestCases.Where(arguments => arguments.All(argument => !argument.ToString()?.Contains("Invoke") ?? false));
 }

@@ -17,7 +17,7 @@ internal sealed class SubstituteConstructorAnalysis : ISubstituteConstructorAnal
             return new ConstructorContext(proxyTypeSymbol, null, null, null);
         }
 
-        var invocationParameterTypes = GetInvocationInfo(substituteContext);
+        var invocationParameterTypes = GetInvocationArgumentTypes(substituteContext);
 
         bool IsPossibleConstructor(IMethodSymbol methodSymbol)
         {
@@ -32,7 +32,7 @@ internal sealed class SubstituteConstructorAnalysis : ISubstituteConstructorAnal
         }
 
         var accessibleConstructors = GetAccessibleConstructors(proxyTypeSymbol);
-        var possibleConstructors = invocationParameterTypes != null && accessibleConstructors != null
+        var possibleConstructors = invocationParameterTypes != null
             ? accessibleConstructors.Where(IsPossibleConstructor)
                 .ToArray()
             : null;
@@ -44,13 +44,11 @@ internal sealed class SubstituteConstructorAnalysis : ISubstituteConstructorAnal
             invocationParameterTypes);
     }
 
-    private ITypeSymbol[] GetInvocationInfo(SubstituteContext substituteContext)
+    private ITypeSymbol[]? GetInvocationArgumentTypes(SubstituteContext substituteContext)
     {
-        var infos = substituteContext.InvocationOperation.TargetMethod.IsGenericMethod
+        return substituteContext.InvocationOperation.TargetMethod.IsGenericMethod
             ? GetGenericInvocationArgumentTypes(substituteContext)
             : GetNonGenericInvocationArgumentTypes(substituteContext);
-
-        return infos;
     }
 
     private ITypeSymbol[] GetGenericInvocationArgumentTypes(SubstituteContext substituteContext)
@@ -63,15 +61,15 @@ internal sealed class SubstituteConstructorAnalysis : ISubstituteConstructorAnal
         }
 
         // if passing array of objects as a sole element
-        if (arguments.Length == 1 && arguments.Single().Value is IArrayCreationOperation arrayTypeSymbol)
+        if (arguments.Length == 1 && arguments[0].Value is IArrayCreationOperation arrayCreationOperation)
         {
-            return TypeSymbols(arrayTypeSymbol);
+            return GetTypeSymbols(arrayCreationOperation);
         }
 
-        return arguments.SelectMany(GetArgumentType).ToArray();
+        return arguments.SelectMany(GetArgumentTypes).ToArray();
     }
 
-    private ITypeSymbol[] GetNonGenericInvocationArgumentTypes(SubstituteContext substituteContext)
+    private ITypeSymbol[]? GetNonGenericInvocationArgumentTypes(SubstituteContext substituteContext)
     {
         // Substitute.For(new [] { typeof(T) }, new object[] { 1, 2, 3}) // actual arguments reside in second arg
         var arrayArgument = substituteContext.InvocationOperation.GetOrderedArgumentOperations().Skip(1)
@@ -85,21 +83,17 @@ internal sealed class SubstituteConstructorAnalysis : ISubstituteConstructorAnal
         // if passing array of objects as a sole element
         if (arrayArgument.Value is IArrayCreationOperation arrayTypeSymbol)
         {
-            return TypeSymbols(arrayTypeSymbol);
+            return GetTypeSymbols(arrayTypeSymbol);
         }
 
-        return GetArgumentType(arrayArgument);
+        return GetArgumentTypes(arrayArgument);
     }
 
     private IMethodSymbol[] GetAccessibleConstructors(ITypeSymbol genericArgument)
     {
         var internalsVisibleToProxy = genericArgument.InternalsVisibleToProxyGenerator();
 
-        bool IsAccessible(IMethodSymbol symbol)
-        {
-            return symbol.DeclaredAccessibility == Accessibility.Protected ||
-                   symbol.DeclaredAccessibility == Accessibility.Public;
-        }
+        bool IsAccessible(IMethodSymbol symbol) => symbol.DeclaredAccessibility is Accessibility.Protected or Accessibility.Public;
 
         bool IsVisibleToProxy(IMethodSymbol symbol)
         {
@@ -117,7 +111,7 @@ internal sealed class SubstituteConstructorAnalysis : ISubstituteConstructorAnal
             (IsAccessible(symbol) || IsVisibleToProxy(symbol))).ToArray();
     }
 
-    private ITypeSymbol[] TypeSymbols(IArrayCreationOperation arrayInitializerOperation)
+    private ITypeSymbol[] GetTypeSymbols(IArrayCreationOperation arrayInitializerOperation)
     {
         return arrayInitializerOperation.Initializer.ElementValues.Select(item =>
                 item is IConversionOperation conversionOperation
@@ -126,15 +120,13 @@ internal sealed class SubstituteConstructorAnalysis : ISubstituteConstructorAnal
             .ToArray();
     }
 
-    private ITypeSymbol[] GetArgumentType(IArgumentOperation argumentOperation)
+    private ITypeSymbol[] GetArgumentTypes(IArgumentOperation argumentOperation)
     {
-        if (argumentOperation.ArgumentKind != ArgumentKind.ParamArray)
+        if (argumentOperation.Value is IArrayCreationOperation arrayCreationOperation)
         {
-            return Array.Empty<ITypeSymbol>();
+            return GetTypeSymbols(arrayCreationOperation);
         }
 
-        var arrayInitializerOperation = argumentOperation.Value as IArrayCreationOperation;
-
-        return TypeSymbols(arrayInitializerOperation);
+        return Array.Empty<ITypeSymbol>();
     }
 }

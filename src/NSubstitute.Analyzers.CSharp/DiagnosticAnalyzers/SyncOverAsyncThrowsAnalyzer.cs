@@ -8,7 +8,7 @@ namespace NSubstitute.Analyzers.CSharp.DiagnosticAnalyzers;
 internal sealed class SyncOverAsyncThrowsAnalyzer : AbstractSyncOverAsyncThrowsAnalyzer
 {
     public SyncOverAsyncThrowsAnalyzer()
-        : base(CSharp.DiagnosticDescriptorsProvider.Instance, SubstitutionNodeFinder.Instance)
+        : base(CSharp.DiagnosticDescriptorsProvider.Instance, SubstitutionOperationFinder.Instance)
     {
     }
 }

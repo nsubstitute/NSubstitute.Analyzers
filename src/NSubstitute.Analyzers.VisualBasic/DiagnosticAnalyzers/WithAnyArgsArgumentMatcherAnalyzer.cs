@@ -8,7 +8,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 internal sealed class WithAnyArgsArgumentMatcherAnalyzer : AbstractWithAnyArgsArgumentMatcherAnalyzer
 {
     public WithAnyArgsArgumentMatcherAnalyzer()
-        : base(VisualBasic.DiagnosticDescriptorsProvider.Instance, SubstitutionNodeFinder.Instance)
+        : base(VisualBasic.DiagnosticDescriptorsProvider.Instance, SubstitutionOperationFinder.Instance)
     {
     }
 }

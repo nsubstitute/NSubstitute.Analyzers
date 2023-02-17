@@ -3,6 +3,7 @@
         <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
         <CodeAnalysisRuleSet>$(SolutionDir)/Analyzers.ruleset</CodeAnalysisRuleSet>
         <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
         <AdditionalFiles Include="$(SolutionDir)/StyleCop.json"/>

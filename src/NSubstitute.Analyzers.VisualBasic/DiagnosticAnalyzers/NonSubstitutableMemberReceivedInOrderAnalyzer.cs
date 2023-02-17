@@ -8,7 +8,7 @@ namespace NSubstitute.Analyzers.VisualBasic.DiagnosticAnalyzers;
 internal sealed class NonSubstitutableMemberReceivedInOrderAnalyzer : AbstractNonSubstitutableMemberReceivedInOrderAnalyzer
 {
     public NonSubstitutableMemberReceivedInOrderAnalyzer()
-        : base(SubstitutionNodeFinder.Instance, NonSubstitutableMemberAnalysis.Instance, NSubstitute.Analyzers.VisualBasic.DiagnosticDescriptorsProvider.Instance)
+        : base(SubstitutionOperationFinder.Instance, NonSubstitutableMemberAnalysis.Instance, NSubstitute.Analyzers.VisualBasic.DiagnosticDescriptorsProvider.Instance)
     {
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
@@ -9,7 +10,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 internal abstract class AbstractNonSubstitutableMemberAnalyzer : AbstractNonSubstitutableSetupAnalyzer
 {
-    private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
+    private readonly ISubstitutionOperationFinder _substitutionOperationFinder;
 
     private readonly Action<OperationAnalysisContext> _analyzeInvocationAction;
 
@@ -17,12 +18,12 @@ internal abstract class AbstractNonSubstitutableMemberAnalyzer : AbstractNonSubs
 
     protected AbstractNonSubstitutableMemberAnalyzer(
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
-        ISubstitutionNodeFinder substitutionNodeFinder,
+        ISubstitutionOperationFinder substitutionOperationFinder,
         INonSubstitutableMemberAnalysis nonSubstitutableMemberAnalysis)
         : base(diagnosticDescriptorsProvider, nonSubstitutableMemberAnalysis)
     {
         _analyzeInvocationAction = AnalyzeInvocation;
-        _substitutionNodeFinder = substitutionNodeFinder;
+        _substitutionOperationFinder = substitutionOperationFinder;
         NonVirtualSetupDescriptor = diagnosticDescriptorsProvider.NonVirtualSetupSpecification;
         SupportedDiagnostics = ImmutableArray.Create(
             DiagnosticDescriptorsProvider.NonVirtualSetupSpecification,
@@ -45,12 +46,12 @@ internal abstract class AbstractNonSubstitutableMemberAnalyzer : AbstractNonSubs
             return;
         }
 
-        AnalyzeMember(operationAnalysisContext, _substitutionNodeFinder.FindForStandardExpression(invocationOperation));
+        AnalyzeMember(operationAnalysisContext, _substitutionOperationFinder.FindForStandardExpression(invocationOperation));
     }
 
-    private void AnalyzeMember(OperationAnalysisContext operationAnalysisContext, IOperation accessedMember)
+    private void AnalyzeMember(OperationAnalysisContext operationAnalysisContext, IOperation? accessedMember)
     {
-        if (IsValidForAnalysis(accessedMember) == false)
+        if (accessedMember == null || IsValidForAnalysis(accessedMember) == false)
         {
             return;
         }
@@ -60,7 +61,7 @@ internal abstract class AbstractNonSubstitutableMemberAnalyzer : AbstractNonSubs
 
     private bool IsValidForAnalysis(IOperation accessedMember)
     {
-        return accessedMember != null && accessedMember is not ILocalReferenceOperation &&
+        return accessedMember is not ILocalReferenceOperation &&
                accessedMember is not IConversionOperation
                {
                    Operand: ILocalReferenceOperation

@@ -19,15 +19,15 @@ internal abstract class AbstractNonSubstitutableMemberReceivedInOrderAnalyzer : 
         OperationKind.Argument);
 
     private readonly Action<OperationAnalysisContext> _analyzeInvocationAction;
-    private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
+    private readonly ISubstitutionOperationFinder _substitutionOperationFinder;
 
     protected AbstractNonSubstitutableMemberReceivedInOrderAnalyzer(
-        ISubstitutionNodeFinder substitutionNodeFinder,
+        ISubstitutionOperationFinder substitutionOperationFinder,
         INonSubstitutableMemberAnalysis nonSubstitutableMemberAnalysis,
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider)
         : base(diagnosticDescriptorsProvider, nonSubstitutableMemberAnalysis)
     {
-        _substitutionNodeFinder = substitutionNodeFinder;
+        _substitutionOperationFinder = substitutionOperationFinder;
         _analyzeInvocationAction = AnalyzeInvocation;
         NonVirtualSetupDescriptor = diagnosticDescriptorsProvider.NonVirtualReceivedInOrderSetupSpecification;
         SupportedDiagnostics = ImmutableArray.Create(
@@ -51,7 +51,7 @@ internal abstract class AbstractNonSubstitutableMemberReceivedInOrderAnalyzer : 
             return;
         }
 
-        foreach (var syntaxNode in _substitutionNodeFinder
+        foreach (var syntaxNode in _substitutionOperationFinder
                      .FindForReceivedInOrderExpression(operationAnalysisContext.Compilation, invocationOperation)
                      .Where(operation => ShouldAnalyzeNode(operationAnalysisContext, operation)))
         {
@@ -98,7 +98,7 @@ internal abstract class AbstractNonSubstitutableMemberReceivedInOrderAnalyzer : 
         return !dataFlowAnalysis.ReadInside.Contains(symbol);
     }
 
-    private static ILocalSymbol GetVariableDeclaratorSymbol(IOperation operation)
+    private static ILocalSymbol? GetVariableDeclaratorSymbol(IOperation operation)
     {
         return operation switch
         {
@@ -108,6 +108,6 @@ internal abstract class AbstractNonSubstitutableMemberReceivedInOrderAnalyzer : 
         };
     }
 
-    private IOperation FindIgnoredEnclosingOperation(IOperation operation) => operation.Ancestors()
+    private IOperation? FindIgnoredEnclosingOperation(IOperation operation) => operation.Ancestors()
         .FirstOrDefault(ancestor => IgnoredAncestorPaths.Contains(ancestor.Kind));
 }

@@ -14,7 +14,7 @@ public abstract class CodeVerifier
 {
     protected WorkspaceFactory WorkspaceFactory { get; }
 
-    protected virtual string AnalyzerSettings { get; }
+    protected virtual string? AnalyzerSettings { get; }
 
     protected CodeVerifier(WorkspaceFactory workspaceFactory)
     {
@@ -41,7 +41,7 @@ public abstract class CodeVerifier
                 diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error)
             .ToList();
 
-        if (compilationErrorDiagnostics.Any())
+        if (compilationErrorDiagnostics.Count > 0)
         {
             Execute.Assertion.Fail($"Compilation failed. Errors encountered {compilationErrorDiagnostics.ToDebugString()}");
         }

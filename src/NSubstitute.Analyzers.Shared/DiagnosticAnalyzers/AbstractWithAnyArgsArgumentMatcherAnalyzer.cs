@@ -11,7 +11,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 internal abstract class AbstractWithAnyArgsArgumentMatcherAnalyzer : AbstractDiagnosticAnalyzer
 {
-    private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
+    private readonly ISubstitutionOperationFinder _substitutionOperationFinder;
     private readonly Action<OperationAnalysisContext> _analyzeInvocationAction;
 
     private static readonly ImmutableHashSet<OperationKind> MaybeAllowedArgMatcherAncestors =
@@ -19,10 +19,10 @@ internal abstract class AbstractWithAnyArgsArgumentMatcherAnalyzer : AbstractDia
 
     protected AbstractWithAnyArgsArgumentMatcherAnalyzer(
         IDiagnosticDescriptorsProvider diagnosticDescriptorsProvider,
-        ISubstitutionNodeFinder substitutionNodeFinder)
+        ISubstitutionOperationFinder substitutionOperationFinder)
         : base(diagnosticDescriptorsProvider)
     {
-        _substitutionNodeFinder = substitutionNodeFinder;
+        _substitutionOperationFinder = substitutionOperationFinder;
         _analyzeInvocationAction = AnalyzeInvocation;
         SupportedDiagnostics = ImmutableArray.Create(DiagnosticDescriptorsProvider.WithAnyArgsArgumentMatcherUsage);
     }
@@ -74,7 +74,7 @@ internal abstract class AbstractWithAnyArgsArgumentMatcherAnalyzer : AbstractDia
             return builder.ToImmutable();
         }
 
-        foreach (var substitutedOperation in _substitutionNodeFinder.FindForWhenExpression(context.Compilation, invocationOperation))
+        foreach (var substitutedOperation in _substitutionOperationFinder.FindForWhenExpression(context.Compilation, invocationOperation))
         {
             IReadOnlyList<IOperation> arguments = substitutedOperation switch
             {
@@ -95,7 +95,7 @@ internal abstract class AbstractWithAnyArgsArgumentMatcherAnalyzer : AbstractDia
         IInvocationOperation invocationOperation)
     {
         var substitutedOperation =
-            _substitutionNodeFinder.FindForStandardExpression(invocationOperation);
+            _substitutionOperationFinder.FindForStandardExpression(invocationOperation);
 
         var arguments = GetArguments(substitutedOperation);
 
@@ -105,7 +105,7 @@ internal abstract class AbstractWithAnyArgsArgumentMatcherAnalyzer : AbstractDia
         }
     }
 
-    private static IReadOnlyList<IOperation> GetArguments(IOperation substitutedOperation)
+    private static IReadOnlyList<IOperation> GetArguments(IOperation? substitutedOperation)
     {
         IReadOnlyList<IOperation> arguments = substitutedOperation switch
         {
@@ -180,7 +180,7 @@ internal abstract class AbstractWithAnyArgsArgumentMatcherAnalyzer : AbstractDia
             argInvocationOperation.TargetMethod);
     }
 
-    private static IMemberReferenceOperation GetMemberReferenceOperation(IOperation operation)
+    private static IMemberReferenceOperation? GetMemberReferenceOperation(IOperation operation)
     {
         return operation switch
         {
@@ -196,10 +196,10 @@ internal abstract class AbstractWithAnyArgsArgumentMatcherAnalyzer : AbstractDia
         };
     }
 
-    private IOperation FindMaybeAllowedEnclosingOperation(IInvocationOperation invocationOperation) =>
+    private IOperation? FindMaybeAllowedEnclosingOperation(IInvocationOperation invocationOperation) =>
         FindEnclosingOperation(invocationOperation, MaybeAllowedArgMatcherAncestors);
 
-    private static IOperation FindEnclosingOperation(IInvocationOperation invocationOperation, ImmutableHashSet<OperationKind> ancestors)
+    private static IOperation? FindEnclosingOperation(IInvocationOperation invocationOperation, ImmutableHashSet<OperationKind> ancestors)
     {
         return invocationOperation.Ancestors()
             .FirstOrDefault(ancestor => ancestors.Contains(ancestor.Kind));

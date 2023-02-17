@@ -6,7 +6,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 
 internal interface ISubstituteProxyAnalysis
 {
-    ITypeSymbol GetActualProxyTypeSymbol(IInvocationOperation invocationOperation);
+    ITypeSymbol? GetActualProxyTypeSymbol(IInvocationOperation invocationOperation);
 
     ImmutableArray<ITypeSymbol> GetProxySymbols(IInvocationOperation invocationOperation);
 }

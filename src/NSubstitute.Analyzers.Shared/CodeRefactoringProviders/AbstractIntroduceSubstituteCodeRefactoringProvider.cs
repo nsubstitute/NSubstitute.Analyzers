@@ -48,9 +48,9 @@ internal abstract class AbstractIntroduceSubstituteCodeRefactoringProvider<TObje
 
     protected virtual bool IsMissing(TArgumentSyntax argumentSyntax) => argumentSyntax.IsMissing;
 
-    protected abstract SyntaxNode FindSiblingNodeForLocalSubstitute(TObjectCreationExpressionSyntax creationExpression);
+    protected abstract SyntaxNode? FindSiblingNodeForLocalSubstitute(TObjectCreationExpressionSyntax creationExpression);
 
-    protected abstract SyntaxNode FindSiblingNodeForReadonlySubstitute(SyntaxNode creationExpression);
+    protected abstract SyntaxNode? FindSiblingNodeForReadonlySubstitute(SyntaxNode creationExpression);
 
     private IEnumerable<CodeAction> CreateRefactoringActions(
         CodeRefactoringContext context,
@@ -86,7 +86,7 @@ internal abstract class AbstractIntroduceSubstituteCodeRefactoringProvider<TObje
             {
                 yield return CodeAction.Create(
                     $"Introduce local substitute for {substituteName}",
-                    token => IntroduceLocalSubstitute(
+                    _ => IntroduceLocalSubstitute(
                         context,
                         objectCreationExpressionSyntax,
                         existingArguments,
@@ -99,7 +99,7 @@ internal abstract class AbstractIntroduceSubstituteCodeRefactoringProvider<TObje
             {
                 yield return CodeAction.Create(
                     $"Introduce readonly substitute for {substituteName}",
-                    token => IntroduceReadonlySubstitute(
+                    _ => IntroduceReadonlySubstitute(
                         context,
                         objectCreationExpressionSyntax,
                         existingArguments,
@@ -126,7 +126,7 @@ internal abstract class AbstractIntroduceSubstituteCodeRefactoringProvider<TObje
         {
             yield return CodeAction.Create(
                 "Introduce readonly substitutes for missing arguments",
-                token => IntroduceReadonlySubstitute(
+                _ => IntroduceReadonlySubstitute(
                     context,
                     objectCreationExpressionSyntax,
                     existingArguments,
@@ -232,7 +232,7 @@ internal abstract class AbstractIntroduceSubstituteCodeRefactoringProvider<TObje
         return documentEditor.GetChangedDocument();
     }
 
-    private IMethodSymbol GetKnownConstructorSymbol(SemanticModel semanticModel, TObjectCreationExpressionSyntax objectCreationExpressionSyntax)
+    private IMethodSymbol? GetKnownConstructorSymbol(SemanticModel semanticModel, TObjectCreationExpressionSyntax objectCreationExpressionSyntax)
     {
         var symbol = semanticModel.GetSymbolInfo(objectCreationExpressionSyntax);
 

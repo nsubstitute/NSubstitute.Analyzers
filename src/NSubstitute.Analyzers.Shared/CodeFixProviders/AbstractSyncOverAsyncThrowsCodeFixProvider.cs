@@ -14,11 +14,11 @@ namespace NSubstitute.Analyzers.Shared.CodeFixProviders;
 
 internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider : CodeFixProvider
 {
-    private readonly ISubstitutionNodeFinder _substitutionNodeFinder;
+    private readonly ISubstitutionOperationFinder _substitutionOperationFinder;
 
-    protected AbstractSyncOverAsyncThrowsCodeFixProvider(ISubstitutionNodeFinder substitutionNodeFinder)
+    protected AbstractSyncOverAsyncThrowsCodeFixProvider(ISubstitutionOperationFinder substitutionOperationFinder)
     {
-        _substitutionNodeFinder = substitutionNodeFinder;
+        _substitutionOperationFinder = substitutionOperationFinder;
     }
 
     public sealed override ImmutableArray<string> FixableDiagnosticIds { get; } =
@@ -154,7 +154,7 @@ internal abstract class AbstractSyncOverAsyncThrowsCodeFixProvider : CodeFixProv
         SyntaxNode fromExceptionInvocationExpression,
         string returnsMethodName)
     {
-        var substituteNodeSyntax = _substitutionNodeFinder.FindForStandardExpression(invocationOperation).Syntax;
+        var substituteNodeSyntax = _substitutionOperationFinder.FindForStandardExpression(invocationOperation)!.Syntax;
 
         var accessExpression =
             syntaxGenerator.MemberAccessExpression(substituteNodeSyntax, returnsMethodName);

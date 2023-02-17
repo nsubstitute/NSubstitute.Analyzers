@@ -13,7 +13,7 @@ internal static class OperationAnalysisContextExtensions
     internal static void TryReportDiagnostic(
         this OperationAnalysisContext syntaxNodeContext,
         Diagnostic diagnostic,
-        ISymbol symbol)
+        ISymbol? symbol)
     {
         if (IsSuppressed(
                 syntaxNodeContext.Options.GetSettings(CancellationToken.None),
@@ -30,7 +30,7 @@ internal static class OperationAnalysisContextExtensions
     private static bool IsSuppressed(
         AnalyzersSettings analyzersSettings,
         Compilation compilation,
-        ISymbol symbol,
+        ISymbol? symbol,
         string diagnosticId)
     {
         if (analyzersSettings.Suppressions.Count == 0)
@@ -46,8 +46,13 @@ internal static class OperationAnalysisContextExtensions
             .Any(possibleSymbols.Contains);
     }
 
-    private static IEnumerable<ISymbol> GetPossibleSymbols(ISymbol symbol)
+    private static IEnumerable<ISymbol> GetPossibleSymbols(ISymbol? symbol)
     {
+        if (symbol == null)
+        {
+           yield break;
+        }
+
         yield return symbol;
         yield return symbol.ContainingType;
         yield return symbol.ContainingNamespace;

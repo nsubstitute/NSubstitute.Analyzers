@@ -57,7 +57,7 @@ public abstract class CodeFixVerifier : CodeVerifier
             var context = new CodeFixContext(document, analyzerDiagnostics[0], (a, _) => actions.Add(a), CancellationToken.None);
             await CodeFixProvider.RegisterCodeFixesAsync(context);
 
-            if (!actions.Any())
+            if (actions.Count == 0)
             {
                 break;
             }
@@ -69,7 +69,7 @@ public abstract class CodeFixVerifier : CodeVerifier
 
             var compilationErrorDiagnostics = GetCompilationErrorDiagnostics(compilerDiagnostics);
 
-            if (compilationErrorDiagnostics.Any())
+            if (compilationErrorDiagnostics.Count > 0)
             {
                 Execute.Assertion.Fail(
                     $"Fix {codeFixIndex} for diagnostic {analyzerDiagnostics[i].ToString()} introduced compilation error(s): {compilationErrorDiagnostics.ToDebugString()} New document:{Environment.NewLine}{await document.ToFullString()}");
@@ -81,7 +81,7 @@ public abstract class CodeFixVerifier : CodeVerifier
 
             // check if there are analyzer diagnostics left after the code fix
             var newAnalyzerDiagnostics = analyzerDiagnostics.Except(previousAnalyzerDiagnostics).ToList();
-            if (analyzerDiagnostics.Length == previousAnalyzerDiagnostics.Length && newAnalyzerDiagnostics.Any())
+            if (analyzerDiagnostics.Length == previousAnalyzerDiagnostics.Length && newAnalyzerDiagnostics.Count > 0)
             {
                 Execute.Assertion.Fail(
                     $"Fix didn't fix analyzer diagnostics: {newAnalyzerDiagnostics.ToDebugString()} New document:{Environment.NewLine}{await document.ToFullString()}");

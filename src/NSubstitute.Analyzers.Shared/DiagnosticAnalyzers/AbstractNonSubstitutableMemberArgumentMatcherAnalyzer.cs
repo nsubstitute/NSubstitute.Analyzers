@@ -120,7 +120,7 @@ internal abstract class AbstractNonSubstitutableMemberArgumentMatcherAnalyzer : 
         OperationAnalysisContext context,
         IInvocationOperation argInvocation,
         IOperation enclosingOperation,
-        IMemberReferenceOperation memberReferenceOperation)
+        IMemberReferenceOperation? memberReferenceOperation)
     {
         var enclosingExpressionSymbol = memberReferenceOperation?.Member ?? enclosingOperation.ExtractSymbol();
 
@@ -187,7 +187,7 @@ internal abstract class AbstractNonSubstitutableMemberArgumentMatcherAnalyzer : 
                invocationOperation.TargetMethod.IsWhenLikeMethod();
     }
 
-    private static IMemberReferenceOperation GetMemberReferenceOperation(IOperation operation)
+    private static IMemberReferenceOperation? GetMemberReferenceOperation(IOperation operation)
     {
         return operation switch
         {
@@ -203,13 +203,13 @@ internal abstract class AbstractNonSubstitutableMemberArgumentMatcherAnalyzer : 
         };
     }
 
-    private IOperation FindMaybeAllowedEnclosingExpression(IOperation operation) =>
+    private IOperation? FindMaybeAllowedEnclosingExpression(IOperation operation) =>
         FindEnclosingExpression(operation, MaybeAllowedAncestors);
 
-    private IOperation FindIgnoredEnclosingExpression(IOperation operation) =>
+    private IOperation? FindIgnoredEnclosingExpression(IOperation operation) =>
         FindEnclosingExpression(operation, IgnoredAncestors);
 
-    private static IOperation FindEnclosingExpression(IOperation operation, ImmutableHashSet<OperationKind> ancestors)
+    private static IOperation? FindEnclosingExpression(IOperation operation, ImmutableHashSet<OperationKind> ancestors)
     {
         return operation.Ancestors()
             .FirstOrDefault(ancestor => ancestors.Contains(ancestor.Kind));
@@ -218,7 +218,7 @@ internal abstract class AbstractNonSubstitutableMemberArgumentMatcherAnalyzer : 
     private void TryReportDiagnostic(
         OperationAnalysisContext context,
         IInvocationOperation argInvocation,
-        ISymbol enclosingExpressionSymbol)
+        ISymbol? enclosingExpressionSymbol)
     {
         context.TryReportDiagnostic(
             Diagnostic.Create(

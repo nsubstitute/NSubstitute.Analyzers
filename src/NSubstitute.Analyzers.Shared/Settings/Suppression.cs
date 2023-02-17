@@ -6,6 +6,8 @@ internal class Suppression
 {
     public Suppression()
     {
+        Target = string.Empty;
+        Rules = new List<string>();
     }
 
     public string Target { get; set; }

@@ -7,7 +7,7 @@ namespace NSubstitute.Analyzers.Shared.DiagnosticAnalyzers;
 internal abstract class AbstractSubstituteConstructorMatcher : ISubstituteConstructorMatcher
 {
     // even though conversion returns that key -> value is convertible it fails on the runtime when running through substitute creation
-    private static IReadOnlyDictionary<SpecialType, SpecialType> WellKnownUnsupportedConversions { get; } =
+    private static readonly IReadOnlyDictionary<SpecialType, SpecialType> WellKnownUnsupportedConversions =
         new Dictionary<SpecialType, SpecialType>
         {
             [SpecialType.System_Int16] = SpecialType.System_Decimal,
@@ -18,7 +18,7 @@ internal abstract class AbstractSubstituteConstructorMatcher : ISubstituteConstr
             [SpecialType.System_UInt64] = SpecialType.System_Decimal
         };
 
-    private static IReadOnlyDictionary<SpecialType, HashSet<SpecialType>> WellKnownSupportedConversions { get; } =
+    private static readonly IReadOnlyDictionary<SpecialType, HashSet<SpecialType>> WellKnownSupportedConversions =
         new Dictionary<SpecialType, HashSet<SpecialType>>
         {
             [SpecialType.System_Char] = new()
@@ -70,7 +70,7 @@ internal abstract class AbstractSubstituteConstructorMatcher : ISubstituteConstr
                 ClassifyConversion(compilation, invocationSymbol, arrayTypeSymbol.ElementType));
     }
 
-    private bool ClassifyConversion(Compilation compilation, ITypeSymbol source, ITypeSymbol destination)
+    private bool ClassifyConversion(Compilation compilation, ITypeSymbol? source, ITypeSymbol destination)
     {
         if (source == null || source.Equals(destination))
         {

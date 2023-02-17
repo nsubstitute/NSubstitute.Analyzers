@@ -12,7 +12,7 @@ namespace NSubstitute.Analyzers.CSharp.CodeFixProviders;
 internal sealed class SyncOverAsyncThrowsCodeFixProvider : AbstractSyncOverAsyncThrowsCodeFixProvider
 {
     public SyncOverAsyncThrowsCodeFixProvider()
-        : base(SubstitutionNodeFinder.Instance)
+        : base(SubstitutionOperationFinder.Instance)
     {
     }
 

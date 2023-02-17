@@ -103,7 +103,7 @@ internal abstract class AbstractReEntrantSetupAnalyzer : AbstractDiagnosticAnaly
         }
     }
 
-    private bool IsPassedByParamsArray(IArgumentOperation argumentOperation)
+    private bool IsPassedByParamsArray(IArgumentOperation? argumentOperation)
     {
         return argumentOperation != null &&
                argumentOperation.Parameter.IsParams &&
