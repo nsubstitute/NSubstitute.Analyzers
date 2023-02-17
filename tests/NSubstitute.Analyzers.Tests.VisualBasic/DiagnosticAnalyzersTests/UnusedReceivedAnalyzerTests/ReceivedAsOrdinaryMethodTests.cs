@@ -288,4 +288,27 @@ End Namespace
 ";
         await VerifyNoDiagnostic(source);
     }
+
+    public override async Task ReportsNoDiagnostics_WhenSubscribingToEvent(string method)
+    {
+        var source = @$"Imports NSubstitute
+Imports System
+Imports NSubstitute.ReceivedExtensions
+Imports NUnit.Framework
+
+Namespace MyNamespace
+    Public Class Foo
+        Public Event SomeEvent As Action
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For] (Of Foo)()
+            AddHandler {method}.SomeEvent, Arg.Any (Of Action)()
+        End Sub
+    End Class
+End Namespace";
+
+        await VerifyNoDiagnostic(source);
+    }
 }
