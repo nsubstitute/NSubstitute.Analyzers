@@ -478,6 +478,110 @@ namespace MyNamespace
         await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
     }
 
+    public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualEvent(string method)
+    {
+        var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
+using System;
+
+namespace MyNamespace
+{{
+    public class Foo
+    {{
+        public event Action Event;
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            [|{method}.Event|] += () => {{ }};
+        }}
+    }}
+}}";
+
+        await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member Event can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
+    }
+
+    public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractEvent(string method)
+    {
+        var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
+using System;
+
+namespace MyNamespace
+{{
+    public abstract class Foo
+    {{
+        public abstract event Action Event;
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            {method}.Event += () => {{ }};
+        }}
+    }}
+}}";
+
+        await VerifyNoDiagnostic(source);
+    }
+
+    public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualEvent(string method)
+    {
+        var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
+using System;
+
+namespace MyNamespace
+{{
+    public class Foo
+    {{
+        public virtual event Action Event;
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            {method}.Event += () => {{ }};
+        }}
+    }}
+}}";
+
+        await VerifyNoDiagnostic(source);
+    }
+
+    public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceEvent(string method)
+    {
+        var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
+using System;
+
+namespace MyNamespace
+{{
+    public interface Foo
+    {{
+        event Action Event;
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            {method}.Event += () => {{ }};
+        }}
+    }}
+}}";
+
+        await VerifyNoDiagnostic(source);
+    }
+
     [CombinatoryData(
         "ReceivedExtensions.Received(substitute, Quantity.None())",
         "ReceivedExtensions.Received(substitute: substitute, x: Quantity.None())",

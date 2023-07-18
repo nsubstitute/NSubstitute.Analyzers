@@ -412,6 +412,66 @@ End Namespace";
         await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
     }
 
+    public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualEvent(string method)
+    {
+        var source = $@"Imports NSubstitute
+Imports NSubstitute.ReceivedExtensions
+Imports System
+
+Namespace MyNamespace
+    Public Class Foo
+        Public Event SomeEvent As Action
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            AddHandler [|substitute.{method}.SomeEvent|], Sub()
+            End Sub
+        End Sub
+    End Class
+End Namespace
+";
+
+        await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member SomeEvent can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
+    }
+
+    public override Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractEvent(string method)
+    {
+        // VisualBasic does not allow to mark events as abstract (MustInherit)
+        return Task.CompletedTask;
+    }
+
+    public override Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualEvent(string method)
+    {
+        // VisualBasic does not allow to mark events as virtual (Overridable)
+        return Task.CompletedTask;
+    }
+
+    public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceEvent(string method)
+    {
+        var source = $@"Imports NSubstitute
+Imports NSubstitute.ReceivedExtensions
+Imports System
+
+Namespace MyNamespace
+    Public Interface Foo
+        Event SomeEvent As Action
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            AddHandler substitute.{method}.SomeEvent, Sub()
+            End Sub
+        End Sub
+    End Class
+End Namespace
+";
+
+        await VerifyNoDiagnostic(source);
+    }
+
     [CombinatoryData(
         "Received(Quantity.None())",
         "Received(1, 1)",
