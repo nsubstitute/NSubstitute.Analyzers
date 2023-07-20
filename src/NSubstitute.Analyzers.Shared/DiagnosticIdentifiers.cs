@@ -1,10 +1,14 @@
-﻿namespace NSubstitute.Analyzers.Shared;
+﻿using System;
+
+namespace NSubstitute.Analyzers.Shared;
 
 internal class DiagnosticIdentifiers
 {
     public const string NonVirtualSetupSpecification = "NS1000";
     public const string NonVirtualReceivedSetupSpecification = "NS1001";
+
     public const string NonVirtualWhenSetupSpecification = "NS1002";
+
     public const string InternalSetupSpecification = "NS1003";
     public const string NonSubstitutableMemberArgumentMatcherUsage = "NS1004";
     public const string NonVirtualReceivedInOrderSetupSpecification = "NS1005";

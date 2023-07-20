@@ -24,9 +24,9 @@ internal abstract class AbstractNonSubstitutableMemberWhenAnalyzer : AbstractNon
         _substitutionOperationFinder = substitutionOperationFinder;
         _analyzeInvocationAction = AnalyzeInvocation;
         SupportedDiagnostics = ImmutableArray.Create(
-            DiagnosticDescriptorsProvider.NonVirtualWhenSetupSpecification,
+            DiagnosticDescriptorsProvider.NonVirtualSetupSpecification,
             DiagnosticDescriptorsProvider.InternalSetupSpecification);
-        NonVirtualSetupDescriptor = diagnosticDescriptorsProvider.NonVirtualWhenSetupSpecification;
+        NonVirtualSetupDescriptor = diagnosticDescriptorsProvider.NonVirtualSetupSpecification;
     }
 
     protected sealed override DiagnosticDescriptor NonVirtualSetupDescriptor { get; }
