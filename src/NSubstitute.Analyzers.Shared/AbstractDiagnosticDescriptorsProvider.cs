@@ -32,8 +32,6 @@ internal class AbstractDiagnosticDescriptorsProvider<T> : IDiagnosticDescriptors
 
     public DiagnosticDescriptor NonVirtualReceivedSetupSpecification { get; } = DiagnosticDescriptors<T>.NonVirtualReceivedSetupSpecification;
 
-    public DiagnosticDescriptor NonVirtualWhenSetupSpecification { get; } = DiagnosticDescriptors<T>.NonVirtualWhenSetupSpecification;
-
     public DiagnosticDescriptor ReEntrantSubstituteCall { get; } = DiagnosticDescriptors<T>.ReEntrantSubstituteCall;
 
     public DiagnosticDescriptor CallInfoArgumentOutOfRange { get; } = DiagnosticDescriptors<T>.CallInfoArgumentOutOfRange;

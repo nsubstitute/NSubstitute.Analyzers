@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Resources;
 using Microsoft.CodeAnalysis;
 using NSubstitute.Analyzers.Shared.Extensions;
@@ -37,6 +38,7 @@ internal class DiagnosticDescriptors<T>
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true);
 
+    [Obsolete]
     public static DiagnosticDescriptor NonVirtualWhenSetupSpecification { get; } =
         CreateDiagnosticDescriptor(
             name: nameof(NonVirtualWhenSetupSpecification),
