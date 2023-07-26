@@ -9,7 +9,6 @@
 
 namespace NSubstitute.Analyzers.Shared {
     using System;
-    using System.Reflection;
     
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
@@ -29,7 +28,7 @@ namespace NSubstitute.Analyzers.Shared {
         internal static System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.Equals(null, resourceMan)) {
-                    System.Resources.ResourceManager temp = new System.Resources.ResourceManager("NSubstitute.Analyzers.Shared.Resources", typeof(Resources).GetTypeInfo().Assembly);
+                    System.Resources.ResourceManager temp = new System.Resources.ResourceManager("NSubstitute.Analyzers.Shared.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -505,6 +504,24 @@ namespace NSubstitute.Analyzers.Shared {
         internal static string SyncOverAsyncThrowsTitle {
             get {
                 return ResourceManager.GetString("SyncOverAsyncThrowsTitle", resourceCulture);
+            }
+        }
+        
+        internal static string ExtensionMethodSetupSpecificationDescription {
+            get {
+                return ResourceManager.GetString("ExtensionMethodSetupSpecificationDescription", resourceCulture);
+            }
+        }
+        
+        internal static string ExtensionMethodSetupSpecificationMessageFormat {
+            get {
+                return ResourceManager.GetString("ExtensionMethodSetupSpecificationMessageFormat", resourceCulture);
+            }
+        }
+        
+        internal static string ExtensionMethodSetupSpecificationTitle {
+            get {
+                return ResourceManager.GetString("ExtensionMethodSetupSpecificationTitle", resourceCulture);
             }
         }
     }

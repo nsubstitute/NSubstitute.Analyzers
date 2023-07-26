@@ -10,6 +10,8 @@ internal abstract class AbstractNonSubstitutableSetupAnalyzer : AbstractDiagnost
 
     protected abstract DiagnosticDescriptor NonVirtualSetupDescriptor { get; }
 
+    private readonly DiagnosticDescriptor _extensionMethodSetupDescriptor;
+
     private readonly DiagnosticDescriptor _internalSetupSpecificationDescriptor;
 
     protected AbstractNonSubstitutableSetupAnalyzer(
@@ -18,6 +20,7 @@ internal abstract class AbstractNonSubstitutableSetupAnalyzer : AbstractDiagnost
         : base(diagnosticDescriptorsProvider)
     {
         _nonSubstitutableMemberAnalysis = nonSubstitutableMemberAnalysis;
+        _extensionMethodSetupDescriptor = diagnosticDescriptorsProvider.NonVirtualSetupSpecification;
         _internalSetupSpecificationDescriptor = diagnosticDescriptorsProvider.InternalSetupSpecification;
     }
 
@@ -36,10 +39,15 @@ internal abstract class AbstractNonSubstitutableSetupAnalyzer : AbstractDiagnost
         in NonSubstitutableMemberAnalysisResult analysisResult)
     {
         var location = analysisResult.Member.GetLocation();
+
         if (analysisResult.NonVirtualMemberSubstitution)
         {
+            var descriptor = analysisResult.Symbol is IMethodSymbol { IsExtensionMethod: true }
+                ? this._extensionMethodSetupDescriptor
+                : NonVirtualSetupDescriptor;
+
             var diagnostic = Diagnostic.Create(
-                NonVirtualSetupDescriptor,
+                descriptor,
                 location,
                 analysisResult.MemberName);
             context.TryReportDiagnostic(diagnostic, analysisResult.Symbol);

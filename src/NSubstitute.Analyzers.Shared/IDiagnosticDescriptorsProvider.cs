@@ -6,6 +6,8 @@ internal interface IDiagnosticDescriptorsProvider
 {
     DiagnosticDescriptor NonVirtualSetupSpecification { get; }
 
+    DiagnosticDescriptor ExtensionMethodSetupSpecification { get; }
+
     DiagnosticDescriptor NonVirtualReceivedSetupSpecification { get; }
 
     DiagnosticDescriptor NonVirtualReceivedInOrderSetupSpecification { get; }

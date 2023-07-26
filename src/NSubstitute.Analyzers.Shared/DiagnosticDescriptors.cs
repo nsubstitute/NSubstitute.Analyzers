@@ -22,6 +22,14 @@ internal class DiagnosticDescriptors<T>
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true);
 
+    public static DiagnosticDescriptor ExtensionMethodSetupSpecification { get; } =
+        CreateDiagnosticDescriptor(
+            name: nameof(ExtensionMethodSetupSpecification),
+            id: DiagnosticIdentifiers.ExtensionMethodSetupSpecification,
+            category: DiagnosticCategory.NonVirtualSubstitution.GetDisplayName(),
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
+
     public static DiagnosticDescriptor InternalSetupSpecification { get; } =
         CreateDiagnosticDescriptor(
             name: nameof(InternalSetupSpecification),

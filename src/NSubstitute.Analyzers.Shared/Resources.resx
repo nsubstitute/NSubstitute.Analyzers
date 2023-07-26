@@ -431,4 +431,17 @@
     <data name="SyncOverAsyncThrowsTitle" xml:space="preserve">
       <value>Synchronous exception thrown from async method.</value>
     </data>
+    
+    <data name="ExtensionMethodSetupSpecificationDescription" xml:space="preserve">
+    <value>Extension methods TODO</value>
+        <comment>An optional longer localizable description of the diagnostic.</comment>
+  </data>
+    <data name="ExtensionMethodSetupSpecificationMessageFormat" xml:space="preserve">
+    <value>Extension methods {0} TODO</value>
+        <comment>The format-able message the diagnostic displays.</comment>
+  </data>
+    <data name="ExtensionMethodSetupSpecificationTitle" xml:space="preserve">
+    <value>Extension methods TODO</value>
+        <comment>The title of the diagnostic.</comment>
+  </data> 
 </root>

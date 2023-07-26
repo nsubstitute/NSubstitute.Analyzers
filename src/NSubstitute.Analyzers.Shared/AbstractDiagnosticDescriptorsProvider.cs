@@ -6,6 +6,8 @@ internal class AbstractDiagnosticDescriptorsProvider<T> : IDiagnosticDescriptors
 {
     public DiagnosticDescriptor NonVirtualSetupSpecification { get; } = DiagnosticDescriptors<T>.NonVirtualSetupSpecification;
 
+    public DiagnosticDescriptor ExtensionMethodSetupSpecification { get; } = DiagnosticDescriptors<T>.ExtensionMethodSetupSpecification;
+
     public DiagnosticDescriptor NonVirtualReceivedInOrderSetupSpecification { get; } = DiagnosticDescriptors<T>.NonVirtualReceivedInOrderSetupSpecification;
 
     public DiagnosticDescriptor InternalSetupSpecification { get; } = DiagnosticDescriptors<T>.InternalSetupSpecification;
