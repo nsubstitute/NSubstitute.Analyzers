@@ -12,7 +12,7 @@ using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSubstitutableMemberAnalyzerTests;
 
-public abstract class NonSubstitutableMemberDiagnosticVerifier : VisualBasicDiagnosticVerifier, INonSubstitutableMemberDiagnosticVerifier
+public abstract class NonSubstitutableMemberDiagnosticVerifier : VisualBasicDiagnosticVerifier, INonSubstitutableMemberReturnsDiagnosticVerifier
 {
     internal AnalyzersSettings? Settings { get; set; }
 
@@ -46,7 +46,7 @@ public abstract class NonSubstitutableMemberDiagnosticVerifier : VisualBasicDiag
 
     [CombinatoryTheory]
     [InlineData]
-    public abstract Task ReportsNoDiagnostics_WhenUsedWithForNonSealedOverrideMethod(string method);
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithNonSealedOverrideMethod(string method);
 
     [CombinatoryTheory]
     [InlineData]
