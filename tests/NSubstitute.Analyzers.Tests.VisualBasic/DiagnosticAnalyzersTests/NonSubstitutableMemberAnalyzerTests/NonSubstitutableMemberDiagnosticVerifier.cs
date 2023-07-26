@@ -26,7 +26,7 @@ public abstract class NonSubstitutableMemberDiagnosticVerifier : VisualBasicDiag
 
     [CombinatoryTheory]
     [InlineData]
-    public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method);
+    public abstract Task ReportsDiagnostics_WhenUsedWithNonVirtualMethod(string method);
 
     [CombinatoryTheory]
     [InlineData("1", "Integer")]
@@ -34,19 +34,19 @@ public abstract class NonSubstitutableMemberDiagnosticVerifier : VisualBasicDiag
     [InlineData("true", "Boolean")]
     [InlineData("false", "Boolean")]
     [InlineData(@"""1""", "String")]
-    public abstract Task ReportsDiagnostics_WhenSettingValueForLiteral(string method, string literal, string type);
+    public abstract Task ReportsDiagnostics_WhenUsedWithLiteral(string method, string literal, string type);
 
     [CombinatoryTheory]
     [InlineData]
-    public abstract Task ReportsDiagnostics_WhenSettingValueForStaticMethod(string method);
+    public abstract Task ReportsDiagnostics_WhenUsedWithStaticMethod(string method);
 
     [CombinatoryTheory]
     [InlineData]
-    public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string method);
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithVirtualMethod(string method);
 
     [CombinatoryTheory]
     [InlineData]
-    public abstract Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string method);
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithForNonSealedOverrideMethod(string method);
 
     [CombinatoryTheory]
     [InlineData]
@@ -54,51 +54,51 @@ public abstract class NonSubstitutableMemberDiagnosticVerifier : VisualBasicDiag
 
     [CombinatoryTheory]
     [InlineData]
-    public abstract Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string method);
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithDelegate(string method);
 
     [CombinatoryTheory]
     [InlineData]
-    public abstract Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string method);
+    public abstract Task ReportsDiagnostics_WhenUsedWithSealedOverrideMethod(string method);
 
     [CombinatoryTheory]
     [InlineData]
-    public abstract Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod(string method);
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithInterfaceMethod(string method);
 
     [CombinatoryTheory]
     [InlineData]
-    public abstract Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string method);
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithInterfaceProperty(string method);
 
     [CombinatoryTheory]
     [InlineData]
-    public abstract Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod(string method);
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithGenericInterfaceMethod(string method);
 
     [CombinatoryTheory]
     [InlineData]
-    public abstract Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string method);
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithAbstractMethod(string method);
 
     [CombinatoryTheory]
     [InlineData]
-    public abstract Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer(string method);
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithInterfaceIndexer(string method);
 
     [CombinatoryTheory]
     [InlineData]
-    public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string method);
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithVirtualProperty(string method);
 
     [CombinatoryTheory]
     [InlineData]
-    public abstract Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string method);
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithAbstractProperty(string method);
 
     [CombinatoryTheory]
     [InlineData]
-    public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string method);
+    public abstract Task ReportsDiagnostics_WhenUsedWithNonVirtualProperty(string method);
 
     [CombinatoryTheory]
     [InlineData]
-    public abstract Task ReportsNoDiagnostics_WhenSettingValueForVirtualIndexer(string method);
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithVirtualIndexer(string method);
 
     [CombinatoryTheory]
     [InlineData]
-    public abstract Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string method);
+    public abstract Task ReportsDiagnostics_WhenUsedWithNonVirtualIndexer(string method);
 
     [CombinatoryTheory]
     [InlineData]
@@ -148,23 +148,23 @@ public abstract class NonSubstitutableMemberDiagnosticVerifier : VisualBasicDiag
     [InlineData(".Bar", "Friend member Bar can not be intercepted without InternalsVisibleToAttribute.")]
     [InlineData(".FooBar()", "Friend member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
     [InlineData("(0)", "Friend member Item can not be intercepted without InternalsVisibleToAttribute.")]
-    public abstract Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message);
+    public abstract Task ReportsDiagnostics_WhenUsedWithInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message);
 
     [CombinatoryTheory]
     [InlineData(".Bar")]
     [InlineData(".FooBar()")]
     [InlineData("(0)")]
-    public abstract Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call);
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call);
 
     [CombinatoryTheory]
     [InlineData(".Bar", "Friend member Bar can not be intercepted without InternalsVisibleToAttribute.")]
     [InlineData(".FooBar()", "Friend member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
     [InlineData("(0)", "Friend member Item can not be intercepted without InternalsVisibleToAttribute.")]
-    public abstract Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message);
+    public abstract Task ReportsDiagnostics_WhenUsedWithInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message);
 
     [CombinatoryTheory]
     [InlineData(".Bar")]
     [InlineData(".FooBar()")]
     [InlineData("(0)")]
-    public abstract Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call);
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithProtectedInternalVirtualMember(string method, string call);
 }

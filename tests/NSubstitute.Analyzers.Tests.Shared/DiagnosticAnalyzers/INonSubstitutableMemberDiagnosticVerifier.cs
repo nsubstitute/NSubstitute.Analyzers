@@ -4,15 +4,15 @@ namespace NSubstitute.Analyzers.Tests.Shared.DiagnosticAnalyzers;
 
 public interface INonSubstitutableMemberDiagnosticVerifier
 {
-    Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method);
+    Task ReportsDiagnostics_WhenUsedWithNonVirtualMethod(string method);
 
-    Task ReportsDiagnostics_WhenSettingValueForLiteral(string method, string literal, string type);
+    Task ReportsDiagnostics_WhenUsedWithLiteral(string method, string literal, string type);
 
-    Task ReportsDiagnostics_WhenSettingValueForStaticMethod(string method);
+    Task ReportsDiagnostics_WhenUsedWithStaticMethod(string method);
 
-    Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string method);
+    Task ReportsNoDiagnostics_WhenUsedWithVirtualMethod(string method);
 
-    Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string method);
+    Task ReportsNoDiagnostics_WhenUsedWithForNonSealedOverrideMethod(string method);
 
     /// <summary>
     /// As for today cases where setup is done indirectly e.g
@@ -26,29 +26,29 @@ public interface INonSubstitutableMemberDiagnosticVerifier
     /// </summary>
     Task ReportsNoDiagnostics_WhenDataFlowAnalysisIsRequired(string method);
 
-    Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string method);
+    Task ReportsNoDiagnostics_WhenUsedWithDelegate(string method);
 
-    Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string method);
+    Task ReportsDiagnostics_WhenUsedWithSealedOverrideMethod(string method);
 
-    Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod(string method);
+    Task ReportsNoDiagnostics_WhenUsedWithInterfaceMethod(string method);
 
-    Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string method);
+    Task ReportsNoDiagnostics_WhenUsedWithInterfaceProperty(string method);
 
-    Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod(string method);
+    Task ReportsNoDiagnostics_WhenUsedWithGenericInterfaceMethod(string method);
 
-    Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string method);
+    Task ReportsNoDiagnostics_WhenUsedWithAbstractMethod(string method);
 
-    Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer(string method);
+    Task ReportsNoDiagnostics_WhenUsedWithInterfaceIndexer(string method);
 
-    Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string method);
+    Task ReportsNoDiagnostics_WhenUsedWithVirtualProperty(string method);
 
-    Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string method);
+    Task ReportsNoDiagnostics_WhenUsedWithAbstractProperty(string method);
 
-    Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string method);
+    Task ReportsDiagnostics_WhenUsedWithNonVirtualProperty(string method);
 
-    Task ReportsNoDiagnostics_WhenSettingValueForVirtualIndexer(string method);
+    Task ReportsNoDiagnostics_WhenUsedWithVirtualIndexer(string method);
 
-    Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string method);
+    Task ReportsDiagnostics_WhenUsedWithNonVirtualIndexer(string method);
 
     Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method);
 
@@ -72,11 +72,11 @@ public interface INonSubstitutableMemberDiagnosticVerifier
 
     Task ReportsNoDiagnosticsForSuppressedMember_WhenSuppressingExtensionMethod(string method);
 
-    Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message);
+    Task ReportsDiagnostics_WhenUsedWithInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message);
 
-    Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call);
+    Task ReportsNoDiagnostics_WhenUsedWithInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call);
 
-    Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message);
+    Task ReportsDiagnostics_WhenUsedWithInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message);
 
-    Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call);
+    Task ReportsNoDiagnostics_WhenUsedWithProtectedInternalVirtualMember(string method, string call);
 }
