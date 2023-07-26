@@ -10,7 +10,7 @@ namespace NSubstitute.Analyzers.Tests.VisualBasic.DiagnosticAnalyzersTests.NonSu
 [CombinatoryData("Returns", "ReturnsForAnyArgs")]
 public class ReturnsAsExtensionMethodTests : NonSubstitutableMemberDiagnosticVerifier
 {
-    public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualMethod(string method)
+    public override async Task ReportsDiagnostics_WhenUsedWithNonVirtualMethod(string method)
     {
         var source = $@"Imports NSubstitute
 
@@ -36,7 +36,7 @@ End Namespace
     }
 
     [CombinatoryData("Returns", "ReturnsForAnyArgs")]
-    public override async Task ReportsDiagnostics_WhenSettingValueForLiteral(string method, string literal, string type)
+    public override async Task ReportsDiagnostics_WhenUsedWithLiteral(string method, string literal, string type)
     {
         var source = $@"Imports NSubstitute
 
@@ -53,7 +53,7 @@ End Namespace
         await VerifyDiagnostic(source, NonVirtualSetupSpecificationDescriptor, $"Member {literal} can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
     }
 
-    public override async Task ReportsDiagnostics_WhenSettingValueForStaticMethod(string method)
+    public override async Task ReportsDiagnostics_WhenUsedWithStaticMethod(string method)
     {
         var source = $@"Imports NSubstitute
 
@@ -77,7 +77,7 @@ End Namespace
         await VerifyDiagnostic(source, NonVirtualSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
     }
 
-    public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualMethod(string method)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithVirtualMethod(string method)
     {
         var source = $@"Imports NSubstitute
 
@@ -102,7 +102,7 @@ End Namespace
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsNoDiagnostics_WhenSettingValueForNonSealedOverrideMethod(string method)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithForNonSealedOverrideMethod(string method)
     {
         var source = $@"Imports NSubstitute
 
@@ -161,7 +161,7 @@ End Namespace
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsNoDiagnostics_WhenSettingValueForDelegate(string method)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithDelegate(string method)
     {
         var source = $@"Imports NSubstitute
 Imports System
@@ -180,7 +180,7 @@ End Namespace
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsDiagnostics_WhenSettingValueForSealedOverrideMethod(string method)
+    public override async Task ReportsDiagnostics_WhenUsedWithSealedOverrideMethod(string method)
     {
         var source = $@"Imports NSubstitute
 
@@ -213,7 +213,7 @@ End Namespace
         await VerifyDiagnostic(source, NonVirtualSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
     }
 
-    public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractMethod(string method)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithAbstractMethod(string method)
     {
         var source = $@"Imports NSubstitute
 
@@ -237,7 +237,7 @@ End Namespace
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceMethod(string method)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithInterfaceMethod(string method)
     {
         var source = $@"Imports NSubstitute
 
@@ -261,7 +261,7 @@ End Namespace
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceProperty(string method)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithInterfaceProperty(string method)
     {
         var source = $@"Imports NSubstitute
 
@@ -285,7 +285,7 @@ End Namespace
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsNoDiagnostics_WhenSettingValueForGenericInterfaceMethod(string method)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithGenericInterfaceMethod(string method)
     {
         var source = $@"Imports NSubstitute
 
@@ -308,7 +308,7 @@ End Namespace";
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsNoDiagnostics_WhenSettingValueForAbstractProperty(string method)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithAbstractProperty(string method)
     {
         var source = $@"Imports NSubstitute
 
@@ -331,7 +331,7 @@ End Namespace";
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsNoDiagnostics_WhenSettingValueForInterfaceIndexer(string method)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithInterfaceIndexer(string method)
     {
         var source = $@"Imports NSubstitute
 
@@ -353,7 +353,7 @@ End Namespace";
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualProperty(string method)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithVirtualProperty(string method)
     {
         var source = $@"Imports NSubstitute
 
@@ -379,7 +379,7 @@ End Namespace";
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualProperty(string method)
+    public override async Task ReportsDiagnostics_WhenUsedWithNonVirtualProperty(string method)
     {
         var source = $@"Imports NSubstitute
 
@@ -405,7 +405,7 @@ End Namespace";
         await VerifyDiagnostic(source, NonVirtualSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
     }
 
-    public override async Task ReportsNoDiagnostics_WhenSettingValueForVirtualIndexer(string method)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithVirtualIndexer(string method)
     {
         var source = $@"Imports System
 Imports NSubstitute
@@ -437,7 +437,7 @@ End Namespace";
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsDiagnostics_WhenSettingValueForNonVirtualIndexer(string method)
+    public override async Task ReportsDiagnostics_WhenUsedWithNonVirtualIndexer(string method)
     {
         var source = $@"Imports System
 Imports NSubstitute
@@ -916,7 +916,7 @@ End Namespace";
         await VerifyDiagnostic(source, NonVirtualSetupSpecificationDescriptor, "Member GetFooBar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
     }
 
-    public override async Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message)
+    public override async Task ReportsDiagnostics_WhenUsedWithInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message)
     {
         var source = $@"Imports NSubstitute
 
@@ -946,7 +946,7 @@ End Namespace";
         await VerifyDiagnostic(source, InternalSetupSpecificationDescriptor, message);
     }
 
-    public override async Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call)
     {
         var source = $@"Imports NSubstitute
 
@@ -980,7 +980,7 @@ End Namespace";
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message)
+    public override async Task ReportsDiagnostics_WhenUsedWithInternalVirtualMember_AndInternalsVisibleToAppliedToWrongAssembly(string method, string call, string message)
     {
         var source = $@"Imports NSubstitute
 
@@ -1012,7 +1012,7 @@ End Namespace";
         await VerifyDiagnostic(source, InternalSetupSpecificationDescriptor, message);
     }
 
-    public override async Task ReportsNoDiagnostics_WhenSettingValueForProtectedInternalVirtualMember(string method, string call)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithProtectedInternalVirtualMember(string method, string call)
     {
         var source = $@"Imports NSubstitute
 
