@@ -129,7 +129,7 @@ namespace MyNamespace
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsNoDiagnostics_WhenUsedWithForNonSealedOverrideMethod(string method)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithNonSealedOverrideMethod(string method)
     {
         var source = $@"using System;
 using System.Threading.Tasks;
