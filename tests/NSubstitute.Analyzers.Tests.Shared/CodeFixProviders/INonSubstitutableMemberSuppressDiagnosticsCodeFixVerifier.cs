@@ -4,19 +4,19 @@ namespace NSubstitute.Analyzers.Tests.Shared.CodeFixProviders;
 
 public interface INonSubstitutableMemberSuppressDiagnosticsCodeFixVerifier
 {
-    Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualMethod();
+    Task SuppressesDiagnosticsInSettings_WhenUsedWithNonVirtualMethod();
 
-    Task SuppressesDiagnosticsInSettings_WhenSettingValueForStaticMethod();
+    Task SuppressesDiagnosticsInSettings_WhenUsedWithStaticMethod();
 
-    Task SuppressesDiagnosticsInSettings_WhenSettingValueForExtensionMethod();
+    Task SuppressesDiagnosticsInSettings_WhenUsedWithExtensionMethod();
 
-    Task SuppressesDiagnosticsInSettings_WhenSettingValueForSealedOverrideMethod();
+    Task SuppressesDiagnosticsInSettings_WhenUsedWithSealedOverrideMethod();
 
-    Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualProperty();
+    Task SuppressesDiagnosticsInSettings_WhenUsedWithNonVirtualProperty();
 
-    Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualIndexer();
+    Task SuppressesDiagnosticsInSettings_WhenUsedWithNonVirtualIndexer();
 
-    Task SuppressesDiagnosticsInSettingsForClass_WhenSettingsValueForNonVirtualMember_AndSelectingClassSuppression();
+    Task SuppressesDiagnosticsInSettingsForClass_WhenUsedWithNonVirtualMember_AndSelectingClassSuppression();
 
-    Task SuppressesDiagnosticsInSettingsForNamespace_WhenSettingsValueForNonVirtualMember_AndSelectingNamespaceSuppression();
+    Task SuppressesDiagnosticsInSettingsForNamespace_WhenUsedWithNonVirtualMember_AndSelectingNamespaceSuppression();
 }
