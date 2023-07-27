@@ -16,7 +16,7 @@ public class NonSubstitutableMemberReceivedInOrderSuppressDiagnosticsCodeFixVeri
     protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberReceivedInOrderAnalyzer();
 
     [Fact]
-    public async Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualMethod()
+    public async Task SuppressesDiagnosticsInSettings_WhenUsedWithNonVirtualMethod()
     {
         var source = @"Imports NSubstitute
 
@@ -42,7 +42,7 @@ End Namespace
     }
 
     [Fact]
-    public async Task SuppressesDiagnosticsInSettings_WhenSettingValueForStaticMethod()
+    public async Task SuppressesDiagnosticsInSettings_WhenUsedWithStaticMethod()
     {
         var source = @"Imports NSubstitute
 
@@ -67,7 +67,7 @@ End Namespace
     }
 
     [Fact]
-    public async Task SuppressesDiagnosticsInSettings_WhenSettingValueForExtensionMethod()
+    public async Task SuppressesDiagnosticsInSettings_WhenUsedWithExtensionMethod()
     {
         var source = @"Imports NSubstitute
 Imports System.Runtime.CompilerServices
@@ -105,7 +105,7 @@ End Namespace";
     }
 
     [Fact]
-    public async Task SuppressesDiagnosticsInSettings_WhenSettingValueForSealedOverrideMethod()
+    public async Task SuppressesDiagnosticsInSettings_WhenUsedWithSealedOverrideMethod()
     {
         var source = @"Imports NSubstitute
 
@@ -142,7 +142,7 @@ End Namespace
     }
 
     [Fact]
-    public async Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualProperty()
+    public async Task SuppressesDiagnosticsInSettings_WhenUsedWithNonVirtualProperty()
     {
         var source = @"Imports NSubstitute
 
@@ -172,7 +172,7 @@ End Namespace";
     }
 
     [Fact]
-    public async Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualIndexer()
+    public async Task SuppressesDiagnosticsInSettings_WhenUsedWithNonVirtualIndexer()
     {
         var source = @"Imports System
 Imports NSubstitute
@@ -204,7 +204,7 @@ End Namespace";
     }
 
     [Fact]
-    public async Task SuppressesDiagnosticsInSettingsForClass_WhenSettingsValueForNonVirtualMember_AndSelectingClassSuppression()
+    public async Task SuppressesDiagnosticsInSettingsForClass_WhenUsedWithNonVirtualMember_AndSelectingClassSuppression()
     {
         var source = @"Imports System
 Imports NSubstitute
@@ -236,7 +236,7 @@ End Namespace";
     }
 
     [Fact]
-    public async Task SuppressesDiagnosticsInSettingsForNamespace_WhenSettingsValueForNonVirtualMember_AndSelectingNamespaceSuppression()
+    public async Task SuppressesDiagnosticsInSettingsForNamespace_WhenUsedWithNonVirtualMember_AndSelectingNamespaceSuppression()
     {
         var source = @"Imports System
 Imports NSubstitute

@@ -15,26 +15,26 @@ public abstract class NonSubstitutableMemberSuppressDiagnosticsCodeFixVerifier :
     protected override CodeFixProvider CodeFixProvider { get; } = new NonSubstitutableMemberSuppressDiagnosticsCodeFixProvider();
 
     [Fact]
-    public abstract Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualMethod();
+    public abstract Task SuppressesDiagnosticsInSettings_WhenUsedWithNonVirtualMethod();
 
     [Fact]
-    public abstract Task SuppressesDiagnosticsInSettings_WhenSettingValueForStaticMethod();
+    public abstract Task SuppressesDiagnosticsInSettings_WhenUsedWithStaticMethod();
 
     [Fact]
-    public abstract Task SuppressesDiagnosticsInSettings_WhenSettingValueForExtensionMethod();
+    public abstract Task SuppressesDiagnosticsInSettings_WhenUsedWithExtensionMethod();
 
     [Fact]
-    public abstract Task SuppressesDiagnosticsInSettings_WhenSettingValueForSealedOverrideMethod();
+    public abstract Task SuppressesDiagnosticsInSettings_WhenUsedWithSealedOverrideMethod();
 
     [Fact]
-    public abstract Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualProperty();
+    public abstract Task SuppressesDiagnosticsInSettings_WhenUsedWithNonVirtualProperty();
 
     [Fact]
-    public abstract Task SuppressesDiagnosticsInSettings_WhenSettingValueForNonVirtualIndexer();
+    public abstract Task SuppressesDiagnosticsInSettings_WhenUsedWithNonVirtualIndexer();
 
     [Fact]
-    public abstract Task SuppressesDiagnosticsInSettingsForClass_WhenSettingsValueForNonVirtualMember_AndSelectingClassSuppression();
+    public abstract Task SuppressesDiagnosticsInSettingsForClass_WhenUsedWithNonVirtualMember_AndSelectingClassSuppression();
 
     [Fact]
-    public abstract Task SuppressesDiagnosticsInSettingsForNamespace_WhenSettingsValueForNonVirtualMember_AndSelectingNamespaceSuppression();
+    public abstract Task SuppressesDiagnosticsInSettingsForNamespace_WhenUsedWithNonVirtualMember_AndSelectingNamespaceSuppression();
 }
