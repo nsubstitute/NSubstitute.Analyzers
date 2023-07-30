@@ -79,6 +79,22 @@ public abstract class NonSubstitutableMemberReceivedDiagnosticVerifier : CSharpD
     public abstract Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualIndexer(string method);
 
     [CombinatoryTheory]
+    [InlineData]
+    public abstract Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualEvent(string method);
+
+    [CombinatoryTheory]
+    [InlineData]
+    public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractEvent(string method);
+
+    [CombinatoryTheory]
+    [InlineData]
+    public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualEvent(string method);
+
+    [CombinatoryTheory]
+    [InlineData]
+    public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceEvent(string method);
+
+    [CombinatoryTheory]
     [InlineData(".Bar", "Internal member Bar can not be intercepted without InternalsVisibleToAttribute.")]
     [InlineData(".FooBar()", "Internal member FooBar can not be intercepted without InternalsVisibleToAttribute.")]
     [InlineData("[0]", "Internal member this[] can not be intercepted without InternalsVisibleToAttribute.")]

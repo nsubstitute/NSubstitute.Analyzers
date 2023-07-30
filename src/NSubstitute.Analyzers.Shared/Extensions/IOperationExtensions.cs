@@ -114,12 +114,11 @@ internal static class IOperationExtensions
     {
         var symbol = operation switch
         {
+            IMemberReferenceOperation memberReferenceOperation => memberReferenceOperation.Member,
             IInvocationOperation invocationOperation => invocationOperation.TargetMethod,
-            IPropertyReferenceOperation propertyReferenceOperation => propertyReferenceOperation.Property,
             IConversionOperation conversionOperation => ExtractSymbol(conversionOperation.Operand),
             IAwaitOperation awaitOperation => ExtractSymbol(awaitOperation.Operation),
             ILocalReferenceOperation localReferenceOperation => localReferenceOperation.Local,
-            IFieldReferenceOperation fieldReferenceOperation => fieldReferenceOperation.Field,
             _ => null
         };
 

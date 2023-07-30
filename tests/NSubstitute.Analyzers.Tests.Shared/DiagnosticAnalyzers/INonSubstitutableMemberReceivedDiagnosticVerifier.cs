@@ -34,6 +34,14 @@ public interface INonSubstitutableMemberReceivedDiagnosticVerifier
 
     Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualIndexer(string method);
 
+    Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualEvent(string method);
+
+    Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractEvent(string method);
+
+    Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualEvent(string method);
+
+    Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceEvent(string method);
+
     Task ReportsDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToNotApplied(string method, string call, string message);
 
     Task ReportsNoDiagnostics_WhenSettingValueForInternalVirtualMember_AndInternalsVisibleToApplied(string method, string call);
