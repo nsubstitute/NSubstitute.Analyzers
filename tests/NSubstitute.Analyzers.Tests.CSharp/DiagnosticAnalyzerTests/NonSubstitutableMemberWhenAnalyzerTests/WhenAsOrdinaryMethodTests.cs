@@ -524,9 +524,33 @@ namespace MyNamespace
         await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
     }
 
-    public override Task ReportsNoDiagnostics_WhenUsedWithVirtualIndexer(string method)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithVirtualIndexer(string method)
     {
-        throw new System.NotImplementedException();
+        var source = $@"using NSubstitute;
+
+namespace MyNamespace
+{{
+    public class Foo
+    {{
+        public virtual int this[int x] => 0;
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            {method}(substitute, sub => {{ var x = sub[Arg.Any<int>()]; }});
+            {method}(substitute: substitute, substituteCall: sub => {{ var x = sub[Arg.Any<int>()]; }});
+            {method}(substituteCall: sub => {{ var x = sub[Arg.Any<int>()]; }}, substitute: substitute);
+
+            {method}(substitute, delegate(Foo sub) {{ var x = sub[Arg.Any<int>()]; }});
+            {method}(substitute: substitute, substituteCall: delegate(Foo sub) {{ var x = sub[Arg.Any<int>()]; }});
+            {method}(substituteCall: delegate(Foo sub) {{ var x = sub[Arg.Any<int>()]; }}, substitute: substitute);
+        }}
+    }}
+}}";
+        await VerifyNoDiagnostic(source);
     }
 
     public override async Task ReportsNoDiagnostics_WhenUsedWithVirtualProperty(string method)

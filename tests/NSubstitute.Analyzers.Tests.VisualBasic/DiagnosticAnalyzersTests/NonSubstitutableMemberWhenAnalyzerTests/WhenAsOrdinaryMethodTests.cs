@@ -578,9 +578,52 @@ End Namespace
         await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
     }
 
-    public override Task ReportsNoDiagnostics_WhenUsedWithVirtualIndexer(string method)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithVirtualIndexer(string method)
     {
-        throw new System.NotImplementedException();
+        var source = $@"Imports NSubstitute
+
+Namespace MyNamespace
+     Public Class Foo
+
+        Public Default ReadOnly Overridable Property Item(ByVal x As Integer) As Integer
+            Get
+                Throw New System.NotImplementedException
+            End Get
+        End Property
+    End Class
+
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim i As Integer = 1
+            Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
+            {method}(substitute, Sub(sb As Foo)
+                Dim x = sb(Arg.Any(Of Integer)())
+            End Sub).[Do](Sub(callInfo) i = i + 1)
+            {method}(substitute:= substitute, substituteCall:= Sub(sb As Foo)
+                Dim x = sb(Arg.Any(Of Integer)())
+            End Sub).[Do](Sub(callInfo) i = i + 1)
+            {method}(substituteCall:= Sub(sb As Foo)
+                Dim x = sb(Arg.Any(Of Integer)())
+            End Sub, substitute:= substitute).[Do](Sub(callInfo) i = i + 1)
+
+            {method}(substitute, Sub(sb As Foo)
+                Dim x as Integer
+                x = sb(Arg.Any(Of Integer)())
+            End Sub).[Do](Sub(callInfo) i = i + 1)
+            {method}(substitute:= substitute, substituteCall:= Sub(sb As Foo)
+                Dim x as Integer
+                x = sb(Arg.Any(Of Integer)())
+            End Sub).[Do](Sub(callInfo) i = i + 1)
+            {method}(substituteCall:= Sub(sb As Foo)
+                Dim x as Integer
+                x = sb(Arg.Any(Of Integer)())
+            End Sub, substitute:= substitute).[Do](Sub(callInfo) i = i + 1)
+        End Sub
+    End Class
+End Namespace
+";
+        await VerifyNoDiagnostic(source);
     }
 
     public override async Task ReportsNoDiagnostics_WhenUsedWithVirtualProperty(string method)
