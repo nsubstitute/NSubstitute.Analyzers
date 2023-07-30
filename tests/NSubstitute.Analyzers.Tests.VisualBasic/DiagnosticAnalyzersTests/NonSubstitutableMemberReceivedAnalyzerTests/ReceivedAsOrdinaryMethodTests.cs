@@ -491,7 +491,7 @@ End Namespace";
         await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member Item can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
     }
 
-    public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualEvent(string method)
+    public override async Task ReportsDiagnostics_WhenUsedWithNonVirtualEvent(string method)
     {
         var source = $@"Imports NSubstitute
 Imports NSubstitute.ReceivedExtensions
@@ -515,19 +515,19 @@ End Namespace
         await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member SomeEvent can not be intercepted. Only interface members and overrideable, overriding, and must override members can be intercepted.");
     }
 
-    public override Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractEvent(string method)
+    public override Task ReportsNoDiagnostics_WhenUsedWithAbstractEvent(string method)
     {
         // VisualBasic does not allow to mark events as abstract (MustInherit)
         return Task.CompletedTask;
     }
 
-    public override Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualEvent(string method)
+    public override Task ReportsNoDiagnostics_WhenUsedWithVirtualEvent(string method)
     {
         // VisualBasic does not allow to mark events as virtual (Overridable)
         return Task.CompletedTask;
     }
 
-    public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceEvent(string method)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithInterfaceEvent(string method)
     {
         var source = $@"Imports NSubstitute
 Imports NSubstitute.ReceivedExtensions

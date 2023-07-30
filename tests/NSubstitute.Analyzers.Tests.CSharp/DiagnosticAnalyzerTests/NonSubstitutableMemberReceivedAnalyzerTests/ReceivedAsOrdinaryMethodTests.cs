@@ -478,7 +478,7 @@ namespace MyNamespace
         await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member this[] can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
     }
 
-    public override async Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualEvent(string method)
+    public override async Task ReportsDiagnostics_WhenUsedWithNonVirtualEvent(string method)
     {
         var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
@@ -504,7 +504,7 @@ namespace MyNamespace
         await VerifyDiagnostic(source, NonVirtualReceivedSetupSpecificationDescriptor, "Member Event can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
     }
 
-    public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractEvent(string method)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithAbstractEvent(string method)
     {
         var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
@@ -530,7 +530,7 @@ namespace MyNamespace
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualEvent(string method)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithVirtualEvent(string method)
     {
         var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;
@@ -556,7 +556,7 @@ namespace MyNamespace
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceEvent(string method)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithInterfaceEvent(string method)
     {
         var source = $@"using NSubstitute;
 using NSubstitute.ReceivedExtensions;

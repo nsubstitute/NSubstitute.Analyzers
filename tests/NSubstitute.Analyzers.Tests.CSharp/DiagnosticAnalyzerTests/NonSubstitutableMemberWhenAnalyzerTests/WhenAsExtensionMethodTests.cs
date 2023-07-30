@@ -415,6 +415,11 @@ namespace MyNamespace
         await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
     }
 
+    public override Task ReportsNoDiagnostics_WhenUsedWithVirtualIndexer(string method)
+    {
+        throw new System.NotImplementedException();
+    }
+
     public override async Task ReportsNoDiagnostics_WhenUsedWithVirtualProperty(string method)
     {
         var source = $@"using NSubstitute;

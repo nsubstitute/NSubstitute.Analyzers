@@ -76,6 +76,10 @@ public abstract class NonSubstitutableMemberWhenDiagnosticVerifier : CSharpDiagn
 
     [CombinatoryTheory]
     [InlineData]
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithVirtualIndexer(string method);
+
+    [CombinatoryTheory]
+    [InlineData]
     public abstract Task ReportsNoDiagnostics_WhenUsedWithVirtualProperty(string method);
 
     [CombinatoryTheory]

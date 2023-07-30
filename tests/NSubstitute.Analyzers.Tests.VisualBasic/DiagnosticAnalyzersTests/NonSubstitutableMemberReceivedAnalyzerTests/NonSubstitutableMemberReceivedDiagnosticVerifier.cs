@@ -80,19 +80,19 @@ public abstract class NonSubstitutableMemberReceivedDiagnosticVerifier : VisualB
 
     [CombinatoryTheory]
     [InlineData]
-    public abstract Task ReportsDiagnostics_WhenCheckingReceivedCallsForNonVirtualEvent(string method);
+    public abstract Task ReportsDiagnostics_WhenUsedWithNonVirtualEvent(string method);
 
     [CombinatoryTheory(Skip = "VisualBasic does not allow to mark events as abstract (MustInherit)")]
     [InlineData]
-    public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForAbstractEvent(string method);
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithAbstractEvent(string method);
 
     [CombinatoryTheory(Skip = "VisualBasic does not allow to mark events as virtual (Overridable)")]
     [InlineData]
-    public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForVirtualEvent(string method);
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithVirtualEvent(string method);
 
     [CombinatoryTheory]
     [InlineData]
-    public abstract Task ReportsNoDiagnostics_WhenCheckingReceivedCallsForInterfaceEvent(string method);
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithInterfaceEvent(string method);
 
     [CombinatoryTheory]
     [InlineData(".Bar", "Friend member Bar can not be intercepted without InternalsVisibleToAttribute.")]
