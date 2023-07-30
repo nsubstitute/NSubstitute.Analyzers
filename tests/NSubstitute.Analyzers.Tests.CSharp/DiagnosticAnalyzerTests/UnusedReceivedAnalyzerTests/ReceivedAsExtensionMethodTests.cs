@@ -242,4 +242,28 @@ namespace NSubstitute
 }}";
         await VerifyNoDiagnostic(source);
     }
+
+    public override async Task ReportsNoDiagnostics_WhenSubscribingToEvent(string method)
+    {
+        var source = $@"using NSubstitute;
+using NSubstitute.ReceivedExtensions;
+using System;
+namespace MyNamespace
+{{
+    public class Foo
+    {{
+        public event Action SomeEvent;
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = NSubstitute.Substitute.For<Foo>();
+            substitute.{method}.SomeEvent += Arg.Any<Action>();
+        }}
+    }}
+}}";
+        await VerifyNoDiagnostic(source);
+    }
 }

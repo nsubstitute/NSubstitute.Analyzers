@@ -39,4 +39,8 @@ public abstract class UnusedReceivedDiagnosticVerifier : VisualBasicDiagnosticVe
     [CombinatoryTheory]
     [InlineData]
     public abstract Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod(string method);
+
+    [CombinatoryTheory]
+    [InlineData]
+    public abstract Task ReportsNoDiagnostics_WhenSubscribingToEvent(string method);
 }

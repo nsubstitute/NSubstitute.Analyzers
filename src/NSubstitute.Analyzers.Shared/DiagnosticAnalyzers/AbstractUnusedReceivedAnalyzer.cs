@@ -21,7 +21,7 @@ internal abstract class AbstractUnusedReceivedAnalyzer : AbstractDiagnosticAnaly
     public sealed override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
 
     private static readonly ImmutableHashSet<OperationKind> PossibleParents =
-        ImmutableHashSet.Create(OperationKind.PropertyReference, OperationKind.Invocation);
+        ImmutableHashSet.Create(OperationKind.PropertyReference, OperationKind.Invocation, OperationKind.EventReference);
 
     protected sealed override void InitializeAnalyzer(AnalysisContext context)
     {

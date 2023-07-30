@@ -15,4 +15,6 @@ public interface IUnusedReceivedDiagnosticVerifier
     Task ReportNoDiagnostics_WhenUsedWithInvokingDelegate(string method);
 
     Task ReportsNoDiagnostics_WhenUsedWithUnfortunatelyNamedMethod(string method);
+
+    Task ReportsNoDiagnostics_WhenSubscribingToEvent(string method);
 }
