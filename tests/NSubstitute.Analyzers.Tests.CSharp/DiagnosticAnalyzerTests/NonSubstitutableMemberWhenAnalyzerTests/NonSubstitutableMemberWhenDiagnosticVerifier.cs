@@ -19,97 +19,68 @@ public abstract class NonSubstitutableMemberWhenDiagnosticVerifier : CSharpDiagn
     protected override DiagnosticAnalyzer DiagnosticAnalyzer { get; } = new NonSubstitutableMemberWhenAnalyzer();
 
     [CombinatoryTheory]
-    [InlineData("sub => [|sub.Bar(Arg.Any<int>())|]")]
-    [InlineData("delegate(Foo sub) { [|sub.Bar(Arg.Any<int>())|]; }")]
-    public abstract Task ReportsDiagnostics_WhenUsedWithNonVirtualMethod(string method, string whenAction);
+    [InlineData]
+    public abstract Task ReportsDiagnostics_WhenUsedWithNonVirtualMethod(string method);
 
     [CombinatoryTheory]
-    [InlineData("sub => [|sub.Bar(Arg.Any<int>())|]")]
-    [InlineData("delegate(Foo sub) { [|sub.Bar(Arg.Any<int>())|]; }")]
-    [InlineData("sub => { [|sub.Bar(Arg.Any<int>())|]; }")]
-    public abstract Task ReportsDiagnostics_WhenUsedWithNonVirtualMemberFromBaseClass(string method, string whenAction);
+    [InlineData]
+    public abstract Task ReportsDiagnostics_WhenUsedWithNonVirtualMemberFromBaseClass(string method);
 
     [CombinatoryTheory]
-    [InlineData("sub => sub.Bar(Arg.Any<int>())")]
-    [InlineData("delegate(Foo sub) { sub.Bar(Arg.Any<int>()); }")]
-    [InlineData("sub => { sub.Bar(Arg.Any<int>()); }")]
-    public abstract Task ReportsNoDiagnostics_WhenUsedWithVirtualMethod(string method, string whenAction);
+    [InlineData]
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithVirtualMethod(string method);
 
     [CombinatoryTheory]
-    [InlineData("sub => sub.Bar(Arg.Any<int>())")]
-    [InlineData("delegate(Foo sub) { sub.Bar(Arg.Any<int>()); }")]
-    [InlineData("sub => { sub.Bar(Arg.Any<int>()); }")]
-    public abstract Task ReportsNoDiagnostics_WhenUsedWithNonSealedOverrideMethod(string method, string whenAction);
+    [InlineData]
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithNonSealedOverrideMethod(string method);
 
     [CombinatoryTheory]
-    [InlineData("sub => sub()")]
-    [InlineData("delegate(Func<int> sub) { sub(); }")]
-    [InlineData("sub => { sub(); }")]
-    public abstract Task ReportsNoDiagnostics_WhenUsedWithDelegate(string method, string whenAction);
+    [InlineData]
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithDelegate(string method);
 
     [CombinatoryTheory]
-    [InlineData("sub => [|sub.Bar(Arg.Any<int>())|]")]
-    [InlineData("delegate(Foo sub) { [|sub.Bar(Arg.Any<int>())|]; }")]
-    [InlineData("sub => { [|sub.Bar(Arg.Any<int>())|]; }")]
-    public abstract Task ReportsDiagnostics_WhenUsedWithSealedOverrideMethod(string method, string whenAction);
+    [InlineData]
+    public abstract Task ReportsDiagnostics_WhenUsedWithSealedOverrideMethod(string method);
 
     [CombinatoryTheory]
-    [InlineData("sub => sub.Bar(Arg.Any<int>())")]
-    [InlineData("delegate(Foo sub) { sub.Bar(Arg.Any<int>()); }")]
-    [InlineData("sub => { sub.Bar(Arg.Any<int>()); }")]
-    public abstract Task ReportsNoDiagnostics_WhenUsedWithAbstractMethod(string method, string whenAction);
+    [InlineData]
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithAbstractMethod(string method);
 
     [CombinatoryTheory]
-    [InlineData("sub => sub.Bar(Arg.Any<int>())")]
-    [InlineData("delegate(Foo sub) { sub.Bar(Arg.Any<int>()); }")]
-    [InlineData("sub => { sub.Bar(Arg.Any<int>()); }")]
-    public abstract Task ReportsNoDiagnostics_WhenUsedWithInterfaceMethod(string method, string whenAction);
+    [InlineData]
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithInterfaceMethod(string method);
 
     [CombinatoryTheory]
-    [InlineData("delegate(Foo sub) { var x = sub.Bar; }")]
-    [InlineData("sub => { int x; x = sub.Bar; }")]
-    [InlineData("sub => { var x = sub.Bar; }")]
-    public abstract Task ReportsNoDiagnostics_WhenUsedWithInterfaceProperty(string method, string whenAction);
+    [InlineData]
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithInterfaceProperty(string method);
 
     [CombinatoryTheory]
-    [InlineData("sub => sub.Bar<int>(Arg.Any<int>())")]
-    [InlineData("delegate(Foo<int> sub) { sub.Bar<int>(Arg.Any<int>()); }")]
-    [InlineData("sub => { sub.Bar<int>(Arg.Any<int>()); }")]
-    public abstract Task ReportsNoDiagnostics_WhenUsedWithGenericInterfaceMethod(string method, string whenAction);
+    [InlineData]
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithGenericInterfaceMethod(string method);
 
     [CombinatoryTheory]
-    [InlineData("sub => { var x = sub.Bar; }")]
-    [InlineData("sub => { int x; x = sub.Bar; }")]
-    [InlineData("delegate(Foo sub) { var x = sub.Bar; }")]
-    public abstract Task ReportsNoDiagnostics_WhenUsedWithAbstractProperty(string method, string whenAction);
+    [InlineData]
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithAbstractProperty(string method);
 
     [CombinatoryTheory]
-    [InlineData("delegate(Foo sub) { var x = sub[Arg.Any<int>()]; }")]
-    [InlineData("sub => { var x = sub[Arg.Any<int>()]; }")]
-    public abstract Task ReportsNoDiagnostics_WhenUsedWithInterfaceIndexer(string method, string whenAction);
+    [InlineData]
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithInterfaceIndexer(string method);
 
     [CombinatoryTheory]
-    [InlineData("sub => sub.Bar(Arg.Any<int>())")]
-    [InlineData("delegate(Foo sub) { sub.Bar(Arg.Any<int>()); }")]
-    [InlineData("sub => { sub.Bar(Arg.Any<int>()); }")]
-    public abstract Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method, string whenAction);
+    [InlineData]
+    public abstract Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method);
 
     [CombinatoryTheory]
-    [InlineData("sub => { var x = [|sub.Bar|]; }")]
-    [InlineData("sub => { int x; x = [|sub.Bar|]; }")]
-    [InlineData("delegate(Foo sub) { var x = [|sub.Bar|]; }")]
-    public abstract Task ReportsDiagnostics_WhenUsedWithNonVirtualProperty(string method, string whenAction);
+    [InlineData]
+    public abstract Task ReportsDiagnostics_WhenUsedWithNonVirtualProperty(string method);
 
     [CombinatoryTheory]
-    [InlineData("sub => { var x = sub.Bar; }")]
-    [InlineData("sub => { int x; x = sub.Bar; }")]
-    [InlineData("delegate(Foo sub) { var x = sub.Bar; }")]
-    public abstract Task ReportsNoDiagnostics_WhenUsedWithVirtualProperty(string method, string whenAction);
+    [InlineData]
+    public abstract Task ReportsNoDiagnostics_WhenUsedWithVirtualProperty(string method);
 
     [CombinatoryTheory]
-    [InlineData("sub => { var x = [|sub[Arg.Any<int>()]|]; }")]
-    [InlineData("delegate(Foo sub) { var x = [|sub[Arg.Any<int>()]|]; }")]
-    public abstract Task ReportsDiagnostics_WhenUsedWithNonVirtualIndexer(string method, string whenAction);
+    [InlineData]
+    public abstract Task ReportsDiagnostics_WhenUsedWithNonVirtualIndexer(string method);
 
     [CombinatoryTheory]
     [InlineData]
