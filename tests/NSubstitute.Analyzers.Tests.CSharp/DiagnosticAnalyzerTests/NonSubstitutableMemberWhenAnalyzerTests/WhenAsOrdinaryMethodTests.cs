@@ -6,7 +6,7 @@ namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.NonSubstitu
 [CombinatoryData("SubstituteExtensions.When", "SubstituteExtensions.When<Foo>", "SubstituteExtensions.WhenForAnyArgs", "SubstituteExtensions.WhenForAnyArgs<Foo>")]
 public class WhenAsOrdinaryMethodTests : NonSubstitutableMemberWhenDiagnosticVerifier
 {
-    public override async Task ReportsDiagnostics_WhenUsedWithNonVirtualMethod(string method, string whenAction)
+    public override async Task ReportsDiagnostics_WhenUsedWithNonVirtualMethod(string method)
     {
         var source = $@"using NSubstitute;
 
@@ -26,9 +26,13 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}(substitute, {whenAction}).Do(callInfo => i++);
-            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
-            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
+            {method}(substitute, sub => [|sub.Bar(Arg.Any<int>())|]).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => [|sub.Bar(Arg.Any<int>())|]).Do(callInfo => i++);
+            {method}(substituteCall: sub => [|sub.Bar(Arg.Any<int>())|], substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, delegate(Foo sub) {{ [|sub.Bar(Arg.Any<int>())|]; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: delegate(Foo sub) {{ [|sub.Bar(Arg.Any<int>())|]; }}).Do(callInfo => i++);
+            {method}(substituteCall: delegate(Foo sub) {{ [|sub.Bar(Arg.Any<int>())|]; }}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -36,7 +40,7 @@ namespace MyNamespace
         await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
     }
 
-    public override async Task ReportsDiagnostics_WhenUsedWithNonVirtualMemberFromBaseClass(string method, string whenAction)
+    public override async Task ReportsDiagnostics_WhenUsedWithNonVirtualMemberFromBaseClass(string method)
     {
         var source = $@"using NSubstitute;
 namespace MyNamespace
@@ -60,16 +64,26 @@ namespace MyNamespace
             int i = 1;
             var substitute = Substitute.For<Foo>();
 
-            {method}(substitute, {whenAction}).Do(callInfo => i++);
-            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
-            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
+            {method}(substitute, sub => [|sub.Bar(Arg.Any<int>())|]).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => [|sub.Bar(Arg.Any<int>())|]).Do(callInfo => i++);
+            {method}(substituteCall: sub => [|sub.Bar(Arg.Any<int>())|], substitute: substitute).Do(callInfo => i++);
+
+
+            {method}(substitute, sub => {{ [|sub.Bar(Arg.Any<int>())|]; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => {{ [|sub.Bar(Arg.Any<int>())|]; }}).Do(callInfo => i++);
+            {method}(substituteCall: sub => {{ [|sub.Bar(Arg.Any<int>())|]; }}, substitute: substitute).Do(callInfo => i++);
+
+
+            {method}(substitute, delegate(Foo sub) {{ [|sub.Bar(Arg.Any<int>())|]; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: delegate(Foo sub) {{ [|sub.Bar(Arg.Any<int>())|]; }}).Do(callInfo => i++);
+            {method}(substituteCall: delegate(Foo sub) {{ [|sub.Bar(Arg.Any<int>())|]; }}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
         await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
     }
 
-    public override async Task ReportsNoDiagnostics_WhenUsedWithVirtualMethod(string method, string whenAction)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithVirtualMethod(string method)
     {
         var source = $@"using NSubstitute;
 
@@ -89,16 +103,25 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}(substitute, {whenAction}).Do(callInfo => i++);
-            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
-            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
+            {method}(substitute, sub => sub.Bar(Arg.Any<int>())).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => sub.Bar(Arg.Any<int>())).Do(callInfo => i++);
+            {method}(substituteCall: sub => sub.Bar(Arg.Any<int>()), substitute: substitute).Do(callInfo => i++);
+
+
+            {method}(substitute, sub => {{ sub.Bar(Arg.Any<int>()); }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => {{ sub.Bar(Arg.Any<int>()); }}).Do(callInfo => i++);
+            {method}(substituteCall: sub => {{ sub.Bar(Arg.Any<int>()); }}, substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, delegate(Foo sub) {{ sub.Bar(Arg.Any<int>()); }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: delegate(Foo sub) {{ sub.Bar(Arg.Any<int>()); }}).Do(callInfo => i++);
+            {method}(substituteCall: delegate(Foo sub) {{ sub.Bar(Arg.Any<int>()); }}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsNoDiagnostics_WhenUsedWithNonSealedOverrideMethod(string method, string whenAction)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithNonSealedOverrideMethod(string method)
     {
         var source = $@"using NSubstitute;
 
@@ -123,9 +146,17 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}(substitute, {whenAction}).Do(callInfo => i++);
-            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
-            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
+            {method}(substitute, sub => sub.Bar(Arg.Any<int>())).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => sub.Bar(Arg.Any<int>())).Do(callInfo => i++);
+            {method}(substituteCall: sub => sub.Bar(Arg.Any<int>()), substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, sub => {{ sub.Bar(Arg.Any<int>()); }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => {{ sub.Bar(Arg.Any<int>()); }}).Do(callInfo => i++);
+            {method}(substituteCall: sub => {{ sub.Bar(Arg.Any<int>()); }}, substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, delegate(Foo sub) {{ sub.Bar(Arg.Any<int>()); }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: delegate(Foo sub) {{ sub.Bar(Arg.Any<int>()); }}).Do(callInfo => i++);
+            {method}(substituteCall: delegate(Foo sub) {{ sub.Bar(Arg.Any<int>()); }}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -133,7 +164,7 @@ namespace MyNamespace
     }
 
     [CombinatoryData("SubstituteExtensions.When", "SubstituteExtensions.When<Func<int>>", "SubstituteExtensions.WhenForAnyArgs", "SubstituteExtensions.WhenForAnyArgs<Func<int>>")]
-    public override async Task ReportsNoDiagnostics_WhenUsedWithDelegate(string method, string whenAction)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithDelegate(string method)
     {
         var source = $@"using NSubstitute;
 using System;
@@ -146,16 +177,24 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = Substitute.For<Func<int>>();
-            {method}(substitute, {whenAction}).Do(callInfo => i++);
-            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
-            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
+            {method}(substitute, sub => sub()).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => sub()).Do(callInfo => i++);
+            {method}(substituteCall: sub => sub(), substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, sub => {{ sub(); }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => {{ sub(); }}).Do(callInfo => i++);
+            {method}(substituteCall: sub => {{ sub(); }}, substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, delegate(Func<int> sub) {{ sub(); }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: delegate(Func<int> sub) {{ sub(); }}).Do(callInfo => i++);
+            {method}(substituteCall: delegate(Func<int> sub) {{ sub(); }}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsDiagnostics_WhenUsedWithSealedOverrideMethod(string method, string whenAction)
+    public override async Task ReportsDiagnostics_WhenUsedWithSealedOverrideMethod(string method)
     {
         var source = $@"using NSubstitute;
 
@@ -180,9 +219,17 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}(substitute, {whenAction}).Do(callInfo => i++);
-            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
-            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
+            {method}(substitute, sub => [|sub.Bar(Arg.Any<int>())|]).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => [|sub.Bar(Arg.Any<int>())|]).Do(callInfo => i++);
+            {method}(substituteCall: sub => [|sub.Bar(Arg.Any<int>())|], substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, sub => {{ [|sub.Bar(Arg.Any<int>())|]; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => {{ [|sub.Bar(Arg.Any<int>())|]; }}).Do(callInfo => i++);
+            {method}(substituteCall: sub => {{ [|sub.Bar(Arg.Any<int>())|]; }}, substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, delegate(Foo sub) {{ [|sub.Bar(Arg.Any<int>())|]; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: delegate(Foo sub) {{ [|sub.Bar(Arg.Any<int>())|]; }}).Do(callInfo => i++);
+            {method}(substituteCall: delegate(Foo sub) {{ [|sub.Bar(Arg.Any<int>())|]; }}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -190,7 +237,7 @@ namespace MyNamespace
         await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
     }
 
-    public override async Task ReportsNoDiagnostics_WhenUsedWithAbstractMethod(string method, string whenAction)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithAbstractMethod(string method)
     {
         var source = $@"using NSubstitute;
 
@@ -207,9 +254,17 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}(substitute, {whenAction}).Do(callInfo => i++);
-            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
-            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
+            {method}(substitute, sub => sub.Bar(Arg.Any<int>())).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => sub.Bar(Arg.Any<int>())).Do(callInfo => i++);
+            {method}(substituteCall: sub => sub.Bar(Arg.Any<int>()), substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, sub => {{ sub.Bar(Arg.Any<int>()); }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => {{ sub.Bar(Arg.Any<int>()); }}).Do(callInfo => i++);
+            {method}(substituteCall: sub => {{ sub.Bar(Arg.Any<int>()); }}, substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, delegate(Foo sub) {{ sub.Bar(Arg.Any<int>()); }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: delegate(Foo sub) {{ sub.Bar(Arg.Any<int>()); }}).Do(callInfo => i++);
+            {method}(substituteCall: delegate(Foo sub) {{ sub.Bar(Arg.Any<int>()); }}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -217,7 +272,7 @@ namespace MyNamespace
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsNoDiagnostics_WhenUsedWithInterfaceMethod(string method, string whenAction)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithInterfaceMethod(string method)
     {
         var source = $@"using NSubstitute;
 
@@ -234,16 +289,24 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}(substitute, {whenAction}).Do(callInfo => i++);
-            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
-            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
+            {method}(substitute, sub => sub.Bar(Arg.Any<int>())).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => sub.Bar(Arg.Any<int>())).Do(callInfo => i++);
+            {method}(substituteCall: sub => sub.Bar(Arg.Any<int>()), substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, sub => {{ sub.Bar(Arg.Any<int>()); }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => {{ sub.Bar(Arg.Any<int>()); }}).Do(callInfo => i++);
+            {method}(substituteCall: sub => {{ sub.Bar(Arg.Any<int>()); }}, substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, delegate(Foo sub) {{ sub.Bar(Arg.Any<int>()); }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: delegate(Foo sub) {{ sub.Bar(Arg.Any<int>()); }}).Do(callInfo => i++);
+            {method}(substituteCall: delegate(Foo sub) {{ sub.Bar(Arg.Any<int>()); }}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsNoDiagnostics_WhenUsedWithInterfaceProperty(string method, string whenAction)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithInterfaceProperty(string method)
     {
         var source = $@"using NSubstitute;
 
@@ -260,9 +323,17 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}(substitute, {whenAction}).Do(callInfo => i++);
-            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
-            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
+            {method}(substitute, sub => {{ var x = sub.Bar; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => {{ var x = sub.Bar; }}).Do(callInfo => i++);
+            {method}(substituteCall: sub => {{ var x = sub.Bar; }}, substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, sub => {{ int x; x = sub.Bar; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => {{ int x; x = sub.Bar; }}).Do(callInfo => i++);
+            {method}(substituteCall: sub => {{ int x; x = sub.Bar; }}, substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, delegate(Foo sub) {{ var x = sub.Bar; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: delegate(Foo sub) {{ var x = sub.Bar; }}).Do(callInfo => i++);
+            {method}(substituteCall: delegate(Foo sub) {{ var x = sub.Bar; }}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -270,7 +341,7 @@ namespace MyNamespace
     }
 
     [CombinatoryData("SubstituteExtensions.When", "SubstituteExtensions.When<Foo<int>>", "SubstituteExtensions.WhenForAnyArgs", "SubstituteExtensions.WhenForAnyArgs<Foo<int>>")]
-    public override async Task ReportsNoDiagnostics_WhenUsedWithGenericInterfaceMethod(string method, string whenAction)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithGenericInterfaceMethod(string method)
     {
         var source = $@"using NSubstitute;
 
@@ -287,16 +358,24 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo<int>>();
-            {method}(substitute, {whenAction}).Do(callInfo => i++);
-            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
-            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
+            {method}(substitute, sub => sub.Bar<int>(Arg.Any<int>())).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => sub.Bar<int>(Arg.Any<int>())).Do(callInfo => i++);
+            {method}(substituteCall: sub => sub.Bar<int>(Arg.Any<int>()), substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, sub => {{ sub.Bar<int>(Arg.Any<int>()); }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => {{ sub.Bar<int>(Arg.Any<int>()); }}).Do(callInfo => i++);
+            {method}(substituteCall: sub => {{ sub.Bar<int>(Arg.Any<int>()); }}, substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, delegate(Foo<int> sub) {{ sub.Bar<int>(Arg.Any<int>()); }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: delegate(Foo<int> sub) {{ sub.Bar<int>(Arg.Any<int>()); }}).Do(callInfo => i++);
+            {method}(substituteCall: delegate(Foo<int> sub) {{ sub.Bar<int>(Arg.Any<int>()); }}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsNoDiagnostics_WhenUsedWithAbstractProperty(string method, string whenAction)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithAbstractProperty(string method)
     {
         var source = $@"using NSubstitute;
 
@@ -313,9 +392,17 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}(substitute, {whenAction}).Do(callInfo => i++);
-            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
-            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
+            {method}(substitute, sub => {{ var x = sub.Bar; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => {{ var x = sub.Bar; }}).Do(callInfo => i++);
+            {method}(substituteCall: sub => {{ var x = sub.Bar; }}, substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, sub => {{ int x; x = sub.Bar; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => {{ int x; x = sub.Bar; }}).Do(callInfo => i++);
+            {method}(substituteCall: sub => {{ int x; x = sub.Bar; }}, substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, delegate(Foo sub) {{ var x = sub.Bar; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: delegate(Foo sub) {{ var x = sub.Bar; }}).Do(callInfo => i++);
+            {method}(substituteCall: delegate(Foo sub) {{ var x = sub.Bar; }}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -323,7 +410,7 @@ namespace MyNamespace
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsNoDiagnostics_WhenUsedWithInterfaceIndexer(string method, string whenAction)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithInterfaceIndexer(string method)
     {
         var source = $@"using NSubstitute;
 
@@ -340,16 +427,20 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}(substitute, {whenAction}).Do(callInfo => i++);
-            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
-            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
+            {method}(substitute, delegate(Foo sub) {{ var x = sub[Arg.Any<int>()]; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: delegate(Foo sub) {{ var x = sub[Arg.Any<int>()]; }}).Do(callInfo => i++);
+            {method}(substituteCall: delegate(Foo sub) {{ var x = sub[Arg.Any<int>()]; }}, substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, sub => {{ var x = sub[Arg.Any<int>()]; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => {{ var x = sub[Arg.Any<int>()]; }}).Do(callInfo => i++);
+            {method}(substituteCall: sub => {{ var x = sub[Arg.Any<int>()]; }}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method, string whenAction)
+    public override async Task ReportsNoDiagnostics_WhenUsingUnfortunatelyNamedMethod(string method)
     {
         var source = $@"
 
@@ -381,16 +472,24 @@ namespace NSubstitute
         public void Test()
         {{
             Foo substitute = null;
-            {method}(substitute, {whenAction}, 1);
-            {method}(substituteCall: {whenAction}, substitute: substitute, x: 1);
-            {method}(substitute: substitute, substituteCall: {whenAction}, x: 1);
+            {method}(substitute, sub => sub.Bar(Arg.Any<int>()), 1);
+            {method}(substituteCall: sub => sub.Bar(Arg.Any<int>()), substitute: substitute, x: 1);
+            {method}(substitute: substitute, substituteCall: sub => sub.Bar(Arg.Any<int>()), x: 1);
+
+            {method}(substitute, sub => {{ sub.Bar(Arg.Any<int>()); }}, 1);
+            {method}(substituteCall: sub => {{ sub.Bar(Arg.Any<int>()); }}, substitute: substitute, x: 1);
+            {method}(substitute: substitute, substituteCall: sub => {{ sub.Bar(Arg.Any<int>()); }}, x: 1);
+
+            {method}(substitute, delegate(Foo sub) {{ sub.Bar(Arg.Any<int>()); }}, 1);
+            {method}(substituteCall: delegate(Foo sub) {{ sub.Bar(Arg.Any<int>()); }}, substitute: substitute, x: 1);
+            {method}(substitute: substitute, substituteCall: delegate(Foo sub) {{ sub.Bar(Arg.Any<int>()); }}, x: 1);
         }}
     }}
 }}";
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsDiagnostics_WhenUsedWithNonVirtualProperty(string method, string whenAction)
+    public override async Task ReportsDiagnostics_WhenUsedWithNonVirtualProperty(string method)
     {
         var source = $@"using NSubstitute;
 
@@ -407,9 +506,17 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}(substitute, {whenAction}).Do(callInfo => i++);
-            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
-            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
+            {method}(substitute, sub => {{ var x = [|sub.Bar|]; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => {{ var x = [|sub.Bar|]; }}).Do(callInfo => i++);
+            {method}(substituteCall: sub => {{ var x = [|sub.Bar|]; }}, substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, sub => {{ int x; x = [|sub.Bar|]; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => {{ int x; x = [|sub.Bar|]; }}).Do(callInfo => i++);
+            {method}(substituteCall: sub => {{ int x; x = [|sub.Bar|]; }}, substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, delegate(Foo sub) {{ var x = [|sub.Bar|]; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: delegate(Foo sub) {{ var x = [|sub.Bar|]; }}).Do(callInfo => i++);
+            {method}(substituteCall: delegate(Foo sub) {{ var x = [|sub.Bar|]; }}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -417,7 +524,7 @@ namespace MyNamespace
         await VerifyDiagnostic(source, NonVirtualWhenSetupSpecificationDescriptor, "Member Bar can not be intercepted. Only interface members and virtual, overriding, and abstract members can be intercepted.");
     }
 
-    public override async Task ReportsNoDiagnostics_WhenUsedWithVirtualProperty(string method, string whenAction)
+    public override async Task ReportsNoDiagnostics_WhenUsedWithVirtualProperty(string method)
     {
         var source = $@"using NSubstitute;
 
@@ -434,9 +541,17 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}(substitute, {whenAction}).Do(callInfo => i++);
-            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
-            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
+            {method}(substitute, sub => {{ var x = sub.Bar; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => {{ var x = sub.Bar; }}).Do(callInfo => i++);
+            {method}(substituteCall: sub => {{ var x = sub.Bar; }}, substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, sub => {{ int x; x = sub.Bar; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => {{ int x; x = sub.Bar; }}).Do(callInfo => i++);
+            {method}(substituteCall: sub => {{ int x; x = sub.Bar; }}, substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, delegate(Foo sub) {{ var x = sub.Bar; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: delegate(Foo sub) {{ var x = sub.Bar; }}).Do(callInfo => i++);
+            {method}(substituteCall: delegate(Foo sub) {{ var x = sub.Bar; }}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
@@ -444,7 +559,7 @@ namespace MyNamespace
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsDiagnostics_WhenUsedWithNonVirtualIndexer(string method, string whenAction)
+    public override async Task ReportsDiagnostics_WhenUsedWithNonVirtualIndexer(string method)
     {
         var source = $@"using NSubstitute;
 
@@ -461,9 +576,13 @@ namespace MyNamespace
         {{
             int i = 1;
             var substitute = NSubstitute.Substitute.For<Foo>();
-            {method}(substitute, {whenAction}).Do(callInfo => i++);
-            {method}(substitute: substitute, substituteCall: {whenAction}).Do(callInfo => i++);
-            {method}(substituteCall: {whenAction}, substitute: substitute).Do(callInfo => i++);
+            {method}(substitute, sub => {{ var x = [|sub[Arg.Any<int>()]|]; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: sub => {{ var x = [|sub[Arg.Any<int>()]|]; }}).Do(callInfo => i++);
+            {method}(substituteCall: sub => {{ var x = [|sub[Arg.Any<int>()]|]; }}, substitute: substitute).Do(callInfo => i++);
+
+            {method}(substitute, delegate(Foo sub) {{ var x = [|sub[Arg.Any<int>()]|]; }}).Do(callInfo => i++);
+            {method}(substitute: substitute, substituteCall: delegate(Foo sub) {{ var x = [|sub[Arg.Any<int>()]|]; }}).Do(callInfo => i++);
+            {method}(substituteCall: delegate(Foo sub) {{ var x = [|sub[Arg.Any<int>()]|]; }}, substitute: substitute).Do(callInfo => i++);
         }}
     }}
 }}";
