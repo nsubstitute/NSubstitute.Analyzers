@@ -1003,4 +1003,34 @@ namespace MyNamespace
 }}";
         await VerifyNoDiagnostic(source);
     }
+
+    public override async Task ReportsNoDiagnostics_WhenUsedDirectlyWithReturnStatement(string arg)
+    {
+        var source = $@"using System;
+using NSubstitute;
+using NSubstitute.ReceivedExtensions;
+
+namespace MyNamespace
+{{
+    public interface IFoo
+    {{
+        int Bar(int? x);
+    }}
+
+    public class FooTests
+    {{
+        public void Test()
+        {{
+            var substitute = Substitute.For<IFoo>();
+            substitute.Received(1).Bar(MatchesArg());
+        }}
+
+        private int? MatchesArg()
+        {{
+            return {arg};
+        }}
+    }}
+}}";
+        await VerifyNoDiagnostic(source);
+    }
 }

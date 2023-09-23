@@ -139,6 +139,10 @@ public abstract class NonSubstitutableMemberArgumentMatcherDiagnosticVerifier : 
     [Fact]
     public abstract Task ReportsNoDiagnostic_WhenOverloadCannotBeInferred();
 
+    [CombinatoryTheory]
+    [MemberData(nameof(CorrectlyUsedArgTestCasesWithoutDelegates))]
+    public abstract Task ReportsNoDiagnostics_WhenUsedDirectlyWithReturnStatement(string arg);
+
     public static IEnumerable<object[]> MisusedArgTestCases
     {
         get { return MisusedArgs.Select(argArray => argArray.Select<string, object>(arg => arg).ToArray()); }

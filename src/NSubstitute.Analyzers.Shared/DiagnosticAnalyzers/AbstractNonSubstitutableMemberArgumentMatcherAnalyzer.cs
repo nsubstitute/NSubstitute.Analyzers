@@ -20,7 +20,7 @@ internal abstract class AbstractNonSubstitutableMemberArgumentMatcherAnalyzer : 
         OperationKind.SimpleAssignment);
 
     private static readonly ImmutableHashSet<OperationKind> IgnoredAncestors =
-        ImmutableHashSet.Create(OperationKind.VariableDeclarator, OperationKind.VariableDeclaration);
+        ImmutableHashSet.Create(OperationKind.VariableDeclarator, OperationKind.VariableDeclaration, OperationKind.Return);
 
     private static readonly ImmutableHashSet<OperationKind> DynamicOperations =
         ImmutableHashSet.Create(OperationKind.DynamicInvocation, OperationKind.DynamicIndexerAccess, OperationKind.DynamicMemberReference);
