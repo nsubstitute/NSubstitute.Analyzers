@@ -135,6 +135,10 @@ public abstract class NonSubstitutableMemberArgumentMatcherDiagnosticVerifier : 
     [MemberData(nameof(CorrectlyUsedArgTestCasesWithoutDelegates))]
     public abstract Task ReportsDiagnostics_WhenAssigningInvalidArgMatchersToMemberPrecededByWithAnyArgsLikeMethod(string receivedMethod, string arg);
 
+    [CombinatoryTheory]
+    [MemberData(nameof(CorrectlyUsedArgTestCasesWithoutDelegates))]
+    public abstract Task ReportsNoDiagnostics_WhenUsedDirectlyWithReturnStatement(string arg);
+
     public static IEnumerable<object[]> MisusedArgTestCases
     {
         get

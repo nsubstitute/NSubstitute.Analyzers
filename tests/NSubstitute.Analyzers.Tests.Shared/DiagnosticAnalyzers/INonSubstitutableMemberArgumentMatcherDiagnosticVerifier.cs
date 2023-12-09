@@ -59,4 +59,6 @@ public interface INonSubstitutableMemberArgumentMatcherDiagnosticVerifier
     Task ReportsDiagnostics_WhenAssigningArgMatchersToNonSubstitutableMember_InWhenLikeMethod(string whenMethod, string arg);
 
     Task ReportsNoDiagnostics_WhenAssigningArgMatchersToSubstitutableMember_InWhenLikeMethod(string whenMethod, string arg);
+
+    Task ReportsNoDiagnostics_WhenUsedDirectlyWithReturnStatement(string arg);
 }

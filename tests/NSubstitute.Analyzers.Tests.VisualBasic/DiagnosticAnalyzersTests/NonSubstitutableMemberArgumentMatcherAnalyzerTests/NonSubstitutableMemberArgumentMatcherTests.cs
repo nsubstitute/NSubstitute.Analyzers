@@ -1017,4 +1017,30 @@ End Namespace
 
         await VerifyNoDiagnostic(source);
     }
+
+    public override async Task ReportsNoDiagnostics_WhenUsedDirectlyWithReturnStatement(string arg)
+    {
+        var source = @"Imports System
+Imports NSubstitute
+Imports NSubstitute.ReceivedExtensions
+
+Namespace MyNamespace
+    Interface IFoo
+        Function Bar(ByVal x As Integer?) As Integer
+    End Interface
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = NSubstitute.Substitute.[For](Of IFoo)()
+            substitute.Received(1).Bar(MatchesArg())
+        End Sub
+
+        Private Function MatchesArg() As Integer?
+            Return Arg.Any(Of Integer)()
+        End Function
+    End Class
+End Namespace
+";
+        await VerifyNoDiagnostic(source);
+    }
 }
