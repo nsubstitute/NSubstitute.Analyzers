@@ -196,7 +196,11 @@ namespace MyNamespace
     {{
         int Bar(int x, Bar y);
 
+        int Bar(int x, object y);
+
         int this[int x, Bar y] {{ get; }}
+
+        int this[int x, object y] {{ get; }}
     }}
 
     public class BarBase

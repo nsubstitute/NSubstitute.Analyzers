@@ -133,9 +133,10 @@ internal abstract class AbstractCallInfoAnalyzer : AbstractDiagnosticAnalyzer
                     continue;
                 }
 
-                if (IsAssignableTo(
+                var substituteParameterTypeSymbol = substituteCallParameters[position.Value].GetTypeSymbol();
+                if (substituteParameterTypeSymbol.IsArgAnyType(operationAnalysisContext.Compilation) == false && IsAssignableTo(
                         operationAnalysisContext.Compilation,
-                        substituteCallParameters[position.Value].GetTypeSymbol(),
+                        substituteParameterTypeSymbol,
                         argAtInvocation.TargetMethod.TypeArguments.First()) == false)
                 {
                     var diagnostic = Diagnostic.Create(
@@ -213,7 +214,9 @@ internal abstract class AbstractCallInfoAnalyzer : AbstractDiagnosticAnalyzer
         }
 
         var type = conversionOperation.Type;
-        if (type != null && CanCast(operationAnalysisContext.Compilation, substituteCallParameters[position.Value].GetTypeSymbol(), type) == false)
+        var substituteParameterTypeSymbol = substituteCallParameters[position.Value].GetTypeSymbol();
+        if (type != null && substituteParameterTypeSymbol.IsArgAnyType(operationAnalysisContext.Compilation) == false &&
+            CanCast(operationAnalysisContext.Compilation, substituteParameterTypeSymbol, type) == false)
         {
             var diagnostic = Diagnostic.Create(
                 DiagnosticDescriptorsProvider.CallInfoCouldNotConvertParameterAtPosition,

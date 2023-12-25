@@ -143,6 +143,9 @@ public abstract class CallInfoDiagnosticVerifier : CSharpDiagnosticVerifier, ICa
     [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = callInfo.Args()[1] as BarBase;")]
     [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = callInfo.Args()[1] as object;")]
     [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "var x = (int)callInfo.Args()[0];")]
+    [InlineData("substitute[Arg.Any<int>(), Arg.Any<Arg.AnyType>()]", "var x = (string)callInfo.Args()[1];")]
+    [InlineData("substitute[Arg.Any<int>(), Arg.Any<Arg.AnyType>()]", "var x = callInfo.Args()[1] as string;")]
+    [InlineData("substitute[Arg.Any<int>(), Arg.Any<Arg.AnyType>()]", "var x = (string)callInfo[1];")]
     public abstract Task ReportsNoDiagnostic_WhenManuallyCasting_ToSupportedType(string method, string call, string argAccess);
 
     [CombinatoryTheory]
@@ -183,6 +186,7 @@ public abstract class CallInfoDiagnosticVerifier : CSharpDiagnosticVerifier, ICa
     [InlineData("substitute[Arg.Any<decimal>(), Arg.Any<Bar>()]", "callInfo.ArgAt<object>(1);")]
     [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "callInfo.ArgAt<int>(0);")]
     [InlineData("substitute[Arg.Any<int>(), Arg.Any<Bar>()]", "callInfo.ArgAt<object>(0);")]
+    [InlineData("substitute[Arg.Any<int>(), Arg.Any<Arg.AnyType>()]", "callInfo.ArgAt<string>(1);")]
     public abstract Task ReportsNoDiagnostic_WhenCasting_WithArgAt_ToSupportedType(string method, string call, string argAccess);
 
     [CombinatoryTheory]

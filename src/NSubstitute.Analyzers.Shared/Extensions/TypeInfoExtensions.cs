@@ -18,6 +18,13 @@ internal static class TypeInfoExtensions
         return isCalledViaDelegate;
     }
 
+    public static bool IsArgAnyType(this ITypeSymbol? typeSymbol, Compilation compilation)
+    {
+        return typeSymbol != null
+               && typeSymbol.ContainingAssembly?.Name.Equals(MetadataNames.NSubstituteAssemblyName, StringComparison.OrdinalIgnoreCase) == true
+               && typeSymbol.ToString().Equals(MetadataNames.NSubstituteArgAnyTypeFullTypeName, StringComparison.OrdinalIgnoreCase);
+    }
+
     public static bool IsCallInfoSymbol(this ITypeSymbol symbol)
     {
         return IsCallInfoSymbolInternal(symbol) || IsCallInfoSymbolInternal(symbol.BaseType);

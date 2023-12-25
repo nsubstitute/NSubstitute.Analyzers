@@ -283,7 +283,11 @@ namespace MyNamespace
     {{
         Task<int> Bar(int x, Bar y);
 
+        Task<int> Bar(int x, object y);
+
         Task<int> this[int x, Bar y] {{ get; }}
+
+        Task<int> this[int x, object y] {{ get; }}
     }}
 
     public class BarBase
