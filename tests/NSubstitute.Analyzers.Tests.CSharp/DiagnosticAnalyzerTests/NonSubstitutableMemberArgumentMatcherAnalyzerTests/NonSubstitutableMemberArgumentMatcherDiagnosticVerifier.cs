@@ -155,8 +155,8 @@ public abstract class NonSubstitutableMemberArgumentMatcherDiagnosticVerifier : 
             yield return new object[] { "[|Arg.Compat.Is(1)|]" };
             yield return new object[] { "(int)[|Arg.Compat.Is(1)|]" };
             yield return new object[] { "[|Arg.Compat.Is(1)|] as int?" };
-            yield return new object[] { "[|Arg.Do<int>(__ => {})|]" };
-            yield return new object[] { "[|Arg.Compat.Do<int>(__ => {})|]" };
+            yield return new object[] { "[|Arg.Do<int>((int __) => {})|]" };
+            yield return new object[] { "[|Arg.Compat.Do<int>((int __) => {})|]" };
             yield return new object[] { "[|Arg.Invoke()|]" };
             yield return new object[] { "[|Arg.Compat.Invoke()|]" };
             yield return new object[] { "[|Arg.InvokeDelegate<int>()|]" };
@@ -187,8 +187,8 @@ public abstract class NonSubstitutableMemberArgumentMatcherDiagnosticVerifier : 
             yield return new object[] { "Arg.Compat.Is(1) as int?" };
             yield return new object[] { "Arg.Compat.Is((int __) => __ > 0) " };
             yield return new object[] { "true ? Arg.Compat.Is((int __) => __ > 0) : 0" };
-            yield return new object[] { "Arg.Do<int>(__ => {})" };
-            yield return new object[] { "Arg.Compat.Do<int>(__ => {})" };
+            yield return new object[] { "Arg.Do<int>((int __) => {})" };
+            yield return new object[] { "Arg.Compat.Do<int>((int __) => {})" };
             yield return new object[] { "Arg.Invoke()" };
             yield return new object[] { "Arg.Compat.Invoke()" };
             yield return new object[] { "Arg.InvokeDelegate<int>()" };
@@ -211,8 +211,8 @@ public abstract class NonSubstitutableMemberArgumentMatcherDiagnosticVerifier : 
             yield return new object[] { "Arg.Compat.Any<int>()" };
             yield return new object[] { "Arg.Is(1)" };
             yield return new object[] { "Arg.Compat.Is(1)" };
-            yield return new object[] { "Arg.Do<int>(__ => {})" };
-            yield return new object[] { "Arg.Compat.Do<int>(__ => {})" };
+            yield return new object[] { "Arg.Do<int>((int __) => {})" };
+            yield return new object[] { "Arg.Compat.Do<int>((int __) => {})" };
             yield return new object[] { "Arg.Invoke()" };
             yield return new object[] { "Arg.Compat.Invoke()" };
             yield return new object[] { "Arg.InvokeDelegate<int>()" };
@@ -224,8 +224,8 @@ public abstract class NonSubstitutableMemberArgumentMatcherDiagnosticVerifier : 
     {
         get
         {
-            yield return new object[] { "Arg.Do<int>(__ => {})" };
-            yield return new object[] { "Arg.Compat.Do<int>(__ => {})" };
+            yield return new object[] { "Arg.Do<int>((int __) => {})" };
+            yield return new object[] { "Arg.Compat.Do<int>((int __) => {})" };
         }
     }
 

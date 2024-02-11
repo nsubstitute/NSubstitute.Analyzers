@@ -171,6 +171,8 @@ public abstract class CallInfoDiagnosticVerifier : VisualBasicDiagnosticVerifier
     [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo.Args()(1), Object)")]
     [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = CType(callInfo.Args()(0), Integer)")]
     [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "Dim x = DirectCast(callInfo.Args()(0), Integer)")]
+    [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Arg.AnyType)())", "Dim x = DirectCast(callInfo.Args()(1), String)")]
+    [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Arg.AnyType)())", "Dim x = CType(callInfo.Args()(1), String)")]
     public abstract Task ReportsNoDiagnostic_WhenManuallyCasting_ToSupportedType(string method, string call, string argAccess);
 
     [CombinatoryTheory]
@@ -219,6 +221,7 @@ public abstract class CallInfoDiagnosticVerifier : VisualBasicDiagnosticVerifier
     [InlineData("substitute(Arg.Any(Of Decimal)(), Arg.Any(Of Bar)())", "callInfo.ArgAt(Of Object)(1)")]
     [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "callInfo.ArgAt(Of Integer)(0)")]
     [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Bar)())", "callInfo.ArgAt(Of Object)(0)")]
+    [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Arg.AnyType)())", "callInfo.ArgAt(Of String)(1)")]
     public abstract Task ReportsNoDiagnostic_WhenCasting_WithArgAt_ToSupportedType(string method, string call, string argAccess);
 
     [CombinatoryTheory]

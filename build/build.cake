@@ -4,14 +4,11 @@
 #load "./releasenotes.cake"
 #load "./table-of-contents.cake"
 
-// Install modules
-#module nuget:?package=Cake.DotNetTool.Module&version=0.1.0
-
 // Install tools.
 #tool "dotnet:https://api.nuget.org/v3/index.json?package=GitVersion.Tool&version=5.8.1"
 #tool "dotnet:https://api.nuget.org/v3/index.json?package=coveralls.net&version=4.0.1"
 #tool "nuget:https://www.nuget.org/api/v2?package=ReportGenerator&version=5.0.2"
-#addin "nuget:https://www.nuget.org/api/v2?package=Cake.Incubator&version=4.0.1"
+#addin "nuget:https://www.nuget.org/api/v2?package=Cake.Incubator&version=8.0.0"
 #addin "nuget:https://www.nuget.org/api/v2?package=Newtonsoft.Json&version=9.0.1"
 #addin "nuget:https://www.nuget.org/api/v2?package=semver.core&version=2.0.0"
 
@@ -62,14 +59,14 @@ Setup(context =>
 Task("Clean")
     .Does(() =>
 {
-    DotNetCoreClean(paths.Files.Solution.ToString());
+    DotNetClean(paths.Files.Solution.ToString());
 });
 
 Task("Restore-NuGet-Packages")
     .IsDependentOn("Clean")
     .Does(() =>
 {
-    DotNetCoreRestore(paths.Files.Solution.ToString());
+    DotNetRestore(paths.Files.Solution.ToString());
 });
 
 Task("Run-Tests")
@@ -77,7 +74,7 @@ Task("Run-Tests")
     .Does(() =>
 {
     
-    var testSettings = new DotNetCoreTestSettings
+    var testSettings = new DotNetTestSettings
     {
         Framework = parameters.TargetFramework,
         NoBuild = true,
@@ -97,7 +94,7 @@ Task("Run-Tests")
                                                        .Append("-- RunConfiguration.NoAutoReporters=true");
     }
 
-    DotNetCoreTest(paths.Files.Solution.MakeAbsolute(Context.Environment).ToString(), testSettings);
+    DotNetTest(paths.Files.Solution.MakeAbsolute(Context.Environment).ToString(), testSettings);
 
     if(parameters.SkipCodeCoverage == false)
     {
@@ -129,7 +126,7 @@ Task("Build")
     .IsDependentOn("Restore-NuGet-Packages")
     .Does(() =>
 {
-    DotNetCoreBuild(paths.Files.Solution.ToString(), new DotNetCoreBuildSettings
+    DotNetBuild(paths.Files.Solution.ToString(), new DotNetBuildSettings
     {
         Configuration = parameters.Configuration,
         NoRestore = true,
@@ -146,7 +143,7 @@ Task("NuGet-Pack")
 {
     foreach(var projectFile in paths.Files.ProjectsToPack)
     {
-        var settings = new DotNetCorePackSettings
+        var settings = new DotNetPackSettings
         {
             NoBuild = true,
             VersionSuffix = buildVersion.SemVersion.ToString(),
@@ -154,7 +151,7 @@ Task("NuGet-Pack")
             OutputDirectory = paths.Directories.Artifacts
         };
 
-        DotNetCorePack(projectFile.ToString(), settings);
+        DotNetPack(projectFile.ToString(), settings);
     }
 });
 

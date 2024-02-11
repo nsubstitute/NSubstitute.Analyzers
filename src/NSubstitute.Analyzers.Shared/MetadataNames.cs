@@ -12,6 +12,7 @@ internal class MetadataNames
     public const string NSubstituteReturnsExtensionsFullTypeName = "NSubstitute.ReturnsExtensions.ReturnsExtensions";
     public const string NSubstituteExceptionExtensionsFullTypeName = "NSubstitute.ExceptionExtensions.ExceptionExtensions";
     public const string NSubstituteCallInfoFullTypeName = "NSubstitute.Core.CallInfo";
+    public const string NSubstituteArgAnyTypeFullTypeName = "NSubstitute.Arg.AnyType";
     public const string NSubstituteConfiguredCallFullTypeName = "NSubstitute.Core.ConfiguredCall";
     public const string NSubstituteSubstituteFullTypeName = "NSubstitute.Substitute";
     public const string NSubstituteFactoryFullTypeName = "NSubstitute.Core.ISubstituteFactory";
