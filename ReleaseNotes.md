@@ -1,3 +1,10 @@
+### 1.0.17 (11 February 2024)
+- [#213](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/213) - NS1004 false positive when using argument matcher in a separate method
+- [#212](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/212) - Disable CallInfo analysis when Arg.AnyType used for argument matching
+- [#207](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/207) - Detect non virtual received checks for event subscription
+- [#202](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/202) - NS5000 false positive when checking if an event subscription was received
+- [#197](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/197) - Add .netstandard2.0 target to NSubstitute.Analyzers.CSharp
+
 ### 1.0.16 (22 January 2023)
 
 - [#186](https://github.com/nsubstitute/NSubstitute.Analyzers/issues/186) - Support for NSubstitute 4.4 API
