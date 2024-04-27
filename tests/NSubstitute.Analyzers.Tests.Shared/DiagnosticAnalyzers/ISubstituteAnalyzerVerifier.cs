@@ -8,11 +8,13 @@ public interface ISubstituteAnalyzerVerifier
 
     Task ReportsDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToNotApplied();
 
-    Task ReportsDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToNotApplied();
+    Task ReportsNoDiagnostics_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToNotApplied();
 
     Task ReportsNoDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToApplied();
 
     Task ReportsNoDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToApplied();
+
+    Task ReportsNoDiagnostic_WhenUsedForClassWithProtectedConstructor();
 
     Task ReportsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount();
 

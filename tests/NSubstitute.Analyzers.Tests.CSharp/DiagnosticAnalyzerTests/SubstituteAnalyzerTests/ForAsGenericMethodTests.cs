@@ -274,7 +274,7 @@ namespace MyNamespace
         await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
     }
 
-    public override async Task ReportsDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToNotApplied()
+    public override async Task ReportsNoDiagnostics_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToNotApplied()
     {
         var source = @"using NSubstitute;
 
@@ -291,11 +291,11 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = [|NSubstitute.Substitute.For<Foo>()|];
+            var substitute = NSubstitute.Substitute.For<Foo>();
         }
     }
 }";
-        await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
+        await this.VerifyNoDiagnostic(source);
     }
 
     public override async Task ReportsNoDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToApplied()
@@ -335,6 +335,30 @@ namespace MyNamespace
     public class Foo
     {
         protected internal Foo()
+        {
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = NSubstitute.Substitute.For<Foo>();
+        }
+    }
+}";
+        await VerifyNoDiagnostic(source);
+    }
+
+    public override async Task ReportsNoDiagnostic_WhenUsedForClassWithProtectedConstructor()
+    {
+        var source = @"using NSubstitute;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        protected Foo()
         {
         }
     }

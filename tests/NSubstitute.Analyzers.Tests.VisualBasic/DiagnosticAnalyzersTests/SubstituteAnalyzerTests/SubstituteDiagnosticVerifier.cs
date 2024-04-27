@@ -37,13 +37,16 @@ public abstract class SubstituteDiagnosticVerifier : VisualBasicDiagnosticVerifi
     public abstract Task ReportsDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToNotApplied();
 
     [Fact]
-    public abstract Task ReportsDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToNotApplied();
+    public abstract Task ReportsNoDiagnostics_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToNotApplied();
 
     [Fact]
     public abstract Task ReportsNoDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToApplied();
 
     [Fact]
     public abstract Task ReportsNoDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToApplied();
+
+    [Fact]
+    public abstract Task ReportsNoDiagnostic_WhenUsedForClassWithProtectedConstructor();
 
     [Fact]
     public abstract Task ReportsDiagnostic_WhenPassedParametersCount_GreaterThanCtorParametersCount();

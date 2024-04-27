@@ -93,22 +93,13 @@ internal sealed class SubstituteConstructorAnalysis : ISubstituteConstructorAnal
     {
         var internalsVisibleToProxy = genericArgument.InternalsVisibleToProxyGenerator();
 
-        bool IsAccessible(IMethodSymbol symbol) => symbol.DeclaredAccessibility is Accessibility.Protected or Accessibility.Public;
-
-        bool IsVisibleToProxy(IMethodSymbol symbol)
-        {
-            if (internalsVisibleToProxy == false)
-            {
-                return false;
-            }
-
-            return symbol.DeclaredAccessibility is Accessibility.Internal or Accessibility.ProtectedOrInternal;
-        }
-
         return genericArgument.GetMembers().OfType<IMethodSymbol>().Where(symbol =>
             symbol.MethodKind == MethodKind.Constructor &&
             symbol.IsStatic == false &&
-            (IsAccessible(symbol) || IsVisibleToProxy(symbol))).ToArray();
+            (symbol.DeclaredAccessibility == Accessibility.Protected ||
+             symbol.DeclaredAccessibility == Accessibility.Public ||
+             symbol.DeclaredAccessibility == Accessibility.ProtectedOrInternal ||
+             (internalsVisibleToProxy && symbol.DeclaredAccessibility == Accessibility.Internal))).ToArray();
     }
 
     private ITypeSymbol[] GetTypeSymbols(IArrayCreationOperation arrayInitializerOperation)
