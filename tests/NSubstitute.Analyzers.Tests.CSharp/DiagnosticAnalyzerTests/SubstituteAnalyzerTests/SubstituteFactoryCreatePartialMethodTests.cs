@@ -132,7 +132,7 @@ namespace MyNamespace
         await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
     }
 
-    public override async Task ReportsDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToNotApplied()
+    public override async Task ReportsNoDiagnostics_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToNotApplied()
     {
         var source = @"using System;
 using NSubstitute.Core;
@@ -150,13 +150,13 @@ namespace MyNamespace
     {
         public void Test()
         {
-            var substitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, null)|];
-            var otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new Type[] { typeof(Foo)}, constructorArguments: null)|];
-            var yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: null, typesToProxy: new Type[] { typeof(Foo)})|];
+            var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, null);
+            var otherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new Type[] { typeof(Foo)}, constructorArguments: null);
+            var yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: null, typesToProxy: new Type[] { typeof(Foo)});
         }
     }
 }";
-        await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
+        await VerifyNoDiagnostic(source);
     }
 
     public override async Task ReportsNoDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToApplied()
@@ -200,6 +200,33 @@ namespace MyNamespace
     public class Foo
     {
         protected internal Foo()
+        {
+        }
+    }
+
+    public class FooTests
+    {
+        public void Test()
+        {
+            var substitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(new Type[] { typeof(Foo)}, null);
+            var otherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(typesToProxy: new Type[] { typeof(Foo)}, constructorArguments: null);
+            var yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.CreatePartial(constructorArguments: null, typesToProxy: new Type[] { typeof(Foo)});
+        }
+    }
+}";
+        await VerifyNoDiagnostic(source);
+    }
+
+    public override async Task ReportsNoDiagnostic_WhenUsedForClassWithProtectedConstructor()
+    {
+        var source = @"using System;
+using NSubstitute.Core;
+
+namespace MyNamespace
+{
+    public class Foo
+    {
+        protected Foo()
         {
         }
     }

@@ -281,7 +281,7 @@ End Namespace
         await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
     }
 
-    public override async Task ReportsDiagnostic_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToNotApplied()
+    public override async Task ReportsNoDiagnostics_WhenUsedForClassWithProtectedInternalConstructor_AndInternalsVisibleToNotApplied()
     {
         var source = @"Imports NSubstitute.Core
 
@@ -293,14 +293,14 @@ Namespace MyNamespace
 
     Public Class FooTests
         Public Sub Test()
-            Dim substitute = [|SubstitutionContext.Current.SubstituteFactory.Create({GetType(Foo)}, Nothing)|]
-            Dim otherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy:= {GetType(Foo)}, constructorArguments:= Nothing)|]
-            Dim yetAnotherSubstitute = [|SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments:= Nothing, typesToProxy:= {GetType(Foo)})|]
+            Dim substitute = SubstitutionContext.Current.SubstituteFactory.Create({GetType(Foo)}, Nothing)
+            Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy:= {GetType(Foo)}, constructorArguments:= Nothing)
+            Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments:= Nothing, typesToProxy:= {GetType(Foo)})
         End Sub
     End Class
 End Namespace
 ";
-        await VerifyDiagnostic(source, SubstituteForWithoutAccessibleConstructorDescriptor, "Could not find accessible constructor. Make sure that type MyNamespace.Foo exposes public or protected constructors.");
+        await VerifyNoDiagnostic(source);
     }
 
     public override async Task ReportsNoDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToApplied()
@@ -336,6 +336,28 @@ Imports System.Runtime.CompilerServices
 Namespace MyNamespace
     Public Class Foo
         Protected Friend Sub New()
+        End Sub
+    End Class
+
+    Public Class FooTests
+        Public Sub Test()
+            Dim substitute = SubstitutionContext.Current.SubstituteFactory.Create({GetType(Foo)}, Nothing)
+            Dim otherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(typesToProxy:= {GetType(Foo)}, constructorArguments:= Nothing)
+            Dim yetAnotherSubstitute = SubstitutionContext.Current.SubstituteFactory.Create(constructorArguments:= Nothing, typesToProxy:= {GetType(Foo)})
+        End Sub
+    End Class
+End Namespace
+";
+        await VerifyNoDiagnostic(source);
+    }
+
+    public override async Task ReportsNoDiagnostic_WhenUsedForClassWithProtectedConstructor()
+    {
+        var source = @"Imports NSubstitute.Core
+
+Namespace MyNamespace
+    Public Class Foo
+        Protected Sub New()
         End Sub
     End Class
 
