@@ -44,7 +44,7 @@ namespace MyNamespace
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string method, string call, string argAccess)
+    public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string method, string call, string argAccess, string? overridenDiagnosticMessage = null)
     {
         var source = $@"using System;
 using System.Threading.Tasks;
@@ -56,9 +56,9 @@ namespace MyNamespace
     {{
         Task<int> Bar(int x);
 
-        Task<int> Barr {{ get; }}
+        Task<int> Barr {{ get; set; }}
 
-        Task<int> this[int x] {{ get; }}
+        Task<int> this[int x] {{ get; set; }}
     }}
 
     public class FooTests
@@ -125,9 +125,9 @@ namespace MyNamespace
     {{
         Task<int> Bar(int x, int y = 1);
 
-        Task<int> Barr {{ get; }}
+        Task<int> Barr {{ get; set; }}
 
-        Task<int> this[int x, int y = 1] {{ get; }}
+        Task<int> this[int x, int y = 1] {{ get; set; }}
     }}
 
     public class FooTests

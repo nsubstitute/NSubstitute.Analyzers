@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -66,7 +67,7 @@ public abstract class CallInfoDiagnosticVerifier : CSharpDiagnosticVerifier, ICa
     [InlineData("substitute.Bar(Arg.Any<int>())", "var x = [|callInfo.Args()[1]|];")]
     [InlineData("substitute.Bar(Arg.Any<int>())", "[|callInfo.Args()[1]|] = 1;")]
     [InlineData("substitute.Bar(Arg.Any<int>())", "[|callInfo.ArgTypes()[1]|] = typeof(int);")]
-    public abstract Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string method, string call, string argAccess);
+    public abstract Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string method, string call, string argAccess, string? overridenDiagnosticMessage = null);
 
     [CombinatoryTheory]
     [InlineData("substitute[Arg.Any<int>(), Arg.Any<int>()]", @"var x = 2; callInfo.ArgAt<int>(x);")]
@@ -320,4 +321,22 @@ public abstract class CallInfoDiagnosticVerifier : CSharpDiagnosticVerifier, ICa
     [InlineData("IDictionary<string, object>", "new Dictionary<string, object>()")]
     [InlineData("IReadOnlyDictionary <string, object>", "new Dictionary<string, object>()")]
     public abstract Task ReportsNoDiagnostic_WhenAssigningType_AssignableTo_Argument(string method, string left, string right);
+
+    public static IEnumerable<object[]> AccessingArgumentOutOfBoundsArgDoSpecificTestCases
+    {
+        get
+        {
+            yield return new object[] { "substitute[Arg.Any<int>()] = Arg.Any<int>()", "[|callInfo.ArgAt<int>(2)|];", "There is no argument at position 2" };
+            yield return new object[] { "substitute.Barr = Arg.Any<int>()", "[|callInfo.ArgAt<int>(1)|];" };
+        }
+    }
+
+    public static IEnumerable<object[]> AccessingArgumentWithinBoundsArgDoSpecificTestCases
+    {
+        get
+        {
+            yield return new object[] { "substitute[Arg.Any<int>()] = Arg.Any<int>()", "callInfo.ArgAt<int>(2);" };
+            yield return new object[] { "substitute.Barr = Arg.Any<int>()", "callInfo.ArgAt<int>(0);" };
+        }
+    }
 }

@@ -37,7 +37,7 @@ End Namespace";
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string method, string call, string argAccess)
+    public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string method, string call, string argAccess, string? overridenDiagnosticMessage = null)
     {
         var source = $@"Imports System
 Imports System.Threading.Tasks
@@ -46,8 +46,8 @@ Imports NSubstitute.ExceptionExtensions
 Namespace MyNamespace
     Interface Foo
         Function Bar(ByVal x As Integer) As Task(Of Integer)
-        ReadOnly Property Barr As Task(Of Integer)
-        Default ReadOnly Property Item(ByVal x As Integer) As Task(Of Integer)
+        Property Barr As Task(Of Integer)
+        Default Property Item(ByVal x As Integer) As Task(Of Integer)
     End Interface
 
     Public Class FooTests
@@ -101,8 +101,8 @@ Imports NSubstitute.ExceptionExtensions
 Namespace MyNamespace
     Interface Foo
         Function Bar(ByVal x As Integer, ByVal Optional y As Integer = 1) As Task(Of Integer)
-        ReadOnly Property Barr As Integer
-        Default ReadOnly Property Item(ByVal x As Integer, ByVal Optional y As Integer = 1) As Task(Of Integer)
+        Property Barr As Integer
+        Default Property Item(ByVal x As Integer, ByVal Optional y As Integer = 1) As Task(Of Integer)
     End Interface
 
     Public Class FooTests
