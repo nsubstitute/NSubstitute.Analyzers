@@ -99,6 +99,7 @@ Namespace MyNamespace
     End Interface
 
     Public Class FooTests
+        Private state As Object
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {call}.{method}(Function(callInfo)
@@ -545,7 +546,7 @@ End Namespace
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string method, string call)
+    public override async Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string method, string call, string argAssignment)
     {
         var source = $@"Imports NSubstitute
 
@@ -559,7 +560,7 @@ Namespace MyNamespace
         Public Sub Test()
             Dim substitute = NSubstitute.Substitute.[For](Of Foo)()
             {call}.{method}(Function(callInfo)
-                               [|callInfo(1)|] = 1
+                               {argAssignment}
                                Return 1
                            End Function)
         End Sub

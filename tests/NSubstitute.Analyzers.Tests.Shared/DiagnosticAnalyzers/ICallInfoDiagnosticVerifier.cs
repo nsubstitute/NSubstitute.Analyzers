@@ -36,7 +36,7 @@ public interface ICallInfoDiagnosticVerifier
 
     Task ReportsNoDiagnostic_WhenAccessingArgumentByTypeMultipleDifferentTypesInInvocation(string method, string call, string argAccess);
 
-    Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string method, string call);
+    Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string method, string call, string argAssignment);
 
     Task ReportsNoDiagnostic_WhenAssigningValueToRefArgument(string method);
 

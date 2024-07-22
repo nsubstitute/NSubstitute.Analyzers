@@ -242,38 +242,52 @@ internal abstract class AbstractCallInfoAnalyzer : AbstractDiagnosticAnalyzer
             return false;
         }
 
-        if (indexerOperation is IPropertyReferenceOperation { Parent: ISimpleAssignmentOperation simpleAssignmentOperation })
+        if (indexerOperation is not IPropertyReferenceOperation { Parent: IAssignmentOperation assignmentOperation })
         {
-            var parameterSymbol = substituteCallParameters[position.Value];
-            if (parameterSymbol.Parameter.RefKind != RefKind.Out &&
-                parameterSymbol.Parameter.RefKind != RefKind.Ref)
-            {
-                var diagnostic = Diagnostic.Create(
-                    DiagnosticDescriptorsProvider.CallInfoArgumentIsNotOutOrRef,
-                    indexerOperation.Syntax.GetLocation(),
-                    position.Value,
-                    parameterSymbol.GetArgumentOperationDeclaredTypeSymbol());
-                operationAnalysisContext.ReportDiagnostic(diagnostic);
-                return true;
-            }
+            return false;
+        }
 
-            var assignmentType = simpleAssignmentOperation.GetTypeSymbol();
-            var typeSymbol = substituteCallParameters[position.Value].GetArgumentOperationDeclaredTypeSymbol();
-            if (assignmentType != null &&
-                IsAssignableTo(operationAnalysisContext.Compilation, assignmentType, typeSymbol) == false)
-            {
-                var diagnostic = Diagnostic.Create(
-                    DiagnosticDescriptorsProvider.CallInfoArgumentSetWithIncompatibleValue,
-                    indexerOperation.Syntax.GetLocation(),
-                    assignmentType,
-                    position.Value,
-                    typeSymbol);
-                operationAnalysisContext.ReportDiagnostic(diagnostic);
-                return true;
-            }
+        if (!IsCallInfoAssignmentOperation(assignmentOperation))
+        {
+            return false;
+        }
+
+        var parameterSymbol = substituteCallParameters[position.Value];
+        if (parameterSymbol.Parameter.RefKind != RefKind.Out &&
+            parameterSymbol.Parameter.RefKind != RefKind.Ref)
+        {
+            var diagnostic = Diagnostic.Create(
+                this.DiagnosticDescriptorsProvider.CallInfoArgumentIsNotOutOrRef,
+                indexerOperation.Syntax.GetLocation(),
+                position.Value,
+                parameterSymbol.GetArgumentOperationDeclaredTypeSymbol());
+            operationAnalysisContext.ReportDiagnostic(diagnostic);
+            return true;
+        }
+
+        var assignmentType = assignmentOperation.GetTypeSymbol();
+        var typeSymbol = substituteCallParameters[position.Value].GetArgumentOperationDeclaredTypeSymbol();
+        if (assignmentType != null &&
+            this.IsAssignableTo(operationAnalysisContext.Compilation, assignmentType, typeSymbol) == false)
+        {
+            var diagnostic = Diagnostic.Create(
+                this.DiagnosticDescriptorsProvider.CallInfoArgumentSetWithIncompatibleValue,
+                indexerOperation.Syntax.GetLocation(),
+                assignmentType,
+                position.Value,
+                typeSymbol);
+            operationAnalysisContext.ReportDiagnostic(diagnostic);
+            return true;
         }
 
         return false;
+    }
+
+    private static bool IsCallInfoAssignmentOperation(IAssignmentOperation assignmentOperation)
+    {
+        return assignmentOperation.Target is IMemberReferenceOperation memberReferenceOperation &&
+               memberReferenceOperation.Member.ContainingAssembly.Identity.Name.Equals(MetadataNames
+                   .NSubstituteAssemblyName);
     }
 
     private IReadOnlyList<IArgumentOperation>? GetSubstituteCallArgumentOperations(OperationAnalysisContext operationAnalysisContext, IInvocationOperation invocationOperation)
