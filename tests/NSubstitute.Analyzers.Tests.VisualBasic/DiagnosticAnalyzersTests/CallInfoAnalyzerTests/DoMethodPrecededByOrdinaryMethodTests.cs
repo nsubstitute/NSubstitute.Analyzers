@@ -136,6 +136,7 @@ Namespace MyNamespace
     End Interface
 
     Public Class FooTests
+        Private state As Object
         Public Sub Test()
             Dim mock = NSubstitute.Substitute.[For](Of Foo)()
             {method}(mock, Function(substitute) 
@@ -759,7 +760,7 @@ End Namespace
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string method, string call)
+    public override async Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string method, string call, string argAssignment)
     {
         var source = $@"Imports NSubstitute
 
@@ -775,17 +776,17 @@ Namespace MyNamespace
             {method}(mock, Function(substitute) 
                              Dim x = {call}
                           End Function).Do(Function(callInfo)
-                                               [|callInfo(1)|] = 1
+                                               {argAssignment}
                                            End Function)
             {method}(substitute:= mock, substituteCall:= Function(substitute) 
                              Dim x = {call}
                           End Function).Do(Function(callInfo)
-                                               [|callInfo(1)|] = 1
+                                               {argAssignment}
                                            End Function)
             {method}(substituteCall:= Function(substitute) 
                              Dim x = {call}
                           End Function, substitute:= mock).Do(Function(callInfo)
-                                               [|callInfo(1)|] = 1
+                                               {argAssignment}
                                            End Function)
         End Sub
     End Class

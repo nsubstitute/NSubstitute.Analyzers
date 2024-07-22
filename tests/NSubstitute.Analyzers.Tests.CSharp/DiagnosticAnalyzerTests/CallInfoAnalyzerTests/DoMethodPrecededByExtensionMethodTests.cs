@@ -121,6 +121,7 @@ namespace MyNamespace
 
     public class FooTests
     {{
+        private object state;
         public void Test()
         {{
             var sub = NSubstitute.Substitute.For<Foo>();
@@ -705,7 +706,7 @@ namespace MyNamespace
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string method, string call)
+    public override async Task ReportsDiagnostic_WhenAssigningValueToNotOutNorRefArgument(string method, string call, string argAssignment)
     {
         var source = $@"using NSubstitute;
 
@@ -725,7 +726,7 @@ namespace MyNamespace
             var sub = NSubstitute.Substitute.For<Foo>();
             sub.{method}(substitute => {{var _ = {call}; }}).Do(callInfo =>
             {{
-                [|callInfo[1]|] = 1;
+                {argAssignment}
             }});
         }}
     }}
