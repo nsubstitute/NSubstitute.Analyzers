@@ -73,9 +73,9 @@ internal abstract class AbstractCallInfoAnalyzer : AbstractDiagnosticAnalyzer
             return;
         }
 
-        var substituteCallParameters = GetSubstituteCallArgumentOperations(operationAnalysisContext, invocationOperation);
+        var substitute = GetSubstitute(operationAnalysisContext, invocationOperation);
 
-        if (substituteCallParameters == null)
+        if (substitute == null)
         {
             return;
         }
@@ -85,15 +85,15 @@ internal abstract class AbstractCallInfoAnalyzer : AbstractDiagnosticAnalyzer
         {
             var callInfoContext = _callInfoFinder.GetCallInfoContext(argumentExpressionSyntax);
 
-            AnalyzeArgAtInvocations(operationAnalysisContext, callInfoContext, substituteCallParameters);
+            AnalyzeArgAtInvocations(operationAnalysisContext, callInfoContext, substitute);
 
-            AnalyzeArgInvocations(operationAnalysisContext, callInfoContext, substituteCallParameters);
+            AnalyzeArgInvocations(operationAnalysisContext, callInfoContext, substitute);
 
-            AnalyzeIndexerInvocations(operationAnalysisContext, callInfoContext, substituteCallParameters);
+            AnalyzeIndexerInvocations(operationAnalysisContext, callInfoContext, substitute);
         }
     }
 
-    private void AnalyzeIndexerInvocations(OperationAnalysisContext operationAnalysisContext, CallInfoContext callInfoContext, IReadOnlyList<IArgumentOperation> substituteCallParameters)
+    private void AnalyzeIndexerInvocations(OperationAnalysisContext operationAnalysisContext, CallInfoContext callInfoContext, Substitute substitute)
     {
         foreach (var indexer in callInfoContext.IndexerAccessesOperations)
         {
@@ -101,63 +101,66 @@ internal abstract class AbstractCallInfoAnalyzer : AbstractDiagnosticAnalyzer
 
             var position = indexer.GetIndexerPosition();
 
-            if (AnalyzeArgumentAccess(operationAnalysisContext, substituteCallParameters, indexer, position))
+            if (AnalyzeArgumentAccess(operationAnalysisContext, substitute, indexer, position))
             {
                 continue;
             }
 
-            if (AnalyzeCast(operationAnalysisContext, substituteCallParameters, indexer, in indexerInfo, position))
+            if (AnalyzeCast(operationAnalysisContext, substitute, indexer, in indexerInfo, position))
             {
                 continue;
             }
 
-            AnalyzeAssignment(operationAnalysisContext, substituteCallParameters, indexer, indexerInfo, position);
+            AnalyzeAssignment(operationAnalysisContext, substitute, indexer, indexerInfo, position);
         }
     }
 
-    private void AnalyzeArgAtInvocations(OperationAnalysisContext operationAnalysisContext, CallInfoContext callInfoContext, IReadOnlyList<IArgumentOperation> substituteCallParameters)
+    private void AnalyzeArgAtInvocations(OperationAnalysisContext operationAnalysisContext, CallInfoContext callInfoContext, Substitute substitute)
     {
         foreach (var argAtInvocation in callInfoContext.ArgAtInvocationsOperations)
         {
             var position = argAtInvocation.GetIndexerPosition();
-            if (position.HasValue)
+
+            if (position.HasValue == false)
             {
-                if (position.Value > substituteCallParameters.Count - 1)
-                {
-                    var diagnostic = Diagnostic.Create(
-                        DiagnosticDescriptorsProvider.CallInfoArgumentOutOfRange,
-                        argAtInvocation.Syntax.GetLocation(),
-                        position);
+                continue;
+            }
 
-                    operationAnalysisContext.ReportDiagnostic(diagnostic);
-                    continue;
-                }
+            if (substitute.HasCallArgumentAt(position.Value) == false)
+            {
+                var diagnostic = Diagnostic.Create(
+                    DiagnosticDescriptorsProvider.CallInfoArgumentOutOfRange,
+                    argAtInvocation.Syntax.GetLocation(),
+                    position);
 
-                var substituteParameterTypeSymbol = substituteCallParameters[position.Value].GetTypeSymbol();
-                if (substituteParameterTypeSymbol.IsArgAnyType(operationAnalysisContext.Compilation) == false && IsAssignableTo(
-                        operationAnalysisContext.Compilation,
-                        substituteParameterTypeSymbol,
-                        argAtInvocation.TargetMethod.TypeArguments.First()) == false)
-                {
-                    var diagnostic = Diagnostic.Create(
-                        DiagnosticDescriptorsProvider.CallInfoCouldNotConvertParameterAtPosition,
-                        argAtInvocation.Syntax.GetLocation(),
-                        position,
-                        argAtInvocation.TargetMethod.TypeArguments.First());
+                operationAnalysisContext.ReportDiagnostic(diagnostic);
+                continue;
+            }
 
-                    operationAnalysisContext.ReportDiagnostic(diagnostic);
-                }
+            var typeSymbol = substitute.GetCallArgumentAt(position.Value).ArgumentTypeSymbol;
+            if (typeSymbol.IsArgAnyType(operationAnalysisContext.Compilation) == false && IsAssignableTo(
+                    operationAnalysisContext.Compilation,
+                    typeSymbol,
+                    argAtInvocation.TargetMethod.TypeArguments.First()) == false)
+            {
+                var diagnostic = Diagnostic.Create(
+                    DiagnosticDescriptorsProvider.CallInfoCouldNotConvertParameterAtPosition,
+                    argAtInvocation.Syntax.GetLocation(),
+                    position,
+                    argAtInvocation.TargetMethod.TypeArguments.First());
+
+                operationAnalysisContext.ReportDiagnostic(diagnostic);
             }
         }
     }
 
-    private void AnalyzeArgInvocations(OperationAnalysisContext operationAnalysisContext, CallInfoContext callInfoContext, IReadOnlyList<IArgumentOperation> substituteCallParameters)
+    private void AnalyzeArgInvocations(OperationAnalysisContext operationAnalysisContext, CallInfoContext callInfoContext, Substitute substitute)
     {
         foreach (var argInvocationOperation in callInfoContext.ArgInvocationsOperations)
         {
             var typeSymbol = argInvocationOperation.TargetMethod.TypeArguments.First();
             var parameterCount =
-                GetMatchingParametersCount(operationAnalysisContext.Compilation, substituteCallParameters, typeSymbol);
+                GetMatchingParametersCount(operationAnalysisContext.Compilation, substitute, typeSymbol);
             if (parameterCount == 0)
             {
                 var diagnostic = Diagnostic.Create(
@@ -183,25 +186,25 @@ internal abstract class AbstractCallInfoAnalyzer : AbstractDiagnosticAnalyzer
 
     private bool AnalyzeArgumentAccess(
         OperationAnalysisContext syntaxNodeContext,
-        IReadOnlyList<IArgumentOperation> substituteCallParameters,
+        Substitute substitute,
         IOperation indexerOperation,
         int? position)
     {
-        if (position.HasValue && position.Value > substituteCallParameters.Count - 1)
+        if (!position.HasValue || substitute.HasCallArgumentAt(position.Value))
         {
-            var diagnostic = Diagnostic.Create(
-                DiagnosticDescriptorsProvider.CallInfoArgumentOutOfRange,
-                indexerOperation.Syntax.GetLocation(),
-                position.Value);
-
-            syntaxNodeContext.ReportDiagnostic(diagnostic);
-            return true;
+            return false;
         }
 
-        return false;
+        var diagnostic = Diagnostic.Create(
+            DiagnosticDescriptorsProvider.CallInfoArgumentOutOfRange,
+            indexerOperation.Syntax.GetLocation(),
+            position.Value);
+
+        syntaxNodeContext.ReportDiagnostic(diagnostic);
+        return true;
     }
 
-    private bool AnalyzeCast(OperationAnalysisContext operationAnalysisContext, IReadOnlyList<IArgumentOperation> substituteCallParameters, IOperation indexer, in IndexerInfo indexerInfo, int? position)
+    private bool AnalyzeCast(OperationAnalysisContext operationAnalysisContext, Substitute substitute, IOperation indexer, in IndexerInfo indexerInfo, int? position)
     {
         if (!position.HasValue || !indexerInfo.VerifyIndexerCast)
         {
@@ -214,7 +217,7 @@ internal abstract class AbstractCallInfoAnalyzer : AbstractDiagnosticAnalyzer
         }
 
         var type = conversionOperation.Type;
-        var substituteParameterTypeSymbol = substituteCallParameters[position.Value].GetTypeSymbol();
+        var substituteParameterTypeSymbol = substitute.GetCallArgumentAt(position.Value).ArgumentTypeSymbol;
         if (type != null && substituteParameterTypeSymbol.IsArgAnyType(operationAnalysisContext.Compilation) == false &&
             CanCast(operationAnalysisContext.Compilation, substituteParameterTypeSymbol, type) == false)
         {
@@ -232,33 +235,34 @@ internal abstract class AbstractCallInfoAnalyzer : AbstractDiagnosticAnalyzer
 
     private bool AnalyzeAssignment(
         OperationAnalysisContext operationAnalysisContext,
-        IReadOnlyList<IArgumentOperation> substituteCallParameters,
+        Substitute substitute,
         IOperation indexerOperation,
         in IndexerInfo indexerInfo,
         int? position)
     {
-        if (!indexerInfo.VerifyAssignment || !position.HasValue || position.Value >= substituteCallParameters.Count)
+        if (!indexerInfo.VerifyAssignment || !position.HasValue || !substitute.HasCallArgumentAt(position.Value))
         {
             return false;
         }
 
         if (indexerOperation is IPropertyReferenceOperation { Parent: ISimpleAssignmentOperation simpleAssignmentOperation })
         {
-            var parameterSymbol = substituteCallParameters[position.Value];
-            if (parameterSymbol.Parameter.RefKind != RefKind.Out &&
-                parameterSymbol.Parameter.RefKind != RefKind.Ref)
+            var callArgument = substitute.GetCallArgumentAt(position.Value);
+            if (callArgument.ArgumentOperation == null ||
+                (callArgument.ArgumentOperation.Parameter.RefKind != RefKind.Out &&
+                 callArgument.ArgumentOperation.Parameter.RefKind != RefKind.Ref))
             {
                 var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptorsProvider.CallInfoArgumentIsNotOutOrRef,
                     indexerOperation.Syntax.GetLocation(),
                     position.Value,
-                    parameterSymbol.GetArgumentOperationDeclaredTypeSymbol());
+                    callArgument.ParameterTypeSymbol);
                 operationAnalysisContext.ReportDiagnostic(diagnostic);
                 return true;
             }
 
             var assignmentType = simpleAssignmentOperation.GetTypeSymbol();
-            var typeSymbol = substituteCallParameters[position.Value].GetArgumentOperationDeclaredTypeSymbol();
+            var typeSymbol = substitute.GetCallArgumentAt(position.Value).ArgumentTypeSymbol;
             if (assignmentType != null &&
                 IsAssignableTo(operationAnalysisContext.Compilation, assignmentType, typeSymbol) == false)
             {
@@ -276,7 +280,7 @@ internal abstract class AbstractCallInfoAnalyzer : AbstractDiagnosticAnalyzer
         return false;
     }
 
-    private IReadOnlyList<IArgumentOperation>? GetSubstituteCallArgumentOperations(OperationAnalysisContext operationAnalysisContext, IInvocationOperation invocationOperation)
+    private Substitute? GetSubstitute(OperationAnalysisContext operationAnalysisContext, IInvocationOperation invocationOperation)
     {
         var substituteOperation = _substitutionOperationFinder
             .Find(operationAnalysisContext.Compilation, invocationOperation).FirstOrDefault();
@@ -286,20 +290,7 @@ internal abstract class AbstractCallInfoAnalyzer : AbstractDiagnosticAnalyzer
             return null;
         }
 
-        var argumentOperations = GetArgumentOperations(substituteOperation);
-
-        return argumentOperations?.OrderBy(argOperation => argOperation.Parameter.Ordinal).ToList();
-    }
-
-    private static IEnumerable<IArgumentOperation>? GetArgumentOperations(IOperation substituteOperation)
-    {
-        return substituteOperation switch
-        {
-            IInvocationOperation substituteMethodSymbol => substituteMethodSymbol.Arguments,
-            IPropertyReferenceOperation propertySymbol => propertySymbol.Arguments,
-            IConversionOperation conversionOperation => GetArgumentOperations(conversionOperation.Operand),
-            _ => null
-        };
+        return Substitute.TryCreate(substituteOperation, invocationOperation);
     }
 
     private IndexerInfo GetIndexerInfo(IOperation indexerOperation)
@@ -320,18 +311,17 @@ internal abstract class AbstractCallInfoAnalyzer : AbstractDiagnosticAnalyzer
 
     // See https://github.com/nsubstitute/NSubstitute/blob/26d0b0b880c623ef8cae8a0a71360ae2a9982f53/src/NSubstitute/Core/CallInfo.cs#L70
     // for the logic behind it
-    private int GetMatchingParametersCount(Compilation compilation, IReadOnlyList<IArgumentOperation> substituteCallParameters, ITypeSymbol typeSymbol)
+    private int GetMatchingParametersCount(Compilation compilation, Substitute substitute, ITypeSymbol typeSymbol)
     {
         var declaringTypeMatchCount =
-            substituteCallParameters.Count(param => param.GetArgumentOperationDeclaredTypeSymbol().Equals(typeSymbol));
+            substitute.CallArguments.Count(type => type.ParameterTypeSymbol.Equals(typeSymbol));
 
         if (declaringTypeMatchCount > 0)
         {
             return declaringTypeMatchCount;
         }
 
-        return substituteCallParameters.Count(param =>
-            IsAssignableTo(compilation, param.GetTypeSymbol(), typeSymbol));
+        return substitute.CallArguments.Count(type => IsAssignableTo(compilation, type.ArgumentTypeSymbol, typeSymbol));
     }
 
     private struct IndexerInfo

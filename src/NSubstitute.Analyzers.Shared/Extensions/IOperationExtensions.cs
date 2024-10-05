@@ -88,7 +88,7 @@ internal static class IOperationExtensions
             _ => null
         };
 
-        return conversionTypeSymbol ?? argumentOperation.GetArgumentOperationDeclaredTypeSymbol();
+        return conversionTypeSymbol ?? argumentOperation.Parameter.Type;
     }
 
     public static ITypeSymbol? GetTypeSymbol(this IAssignmentOperation assignmentOperation)

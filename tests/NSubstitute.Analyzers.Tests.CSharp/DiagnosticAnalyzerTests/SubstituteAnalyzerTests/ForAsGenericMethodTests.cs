@@ -295,7 +295,7 @@ namespace MyNamespace
         }
     }
 }";
-        await this.VerifyNoDiagnostic(source);
+        await VerifyNoDiagnostic(source);
     }
 
     public override async Task ReportsNoDiagnostic_WhenUsedForClassWithInternalConstructor_AndInternalsVisibleToApplied()

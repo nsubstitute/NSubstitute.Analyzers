@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -66,7 +67,7 @@ public abstract class CallInfoDiagnosticVerifier : VisualBasicDiagnosticVerifier
     [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "Dim x = [|callInfo.Args()(1)|]")]
     [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "[|callInfo.Args()(1)|] = 1")]
     [InlineData("substitute.Bar(Arg.Any(Of Integer)())", "[|callInfo.ArgTypes()(1)|] = GetType(Integer)")]
-    public abstract Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string method, string call, string argAccess);
+    public abstract Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string method, string call, string argAccess, string? overridenDiagnosticMessage = null);
 
     [CombinatoryTheory]
     [InlineData("substitute(Arg.Any(Of Integer)(), Arg.Any(Of Integer)())", @"Dim x = 2
@@ -355,4 +356,22 @@ public abstract class CallInfoDiagnosticVerifier : VisualBasicDiagnosticVerifier
     [CombinatoryTheory]
     [InlineData]
     public abstract Task ReportsDiagnostic_WhenAccessingArgumentByTypeNotInInvocationForNestedCall(string method);
+
+    public static IEnumerable<object[]> AccessingArgumentOutOfBoundsArgDoSpecificTestCases
+    {
+        get
+        {
+            yield return new object[] { "substitute(Arg.Any(Of Integer)()) = Arg.Any(Of Integer)()", "[|callInfo.ArgAt(Of Integer)(2)|]", "There is no argument at position 2" };
+            yield return new object[] { "substitute.Barr = Arg.Any(Of Integer)()", "[|callInfo.ArgAt(Of Integer)(1)|]" };
+        }
+    }
+
+    public static IEnumerable<object[]> AccessingArgumentWithinBoundsArgDoSpecificTestCases
+    {
+        get
+        {
+            yield return new object[] { "substitute(Arg.Any(Of Integer)()) = Arg.Any(Of Integer)()", "callInfo.ArgAt(Of Integer)(2)" };
+            yield return new object[] { "substitute.Barr = Arg.Any(Of Integer)()", "callInfo.ArgAt(Of Integer)(0)" };
+        }
+    }
 }

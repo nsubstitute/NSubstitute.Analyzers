@@ -6,7 +6,7 @@ public interface ICallInfoDiagnosticVerifier
 {
     Task ReportsNoDiagnostics_WhenSubstituteMethodCannotBeInferred(string method, string call, string argAccess);
 
-    Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string method, string call, string argAccess);
+    Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string method, string call, string argAccess, string? overridenDiagnosticMessage = null);
 
     Task ReportsNoDiagnostic_WhenAccessingArgumentOutOfBound_AndPositionIsNotLiteralExpression(string method, string call, string argAccess);
 

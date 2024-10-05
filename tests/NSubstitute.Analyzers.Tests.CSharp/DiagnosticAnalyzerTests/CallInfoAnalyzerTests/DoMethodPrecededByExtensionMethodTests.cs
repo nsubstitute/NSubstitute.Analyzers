@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NSubstitute.Analyzers.Tests.Shared.Extensibility;
 using NSubstitute.Analyzers.Tests.Shared.Extensions;
+using Xunit;
 
 namespace NSubstitute.Analyzers.Tests.CSharp.DiagnosticAnalyzerTests.CallInfoAnalyzerTests;
 
@@ -41,7 +42,9 @@ namespace MyNamespace
         await VerifyNoDiagnostic(source);
     }
 
-    public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string method, string call, string argAccess)
+    [CombinatoryTheory]
+    [MemberData(nameof(AccessingArgumentOutOfBoundsArgDoSpecificTestCases))]
+    public override async Task ReportsDiagnostic_WhenAccessingArgumentOutOfBounds(string method, string call, string argAccess, string? overridenDiagnosticMessage = null)
     {
         var source = $@"using System;
 using NSubstitute;
@@ -52,9 +55,9 @@ namespace MyNamespace
     {{
         int Bar(int x);
 
-        int Barr {{ get; }}
+        int Barr {{ get; set; }}
 
-        int this[int x] {{ get; }}
+        int this[int x] {{ get; set; }}
     }}
 
     public class FooTests
@@ -69,7 +72,7 @@ namespace MyNamespace
         }}
     }}
 }}";
-        await VerifyDiagnostic(source, CallInfoArgumentOutOfRangeDescriptor, "There is no argument at position 1");
+        await VerifyDiagnostic(source, CallInfoArgumentOutOfRangeDescriptor, overridenDiagnosticMessage ?? "There is no argument at position 1");
     }
 
     public override async Task ReportsNoDiagnostic_WhenAccessingArgumentOutOfBound_AndPositionIsNotLiteralExpression(string method, string call, string argAccess)
@@ -103,6 +106,8 @@ namespace MyNamespace
         await VerifyNoDiagnostic(source);
     }
 
+    [CombinatoryTheory]
+    [MemberData(nameof(AccessingArgumentWithinBoundsArgDoSpecificTestCases))]
     public override async Task ReportsNoDiagnostic_WhenAccessingArgumentWithinBounds(string method, string call, string argAccess)
     {
         var source = $@"using System;
@@ -114,9 +119,9 @@ namespace MyNamespace
     {{
         int Bar(int x, int y = 1);
 
-        int Barr {{ get; }}
+        int Barr {{ get; set; }}
 
-        int this[int x, int y = 1] {{ get; }}
+        int this[int x, int y = 1] {{ get; set; }}
     }}
 
     public class FooTests

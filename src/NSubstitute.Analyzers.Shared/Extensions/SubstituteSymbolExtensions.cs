@@ -11,6 +11,11 @@ internal static class SubstituteSymbolExtensions
         return IsMember(symbol, MetadataNames.NSubstituteAndDoesMethod, MetadataNames.NSubstituteConfiguredCallFullTypeName);
     }
 
+    public static bool IsDoLikeMethod(this ISymbol? symbol)
+    {
+        return IsMember(symbol, MetadataNames.NSubstituteDoMethod, MetadataNames.NSubstituteWhenCalledType);
+    }
+
     public static bool IsCallInfoSupportingMethod(this ISymbol? symbol)
     {
         return IsMember(symbol, MetadataNames.SupportingCallInfoMethodNames);
