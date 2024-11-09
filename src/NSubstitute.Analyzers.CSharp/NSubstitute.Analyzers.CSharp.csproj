@@ -12,7 +12,7 @@
     <PackageId>NSubstitute.Analyzers.CSharp</PackageId>
     <PackageVersion>$(VersionSuffix)</PackageVersion>
     <Authors>Tomasz Podolak, NSubstitute.Analyzers contributors</Authors>
-    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/nsubstitute/NSubstitute.Analyzers</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/nsubstitute/NSubstitute.Analyzers/master/images/nsubstitute-analyser%400%2C25x.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/nsubstitute/NSubstitute.Analyzers</RepositoryUrl>
